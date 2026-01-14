@@ -91,6 +91,13 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     self.assertEqual(shop_pay.name, "com.shopify.shop_pay")
     self.assertIn("shop_id", shop_pay.config)
 
+    # Verify shopping capability
+    self.assertIn("dev.ucp.shopping", profile.ucp.services.root)
+    shopping_service = profile.ucp.services.root["dev.ucp.shopping"]
+    self.assertEqual(shopping_service.version.root, "2026-01-11")
+    self.assertIsNotNone(shopping_service.rest)
+    self.assertIsNotNone(shopping_service.rest.endpoint)
+
   def test_version_negotiation(self):
     """Test protocol version negotiation via headers.
 
@@ -100,13 +107,32 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     When the request includes a 'UCP-Agent' header with an incompatible version,
     then the request fails with 400 Bad Request.
     """
+    # Discover shopping service endpoint
+    discovery_resp = self.client.get("/.well-known/ucp")
+    self.assert_response_status(discovery_resp, 200)
+    profile = UcpDiscoveryProfile(**discovery_resp.json())
+    shopping_service = profile.ucp.services.root["dev.ucp.shopping"]
+    self.assertIsNotNone(
+        shopping_service, "Shopping service not found in discovery"
+    )
+    self.assertIsNotNone(
+        shopping_service.rest, "REST config not found for shopping service"
+    )
+    self.assertIsNotNone(
+        shopping_service.rest.endpoint,
+        "Endpoint not found for shopping service",
+    )
+    checkout_sessions_url = (
+        f"{str(shopping_service.rest.endpoint).rstrip('/')}/checkout-sessions"
+    )
+
     create_payload = self.create_checkout_payload()
 
     # 1. Compatible Version
     headers = integration_test_utils.get_headers()
     headers["UCP-Agent"] = 'profile="..."; version="2026-01-11"'
     response = self.client.post(
-      "/checkout-sessions",
+      checkout_sessions_url,
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -117,7 +143,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     # 2. Incompatible Version
     headers["UCP-Agent"] = 'profile="..."; version="2099-01-01"'
     response = self.client.post(
-      "/checkout-sessions",
+      checkout_sessions_url,
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
