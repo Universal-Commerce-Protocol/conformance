@@ -60,9 +60,6 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     expected_capabilities = {
       "dev.ucp.shopping.checkout",
       "dev.ucp.shopping.order",
-      "dev.ucp.shopping.refund",
-      "dev.ucp.shopping.return",
-      "dev.ucp.shopping.dispute",
       "dev.ucp.shopping.discount",
       "dev.ucp.shopping.fulfillment",
       "dev.ucp.shopping.buyer_consent",
