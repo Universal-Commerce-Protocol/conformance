@@ -16,6 +16,7 @@
 
 from absl.testing import absltest
 import integration_test_utils
+import httpx
 from ucp_sdk.models.discovery.profile_schema import UcpDiscoveryProfile
 from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
 from ucp_sdk.models.schemas.shopping.payment_resp import (
@@ -33,6 +34,105 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
   - GET /.well-known/ucp
   - POST /checkout-sessions
   """
+
+  def _extract_document_urls(
+    self, profile: UcpDiscoveryProfile
+  ) -> list[tuple[str, str]]:
+    """Extract all spec and schema URLs from the discovery profile.
+
+    Returns:
+      A list of (JSON path, URL) tuples.
+
+    """
+    urls = set()
+
+    # 1. Services
+    for service_name, service in profile.ucp.services.root.items():
+      base_path = f"ucp.services['{service_name}']"
+      if service.spec:
+        urls.add((f"{base_path}.spec", str(service.spec)))
+      if service.rest and service.rest.schema_:
+        urls.add((f"{base_path}.rest.schema", str(service.rest.schema_)))
+      if service.mcp and service.mcp.schema_:
+        urls.add((f"{base_path}.mcp.schema", str(service.mcp.schema_)))
+      if service.embedded and service.embedded.schema_:
+        urls.add(
+          (f"{base_path}.embedded.schema", str(service.embedded.schema_))
+        )
+
+    # 2. Capabilities
+    for i, cap in enumerate(profile.ucp.capabilities):
+      cap_name = cap.name or f"index_{i}"
+      base_path = f"ucp.capabilities['{cap_name}']"
+      if cap.spec:
+        urls.add((f"{base_path}.spec", str(cap.spec)))
+      if cap.schema_:
+        urls.add((f"{base_path}.schema", str(cap.schema_)))
+
+    # 3. Payment Handlers
+    if profile.payment and profile.payment.handlers:
+      for i, handler in enumerate(profile.payment.handlers):
+        handler_id = handler.id or f"index_{i}"
+        base_path = f"payment.handlers['{handler_id}']"
+        if handler.spec:
+          urls.add((f"{base_path}.spec", str(handler.spec)))
+        if handler.config_schema:
+          urls.add((f"{base_path}.config_schema", str(handler.config_schema)))
+        if handler.instrument_schemas:
+          for j, s in enumerate(handler.instrument_schemas):
+            urls.add((f"{base_path}.instrument_schemas[{j}]", str(s)))
+
+    return sorted(urls, key=lambda x: x[0])
+
+  def test_discovery_urls(self):
+    """Verify all spec and schema URLs in discovery profile are valid.
+
+    Fetches each URL and verifies it returns 200 OK and valid HTML/JSON.
+    """
+    response = self.client.get("/.well-known/ucp")
+    self.assert_response_status(response, 200)
+    profile = UcpDiscoveryProfile(**response.json())
+
+    url_entries = self._extract_document_urls(profile)
+    failures = []
+
+    with httpx.Client(follow_redirects=True, timeout=10.0) as external_client:
+      # Sort by path for consistent output
+      for path, url in sorted(url_entries, key=lambda x: x[0]):
+        # Use internal client for local URLs, external client otherwise
+        client = (
+          self.client if url.startswith(self.base_url) else external_client
+        )
+
+        try:
+          # Handle relative URLs if any (AnyUrl should be absolute though)
+          res = client.get(url)
+          if res.status_code != 200:
+            failures.append(f"[{path}] {url} returned status {res.status_code}")
+            continue
+
+          content_type = res.headers.get("content-type", "").lower()
+          if "json" in content_type:
+            try:
+              res.json()
+            except Exception as e:
+              failures.append(f"[{path}] {url} (JSON) failed to parse: {e}")
+          elif "html" in content_type:
+            is_valid_html = (
+              "<html" in res.text.lower() or "<!doctype" in res.text.lower()
+            )
+            if not is_valid_html:
+              failures.append(
+                f"[{path}] {url} (HTML) does not appear to be valid HTML"
+              )
+          elif not res.text.strip():
+            failures.append(f"[{path}] {url} returned empty content")
+
+        except Exception as e:
+          failures.append(f"[{path}] {url} fetch failed: {e}")
+
+    if failures:
+      self.fail("\n".join(["Discovery URL validation failed:"] + failures))
 
   def test_discovery(self):
     """Test the UCP discovery endpoint.
@@ -110,17 +210,17 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     profile = UcpDiscoveryProfile(**discovery_resp.json())
     shopping_service = profile.ucp.services.root["dev.ucp.shopping"]
     self.assertIsNotNone(
-        shopping_service, "Shopping service not found in discovery"
+      shopping_service, "Shopping service not found in discovery"
     )
     self.assertIsNotNone(
-        shopping_service.rest, "REST config not found for shopping service"
+      shopping_service.rest, "REST config not found for shopping service"
     )
     self.assertIsNotNone(
-        shopping_service.rest.endpoint,
-        "Endpoint not found for shopping service",
+      shopping_service.rest.endpoint,
+      "Endpoint not found for shopping service",
     )
     checkout_sessions_url = (
-        f"{str(shopping_service.rest.endpoint).rstrip('/')}/checkout-sessions"
+      f"{str(shopping_service.rest.endpoint).rstrip('/')}/checkout-sessions"
     )
 
     create_payload = self.create_checkout_payload()
