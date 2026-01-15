@@ -59,7 +59,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -112,7 +112,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -143,7 +143,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -173,7 +173,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=integration_test_utils.get_headers(),
     )
@@ -193,7 +193,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     payment_payload = integration_test_utils.get_valid_payment_payload()
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=integration_test_utils.get_headers(),
     )
@@ -224,7 +224,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),

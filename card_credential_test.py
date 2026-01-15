@@ -70,7 +70,7 @@ class CardCredentialTest(integration_test_utils.IntegrationTestBase):
     }
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=integration_test_utils.get_headers(),
     )
