@@ -542,6 +542,163 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     self.assertEqual(opt_total, 0)
     self.assertIn("Free", free_shipping_option.title)
 
+  def test_split_shipments(self) -> None:
+    """Test that split shipments are generated when supported by platform.
+
+    Given a checkout with multiple items and platform support for multi-group,
+    When fulfillment is triggered,
+    Then the response should contain multiple fulfillment groups.
+    """
+    # Create checkout with 2 items
+    response_json = self.create_checkout_session(
+      quantity=1, item_id="bouquet_roses", select_fulfillment=False
+    )
+    checkout_obj = checkout.Checkout(**response_json)
+
+    # Add second item
+    item_2 = {
+      "id": "pot_ceramic",
+      "title": "Ceramic Pot",
+    }
+    line_item_2 = {
+      "quantity": 1,
+      "item": item_2,
+    }
+
+    # Enable supports_multi_group in PlatformConfig
+    # We pass it via headers which our extract_webhook_url doesn't use,
+    # but our service implementation checks platform.supports_multi_group.
+    # In integration_test_utils, platform is not currently sent in update.
+    # We need to manually construct the update with platform.
+
+    # addr_1 is US in CSV
+    addr_data = integration_test_utils.test_data.addresses[0]
+    address = {
+      "id": "dest_us",
+      "address_country": addr_data["country"],
+      "postal_code": addr_data["postal_code"],
+    }
+
+    fulfillment_payload = {
+      "methods": [
+        {
+          "type": "shipping",
+          "destinations": [address],
+          "selected_destination_id": "dest_us",
+        }
+      ]
+    }
+
+    # Custom update call to include platform config
+    update_payload = {
+      "id": checkout_obj.id,
+      "currency": checkout_obj.currency,
+      "line_items": [
+        {
+          "id": checkout_obj.line_items[0].id,
+          "item": {"id": "bouquet_roses", "title": "Bouquet of Red Roses"},
+          "quantity": 1,
+        },
+        line_item_2,
+      ],
+      "payment": {
+        "selected_instrument_id": checkout_obj.payment.selected_instrument_id,
+        "instruments": checkout_obj.payment.instruments,
+        "handlers": [
+          h.model_dump(mode="json", exclude_none=True)
+          for h in checkout_obj.payment.handlers
+        ],
+      },
+      "fulfillment": fulfillment_payload,
+      "platform": {
+        "webhook_url": "http://localhost:8286/events",
+        "supports_multi_group": True,
+      },
+    }
+
+    response = self.client.put(
+      f"/checkout-sessions/{checkout_obj.id}",
+      json=update_payload,
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    split_checkout = checkout.Checkout(**response.json())
+
+    # Verify multiple groups
+    method = split_checkout.fulfillment.root.methods[0]
+    self.assertGreater(
+      len(method.groups), 1, "Should have more than one fulfillment group"
+    )
+    # Verify each group has one item (based on our server implementation logic)
+    for group in method.groups:
+      self.assertEqual(len(group.line_item_ids), 1)
+
+  def test_multi_destination(self) -> None:
+    """Test that multiple destinations can be provided for a single method.
+
+    Given a checkout session,
+    When an update provides multiple destinations for a method,
+    Then the response should reflect all destinations.
+    """
+    response_json = self.create_checkout_session(select_fulfillment=False)
+    checkout_obj = checkout.Checkout(**response_json)
+
+    dest1 = {
+      "id": "dest_1",
+      "address_country": "US",
+      "postal_code": "10001",
+      "street_address": "123 Main St",
+    }
+    dest2 = {
+      "id": "dest_2",
+      "address_country": "US",
+      "postal_code": "90210",
+      "street_address": "456 Oak Ave",
+    }
+
+    fulfillment_payload = {
+      "methods": [
+        {
+          "type": "shipping",
+          "destinations": [dest1, dest2],
+          "selected_destination_id": "dest_1",
+        }
+      ]
+    }
+
+    response_json = self.update_checkout_session(
+      checkout_obj, fulfillment=fulfillment_payload
+    )
+    updated_checkout = checkout.Checkout(**response_json)
+
+    method = updated_checkout.fulfillment.root.methods[0]
+    self.assertEqual(len(method.destinations), 2)
+    dest_ids = [d.root.id for d in method.destinations]
+    self.assertIn("dest_1", dest_ids)
+    self.assertIn("dest_2", dest_ids)
+
+  def test_available_methods(self) -> None:
+    """Test that available_methods (inventory hints) are returned.
+
+    Given a checkout session,
+    When inventory is available,
+    Then the response should contain available_methods hints.
+    """
+    response_json = self.create_checkout_session(select_fulfillment=False)
+    checkout_obj = checkout.Checkout(**response_json)
+
+    # Trigger a recalculation
+    response_json = self.update_checkout_session(
+      checkout_obj, fulfillment={"methods": [{"type": "shipping"}]}
+    )
+    updated_checkout = checkout.Checkout(**response_json)
+
+    self.assertIsNotNone(updated_checkout.fulfillment.root.available_methods)
+    available = updated_checkout.fulfillment.root.available_methods
+    self.assertNotEmpty(available)
+    self.assertEqual(available[0].type, "shipping")
+    self.assertEqual(available[0].fulfillable_on, "now")
+
 
 if __name__ == "__main__":
   absltest.main()
