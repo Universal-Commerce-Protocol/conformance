@@ -51,7 +51,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     # 1. Initial Request
     headers = integration_test_utils.get_headers(idempotency_key=idem_key)
     response1 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -61,7 +61,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -82,7 +82,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     conflict_payload = create_payload.model_copy(deep=True)
     conflict_payload.currency = "EUR"
     response3 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=conflict_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -134,7 +134,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     }
 
     response1 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload,
       headers=headers,
     )
@@ -142,7 +142,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload,
       headers=headers,
     )
@@ -162,7 +162,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     conflict_payload["line_items"][0]["quantity"] = 3
 
     response3 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=conflict_payload,
       headers=headers,
     )
@@ -186,7 +186,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     complete_payload = integration_test_utils.get_valid_payment_payload()
 
     response1 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload,
       headers=headers,
     )
@@ -194,7 +194,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload,
       headers=headers,
     )
@@ -215,7 +215,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
       "different_token"
     )
     response3 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload_diff,
       headers=headers,
     )
@@ -236,14 +236,14 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     headers = integration_test_utils.get_headers(idempotency_key=idem_key)
 
     response1 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=headers,
     )
     self.assert_response_status(response1, 200)
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=headers,
     )
     self.assertEqual(
