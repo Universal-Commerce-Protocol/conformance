@@ -110,17 +110,17 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     profile = UcpDiscoveryProfile(**discovery_resp.json())
     shopping_service = profile.ucp.services.root["dev.ucp.shopping"]
     self.assertIsNotNone(
-        shopping_service, "Shopping service not found in discovery"
+      shopping_service, "Shopping service not found in discovery"
     )
     self.assertIsNotNone(
-        shopping_service.rest, "REST config not found for shopping service"
+      shopping_service.rest, "REST config not found for shopping service"
     )
     self.assertIsNotNone(
-        shopping_service.rest.endpoint,
-        "Endpoint not found for shopping service",
+      shopping_service.rest.endpoint,
+      "Endpoint not found for shopping service",
     )
     checkout_sessions_url = (
-        f"{str(shopping_service.rest.endpoint).rstrip('/')}/checkout-sessions"
+      f"{str(shopping_service.rest.endpoint).rstrip('/')}/checkout-sessions"
     )
 
     create_payload = self.create_checkout_payload()
