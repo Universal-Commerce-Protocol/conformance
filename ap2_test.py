@@ -88,6 +88,56 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
       msg="Checkout status not 'completed'",
     )
 
+  def test_ap2_mandate_invalid_signature(self) -> None:
+    """Test checkout completion failure with invalid AP2 signature.
+
+    Given a ready-to-complete checkout session,
+    When a completion request is made with an invalid ap2 mandate signature,
+    Then the request should fail with status 400 and error code
+    'mandate_invalid_signature'.
+    """
+    response_json = self.create_checkout_session()
+    checkout_id = checkout.Checkout(**response_json).id
+
+    credential = token_credential_resp.TokenCredentialResponse(
+      type="token", token="success_token"
+    )
+    instr = payment_instrument.PaymentInstrument(
+      root=card_payment_instrument.CardPaymentInstrument(
+        id="instr_1",
+        brand="visa",
+        last_digits="4242",
+        handler_id="mock_payment_handler",
+        handler_name="mock_payment_handler",
+        type="card",
+        credential=credential,
+      )
+    )
+    payment_data = instr.root.model_dump(mode="json", exclude_none=True)
+
+    # Use trigger string for mock verification failure
+    mandate = CheckoutMandate(root="header.payload.invalid_signature~kb_sig")
+    ap2_data = Ap2CompleteRequest(checkout_mandate=mandate)
+
+    payment_payload = {
+      "payment_data": payment_data,
+      "risk_signals": {},
+      "ap2": ap2_data.model_dump(mode="json", exclude_none=True),
+    }
+
+    response = self.client.post(
+      f"/checkout-sessions/{checkout_id}/complete",
+      json=payment_payload,
+      headers=integration_test_utils.get_headers(),
+    )
+
+    self.assert_response_status(response, 400)
+    self.assertEqual(
+      response.json().get("code"),
+      "mandate_invalid_signature",
+      msg="Error code should be 'mandate_invalid_signature'",
+    )
+
 
 if __name__ == "__main__":
   absltest.main()
