@@ -413,6 +413,46 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       msg="Should not be able to cancel a completed checkout.",
     )
 
+  def test_escalation_flow(self):
+    """Test checkout escalation flow.
+
+    Given a checkout session,
+    When completion is attempted with a risk signal triggering escalation,
+    Then the status should be 'requires_escalation' and continue_url should be
+    present.
+    """
+    response_json = self.create_checkout_session()
+    checkout_obj = checkout.Checkout(**response_json)
+    checkout_id = checkout_obj.id
+
+    # Complete with risk signal
+    payment_payload = integration_test_utils.get_valid_payment_payload()
+    payment_payload["risk_signals"] = {
+      "simulation_trigger": "escalation_required"
+    }
+
+    response = self.client.post(
+      f"/checkout-sessions/{checkout_id}/complete",
+      json=payment_payload,
+      headers=integration_test_utils.get_headers(),
+    )
+
+    self.assert_response_status(response, 200)
+    updated_checkout = checkout.Checkout(**response.json())
+
+    self.assertEqual(
+      updated_checkout.status,
+      "requires_escalation",
+      msg="Status should be requires_escalation",
+    )
+    self.assertIsNotNone(
+      updated_checkout.continue_url, "continue_url should be present"
+    )
+    self.assertTrue(updated_checkout.messages, "Messages should be present")
+    self.assertEqual(
+      updated_checkout.messages[0].root.severity, "requires_buyer_input"
+    )
+
 
 if __name__ == "__main__":
   absltest.main()
