@@ -155,7 +155,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -229,7 +229,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     update_dict["discounts"] = {"codes": ["10OFF"]}
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_dict,
       headers=integration_test_utils.get_headers(),
     )
@@ -447,7 +447,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     }
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload_dict,
       headers=integration_test_utils.get_headers(),
     )
@@ -455,7 +455,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout.Checkout(**response.json()).id
 
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=integration_test_utils.get_headers(),
     )
     self.assert_response_status(response, 200)
@@ -523,7 +523,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -533,7 +533,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
 
     # GET and verify
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=integration_test_utils.get_headers(),
     )
     checkout_obj = checkout.Checkout(**response.json())

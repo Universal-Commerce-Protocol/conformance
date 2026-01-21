@@ -29,6 +29,7 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.responses import JSONResponse
 import httpx
+from ucp_sdk.models.discovery.profile_schema import UcpDiscoveryProfile
 from ucp_sdk.models.schemas.shopping import checkout_create_req
 from ucp_sdk.models.schemas.shopping import fulfillment_resp as f_models
 from ucp_sdk.models.schemas.shopping import payment_create_req
@@ -382,6 +383,35 @@ class IntegrationTestBase(absltest.TestCase):
       port=FLAGS.mock_agent_port, webhook_port=FLAGS.mock_webhook_port
     )
     self.agent_server.start()
+    self._shopping_service_endpoint: str | None = None
+
+  @property
+  def shopping_service_endpoint(self) -> str:
+    """Cached property for the shopping service endpoint."""
+    if self._shopping_service_endpoint is None:
+      discovery_resp = self.client.get("/.well-known/ucp")
+      self.assert_response_status(discovery_resp, 200)
+      profile = UcpDiscoveryProfile(**discovery_resp.json())
+      shopping_service = profile.ucp.services.root.get("dev.ucp.shopping")
+      if not shopping_service or not shopping_service.rest:
+        raise RuntimeError("Shopping service not found in discovery profile")
+      self._shopping_service_endpoint = str(shopping_service.rest.endpoint)
+    return self._shopping_service_endpoint
+
+  def get_shopping_url(self, path: str) -> str:
+    """Construct a full URL for the shopping service.
+
+    Args:
+        path: The path to append to the service endpoint
+          (e.g., '/checkout-sessions').
+
+    Returns:
+        The full URL.
+
+    """
+    base = self.shopping_service_endpoint.rstrip("/")
+    path = path.lstrip("/")
+    return f"{base}/{path}"
 
   def tearDown(self) -> None:
     """Tear down the test case, stopping servers and clients."""
@@ -572,7 +602,7 @@ class IntegrationTestBase(absltest.TestCase):
       request_headers.update(headers)
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -597,7 +627,8 @@ class IntegrationTestBase(absltest.TestCase):
 
     """
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      headers=self.get_headers(),
     )
     checkout_data = response.json()
 
@@ -722,7 +753,7 @@ class IntegrationTestBase(absltest.TestCase):
       payment_payload = get_valid_payment_payload()
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=self.get_headers(),
     )
@@ -823,7 +854,7 @@ class IntegrationTestBase(absltest.TestCase):
       request_headers.update(headers)
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),

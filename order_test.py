@@ -118,7 +118,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     }
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -149,7 +149,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     ]
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -228,7 +228,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     }
 
     resp = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -262,7 +262,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     ]
 
     self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )

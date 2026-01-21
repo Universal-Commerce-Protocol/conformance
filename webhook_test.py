@@ -129,7 +129,8 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     # Fetch to get injected destinations
     response = self.client.get(
-      f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+      headers=self.get_headers(),
     )
     checkout_data = response.json()
     checkout_obj = fulfillment_resp.Checkout(**checkout_data)
@@ -151,7 +152,8 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
       # Fetch again to get options
       response = self.client.get(
-        f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+        self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+        headers=self.get_headers(),
       )
       checkout_obj = fulfillment_resp.Checkout(**response.json())
       method = checkout_obj.fulfillment.root.methods[0]
@@ -217,7 +219,8 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     # Fetch to get options
     response = self.client.get(
-      f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+      headers=self.get_headers(),
     )
     checkout_obj = fulfillment_resp.Checkout(**response.json())
     method = checkout_obj.fulfillment.root.methods[0]
