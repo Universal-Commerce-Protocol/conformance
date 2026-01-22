@@ -21,6 +21,7 @@ Commerce
 credentialization
 credentialless
 Credentialless
+cust
 datamodel
 Depot
 dpan
@@ -44,6 +45,7 @@ linenums
 llmstxt
 Lowe's
 Macy's
+Malform
 mastercard
 Mastercard
 mkdocs
@@ -70,15 +72,19 @@ shellcheck
 Shopee
 shopify
 Shopify
+Smallville
 Stripe
 superfences
 Target
 UCP
 Ulta
+Villagetown
 Visa
 vulnz
 Wayfair
 Worldpay
+wumpus
+Wumpus
 yaml
 yml
 Zalando
