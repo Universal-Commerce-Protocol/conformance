@@ -809,7 +809,25 @@ class IntegrationTestBase(absltest.TestCase):
 
     """
     # Default to existing values if not provided
-    currency = currency if currency is not None else checkout_obj.currency
+    if currency is None:
+      currency = checkout_obj.currency
+
+    def to_json(obj):
+      if obj is not None and hasattr(obj, "model_dump"):
+        return obj.model_dump(mode="json", exclude_none=True)
+      return obj
+
+    if buyer is None:
+      buyer = to_json(getattr(checkout_obj, "buyer", None))
+
+    if fulfillment is None:
+      fulfillment = to_json(getattr(checkout_obj, "fulfillment", None))
+
+    if discounts is None:
+      discounts = to_json(getattr(checkout_obj, "discounts", None))
+
+    if platform is None:
+      platform = to_json(getattr(checkout_obj, "platform", None))
 
     # Construct Line Items
     if line_items is None:
