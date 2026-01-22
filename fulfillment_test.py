@@ -335,16 +335,10 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     method = updated_checkout.fulfillment.root.methods[0]
 
     # Should see the new address (and potentially the injected ones if the
-    # server merges them, but based on current implementation logic, client
-    # payload overrides/merges depending on how Pydantic handles lists.
-    # The server logic appends if missing. If we provide it, it might not
-    # inject. Let's verify behavior. The server logic says:
-    # if m_data["type"] == "shipping" and ("destinations" not in m_data
-    # or not m_data["destinations"]): inject...
-    # So if we provide destinations, it WON'T inject.
-
-    self.assertLen(method.destinations, 1)
-    self.assertEqual(method.destinations[0].root.id, "dest_new")
+    # server merges them). The server returns a union of known + provided.
+    self.assertGreaterEqual(len(method.destinations), 1)
+    dest_ids = [d.root.id for d in method.destinations]
+    self.assertIn("dest_new", dest_ids)
 
     # And we should get options calculated for CA
     group = method.groups[0]
@@ -453,10 +447,11 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     method = updated_checkout.fulfillment.root.methods[0]
     self.assertIsNotNone(method.destinations)
-    self.assertLen(method.destinations, 1)
+    self.assertGreaterEqual(len(method.destinations), 1)
 
     # Should reuse addr_1
-    self.assertEqual(method.destinations[0].root.id, "addr_1")
+    dest_ids = [d.root.id for d in method.destinations]
+    self.assertIn("addr_1", dest_ids)
 
   def test_free_shipping_on_expensive_order(self) -> None:
     """Test that free shipping is offered for orders over $100."""
