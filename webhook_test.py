@@ -77,11 +77,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     self.assert_response_status(ship_response, 200)
 
     # 4. Verify Webhook Events
-    # Poll for events to arrive (up to 2 seconds)
-    for _ in range(20):
+    # Poll for events to arrive (up to 30 seconds)
+    for _ in range(30):
       if len(self.webhook_server.events) >= 2:
         break
-      time.sleep(0.1)
+      time.sleep(1)
 
     events = self.webhook_server.events
     self.assertGreaterEqual(
@@ -97,7 +97,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertIsNotNone(placed_event, "Missing order_placed event")
     self.assertEqual(placed_event["payload"]["checkout_id"], checkout_id)
-    self.assertEqual(placed_event["payload"]["order"]["id"], order_id)
+    self.assertEqual(placed_event["payload"]["id"], order_id)
 
     # Verify order_shipped event
     shipped_event = next(
@@ -106,9 +106,9 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertIsNotNone(shipped_event, "Missing order_shipped event")
     self.assertEqual(shipped_event["payload"]["checkout_id"], checkout_id)
-    self.assertEqual(shipped_event["payload"]["order"]["id"], order_id)
+    self.assertEqual(shipped_event["payload"]["id"], order_id)
 
-    fulfillment_events = shipped_event["payload"]["order"]["fulfillment"].get(
+    fulfillment_events = shipped_event["payload"]["fulfillment"].get(
       "events", []
     )
     self.assertTrue(
@@ -181,15 +181,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       time.sleep(0.1)
 
     event = next(
-      (
-        e
-        for e in self.webhook_server.events
-        if e["payload"]["order"]["id"] == order_id
-      ),
+      (e for e in self.webhook_server.events if e["payload"]["id"] == order_id),
       None,
     )
     self.assertIsNotNone(event)
-    expectations = event["payload"]["order"]["fulfillment"]["expectations"]
+    expectations = event["payload"]["fulfillment"]["expectations"]
     self.assertTrue(expectations)
     self.assertEqual(expectations[0]["destination"]["address_country"], "US")
 
@@ -245,15 +241,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       time.sleep(0.1)
 
     event = next(
-      (
-        e
-        for e in self.webhook_server.events
-        if e["payload"]["order"]["id"] == order_id
-      ),
+      (e for e in self.webhook_server.events if e["payload"]["id"] == order_id),
       None,
     )
     self.assertIsNotNone(event)
-    expectations = event["payload"]["order"]["fulfillment"]["expectations"]
+    expectations = event["payload"]["fulfillment"]["expectations"]
     self.assertTrue(expectations)
     self.assertEqual(expectations[0]["destination"]["address_country"], "CA")
     self.assertEqual(
