@@ -45,6 +45,8 @@ docstring-code-format = true
 [tool.ruff.lint]
 select = ["E", "F", "W", "B", "C4", "SIM", "N", "UP", "D", "PTH", "T20"]
 ignore = ["D203", "D213"]
+# Don't fail on lines ruff format can't fix
+ignore = ["E501"] 
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

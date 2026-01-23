@@ -110,13 +110,11 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     # We construct the update payload same as helper does
     line_items_req = []
     for li in checkout_obj.line_items:
-      line_items_req.append(
-        {
-          "item": {"id": li.item.id, "title": li.item.title},
-          "quantity": 2,  # Change quantity
-          "id": li.id,
-        }
-      )
+      line_items_req.append({
+        "item": {"id": li.item.id, "title": li.item.title},
+        "quantity": 2,  # Change quantity
+        "id": li.id,
+      })
 
     payment_req = {
       "selected_instrument_id": checkout_obj.payment.selected_instrument_id,

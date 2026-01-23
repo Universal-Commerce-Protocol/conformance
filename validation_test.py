@@ -42,10 +42,12 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
   def test_out_of_stock(self) -> None:
     """Test validation for out-of-stock items.
 
+    Reference: https://ucp.dev/specification/checkout/#error-handling
+
     Given a product with 0 inventory,
     When a checkout creation request is made for this item,
-    Then the server should return a 400 Bad Request error indicating
-    insufficient stock.
+    Then the server should return a successful response (201) with status
+    'incomplete' and an error message indicating insufficient stock.
     """
     # Get out of stock item from config
     out_of_stock_item = self.conformance_config.get(
@@ -66,20 +68,30 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_response_status(response, 400)
-    self.assertIn(
-      "Insufficient stock",
-      response.text,
-      msg="Expected 'Insufficient stock' message",
+    # Verify HTTP status and then using centralized utility with
+    # exact path matching
+    self.assert_response_status(response, [200, 201])
+    checkout_data = response.json()
+    li_id = checkout_data["line_items"][0]["id"]
+    self.assert_checkout_status(
+      checkout_data,
+      expected_status="incomplete",
+      valid_path_matchers=[
+        "$.line_items[0]",
+        f"$.line_items[?(@.id=='{li_id}')]",
+      ],
+      model_class=checkout.Checkout,
     )
 
   def test_update_inventory_validation(self) -> None:
     """Test that inventory validation is enforced on update.
 
+    Reference: https://ucp.dev/specification/checkout/#error-handling
+
     Given an existing checkout session with a valid quantity,
     When the line item quantity is updated to exceed available stock,
-    Then the server should return a 400 Bad Request error indicating
-    insufficient stock.
+    Then the server should return a successful response (200/201) with
+    status 'incomplete' and an error message indicating insufficient stock.
     """
     response_json = self.create_checkout_session()
     checkout_obj = checkout.Checkout(**response_json)
@@ -119,9 +131,19 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_response_status(response, 400)
-    self.assertIn(
-      "stock", response.text.lower(), msg="Expected 'stock' message"
+    # Verify HTTP status and then using centralized utility with
+    # exact path matching
+    self.assert_response_status(response, [200, 201])
+    checkout_data = response.json()
+    li_id = checkout_data["line_items"][0]["id"]
+    self.assert_checkout_status(
+      checkout_data,
+      expected_status="incomplete",
+      valid_path_matchers=[
+        "$.line_items[0]",
+        f"$.line_items[?(@.id=='{li_id}')]",
+      ],
+      model_class=checkout.Checkout,
     )
 
   def test_product_not_found(self) -> None:
@@ -180,63 +202,62 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
 
     self.assert_response_status(response, 402)
 
-  def test_complete_without_fulfillment(self) -> None:
-    """Test completion rejection when fulfillment is missing.
+  def test_update_without_fulfillment(self) -> None:
+    """Test Soft-Fail when fulfillment info is missing during update.
 
-    Given a newly created checkout session without fulfillment details,
-    When a completion request is submitted,
-    Then the server should return a 400 Bad Request error.
+    Reference: https://ucp.dev/specification/checkout/#error-handling
+
+    Given an existing checkout session,
+    When an update request is sent with an empty fulfillment method,
+    Then the server should return a 200 OK status with 'incomplete' status
+    and an error message indicating missing fulfillment info.
     """
     response_json = self.create_checkout_session(select_fulfillment=False)
-    checkout_id = response_json["id"]
+    checkout_obj = checkout.Checkout(**response_json)
 
-    payment_payload = integration_test_utils.get_valid_payment_payload()
-
-    response = self.client.post(
-      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+    # Update with empty fulfillment using the helper to ensure valid structure
+    response_json = self.update_checkout_session(
+      checkout_obj, fulfillment={"methods": [{"type": "shipping"}]}
     )
 
-    self.assert_response_status(response, 400)
-    self.assertIn(
-      "Fulfillment address and option must be selected",
-      response.text,
-      msg="Expected error message for missing fulfillment",
+    # Get the method ID from the response for precise path matching
+    method_id = response_json["fulfillment"]["methods"][0]["id"]
+
+    self.assert_checkout_status(
+      response_json,
+      expected_status="incomplete",
+      valid_path_matchers=[
+        "$.fulfillment",
+        "$.fulfillment.methods",
+        f"$.fulfillment.methods[?(@.id=='{method_id}')].destinations",
+      ],
+      model_class=checkout.Checkout,
     )
 
   def test_structured_error_messages(self) -> None:
-    """Test that error responses conform to the Message schema.
+    """Test that error responses conform to the UCP ErrorResponse schema.
 
-    Given a request that triggers an error (e.g., out of stock),
-    When the server responds with an error code (400),
-    Then the response body should contain a structured 'detail' field describing
-    the error.
+    Reference: https://ucp.dev/specification/checkout-rest/#error-responses
+
+    Given a request for a non-existent checkout ID,
+    When the server responds with a 404 Not Found error,
+    Then the response body should contain a structured UCP response with
+    status 'requires_escalation' and a descriptive error message.
     """
-    # Get out of stock item from config
-    out_of_stock_item = self.conformance_config.get(
-      "out_of_stock_item",
-      {"id": "out_of_stock_item_1", "title": "Out of Stock Item"},
-    )
+    non_existent_id = "non-existent-session-id"
 
-    create_payload = self.create_checkout_payload(
-      item_id=out_of_stock_item["id"],
-    )
-
-    response = self.client.post(
-      self.get_shopping_url("/checkout-sessions"),
-      json=create_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+    response = self.client.get(
+      self.get_shopping_url(f"/checkout-sessions/{non_existent_id}"),
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_response_status(response, 400)
+    # Verify HTTP status 404
+    self.assert_response_status(response, 404)
 
-    # Check for structured error
-    data = response.json()
-    self.assertTrue(data.get("detail"), "Error response missing 'detail' field")
-    self.assertIn("Insufficient stock", data["detail"])
+    # Verify using centralized utility with 'requires_escalation' status
+    self.assert_checkout_status(
+      response.json(), expected_status="requires_escalation"
+    )
 
 
 if __name__ == "__main__":
