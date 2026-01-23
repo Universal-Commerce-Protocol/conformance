@@ -56,9 +56,10 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       if service.mcp and service.mcp.schema_:
         urls.add((f"{base_path}.mcp.schema", str(service.mcp.schema_)))
       if service.embedded and service.embedded.schema_:
-        urls.add(
-          (f"{base_path}.embedded.schema", str(service.embedded.schema_))
-        )
+        urls.add((
+          f"{base_path}.embedded.schema",
+          str(service.embedded.schema_),
+        ))
 
     # 2. Capabilities
     for i, cap in enumerate(profile.ucp.capabilities):

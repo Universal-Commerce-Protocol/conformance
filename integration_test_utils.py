@@ -558,6 +558,55 @@ class IntegrationTestBase(absltest.TestCase):
       ),
     )
 
+  def assert_checkout_status(
+    self,
+    checkout_data: dict[str, Any],
+    expected_status: str = "incomplete",
+    valid_path_matchers: list[str] | None = None,
+    model_class: Any = None,
+  ) -> Any:
+    """Assert checkout status and optionally verify error paths using Pydantic."""
+    if model_class is None:
+      # Use a more permissive model that only requires status and messages for errors
+      from pydantic import BaseModel
+      from ucp_sdk.models.schemas.shopping.types import message
+
+      class BasicErrorResponse(BaseModel):
+        status: str
+        messages: list[message.Message] | None = None
+
+      model_class = BasicErrorResponse
+
+    checkout_obj = model_class(**checkout_data)
+
+    self.assertEqual(
+      checkout_obj.status,
+      expected_status,
+      msg=f"Expected checkout status '{expected_status}', got '{checkout_obj.status}'.",
+    )
+
+    if valid_path_matchers:
+      # Extract error messages from the Pydantic model
+      error_messages = [
+        msg.root
+        for msg in (checkout_obj.messages or [])
+        if getattr(msg.root, "type", None) == "error"
+      ]
+
+      error_paths = [getattr(m, "path", "") for m in error_messages]
+
+      matches = any(
+        any(path == matcher for matcher in valid_path_matchers)
+        for path in error_paths
+      )
+
+      self.assertTrue(
+        matches,
+        f"Expected error path matching one of {valid_path_matchers}. Paths found: {error_paths}",
+      )
+
+    return checkout_obj
+
   def create_checkout_session(
     self,
     quantity: int = 1,
