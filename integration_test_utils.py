@@ -810,6 +810,7 @@ class IntegrationTestBase(absltest.TestCase):
     """
     # Default to existing values if not provided
     currency = currency if currency is not None else checkout_obj.currency
+    buyer = buyer if buyer is not None else checkout_obj.buyer
 
     # Construct Line Items
     if line_items is None:
