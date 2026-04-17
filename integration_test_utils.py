@@ -392,10 +392,36 @@ class IntegrationTestBase(absltest.TestCase):
       discovery_resp = self.client.get("/.well-known/ucp")
       self.assert_response_status(discovery_resp, 200)
       profile = UcpDiscoveryProfile(**discovery_resp.json())
-      shopping_service = profile.ucp.services.root.get("dev.ucp.shopping")
-      if not shopping_service or not shopping_service.rest:
+      shopping = profile.ucp.services.root.get("dev.ucp.shopping")
+      if not shopping:
         raise RuntimeError("Shopping service not found in discovery profile")
-      self._shopping_service_endpoint = str(shopping_service.rest.endpoint)
+      # 2026-01-23: services are a list of transports; find REST
+      # 2026-01-11: services are a single UcpService object
+      if isinstance(shopping, list):
+        rest_service = next(
+          (s for s in shopping if s.rest is not None),
+          None,
+        )
+        if rest_service is None:
+          raise RuntimeError(
+            "No REST transport found in shopping service. "
+            "Available transports: "
+            + ", ".join(
+              getattr(s, "transport", "unknown") or "unknown"
+              for s in shopping
+            )
+          )
+        self._shopping_service_endpoint = str(
+          rest_service.rest.endpoint
+        )
+      else:
+        if not shopping.rest:
+          raise RuntimeError(
+            "Shopping service has no REST transport binding"
+          )
+        self._shopping_service_endpoint = str(
+          shopping.rest.endpoint
+        )
     return self._shopping_service_endpoint
 
   def get_shopping_url(self, path: str) -> str:
