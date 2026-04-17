@@ -16,16 +16,16 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 from ucp_sdk.models.schemas.shopping.types import card_credential
 from ucp_sdk.models.schemas.shopping.types import card_payment_instrument
 
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class CardCredentialTest(integration_test_utils.IntegrationTestBase):
@@ -54,20 +54,12 @@ class CardCredentialTest(integration_test_utils.IntegrationTestBase):
       cvc="123",
       name="John Doe",
     )
-    instr = card_payment_instrument.CardPaymentInstrument(
-      id="instr_card",
-      handler_id="mock_payment_handler",
-      handler_name="mock_payment_handler",
-      type="card",
-      brand="Visa",
-      last_digits="1111",
-      credential=credential,
+
+    # Use the standard valid payment payload and override credential
+    payment_payload = integration_test_utils.get_valid_payment_payload()
+    payment_payload["payment_data"]["credential"] = credential.model_dump(
+      mode="json", exclude_none=True
     )
-    payment_data = instr.model_dump(mode="json", exclude_none=True)
-    payment_payload = {
-      "payment_data": payment_data,
-      "risk_signals": {},
-    }
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),

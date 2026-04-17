@@ -20,16 +20,16 @@ from absl import flags
 from absl.testing import absltest
 import integration_test_utils
 from pydantic import AnyUrl
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
+from ucp_sdk.models.schemas.shopping import checkout
 from ucp_sdk.models.schemas.shopping import order
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 from ucp_sdk.models.schemas.shopping.types import adjustment
 from ucp_sdk.models.schemas.shopping.types import fulfillment_event
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 FLAGS = flags.FLAGS
 
@@ -130,17 +130,17 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     options = []
     if (
       checkout_with_options.fulfillment
-      and checkout_with_options.fulfillment.root.methods
-      and checkout_with_options.fulfillment.root.methods[0].groups
+      and checkout_with_options.fulfillment.get("methods")
+      and checkout_with_options.fulfillment["methods"][0].get("groups")
     ):
       options = (
-        checkout_with_options.fulfillment.root.methods[0].groups[0].options
+        checkout_with_options.fulfillment["methods"][0]["groups"][0]["options"]
       )
 
     self.assertTrue(options, "No options returned")
 
     # Select Option
-    option_id = options[0].id
+    option_id = options[0]["id"]
 
     # Update payload to select option
     # Need to preserve the method structure
@@ -172,7 +172,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     # Verify the expectation description matches the selected option title
     self.assertEqual(
       order_obj.fulfillment.expectations[0].description,
-      options[0].title,
+      options[0]["title"],
       "Expectation description mismatch",
     )
 

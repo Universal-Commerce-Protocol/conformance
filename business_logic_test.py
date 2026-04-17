@@ -16,20 +16,21 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import buyer_consent_resp as buyer_consent
-from ucp_sdk.models.schemas.shopping import checkout_update_req
-from ucp_sdk.models.schemas.shopping import discount_resp as discount
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_req
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import buyer_consent
+from ucp_sdk.models.schemas.shopping import checkout_update_request as checkout_update_req
+from ucp_sdk.models.schemas.shopping import discount
+from ucp_sdk.models.schemas.shopping import checkout
+from ucp_sdk.models.schemas.shopping import payment_update_request as payment_update_req
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 from ucp_sdk.models.schemas.shopping.types import buyer
-from ucp_sdk.models.schemas.shopping.types import item_update_req
-from ucp_sdk.models.schemas.shopping.types import line_item_update_req
+from ucp_sdk.models.schemas.shopping.types import buyer_update_request
+from ucp_sdk.models.schemas.shopping.types import item_update_request as item_update_req
+from ucp_sdk.models.schemas.shopping.types import line_item_update_request as line_item_update_req
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
@@ -515,7 +516,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       currency=checkout_obj.currency,
       line_items=[line_item_update],
       payment=payment_update,
-      buyer=buyer.Buyer(
+      buyer=buyer_update_request.BuyerUpdateRequest(
         email="test@example.com",
         first_name="Test",
         last_name="User",

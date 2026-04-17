@@ -17,14 +17,14 @@
 import time
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout as fulfillment_resp
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 
 # Rebuild models to resolve forward references
 fulfillment_resp.Checkout.model_rebuild(
-  _types_namespace={"PaymentResponse": Payment}
+  _types_namespace={"Payment": Payment}
 )
 
 
@@ -137,11 +137,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     if (
       checkout_obj.fulfillment
-      and checkout_obj.fulfillment.root.methods
-      and checkout_obj.fulfillment.root.methods[0].destinations
+      and checkout_obj.fulfillment.get("methods")
+      and checkout_obj.fulfillment["methods"][0].get("destinations")
     ):
-      method = checkout_obj.fulfillment.root.methods[0]
-      dest_id = method.destinations[0].root.id
+      method = checkout_obj.fulfillment["methods"][0]
+      dest_id = method["destinations"][0]["id"]
       # Select destination first to calculate options
       self.update_checkout_session(
         checkout_obj,
@@ -156,9 +156,9 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
         headers=self.get_headers(),
       )
       checkout_obj = fulfillment_resp.Checkout(**response.json())
-      method = checkout_obj.fulfillment.root.methods[0]
-      if method.groups and method.groups[0].options:
-        option_id = method.groups[0].options[0].id
+      method = checkout_obj.fulfillment["methods"][0]
+      if method.get("groups") and method["groups"][0].get("options"):
+        option_id = method["groups"][0]["options"][0]["id"]
         self.update_checkout_session(
           checkout_obj,
           fulfillment={
@@ -223,10 +223,10 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       headers=self.get_headers(),
     )
     checkout_obj = fulfillment_resp.Checkout(**response.json())
-    method = checkout_obj.fulfillment.root.methods[0]
+    method = checkout_obj.fulfillment["methods"][0]
 
-    if method.groups and method.groups[0].options:
-      option_id = method.groups[0].options[0].id
+    if method.get("groups") and method["groups"][0].get("options"):
+      option_id = method["groups"][0]["options"][0]["id"]
       # Select option
       fulfillment_payload["methods"][0]["groups"] = [
         {"selected_option_id": option_id}

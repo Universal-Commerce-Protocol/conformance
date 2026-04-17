@@ -29,34 +29,36 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.responses import JSONResponse
 import httpx
-from ucp_sdk.models.discovery.profile_schema import UcpDiscoveryProfile
-from ucp_sdk.models.schemas.shopping import checkout_create_req
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as f_models
-from ucp_sdk.models.schemas.shopping import payment_create_req
-from ucp_sdk.models.schemas.shopping import payment_update_req
-from ucp_sdk.models.schemas.shopping.discount_update_req import (
-  Checkout as DiscountUpdate,
+from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
+from ucp_sdk.models.schemas import payment_handler as payment_handler_schema
+from ucp_sdk.models.schemas.shopping import checkout_create_request as checkout_create_req
+from ucp_sdk.models.schemas.shopping import checkout as f_models
+from ucp_sdk.models.schemas.shopping import payment_create_request as payment_create_req
+from ucp_sdk.models.schemas.shopping import payment_update_request as payment_update_req
+from ucp_sdk.models.schemas.shopping.discount import (
+  DiscountsObject,
 )
-from ucp_sdk.models.schemas.shopping.fulfillment_create_req import Fulfillment
-from ucp_sdk.models.schemas.shopping.fulfillment_update_req import (
-  Checkout as FulfillmentUpdate,
+from ucp_sdk.models.schemas.shopping.types.fulfillment_create_request import (
+  FulfillmentCreateRequest as Fulfillment,
+)
+from ucp_sdk.models.schemas.shopping.checkout_update_request import (
+  CheckoutUpdateRequest as FulfillmentUpdate,
 )
 from ucp_sdk.models.schemas.shopping.types import card_payment_instrument
-from ucp_sdk.models.schemas.shopping.types import fulfillment_destination_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_group_create_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_method_create_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_req
-from ucp_sdk.models.schemas.shopping.types import item_create_req
-from ucp_sdk.models.schemas.shopping.types import item_update_req
-from ucp_sdk.models.schemas.shopping.types import line_item_create_req
-from ucp_sdk.models.schemas.shopping.types import line_item_update_req
-from ucp_sdk.models.schemas.shopping.types import payment_handler_resp
-from ucp_sdk.models.schemas.shopping.types import shipping_destination_req
+from ucp_sdk.models.schemas.shopping.types import fulfillment_destination_create_request as fulfillment_destination_req
+from ucp_sdk.models.schemas.shopping.types import fulfillment_group_create_request as fulfillment_group_create_req
+from ucp_sdk.models.schemas.shopping.types import fulfillment_method_create_request as fulfillment_method_create_req
+from ucp_sdk.models.schemas.shopping.types import item_create_request as item_create_req
+from ucp_sdk.models.schemas.shopping.types import item_update_request as item_update_req
+from ucp_sdk.models.schemas.shopping.types import line_item_create_request as line_item_create_req
+from ucp_sdk.models.schemas.shopping.types import line_item_update_request as line_item_update_req
+from ucp_sdk.models.schemas.shopping.types import shipping_destination
 import uvicorn
 
 
-class UnifiedUpdate(FulfillmentUpdate, DiscountUpdate):
+class UnifiedUpdate(FulfillmentUpdate):
   """Client-side unified update model to support extensions."""
+  discounts: DiscountsObject | None = None
 
 
 FLAGS = flags.FLAGS
@@ -391,11 +393,19 @@ class IntegrationTestBase(absltest.TestCase):
     if self._shopping_service_endpoint is None:
       discovery_resp = self.client.get("/.well-known/ucp")
       self.assert_response_status(discovery_resp, 200)
-      profile = UcpDiscoveryProfile(**discovery_resp.json())
-      shopping_service = profile.ucp.services.root.get("dev.ucp.shopping")
-      if not shopping_service or not shopping_service.rest:
+      data = discovery_resp.json()
+      profile = BusinessSchema(**data["ucp"])
+      rdn = ReverseDomainName(root="dev.ucp.shopping")
+      service_list = profile.services.get(rdn)
+      if not service_list:
         raise RuntimeError("Shopping service not found in discovery profile")
-      self._shopping_service_endpoint = str(shopping_service.rest.endpoint)
+      # Find the REST transport binding
+      rest_binding = next(
+        (s for s in service_list if s.root.transport == "rest"), None
+      )
+      if not rest_binding or not rest_binding.root.endpoint:
+        raise RuntimeError("REST transport not found for shopping service")
+      self._shopping_service_endpoint = str(rest_binding.root.endpoint)
     return self._shopping_service_endpoint
 
   def get_shopping_url(self, path: str) -> str:
@@ -462,13 +472,11 @@ class IntegrationTestBase(absltest.TestCase):
 
     if handlers is None:
       handlers = [
-        payment_handler_resp.PaymentHandlerResponse(
+        payment_handler_schema.BusinessSchema(
           id="google_pay",
-          name="google.pay",
-          version="2026-01-11",
+          version=payment_handler_schema.Version(root="2026-01-11"),
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
-          instrument_schemas=["https://example.com/instrument_schema"],
           config={},
         )
       ]
@@ -488,8 +496,8 @@ class IntegrationTestBase(absltest.TestCase):
     fulfillment = None
     if include_fulfillment:
       # Hierarchical Fulfillment Construction
-      destination = fulfillment_destination_req.FulfillmentDestinationRequest(
-        root=shipping_destination_req.ShippingDestinationRequest(
+      destination = fulfillment_destination_req.FulfillmentDestinationCreateRequest(
+        root=shipping_destination.ShippingDestination(
           id="dest_1", address_country="US"
         )
       )
@@ -498,13 +506,12 @@ class IntegrationTestBase(absltest.TestCase):
       )
       method = fulfillment_method_create_req.FulfillmentMethodCreateRequest(
         type="shipping",
+        line_item_ids=[],
         destinations=[destination],
         selected_destination_id="dest_1",
         groups=[group],
       )
-      fulfillment = Fulfillment(
-        root=fulfillment_req.FulfillmentRequest(methods=[method])
-      )
+      fulfillment = Fulfillment(methods=[method])
 
     return checkout_create_req.CheckoutCreateRequest(
       id=str(uuid.uuid4()),
