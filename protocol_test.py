@@ -197,24 +197,38 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       f"Missing expected capabilities in discovery: {missing_caps}",
     )
 
-    # Verify Payment Handlers (optional - not all profiles include them)
+    # Verify Payment Handlers - discover from profile, validate structure
     if profile.payment and profile.payment.handlers:
-      handlers = {h.id for h in profile.payment.handlers}
-      expected_handlers = {"google_pay", "mock_payment_handler", "shop_pay"}
-      missing_handlers = expected_handlers - handlers
-      self.assertFalse(
-        missing_handlers,
-        f"Missing expected payment handlers: {missing_handlers}",
+      self.assertGreater(
+        len(profile.payment.handlers),
+        0,
+        "payment.handlers is present but empty",
       )
-
-      # Specific check for Shop Pay config
-      shop_pay = next(
-        (h for h in profile.payment.handlers if h.id == "shop_pay"),
-        None,
-      )
-      if shop_pay:
-        self.assertEqual(shop_pay.name, "com.shopify.shop_pay")
-        self.assertIn("shop_id", shop_pay.config)
+      for handler in profile.payment.handlers:
+        # Validate required fields are present and non-empty
+        self.assertTrue(
+          handler.id,
+          "Payment handler missing 'id'",
+        )
+        self.assertTrue(
+          handler.name,
+          f"Payment handler '{handler.id}' missing 'name'",
+        )
+        self.assertIsNotNone(
+          handler.version,
+          f"Payment handler '{handler.id}' missing 'version'",
+        )
+        self.assertIsNotNone(
+          handler.config,
+          f"Payment handler '{handler.id}' missing 'config'",
+        )
+        # Validate name follows reverse-DNS convention
+        self.assertRegex(
+          handler.name,
+          r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$",
+          f"Payment handler '{handler.id}' name '{handler.name}' "
+          "does not follow reverse-DNS convention",
+        )
 
     # Verify shopping capability
     self.assertIn("dev.ucp.shopping", profile.ucp.services.root)
