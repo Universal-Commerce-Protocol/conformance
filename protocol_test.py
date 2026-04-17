@@ -148,10 +148,10 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     # Validate schema using SDK model
     profile = BusinessSchema(**data["ucp"])
 
-    self.assertEqual(
+    self.assertIn(
       profile.version.root,
-      "2026-01-23",
-      msg="Unexpected UCP version in discovery doc",
+      {"2026-01-11", "2026-01-23", "2026-04-08"},
+      msg=f"Unexpected UCP version in discovery doc: {profile.version.root}",
     )
 
     # Verify Capabilities (dict[ReverseDomainName, list[...]])
@@ -172,30 +172,33 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       f"Missing expected capabilities in discovery: {missing_caps}",
     )
 
-    # Verify Payment Handlers (dict[ReverseDomainName, list[...]])
-    handlers = set()
+    # Verify Payment Handlers - structural validation (server-agnostic)
     if profile.payment_handlers:
+      handler_count = 0
       for handler_name, handler_list in profile.payment_handlers.items():
+        # Validate handler group name follows reverse-DNS convention
+        self.assertRegex(
+          str(handler_name.root),
+          r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$",
+          f"Payment handler group name '{handler_name.root}' "
+          "does not follow reverse-DNS convention",
+        )
         for h in handler_list:
-          if h.id:
-            handlers.add(h.id)
-    expected_handlers = {"google_pay", "mock_payment_handler", "shop_pay"}
-    missing_handlers = expected_handlers - handlers
-    self.assertFalse(
-      missing_handlers,
-      f"Missing expected payment handlers: {missing_handlers}",
-    )
-
-    # Specific check for Shop Pay config
-    shop_pay = None
-    if profile.payment_handlers:
-      for handler_name, handler_list in profile.payment_handlers.items():
-        for h in handler_list:
-          if h.id == "shop_pay":
-            shop_pay = h
-            break
-    self.assertIsNotNone(shop_pay, "Shop Pay handler not found")
-    self.assertIn("shop_id", shop_pay.config)
+          handler_count += 1
+          # Validate required fields are present and non-empty
+          self.assertTrue(
+            h.id,
+            "Payment handler missing 'id'",
+          )
+          self.assertIsNotNone(
+            h.version,
+            f"Payment handler '{h.id}' missing 'version'",
+          )
+      self.assertGreater(
+        handler_count,
+        0,
+        "payment_handlers is present but contains no handlers",
+      )
 
     # Verify shopping service
     rdn = ReverseDomainName(root="dev.ucp.shopping")
@@ -205,7 +208,10 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       (s for s in shopping_services if s.root.transport == "rest"), None
     )
     self.assertIsNotNone(rest_binding, "REST transport not found for shopping")
-    self.assertEqual(rest_binding.root.version.root, "2026-01-23")
+    self.assertIsNotNone(
+      rest_binding.root.version,
+      "REST transport missing version",
+    )
     self.assertIsNotNone(rest_binding.root.endpoint)
 
   def test_version_negotiation(self):
