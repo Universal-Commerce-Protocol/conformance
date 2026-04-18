@@ -87,7 +87,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     response = self.client.get("/.well-known/ucp")
     self.assert_response_status(response, 200)
     data = response.json()
-    profile = BusinessSchema(**data["ucp"])
+    profile = BusinessSchema(**(data.get("ucp", data)))
 
     url_entries = self._extract_document_urls(profile)
     failures = []
@@ -146,7 +146,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     data = response.json()
 
     # Validate schema using SDK model
-    profile = BusinessSchema(**data["ucp"])
+    profile = BusinessSchema(**(data.get("ucp", data)))
 
     self.assertIn(
       profile.version.root,
@@ -227,7 +227,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     discovery_resp = self.client.get("/.well-known/ucp")
     self.assert_response_status(discovery_resp, 200)
     discovery_data = discovery_resp.json()
-    profile = BusinessSchema(**discovery_data["ucp"])
+    profile = BusinessSchema(**(discovery_data.get("ucp", discovery_data)))
     rdn = ReverseDomainName(root="dev.ucp.shopping")
     shopping_services = profile.services[rdn]
     rest_binding = next(

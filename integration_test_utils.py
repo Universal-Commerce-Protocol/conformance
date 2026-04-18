@@ -394,7 +394,7 @@ class IntegrationTestBase(absltest.TestCase):
       discovery_resp = self.client.get("/.well-known/ucp")
       self.assert_response_status(discovery_resp, 200)
       data = discovery_resp.json()
-      profile = BusinessSchema(**data["ucp"])
+      profile = BusinessSchema(**(data.get("ucp", data)))
       rdn = ReverseDomainName(root="dev.ucp.shopping")
       service_list = profile.services.get(rdn)
       if not service_list:
@@ -502,9 +502,12 @@ class IntegrationTestBase(absltest.TestCase):
         )
       )
       group = fulfillment_group_create_req.FulfillmentGroupCreateRequest(
+        id="group_1",
+        line_item_ids=[],
         selected_option_id="std-ship"
       )
       method = fulfillment_method_create_req.FulfillmentMethodCreateRequest(
+        id="method_1",
         type="shipping",
         line_item_ids=[],
         destinations=[destination],
