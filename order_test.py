@@ -95,7 +95,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
           "type": "shipping",
+          "line_item_ids": [],
           "destinations": [fulfillment_address],
           "selected_destination_id": "dest_manual",
         }
@@ -113,7 +115,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": {"instruments": []},
       "fulfillment": fulfillment_payload,
     }
 
@@ -145,7 +147,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     # Update payload to select option
     # Need to preserve the method structure
     update_payload["fulfillment"]["methods"][0]["groups"] = [
-      {"selected_option_id": option_id}
+      {"id": "group_1", "line_item_ids": [], "selected_option_id": option_id}
     ]
 
     response = self.client.put(
@@ -205,7 +207,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
           "type": "shipping",
+          "line_item_ids": [],
           "destinations": [addr],
           "selected_destination_id": "dest_manual_2",
         }
@@ -223,7 +227,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": {"instruments": []},
       "fulfillment": fulfillment_payload,
     }
 

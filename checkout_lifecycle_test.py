@@ -97,13 +97,12 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       quantity=2,
     )
 
+    # SDK Payment model no longer has typed 'handlers'; read from raw dict
+    raw_payment = checkout_obj.payment.model_dump(mode="json", exclude_none=True)
+    handlers_list = raw_payment.get("handlers", [])
     payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
+      handlers=handlers_list,
     )
 
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -252,13 +251,11 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       item=item_update,
       quantity=2,
     )
+    raw_payment = checkout_obj.payment.model_dump(mode="json", exclude_none=True)
+    handlers_list = raw_payment.get("handlers", [])
     payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
+      handlers=handlers_list,
     )
     update_payload = checkout_update_req.CheckoutUpdateRequest(
       id=checkout_id,
@@ -362,13 +359,11 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       item=item_update,
       quantity=2,
     )
+    raw_payment = checkout_obj.payment.model_dump(mode="json", exclude_none=True)
+    handlers_list = raw_payment.get("handlers", [])
     payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
+      handlers=handlers_list,
     )
     update_payload = checkout_update_req.CheckoutUpdateRequest(
       id=checkout_id,

@@ -57,7 +57,7 @@ class CardCredentialTest(integration_test_utils.IntegrationTestBase):
 
     # Use the standard valid payment payload and override credential
     payment_payload = integration_test_utils.get_valid_payment_payload()
-    payment_payload["payment_data"]["credential"] = credential.model_dump(
+    payment_payload["payment"]["instruments"][0]["credential"] = credential.model_dump(
       mode="json", exclude_none=True
     )
 

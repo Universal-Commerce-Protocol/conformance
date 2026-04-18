@@ -194,7 +194,9 @@ def get_valid_payment_payload(
   )
 
   return {
-    "payment_data": instr_model.model_dump(mode="json", exclude_none=True),
+    "payment": {
+      "instruments": [instr_model.model_dump(mode="json", exclude_none=True)],
+    },
     "risk_signals": {},
   }
 
@@ -489,7 +491,6 @@ class IntegrationTestBase(absltest.TestCase):
     # PaymentCreateRequest allows extra fields, so passing handlers is valid
     payment = payment_create_req.PaymentCreateRequest(
       instruments=[],
-      selected_instrument_id="instr_1",
       handlers=[h.model_dump(mode="json", exclude_none=True) for h in handlers],
     )
 
@@ -683,7 +684,9 @@ class IntegrationTestBase(absltest.TestCase):
         method_id = checkout_data["fulfillment"]["methods"][0].get("id")
 
       method_payload = {
+        "id": "method_1",
         "type": "shipping",
+        "line_item_ids": [],
         "destinations": [address],
         "selected_destination_id": "dest_default",
       }
@@ -839,13 +842,19 @@ class IntegrationTestBase(absltest.TestCase):
 
     # Construct Payment
     if payment is None:
+      # SDK Payment model no longer exposes 'handlers' as a typed attribute
+      # (moved to top-level ucp.payment_handlers in newer server versions).
+      # Read handlers from the raw dict if the server still returns them
+      # inside payment as extra data; otherwise default to empty list.
+      raw_payment = (
+          checkout_obj.payment.model_dump(mode="json", exclude_none=True)
+          if hasattr(checkout_obj.payment, "model_dump")
+          else {}
+      )
+      handlers_list = raw_payment.get("handlers", [])
       payment = payment_update_req.PaymentUpdateRequest(
-        selected_instrument_id=checkout_obj.payment.selected_instrument_id,
         instruments=checkout_obj.payment.instruments,
-        handlers=[
-          h.model_dump(mode="json", exclude_none=True)
-          for h in checkout_obj.payment.handlers
-        ],
+        handlers=handlers_list,
       )
 
     update_payload = UnifiedUpdate(

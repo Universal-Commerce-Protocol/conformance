@@ -50,7 +50,7 @@ class TokenBindingTest(integration_test_utils.IntegrationTestBase):
 
     # Use the standard valid payment payload and add binding data
     payment_payload = integration_test_utils.get_valid_payment_payload()
-    payment_payload["payment_data"]["credential"]["binding"] = {
+    payment_payload["payment"]["instruments"][0]["credential"]["binding"] = {
       "checkout_id": checkout_id,
       "identity": {"access_token": "user_access_token"},
     }

@@ -124,7 +124,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     # Trigger fulfillment update to inject address
     self.update_checkout_session(
-      checkout_obj, fulfillment={"methods": [{"type": "shipping"}]}
+      checkout_obj, fulfillment={"methods": [{"id": "method_1", "type": "shipping", "line_item_ids": []}]}
     )
 
     # Fetch to get injected destinations
@@ -146,7 +146,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       self.update_checkout_session(
         checkout_obj,
         fulfillment={
-          "methods": [{"type": "shipping", "selected_destination_id": dest_id}]
+          "methods": [{"id": "method_1", "type": "shipping", "line_item_ids": [], "selected_destination_id": dest_id}]
         },
       )
 
@@ -164,9 +164,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
           fulfillment={
             "methods": [
               {
+                "id": "method_1",
                 "type": "shipping",
+                "line_item_ids": [],
                 "selected_destination_id": dest_id,
-                "groups": [{"selected_option_id": option_id}],
+                "groups": [{"id": "group_1", "line_item_ids": [], "selected_option_id": option_id}],
               }
             ]
           },
@@ -209,7 +211,9 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
           "type": "shipping",
+          "line_item_ids": [],
           "destinations": [new_address],
           "selected_destination_id": "dest_new_webhook",
         }
@@ -229,7 +233,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       option_id = method["groups"][0]["options"][0]["id"]
       # Select option
       fulfillment_payload["methods"][0]["groups"] = [
-        {"selected_option_id": option_id}
+        {"id": "group_1", "line_item_ids": [], "selected_option_id": option_id}
       ]
       fulfillment_payload["methods"][0]["type"] = "shipping"
       self.update_checkout_session(
