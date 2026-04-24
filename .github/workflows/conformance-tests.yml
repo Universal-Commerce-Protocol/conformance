@@ -51,8 +51,8 @@ jobs:
       - name: Check out SDK repo
         uses: actions/checkout@v4
         with:
-          repository: Universal-Commerce-Protocol/sdk
-          path: sdk
+          repository: Universal-Commerce-Protocol/python-sdk
+          path: python-sdk
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -62,7 +62,7 @@ jobs:
 
       - name: Sync dependencies
         run: |
-          uv sync --directory sdk/python/
+          uv sync --directory python-sdk/
           uv sync --directory samples/rest/python/server/
           uv sync --directory conformance/
 
@@ -96,7 +96,7 @@ jobs:
           done
 
       - name: Run conformance tests
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         working-directory: conformance
         run: |
           EXIT_CODE=0
