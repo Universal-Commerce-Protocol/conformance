@@ -101,7 +101,9 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     """
     response = self.client.get("/.well-known/ucp")
     self.assert_response_status(response, 200)
-    profile = response.json()
+    raw_profile = response.json()
+    # Unwrap "ucp" envelope if present
+    profile = raw_profile.get("ucp", raw_profile)
 
     url_entries = self._extract_document_urls(profile)
     failures = []
@@ -154,7 +156,9 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     """
     response = self.client.get("/.well-known/ucp")
     self.assert_response_status(response, 200)
-    data = response.json()
+    raw_data = response.json()
+    # Unwrap "ucp" envelope if present (spec nests under "ucp" key)
+    data = raw_data.get("ucp", raw_data)
 
     # Validate schema using SDK model
     BusinessSchema(**data)
@@ -232,7 +236,9 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     discovery_resp = self.client.get("/.well-known/ucp")
     self.assert_response_status(discovery_resp, 200)
     profile_dict = discovery_resp.json()
-    shopping_services = profile_dict.get("services", {}).get("dev.ucp.shopping")
+    # Unwrap "ucp" envelope if present
+    ucp_dict = profile_dict.get("ucp", profile_dict)
+    shopping_services = ucp_dict.get("services", {}).get("dev.ucp.shopping")
     self.assertIsNotNone(
       shopping_services, "Shopping service not found in discovery"
     )

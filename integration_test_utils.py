@@ -392,8 +392,10 @@ class IntegrationTestBase(absltest.TestCase):
       self.assert_response_status(discovery_resp, 200)
 
       profile_data = discovery_resp.json()
+      # Unwrap "ucp" envelope if present (both 01-23 and 04-08 nest under "ucp")
+      ucp_data = profile_data.get("ucp", profile_data)
       # UCP 01-23 validation changed dicts to lists
-      shopping_services = profile_data.get("services", {}).get(
+      shopping_services = ucp_data.get("services", {}).get(
         "dev.ucp.shopping", []
       )
       if not shopping_services:
