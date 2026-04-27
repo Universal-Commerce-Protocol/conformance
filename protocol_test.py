@@ -17,6 +17,7 @@
 from absl.testing import absltest
 import integration_test_utils
 import httpx
+from pydantic import ValidationError
 from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import (
@@ -190,7 +191,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
         # model, which enforces the pattern defined in the UCP spec.
         try:
           ReverseDomainName(root=str(handler_name))
-        except Exception as e:
+        except ValidationError as e:
           self.fail(
             f"Payment handler group name '{handler_name}' "
             f"does not follow reverse-DNS convention: {e}"
