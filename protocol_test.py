@@ -17,7 +17,8 @@
 from absl.testing import absltest
 import integration_test_utils
 import httpx
-from ucp_sdk.models.schemas.ucp import BusinessSchema
+from pydantic import ValidationError
+from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import (
   Payment,
@@ -180,32 +181,39 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       f"Missing expected capabilities in discovery: {missing_caps}",
     )
 
-    # Verify Payment Handlers
-    handlers = {
-      h.get("id")
-      for handlers in data.get("payment_handlers", {}).values()
-      for h in (handlers if isinstance(handlers, list) else [handlers])
-    }
-    expected_handlers = {"google_pay", "mock_payment_handler", "shop_pay"}
-    missing_handlers = expected_handlers - handlers
-    self.assertFalse(
-      missing_handlers,
-      f"Missing expected payment handlers: {missing_handlers}",
-    )
-
-    # Specific check for Shop Pay config
-    shop_pay = next(
-      (
-        h
-        for handlers in data.get("payment_handlers", {}).values()
-        for h in (handlers if isinstance(handlers, list) else [handlers])
-        if h.get("id") == "shop_pay"
-      ),
-      None,
-    )
-    self.assertIsNotNone(shop_pay, "Shop Pay handler not found")
-    self.assertEqual(shop_pay.get("name"), "com.shopify.shop_pay")
-    self.assertIn("shop_id", shop_pay.get("config"))
+    # Verify Payment Handlers - structural validation (server-agnostic)
+    if data.get("payment_handlers"):
+      handler_count = 0
+      for handler_name, handler_list in data.get(
+        "payment_handlers", {}
+      ).items():
+        # Validate handler group name using the SDK's ReverseDomainName
+        # model, which enforces the pattern defined in the UCP spec.
+        try:
+          ReverseDomainName(root=str(handler_name))
+        except ValidationError as e:
+          self.fail(
+            f"Payment handler group name '{handler_name}' "
+            f"does not follow reverse-DNS convention: {e}"
+          )
+        for h in (
+          handler_list if isinstance(handler_list, list) else [handler_list]
+        ):
+          handler_count += 1
+          # Validate required fields are present and non-empty
+          self.assertTrue(
+            h.get("id"),
+            "Payment handler missing 'id'",
+          )
+          self.assertTrue(
+            h.get("version"),
+            f"Payment handler '{h.get('id')}' missing 'version'",
+          )
+      self.assertGreater(
+        handler_count,
+        0,
+        "payment_handlers is present but contains no handlers",
+      )
 
     # Verify shopping capability
     shopping_services = data.get("services", {}).get("dev.ucp.shopping")
