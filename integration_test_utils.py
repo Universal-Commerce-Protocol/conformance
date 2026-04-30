@@ -45,17 +45,58 @@ from ucp_sdk.models.schemas.shopping.types import (
 from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_method_create_request,
 )
+from ucp_sdk.models.schemas.shopping.types.amount import Amount
 from ucp_sdk.models.schemas.shopping.types import item_create_request
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_create_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
+from ucp_sdk.models.schemas.shopping.types.signed_amount import SignedAmount
 from ucp_sdk.models.schemas import payment_handler
 from ucp_sdk.models.schemas.shopping.types import shipping_destination
+from ucp_sdk.models.schemas.shopping.types.totals import Totals
+
+UCP_VERSION = "2026-04-08"
 import uvicorn
 
 
 class UnifiedUpdate(CheckoutUpdateRequest):
   """Client-side unified update model to support extensions."""
+
+
+def _patch_sdk_root_models() -> None:
+  """Make generated April SDK root models test-friendly.
+
+  The April 2026 Python SDK models introduce RootModel wrappers for scalar
+  amounts and for checkout/order totals. These wrappers are correct at the
+  schema layer, but direct iteration/comparison is awkward in the existing
+  conformance assertions.
+  """
+
+  def _scalar_eq(self: Any, other: Any) -> bool:
+    if hasattr(other, "root"):
+      return self.root == other.root
+    return self.root == other
+
+  def _scalar_int(self: Any) -> int:
+    return int(self.root)
+
+  def _scalar_str(self: Any) -> str:
+    return str(self.root)
+
+  Amount.__eq__ = _scalar_eq
+  Amount.__int__ = _scalar_int
+  Amount.__index__ = _scalar_int
+  Amount.__str__ = _scalar_str
+
+  SignedAmount.__eq__ = _scalar_eq
+  SignedAmount.__int__ = _scalar_int
+  SignedAmount.__index__ = _scalar_int
+  SignedAmount.__str__ = _scalar_str
+
+  Totals.__iter__ = lambda self: iter(self.root)
+
+
+_patch_sdk_root_models()
 
 
 FLAGS = flags.FLAGS
@@ -480,7 +521,7 @@ class IntegrationTestBase(absltest.TestCase):
         payment_handler.PaymentHandler(
           id="google_pay",
           name="google.pay",
-          version="2026-01-23",
+          version=UCP_VERSION,
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
           instrument_schemas=["https://example.com/instrument_schema"],
@@ -540,7 +581,7 @@ class IntegrationTestBase(absltest.TestCase):
       fulfillment=fulfillment,
     )
     checkout_req.status = "incomplete"
-    checkout_req.ucp = {"version": "2026-01-23"}
+    checkout_req.ucp = {"version": UCP_VERSION}
     checkout_req.totals = []
     checkout_req.links = []
 

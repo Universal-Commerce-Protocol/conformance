@@ -18,14 +18,19 @@ from absl.testing import absltest
 import integration_test_utils
 import httpx
 from pydantic import ValidationError
-from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
+from ucp_sdk.models.schemas.ucp import BusinessSchema
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import (
   Payment,
 )
+from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
+  ReverseDomainName,
+)
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
+
+UCP_VERSION = "2026-04-08"
 
 
 class ProtocolTest(integration_test_utils.IntegrationTestBase):
@@ -162,7 +167,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     self.assertEqual(
       data.get("version"),
-      "2026-01-23",
+      UCP_VERSION,
       msg="Unexpected UCP version in discovery doc",
     )
 
@@ -223,7 +228,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       if isinstance(shopping_services, list)
       else shopping_services
     )
-    self.assertEqual(shopping_service.get("version"), "2026-01-23")
+    self.assertEqual(shopping_service.get("version"), UCP_VERSION)
     self.assertIsNotNone(shopping_service.get("transport") == "rest")
     self.assertIsNotNone(shopping_service.get("endpoint"))
 
@@ -265,7 +270,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     # 1. Compatible Version
     headers = integration_test_utils.get_headers()
-    headers["UCP-Agent"] = 'profile="..."; version="2026-01-23"'
+    headers["UCP-Agent"] = f'profile="..."; version="{UCP_VERSION}"'
     response = self.client.post(
       checkout_sessions_url,
       json=create_payload.model_dump(
