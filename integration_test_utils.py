@@ -17,6 +17,7 @@
 import csv
 import json
 import logging
+import os
 from pathlib import Path
 import threading
 import time
@@ -57,10 +58,10 @@ class UnifiedUpdate(CheckoutUpdateRequest):
 
 FLAGS = flags.FLAGS
 try:
-  flags.DEFINE_string("server_url", None, "Base URL of the server")
+  flags.DEFINE_string("server_url", os.getenv("SERVER_URL"), "Base URL of the server")
   flags.DEFINE_string(
     "simulation_secret",
-    str(uuid.uuid4()),
+    os.getenv("SIMULATION_SECRET", str(uuid.uuid4())),
     "Secret for simulation endpoints",
   )
   flags.DEFINE_integer(
