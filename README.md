@@ -78,6 +78,9 @@ uv run ${test_file} \
     --conformance_input=test_data/flower_shop/conformance_input.json \
     --fixture_config=test_data/flower_shop/test_fixtures.json
 done
+
+# Or, if you prefer:
+SERVER_URL=http://localhost:${MERCHANT_SERVER_PORT} SIMULATION_SECRET=${SIMULATION_SECRET} uv run pytest
 ```
 
 ### Customizing Test Fixtures
