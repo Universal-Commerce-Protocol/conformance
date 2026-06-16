@@ -38,24 +38,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out conformance repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: conformance
 
       - name: Check out samples repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: Universal-Commerce-Protocol/samples
           path: samples
 
       - name: Check out SDK repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: Universal-Commerce-Protocol/python-sdk
           path: python-sdk
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           prune-cache: false
 
