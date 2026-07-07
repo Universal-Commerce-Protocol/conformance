@@ -432,6 +432,10 @@ class IntegrationTestBase(absltest.TestCase):
     path = path.lstrip("/")
     return f"{base}/{path}"
 
+  def get_order_url(self, order_id: str) -> str:
+    """Construct a full URL for an order resource."""
+    return self.get_shopping_url(f"/orders/{order_id}")
+
   def tearDown(self) -> None:
     """Tear down the test case, stopping servers and clients."""
     self.client.close()
