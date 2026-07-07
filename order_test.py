@@ -57,7 +57,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     self.assert_response_status(response, 200)
 
@@ -167,7 +167,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order and verify fulfillment details
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     self.assert_response_status(response, 200)
     order_obj = order.Order(**response.json())
@@ -274,7 +274,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_id = complete_data["order"]["id"]
 
     # Get Order
-    resp = self.client.get(f"/orders/{order_id}", headers=self.get_headers())
+    resp = self.client.get(
+      self.get_order_url(order_id), headers=self.get_headers()
+    )
     self.assert_response_status(resp, 200)
     order_obj = order.Order(**resp.json())
 
@@ -297,7 +299,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_obj.fulfillment.events.append(new_event)
 
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
       headers=self.get_headers(),
     )
@@ -321,7 +323,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_id = self.create_completed_order()
 
     # Get Order
-    resp = self.client.get(f"/orders/{order_id}", headers=self.get_headers())
+    resp = self.client.get(
+      self.get_order_url(order_id), headers=self.get_headers()
+    )
     self.assert_response_status(resp, 200)
     order_obj = order.Order(**resp.json())
 
@@ -341,7 +345,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
       headers=self.get_headers(),
     )
