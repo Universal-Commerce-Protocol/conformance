@@ -393,7 +393,7 @@ class IntegrationTestBase(absltest.TestCase):
 
       profile_data = discovery_resp.json()
       # UCP 01-23 validation changed dicts to lists
-      shopping_services = profile_data.get("services", {}).get(
+      shopping_services = profile_data.get("ucp", {}).get("services", {}).get(
         "dev.ucp.shopping", []
       )
       if not shopping_services:
