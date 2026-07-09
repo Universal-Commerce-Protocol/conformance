@@ -98,7 +98,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
     updated_checkout = checkout.Checkout(**resp_json)
     # Verify no discount applied
     discount_total = next(
-      (t for t in updated_checkout.totals if t.type == "discount"), None
+      (t for t in updated_checkout.totals.root if t.type == "discount"), None
     )
     self.assertIsNone(
       discount_total, "Unknown discount code should not apply discount"

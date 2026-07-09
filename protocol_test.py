@@ -18,7 +18,10 @@ from absl.testing import absltest
 import integration_test_utils
 import httpx
 from pydantic import ValidationError
-from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
+from ucp_sdk.models.schemas.ucp import BusinessSchema
+from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
+  ReverseDomainName,
+)
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import (
   Payment,

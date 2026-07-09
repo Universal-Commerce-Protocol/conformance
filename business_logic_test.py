@@ -68,10 +68,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     # Verify Line Item Calculations
     line_item = checkout_obj.line_items[0]
     li_subtotal = next(
-      (t.amount for t in line_item.totals if t.type == "subtotal"), 0
+      (t.amount.root for t in line_item.totals if t.type == "subtotal"), 0
     )
     li_total = next(
-      (t.amount for t in line_item.totals if t.type == "total"), 0
+      (t.amount.root for t in line_item.totals if t.type == "total"), 0
     )
 
     self.assertEqual(
@@ -87,22 +87,22 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
 
     # Verify Totals Breakdown
     subtotal = next(
-      (t for t in checkout_obj.totals if t.type == "subtotal"), None
+      (t for t in checkout_obj.totals.root if t.type == "subtotal"), None
     )
     total_obj = next(
-      (t for t in checkout_obj.totals if t.type == "total"), None
+      (t for t in checkout_obj.totals.root if t.type == "total"), None
     )
 
     self.assertIsNotNone(subtotal, "Subtotal missing")
     self.assertEqual(
-      subtotal.amount,
+      subtotal.amount.root,
       expected_price,
       f"Subtotal amount should match DB price {expected_price}",
     )
 
     self.assertIsNotNone(total_obj, "Total missing")
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_price,
       f"Total amount should match DB price {expected_price}",
     )
@@ -158,15 +158,15 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
 
     updated_checkout = checkout.Checkout(**response.json())
     total_obj = next(
-      (t for t in updated_checkout.totals if t.type == "total"), None
+      (t for t in updated_checkout.totals.root if t.type == "total"), None
     )
     expected_total = expected_price * 2
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_total,
       msg=(
         "Server did not correct totals on update. Expected"
-        f" {expected_total}, got {total_obj.amount}"
+        f" {expected_total}, got {total_obj.amount.root}"
       ),
     )
 
@@ -226,15 +226,15 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_total = int(expected_price * 0.9)
 
     total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
+      (t for t in discounted_checkout.totals.root if t.type == "total"), None
     )
     self.assertIsNotNone(total_obj, "Total object missing")
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_total,
       msg=(
         f"Discount not applied correctly. Expected {expected_total}, got"
-        f" {total_obj.amount}"
+        f" {total_obj.amount.root}"
       ),
     )
 
@@ -284,13 +284,13 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_total = int(int(expected_price * 0.9) * 0.8)
 
     total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
+      (t for t in discounted_checkout.totals.root if t.type == "total"), None
     )
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_total,
       f"Multiple discounts failed. Exp {expected_total}, "
-      f"got {total_obj.amount}",
+      f"got {total_obj.amount.root}",
     )
 
     # Verify both applied discounts are present
@@ -332,9 +332,9 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_total = int(expected_price * 0.9)
 
     total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
+      (t for t in discounted_checkout.totals.root if t.type == "total"), None
     )
-    self.assertEqual(total_obj.amount, expected_total)
+    self.assertEqual(total_obj.amount.root, expected_total)
 
     # Verify only one applied discount is present
     discounts_data = getattr(discounted_checkout, "discounts", {})
@@ -373,14 +373,15 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_total = expected_price - 500
 
     total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
+      (t for t in discounted_checkout.totals.root if t.type == "total"), None
     )
     self.assertIsNotNone(total_obj, "Total object missing")
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_total,
       msg=(
-        f"Fixed discount failed. Exp {expected_total}, got {total_obj.amount}"
+        f"Fixed discount failed. Exp {expected_total}, got"
+        f" {total_obj.amount.root}"
       ),
     )
 
@@ -399,7 +400,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       "FIXED500",
     )
     self.assertEqual(
-      discounts_obj.applied[0].amount,
+      discounts_obj.applied[0].amount.root,
       500,
     )
 

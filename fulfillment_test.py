@@ -121,15 +121,15 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     expected_total = 3500 + option_cost  # Base 3500 + shipping
     total_obj = next(
-      (t for t in final_checkout.totals if t.type == "total"), None
+      (t for t in final_checkout.totals.root if t.type == "total"), None
     )
     self.assertIsNotNone(total_obj, "Total object missing")
     self.assertEqual(
-      total_obj.amount,
+      total_obj.amount.root,
       expected_total,
       msg=(
         f"Total not updated correctly. Expected {expected_total}, got"
-        f" {total_obj.amount}"
+        f" {total_obj.amount.root}"
       ),
     )
 
