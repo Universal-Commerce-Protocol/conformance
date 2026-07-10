@@ -17,8 +17,9 @@
 from absl.testing import absltest
 import integration_test_utils
 import httpx
-from pydantic import ValidationError
-from ucp_sdk.models.schemas.ucp import BusinessSchema, ReverseDomainName
+from pydantic import TypeAdapter, ValidationError
+from ucp_sdk.models.schemas.ucp import BusinessSchema
+from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import ReverseDomainName
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import (
   Payment,
@@ -190,7 +191,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
         # Validate handler group name using the SDK's ReverseDomainName
         # model, which enforces the pattern defined in the UCP spec.
         try:
-          ReverseDomainName(root=str(handler_name))
+          TypeAdapter(ReverseDomainName).validate_python(str(handler_name))
         except ValidationError as e:
           self.fail(
             f"Payment handler group name '{handler_name}' "

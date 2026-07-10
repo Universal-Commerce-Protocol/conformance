@@ -477,7 +477,7 @@ class IntegrationTestBase(absltest.TestCase):
 
     if handlers is None:
       handlers = [
-        payment_handler.PaymentHandler(
+        payment_handler.Base(
           id="google_pay",
           name="google.pay",
           version="2026-01-23",
@@ -502,10 +502,8 @@ class IntegrationTestBase(absltest.TestCase):
     fulfillment = None
     if include_fulfillment:
       # Hierarchical Fulfillment Construction
-      destination = fdc_req.FulfillmentDestinationCreateRequest(
-        root=shipping_destination.ShippingDestination(
-          id="dest_1", address_country="US"
-        )
+      destination = shipping_destination.ShippingDestination(
+        id="dest_1", address_country="US"
       )
       group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
         id="group_1",
