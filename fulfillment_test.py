@@ -239,7 +239,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     # Verify no destinations injected
     method = updated_checkout.model_extra["fulfillment"]["methods"][0]
-    self.assertIsNone(method["destinations"])
+    self.assertIsNone(method.get("destinations"))
 
   def test_known_customer_no_address(self) -> None:
     """Test that a known customer with no stored address gets no injection."""
@@ -265,7 +265,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     updated_checkout = checkout.Checkout(**response_json)
 
     method = updated_checkout.model_extra["fulfillment"]["methods"][0]
-    self.assertIsNone(method["destinations"])
+    self.assertIsNone(method.get("destinations"))
 
   def test_known_customer_one_address(self) -> None:
     """Test that a known customer with an address gets it injected."""
