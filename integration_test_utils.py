@@ -37,9 +37,6 @@ from ucp_sdk.models.schemas.shopping.checkout_update_request import (
   CheckoutUpdateRequest,
 )
 from ucp_sdk.models.schemas.shopping.types import (
-  fulfillment_destination_create_request as fdc_req,
-)
-from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_group_create_request,
 )
 from ucp_sdk.models.schemas.shopping.types import (
