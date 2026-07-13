@@ -49,15 +49,31 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     # 1. Update with Fulfillment Address
     # We explicitly construct the extended fulfillment payload here because
     # the helper method assumes a flatter, older structure.
-    # Use helper to get a valid address from CSV
-    addr_data = integration_test_utils.test_data.addresses[0]
+    # Use dynamic destination address from fixture_ctx or CSV fallback
+    ctx = getattr(self, "fixture_ctx", None)
+    dest_data = ctx.get_test_destination() if ctx else None
+    if not dest_data:
+      addr_csv = integration_test_utils.test_data.addresses[0]
+      dest_data = {
+        "street": addr_csv["street_address"],
+        "city": addr_csv["city"],
+        "state": addr_csv["state"],
+        "postal_code": addr_csv["postal_code"],
+        "country": addr_csv["country"],
+      }
     address = postal_address.PostalAddress(
       full_name="John Doe",
-      street_address=addr_data["street_address"],
-      address_locality=addr_data["city"],
-      address_region=addr_data["state"],
-      postal_code=addr_data["postal_code"],
-      address_country=addr_data["country"],
+      street_address=dest_data.get(
+        "street_address", dest_data.get("street", "123 Market St")
+      ),
+      address_locality=dest_data.get(
+        "locality", dest_data.get("city", "San Francisco")
+      ),
+      address_region=dest_data.get("region", dest_data.get("state", "CA")),
+      postal_code=dest_data.get("postal_code", "94105"),
+      address_country=dest_data.get(
+        "address_country", dest_data.get("country", "US")
+      ),
     )
 
     # Construct fulfillment payload

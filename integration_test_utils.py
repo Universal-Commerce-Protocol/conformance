@@ -42,6 +42,9 @@ from ucp_sdk.models.schemas.shopping.types import (
 from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_method_create_request,
 )
+from ucp_sdk.models.schemas.shopping.types import (
+  fulfillment_destination_create_request as fdc_req,
+)
 from ucp_sdk.models.schemas.shopping.types import item_create_request
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_create_request
@@ -334,6 +337,96 @@ class MockWebhookServer:
     self.events = []
 
 
+class DynamicFixtureContext:
+  """Context for loading dynamic test fixtures from configuration."""
+
+  def __init__(self, config_path: str | Path | dict[str, Any]):
+    """Initialize DynamicFixtureContext from file path or dict."""
+    if isinstance(config_path, (str, Path)):
+      try:
+        with Path(config_path).open() as f:
+          self._config = json.load(f)
+      except (FileNotFoundError, OSError):
+        self._config = {}
+    elif isinstance(config_path, dict):
+      self._config = config_path
+    else:
+      self._config = {}
+
+  def get_test_sku(self) -> str:
+    """Get the test SKU or item ID to use in checkout tests."""
+    val = self._config.get("test_sku")
+    if val is not None:
+      return str(val)
+    val = self._config.get("test_fixtures", {}).get("valid_item", {}).get("sku")
+    if val is not None:
+      return str(val)
+    items = self._config.get("items", [{}])
+    if items and isinstance(items, list) and len(items) > 0:
+      return str(items[0].get("id", "item_1"))
+    return "item_1"
+
+  def get_test_price(self) -> int:
+    """Get the expected price for the valid item in minor units."""
+    val = self._config.get("test_price")
+    if val is not None:
+      if isinstance(val, float):
+        return int(round(val * 100))
+      return int(val)
+    val = (
+      self._config.get("test_fixtures", {})
+      .get("valid_item", {})
+      .get("expected_price")
+    )
+    if val is not None:
+      if isinstance(val, float):
+        return int(round(val * 100))
+      return int(val)
+    items = self._config.get("items", [{}])
+    if items and isinstance(items, list) and len(items) > 0:
+      return int(items[0].get("price", 3500))
+    return 3500
+
+  def get_test_destination(self) -> dict[str, Any]:
+    """Get the destination address dictionary for shipping."""
+    val = self._config.get("test_destination")
+    if val is not None and isinstance(val, dict):
+      dest = dict(val)
+    else:
+      dest = dict(
+        self._config.get("shipping_locations", {}).get(
+          "domestic_destination", {}
+        )
+      )
+    if not dest:
+      dest = {
+        "street": "123 Market St",
+        "city": "San Francisco",
+        "state": "CA",
+        "postal_code": "94105",
+        "country": "US",
+      }
+    dest.setdefault("address_country", dest.get("country", "US"))
+    dest.setdefault("postal_code", dest.get("postal_code", "94105"))
+    dest.setdefault("locality", dest.get("city", "San Francisco"))
+    dest.setdefault("region", dest.get("state", "CA"))
+    dest.setdefault("street_address", dest.get("street", "123 Market St"))
+    return dest
+
+  def get_test_discount_code(self) -> str:
+    """Get a valid discount code for tests."""
+    val = self._config.get("test_discount_code")
+    if val is not None:
+      return str(val)
+    val = self._config.get("test_fixtures", {}).get("valid_discount_code")
+    if val is not None:
+      return str(val)
+    return "SPRING20"
+
+
+ConfiguredFixtureContext = DynamicFixtureContext
+
+
 class IntegrationTestBase(absltest.TestCase):
   """Base class for UCP integration tests providing setup and helper methods."""
 
@@ -360,6 +453,8 @@ class IntegrationTestBase(absltest.TestCase):
         FLAGS.conformance_input,
       )
       self.conformance_config = {}
+
+    self.fixture_ctx = DynamicFixtureContext(self.conformance_config)
 
     # Load CSV Test Data
     try:
@@ -466,24 +561,22 @@ class IntegrationTestBase(absltest.TestCase):
         A CheckoutCreateRequest object populated with the specified data.
 
     """
-    # Load defaults from config if not provided
-    default_item = (
-      self.conformance_config.get("items", [{}])[0]
-      if self.conformance_config
-      else {}
+    # Load defaults dynamically via fixture context or fallback to config
+    ctx = getattr(self, "fixture_ctx", None) or DynamicFixtureContext(
+      getattr(self, "conformance_config", {})
     )
 
     if item_id is None:
-      item_id = default_item.get("id", "item_1")
+      item_id = ctx.get_test_sku()
     if currency is None:
-      currency = self.conformance_config.get("currency", "USD")
+      currency = getattr(self, "conformance_config", {}).get("currency", "USD")
 
     if handlers is None:
       handlers = [
         payment_handler.Base(
           id="google_pay",
           name="google.pay",
-          version="2026-01-23",
+          version="2026-04-08",
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
           instrument_schemas=["https://example.com/instrument_schema"],
@@ -504,9 +597,21 @@ class IntegrationTestBase(absltest.TestCase):
 
     fulfillment = None
     if include_fulfillment:
-      # Hierarchical Fulfillment Construction
-      destination = shipping_destination.ShippingDestination(
-        id="dest_1", address_country="US"
+      # Hierarchical Fulfillment Construction using dynamic destination
+      dest_data = ctx.get_test_destination()
+      destination = fdc_req.FulfillmentDestinationCreateRequest(
+        root=shipping_destination.ShippingDestination(
+          id="dest_1",
+          address_country=dest_data.get(
+            "address_country", dest_data.get("country", "US")
+          ),
+          postal_code=dest_data.get("postal_code", "94105"),
+          locality=dest_data.get("locality", dest_data.get("city")),
+          region=dest_data.get("region", dest_data.get("state")),
+          street_address=dest_data.get(
+            "street_address", dest_data.get("street")
+          ),
+        )
       )
       group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
         id="group_1",
@@ -528,7 +633,7 @@ class IntegrationTestBase(absltest.TestCase):
       }
 
     # Set response fields on model objects for server validation workaround
-    item.price = 1000
+    item.price = ctx.get_test_price()
     line_item.id = "line_item_123"
     line_item.totals = []
 
@@ -541,7 +646,7 @@ class IntegrationTestBase(absltest.TestCase):
       fulfillment=fulfillment,
     )
     checkout_req.status = "incomplete"
-    checkout_req.ucp = {"version": "2026-01-23"}
+    checkout_req.ucp = {"version": "2026-04-08"}
     checkout_req.totals = []
     checkout_req.links = []
 
