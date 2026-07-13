@@ -483,7 +483,7 @@ class IntegrationTestBase(absltest.TestCase):
         payment_handler.Base(
           id="google_pay",
           name="google.pay",
-          version="2026-01-23",
+          version="2026-04-08",
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
           instrument_schemas=["https://example.com/instrument_schema"],
@@ -541,7 +541,7 @@ class IntegrationTestBase(absltest.TestCase):
       fulfillment=fulfillment,
     )
     checkout_req.status = "incomplete"
-    checkout_req.ucp = {"version": "2026-01-23"}
+    checkout_req.ucp = {"version": "2026-04-08"}
     checkout_req.totals = []
     checkout_req.links = []
 

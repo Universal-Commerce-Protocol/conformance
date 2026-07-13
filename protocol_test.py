@@ -169,7 +169,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     self.assertEqual(
       ucp_data.get("version"),
-      "2026-01-23",
+      "2026-04-08",
       msg="Unexpected UCP version in discovery doc",
     )
 
@@ -230,7 +230,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       if isinstance(shopping_services, list)
       else shopping_services
     )
-    self.assertEqual(shopping_service.get("version"), "2026-01-23")
+    self.assertEqual(shopping_service.get("version"), "2026-04-08")
     self.assertIsNotNone(shopping_service.get("transport") == "rest")
     self.assertIsNotNone(shopping_service.get("endpoint"))
 
@@ -273,7 +273,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     # 1. Compatible Version
     headers = integration_test_utils.get_headers()
-    headers["UCP-Agent"] = 'profile="..."; version="2026-01-23"'
+    headers["UCP-Agent"] = 'profile="..."; version="2026-04-08"'
     response = self.client.post(
       checkout_sessions_url,
       json=create_payload.model_dump(
