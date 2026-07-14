@@ -199,34 +199,50 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     self.assert_response_status(response, 200)
     return response
 
-  def test_cancel_is_idempotent(self):
-    """Test that cancellation is idempotent.
+  def test_repeated_cancel(self):
+    """Test repeated cancellation behavior.
 
     Given a checkout session that has already been canceled,
     When another cancel request is sent,
-    Then the server should reject it with a 409 Conflict (or handle idempotency
-    if key matches, but here we test state conflict logic).
+    Then the server should return a client error, as recommended by the spec,
+    or return the same canceled resource as an idempotent success.
     """
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    # 1. Cancel
     self._cancel_checkout(checkout_id)
 
-    # 2. Cancel again - should likely fail with 409 or be idempotent (200)
-    # depending on implementation. The original test expected NotEqual 200
-    # (implying 409 Conflict).
-    # checkout_service.py says:
-    # if checkout.status in [COMPLETED, CANCELED]:
-    # raise CheckoutNotModifiableError -> 409
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=integration_test_utils.get_headers(),
     )
-    self.assertNotEqual(
+
+    if response.status_code == 200:
+      repeated_checkout = checkout.Checkout(**response.json())
+      self.assertEqual(
+        repeated_checkout.id,
+        checkout_id,
+        msg="Repeated cancellation returned a different checkout.",
+      )
+      self.assertEqual(
+        repeated_checkout.status,
+        "canceled",
+        msg=(
+          "Repeated cancellation returned status "
+          f"'{repeated_checkout.status}', expected 'canceled'."
+        ),
+      )
+      return
+
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to cancel an already canceled checkout.",
+      400,
+      msg="Repeated cancellation must return 200 or a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Repeated cancellation must not produce a server error.",
     )
 
   def test_cannot_update_canceled_checkout(self):
