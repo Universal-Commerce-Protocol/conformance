@@ -391,7 +391,7 @@ class DynamicFixtureContext:
     if val is None:
       val = self._fallback_config.get("test_price")
     if val is not None:
-      if isinstance(val, float):
+      if isinstance(val, (int, float)):
         return int(round(val * 100))
       return int(val)
 
@@ -407,7 +407,7 @@ class DynamicFixtureContext:
         .get("expected_price")
       )
     if val is not None:
-      if isinstance(val, float):
+      if isinstance(val, (int, float)):
         return int(round(val * 100))
       return int(val)
 
