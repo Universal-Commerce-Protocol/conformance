@@ -75,9 +75,14 @@ for test_file in *_test.py; do
 uv run ${test_file} \
     --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
     --simulation_secret=${SIMULATION_SECRET} \
-    --conformance_input=test_data/flower_shop/conformance_input.json
+    --conformance_input=test_data/flower_shop/conformance_input.json \
+    --fixture_config=test_data/flower_shop/test_fixtures.json
 done
 ```
+
+### Customizing Test Fixtures
+
+You can customize the test fixtures (SKU, expected pricing, discount codes, shipping destinations) by editing `test_fixtures.json` or passing a custom configuration file using the `--fixture_config` flag.
 
 ## Cleaning Up
 

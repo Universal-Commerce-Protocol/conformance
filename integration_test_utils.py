@@ -42,9 +42,6 @@ from ucp_sdk.models.schemas.shopping.types import (
 from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_method_create_request,
 )
-from ucp_sdk.models.schemas.shopping.types import (
-  fulfillment_destination_create_request as fdc_req,
-)
 from ucp_sdk.models.schemas.shopping.types import item_create_request
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_create_request
@@ -77,6 +74,11 @@ try:
     "conformance_input",
     "test_data/flower_shop/conformance_input.json",
     "Path to conformance input configuration JSON.",
+  )
+  flags.DEFINE_string(
+    "fixture_config",
+    "test_data/flower_shop/test_fixtures.json",
+    "Path to test fixtures configuration JSON.",
   )
   flags.DEFINE_string(
     "test_data_dir",
@@ -340,7 +342,11 @@ class MockWebhookServer:
 class DynamicFixtureContext:
   """Context for loading dynamic test fixtures from configuration."""
 
-  def __init__(self, config_path: str | Path | dict[str, Any]):
+  def __init__(
+    self,
+    config_path: str | Path | dict[str, Any],
+    fallback_config: dict[str, Any] | None = None,
+  ):
     """Initialize DynamicFixtureContext from file path or dict."""
     if isinstance(config_path, (str, Path)):
       try:
@@ -352,16 +358,29 @@ class DynamicFixtureContext:
       self._config = config_path
     else:
       self._config = {}
+    self._fallback_config = fallback_config or {}
 
   def get_test_sku(self) -> str:
     """Get the test SKU or item ID to use in checkout tests."""
     val = self._config.get("test_sku")
+    if val is None:
+      val = self._fallback_config.get("test_sku")
     if val is not None:
       return str(val)
+
     val = self._config.get("test_fixtures", {}).get("valid_item", {}).get("sku")
+    if val is None:
+      val = (
+        self._fallback_config.get("test_fixtures", {})
+        .get("valid_item", {})
+        .get("sku")
+      )
     if val is not None:
       return str(val)
+
     items = self._config.get("items", [{}])
+    if not items or items == [{}]:
+      items = self._fallback_config.get("items", [{}])
     if items and isinstance(items, list) and len(items) > 0:
       return str(items[0].get("id", "item_1"))
     return "item_1"
@@ -369,20 +388,32 @@ class DynamicFixtureContext:
   def get_test_price(self) -> int:
     """Get the expected price for the valid item in minor units."""
     val = self._config.get("test_price")
+    if val is None:
+      val = self._fallback_config.get("test_price")
     if val is not None:
       if isinstance(val, float):
         return int(round(val * 100))
       return int(val)
+
     val = (
       self._config.get("test_fixtures", {})
       .get("valid_item", {})
       .get("expected_price")
     )
+    if val is None:
+      val = (
+        self._fallback_config.get("test_fixtures", {})
+        .get("valid_item", {})
+        .get("expected_price")
+      )
     if val is not None:
       if isinstance(val, float):
         return int(round(val * 100))
       return int(val)
+
     items = self._config.get("items", [{}])
+    if not items or items == [{}]:
+      items = self._fallback_config.get("items", [{}])
     if items and isinstance(items, list) and len(items) > 0:
       return int(items[0].get("price", 3500))
     return 3500
@@ -390,14 +421,21 @@ class DynamicFixtureContext:
   def get_test_destination(self) -> dict[str, Any]:
     """Get the destination address dictionary for shipping."""
     val = self._config.get("test_destination")
+    if val is None:
+      val = self._fallback_config.get("test_destination")
+
     if val is not None and isinstance(val, dict):
       dest = dict(val)
     else:
-      dest = dict(
-        self._config.get("shipping_locations", {}).get(
+      dest = self._config.get("shipping_locations", {}).get(
+        "domestic_destination", {}
+      )
+      if not dest:
+        dest = self._fallback_config.get("shipping_locations", {}).get(
           "domestic_destination", {}
         )
-      )
+      dest = dict(dest) if dest else {}
+
     if not dest:
       dest = {
         "street": "123 Market St",
@@ -416,9 +454,16 @@ class DynamicFixtureContext:
   def get_test_discount_code(self) -> str:
     """Get a valid discount code for tests."""
     val = self._config.get("test_discount_code")
+    if val is None:
+      val = self._fallback_config.get("test_discount_code")
     if val is not None:
       return str(val)
+
     val = self._config.get("test_fixtures", {}).get("valid_discount_code")
+    if val is None:
+      val = self._fallback_config.get("test_fixtures", {}).get(
+        "valid_discount_code"
+      )
     if val is not None:
       return str(val)
     return "SPRING20"
@@ -454,7 +499,21 @@ class IntegrationTestBase(absltest.TestCase):
       )
       self.conformance_config = {}
 
-    self.fixture_ctx = DynamicFixtureContext(self.conformance_config)
+    # Load fixture configuration
+    fixture_config = {}
+    if FLAGS.fixture_config:
+      try:
+        with Path(FLAGS.fixture_config).open() as f:
+          fixture_config = json.load(f)
+      except FileNotFoundError:
+        logging.warning(
+          "Fixture config file not found at %s. Using defaults.",
+          FLAGS.fixture_config,
+        )
+
+    self.fixture_ctx = DynamicFixtureContext(
+      fixture_config, fallback_config=self.conformance_config
+    )
 
     # Load CSV Test Data
     try:
@@ -599,19 +658,15 @@ class IntegrationTestBase(absltest.TestCase):
     if include_fulfillment:
       # Hierarchical Fulfillment Construction using dynamic destination
       dest_data = ctx.get_test_destination()
-      destination = fdc_req.FulfillmentDestinationCreateRequest(
-        root=shipping_destination.ShippingDestination(
-          id="dest_1",
-          address_country=dest_data.get(
-            "address_country", dest_data.get("country", "US")
-          ),
-          postal_code=dest_data.get("postal_code", "94105"),
-          locality=dest_data.get("locality", dest_data.get("city")),
-          region=dest_data.get("region", dest_data.get("state")),
-          street_address=dest_data.get(
-            "street_address", dest_data.get("street")
-          ),
-        )
+      destination = shipping_destination.ShippingDestination(
+        id="dest_1",
+        address_country=dest_data.get(
+          "address_country", dest_data.get("country", "US")
+        ),
+        postal_code=dest_data.get("postal_code", "94105"),
+        locality=dest_data.get("locality", dest_data.get("city")),
+        region=dest_data.get("region", dest_data.get("state")),
+        street_address=dest_data.get("street_address", dest_data.get("street")),
       )
       group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
         id="group_1",
