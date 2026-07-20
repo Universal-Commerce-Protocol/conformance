@@ -58,7 +58,9 @@ class UnifiedUpdate(CheckoutUpdateRequest):
 
 FLAGS = flags.FLAGS
 try:
-  flags.DEFINE_string("server_url", os.getenv("SERVER_URL"), "Base URL of the server")
+  flags.DEFINE_string(
+    "server_url", os.getenv("SERVER_URL"), "Base URL of the server"
+  )
   flags.DEFINE_string(
     "simulation_secret",
     os.getenv("SIMULATION_SECRET", str(uuid.uuid4())),
