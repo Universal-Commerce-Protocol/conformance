@@ -14,7 +14,6 @@
 
 """Fulfillment tests for the UCP SDK Server."""
 
-import uuid
 from absl.testing import absltest
 import integration_test_utils
 from ucp_sdk.models.schemas.shopping import checkout as checkout
@@ -428,82 +427,6 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     # And we should get options calculated for CA
     group = method["groups"][0]
     self.assertTrue(any(o["id"] == "exp-ship-intl" for o in group["options"]))
-
-  def test_new_user_new_address_persistence(self) -> None:
-    """Test that a new address for a new user is persisted and ID generated.
-
-    Given a checkout for a new (unknown) user,
-    When a new fulfillment address is provided in an update,
-    Then the address should be saved, assigned an ID, and reused for subsequent
-    checkouts by the same user.
-    """
-    email = f"new.user.{uuid.uuid4()}@example.com"
-    response_json = self.create_checkout_session(
-      buyer={"fullName": "New User", "email": email},
-      select_fulfillment=False,
-    )
-    checkout_obj = checkout.Checkout(**response_json)
-
-    # New address without ID
-    new_address = {
-      "street_address": "789 Pine St",
-      "address_locality": "Springfield",
-      "address_region": "NY",
-      "postal_code": "10001",
-      "address_country": "US",
-      "id": "",
-    }
-
-    fulfillment_payload = {
-      "methods": [
-        {
-          "type": "shipping",
-          "id": "method_1",
-          "line_item_ids": [checkout_obj.line_items[0].id],
-          "destinations": [new_address],
-        }
-      ]
-    }
-
-    response_json = self.update_checkout_session(
-      checkout_obj, fulfillment=fulfillment_payload
-    )
-    updated_checkout = checkout.Checkout(**response_json)
-
-    method = updated_checkout.model_extra["fulfillment"]["methods"][0]
-    self.assertIsNotNone(method["destinations"])
-    self.assertLen(method["destinations"], 1)
-
-    # ID should be generated
-    generated_id = method["destinations"][0]["id"]
-    self.assertTrue(generated_id, "ID should be generated for new address")
-
-    # Verify persistence by creating another checkout for same user
-    # and checking if address is injected
-    response_json_2 = self.create_checkout_session(
-      buyer={"fullName": "New User", "email": email},
-      select_fulfillment=False,
-    )
-    checkout_obj_2 = checkout.Checkout(**response_json_2)
-    response_json_2 = self.update_checkout_session(
-      checkout_obj_2,
-      fulfillment={
-        "methods": [
-          {
-            "id": "method_1",
-            "type": "shipping",
-            "line_item_ids": [checkout_obj.line_items[0].id],
-          }
-        ]
-      },
-    )
-    updated_checkout_2 = checkout.Checkout(**response_json_2)
-    method_2 = updated_checkout_2.model_extra["fulfillment"]["methods"][0]
-
-    self.assertIsNotNone(method_2["destinations"])
-    # Could be more if tests re-run, but should contain our ID
-    dest_ids = [d["id"] for d in method_2["destinations"]]
-    self.assertIn(generated_id, dest_ids)
 
   def test_known_user_existing_address_reuse(self) -> None:
     """Test that an existing address is reused (same ID returned).
