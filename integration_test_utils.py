@@ -1026,6 +1026,9 @@ class IntegrationTestBase(absltest.TestCase):
         else None
       )
 
+    if buyer is None and checkout_obj.buyer is not None:
+      buyer = checkout_obj.buyer.model_dump()
+
     update_payload = UnifiedUpdate(
       id=checkout_obj.id,
       currency=currency,
