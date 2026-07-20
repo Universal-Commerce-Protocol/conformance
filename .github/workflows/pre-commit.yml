@@ -12,20 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-name: "Check Spelling"
+name: pre-commit
+
 on:
   pull_request:
+  push:
     branches: [main]
 
 jobs:
-  spellcheck:
+  pre-commit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: read
     steps:
       - uses: actions/checkout@v5
-      - uses: streetsidesoftware/cspell-action@v8
+      - uses: actions/setup-python@v6
         with:
-          incremental_files_only: true
-          config: .cspell.json
+          python-version: "3.12"
+      - uses: pre-commit/action@v3.0.1
+        env:
+          # workaround for pre-commit/action not being updated to node24
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

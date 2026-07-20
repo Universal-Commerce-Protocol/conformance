@@ -16,17 +16,19 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import checkout_update_req
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_req
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import (
+  checkout_update_request as checkout_update_req,
 )
-from ucp_sdk.models.schemas.shopping.types import item_update_req
-from ucp_sdk.models.schemas.shopping.types import line_item_update_req
+from ucp_sdk.models.schemas.shopping import checkout as checkout
+from ucp_sdk.models.schemas.shopping import payment_update_request
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
+)
+from ucp_sdk.models.schemas.shopping.types import item_update_request
+from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
@@ -62,7 +64,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout.Checkout(**response_json).id
 
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=integration_test_utils.get_headers(),
     )
     self.assert_response_status(response, 200)
@@ -87,22 +89,20 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout_obj.id
 
     # Construct Update Request
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=2,
     )
 
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
       handlers=[
         h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
+        for h in checkout_obj.payment.instruments
       ],
     )
 
@@ -114,7 +114,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -135,7 +135,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout.Checkout(**response_json).id
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=integration_test_utils.get_headers(),
     )
     self.assert_response_status(response, 200)
@@ -160,7 +160,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout_obj.id
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=integration_test_utils.get_valid_payment_payload(),
       headers=integration_test_utils.get_headers(),
     )
@@ -193,40 +193,56 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
   def _cancel_checkout(self, checkout_id):
     """Cancel a checkout."""
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=integration_test_utils.get_headers(),
     )
     self.assert_response_status(response, 200)
     return response
 
-  def test_cancel_is_idempotent(self):
-    """Test that cancellation is idempotent.
+  def test_repeated_cancel(self):
+    """Test repeated cancellation behavior.
 
     Given a checkout session that has already been canceled,
     When another cancel request is sent,
-    Then the server should reject it with a 409 Conflict (or handle idempotency
-    if key matches, but here we test state conflict logic).
+    Then the server should return a client error, as recommended by the spec,
+    or return the same canceled resource as an idempotent success.
     """
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    # 1. Cancel
     self._cancel_checkout(checkout_id)
 
-    # 2. Cancel again - should likely fail with 409 or be idempotent (200)
-    # depending on implementation. The original test expected NotEqual 200
-    # (implying 409 Conflict).
-    # checkout_service.py says:
-    # if checkout.status in [COMPLETED, CANCELED]:
-    # raise CheckoutNotModifiableError -> 409
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=integration_test_utils.get_headers(),
     )
-    self.assertNotEqual(
+
+    if response.status_code == 200:
+      repeated_checkout = checkout.Checkout(**response.json())
+      self.assertEqual(
+        repeated_checkout.id,
+        checkout_id,
+        msg="Repeated cancellation returned a different checkout.",
+      )
+      self.assertEqual(
+        repeated_checkout.status,
+        "canceled",
+        msg=(
+          "Repeated cancellation returned status "
+          f"'{repeated_checkout.status}', expected 'canceled'."
+        ),
+      )
+      return
+
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to cancel an already canceled checkout.",
+      400,
+      msg="Repeated cancellation must return 200 or a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Repeated cancellation must not produce a server error.",
     )
 
   def test_cannot_update_canceled_checkout(self):
@@ -243,21 +259,19 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     self._cancel_checkout(checkout_id)
 
     # Try Update
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
       handlers=[
         h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
+        for h in checkout_obj.payment.instruments
       ],
     )
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -268,7 +282,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -294,7 +308,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     # Try Complete
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=integration_test_utils.get_valid_payment_payload(),
       headers=integration_test_utils.get_headers(),
     )
@@ -307,7 +321,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
   def _complete_checkout(self, checkout_id):
     """Complete a checkout."""
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=integration_test_utils.get_valid_payment_payload(),
       headers=integration_test_utils.get_headers(),
     )
@@ -329,7 +343,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     # Try Complete again (new idempotency key)
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=integration_test_utils.get_valid_payment_payload(),
       headers=integration_test_utils.get_headers(),
     )
@@ -353,21 +367,19 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     self._complete_checkout(checkout_id)
 
     # Try Update
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
       handlers=[
         h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
+        for h in checkout_obj.payment.instruments
       ],
     )
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -378,7 +390,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -404,7 +416,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     # Try Cancel
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=integration_test_utils.get_headers(),
     )
     self.assertNotEqual(

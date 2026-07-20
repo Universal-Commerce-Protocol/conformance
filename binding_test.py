@@ -16,19 +16,14 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout as checkout
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
-from ucp_sdk.models.schemas.shopping.types import binding
-from ucp_sdk.models.schemas.shopping.types import card_payment_instrument
-from ucp_sdk.models.schemas.shopping.types import payment_identity
-from ucp_sdk.models.schemas.shopping.types import payment_instrument
-from ucp_sdk.models.schemas.shopping.types import token_credential_resp
 
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class TokenBindingTest(integration_test_utils.IntegrationTestBase):
@@ -48,35 +43,33 @@ class TokenBindingTest(integration_test_utils.IntegrationTestBase):
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    identity = payment_identity.PaymentIdentity(
-      access_token="user_access_token"
-    )
-    token_binding = binding.Binding(checkout_id=checkout_id, identity=identity)
-
-    # TokenCredentialResponse allows extra fields
-    credential = token_credential_resp.TokenCredentialResponse(
-      type="stripe_token", token="success_token", binding=token_binding
-    )
-
-    instr = payment_instrument.PaymentInstrument(
-      root=card_payment_instrument.CardPaymentInstrument(
-        id="instr_1",
-        brand="visa",
-        last_digits="4242",
-        handler_id="mock_payment_handler",
-        handler_name="mock_payment_handler",
-        type="card",
-        credential=credential,
-      )
-    )
-    payment_data = instr.root.model_dump(mode="json", exclude_none=True)
     payment_payload = {
-      "payment_data": payment_data,
+      "payment": {
+        "instruments": [
+          {
+            "id": "instr_1",
+            "handler_id": "mock_payment_handler",
+            "type": "card",
+            "display": {
+              "brand": "visa",
+              "last_digits": "4242",
+            },
+            "credential": {
+              "type": "token",
+              "token": "success_token",
+              "binding": {
+                "checkout_id": checkout_id,
+                "identity": {"access_token": "user_access_token"},
+              },
+            },
+          }
+        ]
+      },
       "risk_signals": {},
     }
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=integration_test_utils.get_headers(),
     )

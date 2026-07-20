@@ -16,19 +16,14 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping.ap2_mandate import Ap2CompleteRequest
-from ucp_sdk.models.schemas.shopping.ap2_mandate import CheckoutMandate
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout as checkout
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
-from ucp_sdk.models.schemas.shopping.types import card_payment_instrument
-from ucp_sdk.models.schemas.shopping.types import payment_instrument
-from ucp_sdk.models.schemas.shopping.types import token_credential_resp
 
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
@@ -48,35 +43,36 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    credential = token_credential_resp.TokenCredentialResponse(
-      type="token", token="success_token"
-    )
-    instr = payment_instrument.PaymentInstrument(
-      root=card_payment_instrument.CardPaymentInstrument(
-        id="instr_1",
-        brand="visa",
-        last_digits="4242",
-        handler_id="mock_payment_handler",
-        handler_name="mock_payment_handler",
-        type="card",
-        credential=credential,
-      )
-    )
-    payment_data = instr.root.model_dump(mode="json", exclude_none=True)
+    payment_instrument = {
+      "id": "instr_1",
+      "handler_id": "mock_payment_handler",
+      "type": "card",
+      "display": {
+        "brand": "visa",
+        "last_digits": "4242",
+      },
+      "credential": {"type": "token", "token": "success_token"},
+    }
 
     # SD-JWT+kb pattern:
     # ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+(~[A-Za-z0-9_-]+)*$
-    mandate = CheckoutMandate(root="header.payload.signature~kb_signature")
-    ap2_data = Ap2CompleteRequest(checkout_mandate=mandate)
+    #
+    # The UCP 01-23 SDK simplifies the AP2 protocol definitions.
+    # The extension payload is now defined directly against the `ap2` key.
+    # The `mandate` wrapper object and `ap2_data` nested objects were removed
+    # from the completion payload in this release to flatten the schema.
 
     payment_payload = {
-      "payment_data": payment_data,
+      "payment": {"instruments": [payment_instrument]},
       "risk_signals": {},
-      "ap2": ap2_data.model_dump(mode="json", exclude_none=True),
+      "ap2": {
+        **response_json,
+        "checkout_mandate": "header.payload.signature~kb_signature",
+      },
     }
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=integration_test_utils.get_headers(),
     )

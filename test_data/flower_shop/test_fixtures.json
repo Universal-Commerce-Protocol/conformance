@@ -1,0 +1,20 @@
+{
+  "test_fixtures": {
+    "valid_item": {
+      "sku": "bouquet_roses",
+      "expected_price": 35.0,
+      "quantity": 1
+    },
+    "valid_discount_code": "SPRING20",
+    "expected_discount_reduction": 5.0
+  },
+  "shipping_locations": {
+    "domestic_destination": {
+      "street": "123 Market St",
+      "city": "San Francisco",
+      "state": "CA",
+      "postal_code": "94105",
+      "country": "US"
+    }
+  }
+}

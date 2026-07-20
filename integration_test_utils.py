@@ -29,32 +29,29 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.responses import JSONResponse
 import httpx
-from ucp_sdk.models.schemas.shopping import checkout_create_req
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as f_models
-from ucp_sdk.models.schemas.shopping import payment_create_req
-from ucp_sdk.models.schemas.shopping import payment_update_req
-from ucp_sdk.models.schemas.shopping.discount_update_req import (
-  Checkout as DiscountUpdate,
+from ucp_sdk.models.schemas.shopping import checkout_create_request
+from ucp_sdk.models.schemas.shopping import checkout as f_models
+from ucp_sdk.models.schemas.shopping import payment_create_request
+from ucp_sdk.models.schemas.shopping import payment_update_request
+from ucp_sdk.models.schemas.shopping.checkout_update_request import (
+  CheckoutUpdateRequest,
 )
-from ucp_sdk.models.schemas.shopping.fulfillment_create_req import Fulfillment
-from ucp_sdk.models.schemas.shopping.fulfillment_update_req import (
-  Checkout as FulfillmentUpdate,
+from ucp_sdk.models.schemas.shopping.types import (
+  fulfillment_group_create_request,
 )
-from ucp_sdk.models.schemas.shopping.types import card_payment_instrument
-from ucp_sdk.models.schemas.shopping.types import fulfillment_destination_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_group_create_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_method_create_req
-from ucp_sdk.models.schemas.shopping.types import fulfillment_req
-from ucp_sdk.models.schemas.shopping.types import item_create_req
-from ucp_sdk.models.schemas.shopping.types import item_update_req
-from ucp_sdk.models.schemas.shopping.types import line_item_create_req
-from ucp_sdk.models.schemas.shopping.types import line_item_update_req
-from ucp_sdk.models.schemas.shopping.types import payment_handler_resp
-from ucp_sdk.models.schemas.shopping.types import shipping_destination_req
+from ucp_sdk.models.schemas.shopping.types import (
+  fulfillment_method_create_request,
+)
+from ucp_sdk.models.schemas.shopping.types import item_create_request
+from ucp_sdk.models.schemas.shopping.types import item_update_request
+from ucp_sdk.models.schemas.shopping.types import line_item_create_request
+from ucp_sdk.models.schemas.shopping.types import line_item_update_request
+from ucp_sdk.models.schemas import payment_handler
+from ucp_sdk.models.schemas.shopping.types import shipping_destination
 import uvicorn
 
 
-class UnifiedUpdate(FulfillmentUpdate, DiscountUpdate):
+class UnifiedUpdate(CheckoutUpdateRequest):
   """Client-side unified update model to support extensions."""
 
 
@@ -77,6 +74,11 @@ try:
     "conformance_input",
     "test_data/flower_shop/conformance_input.json",
     "Path to conformance input configuration JSON.",
+  )
+  flags.DEFINE_string(
+    "fixture_config",
+    "test_data/flower_shop/test_fixtures.json",
+    "Path to test fixtures configuration JSON.",
   )
   flags.DEFINE_string(
     "test_data_dir",
@@ -178,20 +180,20 @@ def get_valid_payment_payload(
     "postal_code": addr_data.get("postal_code"),
   }
 
-  # Use Pydantic model to validate/construct
-  instr_model = card_payment_instrument.CardPaymentInstrument(
-    id=instr_data["id"],
-    handler_id=instr_data["handler_id"],
-    handler_name=instr_data["handler_id"],  # Assuming same for mock
-    type=instr_data["type"],
-    brand=instr_data["brand"],
-    last_digits=instr_data["last_digits"],
-    credential={"type": "token", "token": instr_data["token"]},
-    billing_address=billing_address,
-  )
+  payment_instrument = {
+    "id": instr_data["id"],
+    "handler_id": instr_data["handler_id"],
+    "type": instr_data["type"],
+    "display": {
+      "brand": instr_data["brand"],
+      "last_digits": instr_data["last_digits"],
+    },
+    "credential": {"type": "token", "token": instr_data["token"]},
+    "billing_address": billing_address,
+  }
 
   return {
-    "payment_data": instr_model.model_dump(mode="json", exclude_none=True),
+    "payment": {"instruments": [payment_instrument]},
     "risk_signals": {},
   }
 
@@ -337,6 +339,139 @@ class MockWebhookServer:
     self.events = []
 
 
+class DynamicFixtureContext:
+  """Context for loading dynamic test fixtures from configuration."""
+
+  def __init__(
+    self,
+    config_path: str | Path | dict[str, Any],
+    fallback_config: dict[str, Any] | None = None,
+  ):
+    """Initialize DynamicFixtureContext from file path or dict."""
+    if isinstance(config_path, (str, Path)):
+      try:
+        with Path(config_path).open() as f:
+          self._config = json.load(f)
+      except (FileNotFoundError, OSError):
+        self._config = {}
+    elif isinstance(config_path, dict):
+      self._config = config_path
+    else:
+      self._config = {}
+    self._fallback_config = fallback_config or {}
+
+  def get_test_sku(self) -> str:
+    """Get the test SKU or item ID to use in checkout tests."""
+    val = self._config.get("test_sku")
+    if val is None:
+      val = self._fallback_config.get("test_sku")
+    if val is not None:
+      return str(val)
+
+    val = self._config.get("test_fixtures", {}).get("valid_item", {}).get("sku")
+    if val is None:
+      val = (
+        self._fallback_config.get("test_fixtures", {})
+        .get("valid_item", {})
+        .get("sku")
+      )
+    if val is not None:
+      return str(val)
+
+    items = self._config.get("items", [{}])
+    if not items or items == [{}]:
+      items = self._fallback_config.get("items", [{}])
+    if items and isinstance(items, list) and len(items) > 0:
+      return str(items[0].get("id", "item_1"))
+    return "item_1"
+
+  def get_test_price(self) -> int:
+    """Get the expected price for the valid item in minor units."""
+    val = self._config.get("test_price")
+    if val is None:
+      val = self._fallback_config.get("test_price")
+    if val is not None:
+      if isinstance(val, (int, float)):
+        return int(round(val * 100))
+      return int(val)
+
+    val = (
+      self._config.get("test_fixtures", {})
+      .get("valid_item", {})
+      .get("expected_price")
+    )
+    if val is None:
+      val = (
+        self._fallback_config.get("test_fixtures", {})
+        .get("valid_item", {})
+        .get("expected_price")
+      )
+    if val is not None:
+      if isinstance(val, (int, float)):
+        return int(round(val * 100))
+      return int(val)
+
+    items = self._config.get("items", [{}])
+    if not items or items == [{}]:
+      items = self._fallback_config.get("items", [{}])
+    if items and isinstance(items, list) and len(items) > 0:
+      return int(items[0].get("price", 3500))
+    return 3500
+
+  def get_test_destination(self) -> dict[str, Any]:
+    """Get the destination address dictionary for shipping."""
+    val = self._config.get("test_destination")
+    if val is None:
+      val = self._fallback_config.get("test_destination")
+
+    if val is not None and isinstance(val, dict):
+      dest = dict(val)
+    else:
+      dest = self._config.get("shipping_locations", {}).get(
+        "domestic_destination", {}
+      )
+      if not dest:
+        dest = self._fallback_config.get("shipping_locations", {}).get(
+          "domestic_destination", {}
+        )
+      dest = dict(dest) if dest else {}
+
+    if not dest:
+      dest = {
+        "street": "123 Market St",
+        "city": "San Francisco",
+        "state": "CA",
+        "postal_code": "94105",
+        "country": "US",
+      }
+    dest.setdefault("address_country", dest.get("country", "US"))
+    dest.setdefault("postal_code", dest.get("postal_code", "94105"))
+    dest.setdefault("locality", dest.get("city", "San Francisco"))
+    dest.setdefault("region", dest.get("state", "CA"))
+    dest.setdefault("street_address", dest.get("street", "123 Market St"))
+    return dest
+
+  def get_test_discount_code(self) -> str:
+    """Get a valid discount code for tests."""
+    val = self._config.get("test_discount_code")
+    if val is None:
+      val = self._fallback_config.get("test_discount_code")
+    if val is not None:
+      return str(val)
+
+    val = self._config.get("test_fixtures", {}).get("valid_discount_code")
+    if val is None:
+      val = self._fallback_config.get("test_fixtures", {}).get(
+        "valid_discount_code"
+      )
+    if val is not None:
+      return str(val)
+    return "SPRING20"
+
+
+ConfiguredFixtureContext = DynamicFixtureContext
+
+
 class IntegrationTestBase(absltest.TestCase):
   """Base class for UCP integration tests providing setup and helper methods."""
 
@@ -364,6 +499,22 @@ class IntegrationTestBase(absltest.TestCase):
       )
       self.conformance_config = {}
 
+    # Load fixture configuration
+    fixture_config = {}
+    if FLAGS.fixture_config:
+      try:
+        with Path(FLAGS.fixture_config).open() as f:
+          fixture_config = json.load(f)
+      except FileNotFoundError:
+        logging.warning(
+          "Fixture config file not found at %s. Using defaults.",
+          FLAGS.fixture_config,
+        )
+
+    self.fixture_ctx = DynamicFixtureContext(
+      fixture_config, fallback_config=self.conformance_config
+    )
+
     # Load CSV Test Data
     try:
       # Resolve relative to this file if not absolute
@@ -382,6 +533,61 @@ class IntegrationTestBase(absltest.TestCase):
       port=FLAGS.mock_agent_port, webhook_port=FLAGS.mock_webhook_port
     )
     self.agent_server.start()
+    self._shopping_service_endpoint: str | None = None
+
+  @property
+  def shopping_service_endpoint(self) -> str:
+    """Cached property for the shopping service endpoint."""
+    if self._shopping_service_endpoint is None:
+      discovery_resp = self.client.get("/.well-known/ucp")
+      self.assert_response_status(discovery_resp, 200)
+
+      profile_data = discovery_resp.json()
+      # Support both wrapped and unwrapped (UCP wrapper)
+      ucp_data = profile_data.get("ucp", profile_data)
+      # UCP 01-23 validation changed dicts to lists
+      shopping_services = ucp_data.get("services", {}).get(
+        "dev.ucp.shopping", []
+      )
+      if not shopping_services:
+        raise RuntimeError("Shopping service not found in discovery profile")
+
+      shopping_service = (
+        shopping_services[0]
+        if isinstance(shopping_services, list)
+        else shopping_services
+      )
+
+      endpoint = (
+        shopping_service.get("endpoint")
+        if shopping_service and shopping_service.get("transport") == "rest"
+        else None
+      )
+      if not endpoint:
+        raise RuntimeError(
+          "Shopping service endpoint not found in discovery profile"
+        )
+      self._shopping_service_endpoint = str(endpoint)
+    return self._shopping_service_endpoint
+
+  def get_shopping_url(self, path: str) -> str:
+    """Construct a full URL for the shopping service.
+
+    Args:
+        path: The path to append to the service endpoint
+          (e.g., '/checkout-sessions').
+
+    Returns:
+        The full URL.
+
+    """
+    base = self.shopping_service_endpoint.rstrip("/")
+    path = path.lstrip("/")
+    return f"{base}/{path}"
+
+  def get_order_url(self, order_id: str) -> str:
+    """Construct a full URL for an order resource."""
+    return self.get_shopping_url(f"/orders/{order_id}")
 
   def tearDown(self) -> None:
     """Tear down the test case, stopping servers and clients."""
@@ -394,18 +600,16 @@ class IntegrationTestBase(absltest.TestCase):
     self,
     quantity=1,
     item_id: str | None = None,
-    title: str | None = None,
     currency: str | None = None,
     handlers=None,
     buyer: dict[str, Any] | None = None,
     include_fulfillment: bool = True,
-  ) -> checkout_create_req.CheckoutCreateRequest:
+  ) -> checkout_create_request.CheckoutCreateRequest:
     """Create a valid checkout creation payload.
 
     Args:
         quantity: Number of items to purchase. Defaults to 1.
         item_id: ID of the item. Defaults to config or "item_1".
-        title: Title of the item. Defaults to config or "Test Item".
         currency: Currency code. Defaults to config or "USD".
         handlers: Optional list of payment handlers. If None, defaults to Google
           Pay.
@@ -416,26 +620,22 @@ class IntegrationTestBase(absltest.TestCase):
         A CheckoutCreateRequest object populated with the specified data.
 
     """
-    # Load defaults from config if not provided
-    default_item = (
-      self.conformance_config.get("items", [{}])[0]
-      if self.conformance_config
-      else {}
+    # Load defaults dynamically via fixture context or fallback to config
+    ctx = getattr(self, "fixture_ctx", None) or DynamicFixtureContext(
+      getattr(self, "conformance_config", {})
     )
 
     if item_id is None:
-      item_id = default_item.get("id", "item_1")
-    if title is None:
-      title = default_item.get("title", "Test Item")
+      item_id = ctx.get_test_sku()
     if currency is None:
-      currency = self.conformance_config.get("currency", "USD")
+      currency = getattr(self, "conformance_config", {}).get("currency", "USD")
 
     if handlers is None:
       handlers = [
-        payment_handler_resp.PaymentHandlerResponse(
+        payment_handler.Base(
           id="google_pay",
           name="google.pay",
-          version="2026-01-11",
+          version="2026-04-08",
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
           instrument_schemas=["https://example.com/instrument_schema"],
@@ -443,40 +643,56 @@ class IntegrationTestBase(absltest.TestCase):
         )
       ]
 
-    item = item_create_req.ItemCreateRequest(id=item_id, title=title)
-    line_item = line_item_create_req.LineItemCreateRequest(
+    item = item_create_request.ItemCreateRequest(id=item_id)
+    line_item = line_item_create_request.LineItemCreateRequest(
       quantity=quantity, item=item
     )
 
     # PaymentCreateRequest allows extra fields, so passing handlers is valid
-    payment = payment_create_req.PaymentCreateRequest(
+    payment = payment_create_request.PaymentCreateRequest(
       instruments=[],
-      selected_instrument_id="instr_1",
       handlers=[h.model_dump(mode="json", exclude_none=True) for h in handlers],
     )
 
     fulfillment = None
     if include_fulfillment:
-      # Hierarchical Fulfillment Construction
-      destination = fulfillment_destination_req.FulfillmentDestinationRequest(
-        root=shipping_destination_req.ShippingDestinationRequest(
-          id="dest_1", address_country="US"
-        )
+      # Hierarchical Fulfillment Construction using dynamic destination
+      dest_data = ctx.get_test_destination()
+      destination = shipping_destination.ShippingDestination(
+        id="dest_1",
+        address_country=dest_data.get(
+          "address_country", dest_data.get("country", "US")
+        ),
+        postal_code=dest_data.get("postal_code", "94105"),
+        locality=dest_data.get("locality", dest_data.get("city")),
+        region=dest_data.get("region", dest_data.get("state")),
+        street_address=dest_data.get("street_address", dest_data.get("street")),
       )
-      group = fulfillment_group_create_req.FulfillmentGroupCreateRequest(
-        selected_option_id="std-ship"
+      group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
+        id="group_1",
+        line_item_ids=["line_item_123"],
+        selected_option_id="std-ship",
       )
-      method = fulfillment_method_create_req.FulfillmentMethodCreateRequest(
+      method = fulfillment_method_create_request.FulfillmentMethodCreateRequest(
+        id="method_1",
         type="shipping",
         destinations=[destination],
+        line_item_ids=["line_item_123"],
         selected_destination_id="dest_1",
         groups=[group],
       )
-      fulfillment = Fulfillment(
-        root=fulfillment_req.FulfillmentRequest(methods=[method])
-      )
+      fulfillment = {
+        "methods": [
+          method.model_dump(mode="json", exclude_none=True, by_alias=True)
+        ]
+      }
 
-    return checkout_create_req.CheckoutCreateRequest(
+    # Set response fields on model objects for server validation workaround
+    item.price = ctx.get_test_price()
+    line_item.id = "line_item_123"
+    line_item.totals = []
+
+    checkout_req = checkout_create_request.CheckoutCreateRequest(
       id=str(uuid.uuid4()),
       currency=currency,
       line_items=[line_item],
@@ -484,6 +700,12 @@ class IntegrationTestBase(absltest.TestCase):
       buyer=buyer,
       fulfillment=fulfillment,
     )
+    checkout_req.status = "incomplete"
+    checkout_req.ucp = {"version": "2026-04-08"}
+    checkout_req.totals = []
+    checkout_req.links = []
+
+    return checkout_req
 
   def get_headers(
     self, idempotency_key: str | None = None, request_id: str | None = None
@@ -532,7 +754,6 @@ class IntegrationTestBase(absltest.TestCase):
     self,
     quantity: int = 1,
     item_id: str | None = None,
-    title: str | None = None,
     currency: str | None = None,
     handlers: list[Any] | None = None,
     buyer: dict[str, Any] | None = None,
@@ -544,7 +765,6 @@ class IntegrationTestBase(absltest.TestCase):
     Args:
         quantity: Number of items to purchase. Defaults to 1.
         item_id: ID of the item. Defaults to config or "item_1".
-        title: Title of the item. Defaults to config or "Test Item".
         currency: Currency code. Defaults to config or "USD".
         handlers: Optional list of payment handlers. If None, defaults to Google
           Pay.
@@ -560,7 +780,6 @@ class IntegrationTestBase(absltest.TestCase):
     create_payload = self.create_checkout_payload(
       quantity=quantity,
       item_id=item_id,
-      title=title,
       currency=currency,
       handlers=handlers,
       buyer=buyer,
@@ -572,7 +791,7 @@ class IntegrationTestBase(absltest.TestCase):
       request_headers.update(headers)
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -597,7 +816,8 @@ class IntegrationTestBase(absltest.TestCase):
 
     """
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      headers=self.get_headers(),
     )
     checkout_data = response.json()
 
@@ -722,7 +942,7 @@ class IntegrationTestBase(absltest.TestCase):
       payment_payload = get_valid_payment_payload()
 
     response = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=self.get_headers(),
     )
@@ -802,27 +1022,26 @@ class IntegrationTestBase(absltest.TestCase):
     if line_items is None:
       line_items = []
       for li in checkout_obj.line_items:
-        item_update = item_update_req.ItemUpdateRequest(
+        item_update = item_update_request.ItemUpdateRequest(
           id=li.item.id,
-          title=li.item.title,
         )
         line_items.append(
-          line_item_update_req.LineItemUpdateRequest(
+          line_item_update_request.LineItemUpdateRequest(
             id=li.id,
             item=item_update,
             quantity=li.quantity,
+            parent_id=li.parent_id,
           )
         )
 
     # Construct Payment
     if payment is None:
-      payment = payment_update_req.PaymentUpdateRequest(
-        selected_instrument_id=checkout_obj.payment.selected_instrument_id,
-        instruments=checkout_obj.payment.instruments,
-        handlers=[
-          h.model_dump(mode="json", exclude_none=True)
-          for h in checkout_obj.payment.handlers
-        ],
+      payment = (
+        payment_update_request.PaymentUpdateRequest(
+          instruments=getattr(checkout_obj.payment, "instruments", []),
+        )
+        if checkout_obj.payment
+        else None
       )
 
     update_payload = UnifiedUpdate(
@@ -841,7 +1060,7 @@ class IntegrationTestBase(absltest.TestCase):
       request_headers.update(headers)
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),

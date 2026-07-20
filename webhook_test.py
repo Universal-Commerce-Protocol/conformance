@@ -17,15 +17,13 @@
 import time
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 
 # Rebuild models to resolve forward references
-fulfillment_resp.Checkout.model_rebuild(
-  _types_namespace={"PaymentResponse": Payment}
-)
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class WebhookTest(integration_test_utils.IntegrationTestBase):
@@ -58,7 +56,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     # 1. Create checkout (webhook URL passed via UCP-Agent header)
     checkout_data = self.create_checkout_session(headers=self.get_headers())
 
-    checkout_obj = fulfillment_resp.Checkout(**checkout_data)
+    checkout_obj = checkout.Checkout(**checkout_data)
     checkout_id = checkout_obj.id
 
     # 2. Complete Checkout
@@ -120,51 +118,78 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     """Test that webhook contains correct address for known customer/address."""
     buyer_info = {"fullName": "John Doe", "email": "john.doe@example.com"}
     checkout_data = self.create_checkout_session(buyer=buyer_info)
-    checkout_obj = fulfillment_resp.Checkout(**checkout_data)
+    checkout_obj = checkout.Checkout(**checkout_data)
 
-    # Trigger fulfillment update to inject address
+    # Update to trigger address injection and selection
     self.update_checkout_session(
-      checkout_obj, fulfillment={"methods": [{"type": "shipping"}]}
+      checkout_obj,
+      fulfillment={
+        "methods": [
+          {"id": "method_1", "line_item_ids": ["item_123"], "type": "shipping"}
+        ]
+      },
     )
 
     # Fetch to get injected destinations
     response = self.client.get(
-      f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+      headers=self.get_headers(),
     )
     checkout_data = response.json()
-    checkout_obj = fulfillment_resp.Checkout(**checkout_data)
+    checkout_obj = checkout.Checkout(**checkout_data)
 
-    if (
-      checkout_obj.fulfillment
-      and checkout_obj.fulfillment.root.methods
-      and checkout_obj.fulfillment.root.methods[0].destinations
+    self.assertTrue(
+      getattr(checkout_obj, "model_extra", None)
+      and checkout_obj.model_extra.get("fulfillment")
+      and checkout_obj.model_extra["fulfillment"].get("methods")
+    )
+    if checkout_obj.model_extra["fulfillment"]["methods"][0].get(
+      "destinations"
     ):
-      method = checkout_obj.fulfillment.root.methods[0]
-      dest_id = method.destinations[0].root.id
+      method = checkout_obj.model_extra["fulfillment"]["methods"][0]
+      dest_id = method["destinations"][0]["id"]
       # Select destination first to calculate options
       self.update_checkout_session(
         checkout_obj,
         fulfillment={
-          "methods": [{"type": "shipping", "selected_destination_id": dest_id}]
+          "methods": [
+            {
+              "id": "method_1",
+              "line_item_ids": ["item_1"],
+              "type": "shipping",
+              "selected_destination_id": dest_id,
+            }
+          ]
         },
       )
 
       # Fetch again to get options
       response = self.client.get(
-        f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+        self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+        headers=self.get_headers(),
       )
-      checkout_obj = fulfillment_resp.Checkout(**response.json())
-      method = checkout_obj.fulfillment.root.methods[0]
-      if method.groups and method.groups[0].options:
-        option_id = method.groups[0].options[0].id
+      checkout_obj = checkout.Checkout(**response.json())
+      method = checkout_obj.model_extra["fulfillment"]["methods"][0]
+      if method.get("groups", []) and method.get("groups", [])[0].get(
+        "options", []
+      ):
+        option_id = method.get("groups", [])[0].get("options", [])[0].get("id")
         self.update_checkout_session(
           checkout_obj,
           fulfillment={
             "methods": [
               {
+                "id": "method_1",
+                "line_item_ids": ["item_1"],
                 "type": "shipping",
                 "selected_destination_id": dest_id,
-                "groups": [{"selected_option_id": option_id}],
+                "groups": [
+                  {
+                    "id": "group_1",
+                    "line_item_ids": ["item_1"],
+                    "selected_option_id": option_id,
+                  }
+                ],
               }
             ]
           },
@@ -195,7 +220,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     """Test that webhook contains correct address when a new one is provided."""
     buyer_info = {"fullName": "John Doe", "email": "john.doe@example.com"}
     checkout_data = self.create_checkout_session(buyer=buyer_info)
-    checkout_obj = fulfillment_resp.Checkout(**checkout_data)
+    checkout_obj = checkout.Checkout(**checkout_data)
 
     new_address = {
       "id": "dest_new_webhook",
@@ -207,6 +232,8 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
+          "line_item_ids": ["item_123"],
           "type": "shipping",
           "destinations": [new_address],
           "selected_destination_id": "dest_new_webhook",
@@ -217,18 +244,27 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     # Fetch to get options
     response = self.client.get(
-      f"/checkout-sessions/{checkout_obj.id}", headers=self.get_headers()
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
+      headers=self.get_headers(),
     )
-    checkout_obj = fulfillment_resp.Checkout(**response.json())
-    method = checkout_obj.fulfillment.root.methods[0]
+    checkout_obj = checkout.Checkout(**response.json())
+    method = checkout_obj.model_extra["fulfillment"]["methods"][0]
 
-    if method.groups and method.groups[0].options:
-      option_id = method.groups[0].options[0].id
+    if method.get("groups", []) and method.get("groups", [])[0].get(
+      "options", []
+    ):
+      option_id = method.get("groups", [])[0].get("options", [])[0].get("id")
       # Select option
       fulfillment_payload["methods"][0]["groups"] = [
-        {"selected_option_id": option_id}
+        {
+          "id": "group_1",
+          "line_item_ids": ["item_123"],
+          "selected_option_id": option_id,
+        }
       ]
       fulfillment_payload["methods"][0]["type"] = "shipping"
+      fulfillment_payload["methods"][0]["id"] = "method_1"
+      fulfillment_payload["methods"][0]["line_item_ids"] = ["item_123"]
       self.update_checkout_session(
         checkout_obj, fulfillment=fulfillment_payload
       )

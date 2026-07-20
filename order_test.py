@@ -20,16 +20,16 @@ from absl import flags
 from absl.testing import absltest
 import integration_test_utils
 from pydantic import AnyUrl
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
+from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import order
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 from ucp_sdk.models.schemas.shopping.types import adjustment
 from ucp_sdk.models.schemas.shopping.types import fulfillment_event
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 FLAGS = flags.FLAGS
 
@@ -57,7 +57,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     self.assert_response_status(response, 200)
 
@@ -95,6 +95,8 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
+          "line_item_ids": ["item_123"],
           "type": "shipping",
           "destinations": [fulfillment_address],
           "selected_destination_id": "dest_manual",
@@ -118,38 +120,42 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     }
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
-    checkout_with_options = checkout.Checkout(**response.json())
+    checkout.Checkout(**response.json())
 
     # Check options in hierarchical structure
+    checkout_json = response.json()
     options = []
-    if (
-      checkout_with_options.fulfillment
-      and checkout_with_options.fulfillment.root.methods
-      and checkout_with_options.fulfillment.root.methods[0].groups
-    ):
-      options = (
-        checkout_with_options.fulfillment.root.methods[0].groups[0].options
-      )
+    group_info = {}
+    if checkout_json.get("fulfillment"):
+      ful = checkout_json["fulfillment"]
+      methods = ful.get("root", ful).get("methods", [])
+      if methods and methods[0].get("groups"):
+        group_info = methods[0]["groups"][0]
+        options = group_info.get("options", [])
 
     self.assertTrue(options, "No options returned")
 
     # Select Option
-    option_id = options[0].id
+    option_id = options[0]["id"]
 
     # Update payload to select option
     # Need to preserve the method structure
     update_payload["fulfillment"]["methods"][0]["groups"] = [
-      {"selected_option_id": option_id}
+      {
+        "id": group_info.get("id", "group_1"),
+        "line_item_ids": group_info.get("line_item_ids", ["item_123"]),
+        "selected_option_id": option_id,
+      }
     ]
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -161,7 +167,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order and verify fulfillment details
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     self.assert_response_status(response, 200)
     order_obj = order.Order(**response.json())
@@ -172,7 +178,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     # Verify the expectation description matches the selected option title
     self.assertEqual(
       order_obj.fulfillment.expectations[0].description,
-      options[0].title,
+      options[0]["title"],
       "Expectation description mismatch",
     )
 
@@ -205,6 +211,8 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     fulfillment_payload = {
       "methods": [
         {
+          "id": "method_1",
+          "line_item_ids": ["item_123"],
           "type": "shipping",
           "destinations": [addr],
           "selected_destination_id": "dest_manual_2",
@@ -228,7 +236,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     }
 
     resp = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -236,33 +244,27 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     checkout_resp = resp.json()
     options = []
-    if (
-      checkout_resp.get("fulfillment")
-      and checkout_resp["fulfillment"].get("root")  # RootModel serialized?
-      and checkout_resp["fulfillment"]["root"].get("methods")
-      and checkout_resp["fulfillment"]["root"]["methods"][0].get("groups")
-    ):
-      options = checkout_resp["fulfillment"]["root"]["methods"][0]["groups"][0][
-        "options"
-      ]
-    elif (
-      checkout_resp.get("fulfillment")
-      and checkout_resp["fulfillment"].get("methods")
-      and checkout_resp["fulfillment"]["methods"][0].get("groups")
-    ):
-      options = checkout_resp["fulfillment"]["methods"][0]["groups"][0][
-        "options"
-      ]
+    group_info = {}
+    if checkout_resp.get("fulfillment"):
+      ful = checkout_resp["fulfillment"]
+      methods = ful.get("root", ful).get("methods", [])
+      if methods and methods[0].get("groups"):
+        group_info = methods[0]["groups"][0]
+        options = group_info.get("options", [])
 
     self.assertTrue(options)
 
     # Select option
     update_payload["fulfillment"]["methods"][0]["groups"] = [
-      {"selected_option_id": options[0]["id"]}
+      {
+        "id": group_info.get("id", "group_1"),
+        "line_item_ids": group_info.get("line_item_ids", ["item_123"]),
+        "selected_option_id": options[0]["id"],
+      }
     ]
 
     self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload,
       headers=self.get_headers(),
     )
@@ -272,7 +274,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_id = complete_data["order"]["id"]
 
     # Get Order
-    resp = self.client.get(f"/orders/{order_id}", headers=self.get_headers())
+    resp = self.client.get(
+      self.get_order_url(order_id), headers=self.get_headers()
+    )
     self.assert_response_status(resp, 200)
     order_obj = order.Order(**resp.json())
 
@@ -295,7 +299,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_obj.fulfillment.events.append(new_event)
 
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
       headers=self.get_headers(),
     )
@@ -319,7 +323,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     order_id = self.create_completed_order()
 
     # Get Order
-    resp = self.client.get(f"/orders/{order_id}", headers=self.get_headers())
+    resp = self.client.get(
+      self.get_order_url(order_id), headers=self.get_headers()
+    )
     self.assert_response_status(resp, 200)
     order_obj = order.Order(**resp.json())
 
@@ -339,7 +345,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
       headers=self.get_headers(),
     )

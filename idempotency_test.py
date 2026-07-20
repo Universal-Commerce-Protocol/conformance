@@ -18,13 +18,13 @@ import uuid
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import checkout as checkout
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
 )
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class IdempotencyTest(integration_test_utils.IntegrationTestBase):
@@ -51,7 +51,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     # 1. Initial Request
     headers = integration_test_utils.get_headers(idempotency_key=idem_key)
     response1 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -61,7 +61,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -82,7 +82,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     conflict_payload = create_payload.model_copy(deep=True)
     conflict_payload.currency = "EUR"
     response3 = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=conflict_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -119,7 +119,6 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
       )
 
     payment_req = {
-      "selected_instrument_id": checkout_obj.payment.selected_instrument_id,
       "instruments": [
         i.model_dump(mode="json", exclude_none=True)
         for i in checkout_obj.payment.instruments
@@ -134,7 +133,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     }
 
     response1 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload,
       headers=headers,
     )
@@ -142,7 +141,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=update_payload,
       headers=headers,
     )
@@ -162,7 +161,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     conflict_payload["line_items"][0]["quantity"] = 3
 
     response3 = self.client.put(
-      f"/checkout-sessions/{checkout_obj.id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=conflict_payload,
       headers=headers,
     )
@@ -186,7 +185,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     complete_payload = integration_test_utils.get_valid_payment_payload()
 
     response1 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload,
       headers=headers,
     )
@@ -194,7 +193,7 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload,
       headers=headers,
     )
@@ -211,11 +210,11 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 3. Conflict Request
     complete_payload_diff = integration_test_utils.get_valid_payment_payload()
-    complete_payload_diff["payment_data"]["credential"]["token"] = (
-      "different_token"
-    )
+    complete_payload_diff["payment"]["instruments"][0]["credential"][
+      "token"
+    ] = "different_token"
     response3 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/complete",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=complete_payload_diff,
       headers=headers,
     )
@@ -236,14 +235,14 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
     headers = integration_test_utils.get_headers(idempotency_key=idem_key)
 
     response1 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=headers,
     )
     self.assert_response_status(response1, 200)
 
     # 2. Duplicate Request
     response2 = self.client.post(
-      f"/checkout-sessions/{checkout_id}/cancel",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
       headers=headers,
     )
     self.assertEqual(

@@ -16,20 +16,22 @@
 
 from absl.testing import absltest
 import integration_test_utils
-from ucp_sdk.models.schemas.shopping import buyer_consent_resp as buyer_consent
-from ucp_sdk.models.schemas.shopping import checkout_update_req
-from ucp_sdk.models.schemas.shopping import discount_resp as discount
-from ucp_sdk.models.schemas.shopping import fulfillment_resp as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_req
-from ucp_sdk.models.schemas.shopping.payment_resp import (
-  PaymentResponse as Payment,
+from ucp_sdk.models.schemas.shopping import buyer_consent as buyer_consent
+from ucp_sdk.models.schemas.shopping import (
+  checkout_update_request as checkout_update_req,
 )
-from ucp_sdk.models.schemas.shopping.types import buyer
-from ucp_sdk.models.schemas.shopping.types import item_update_req
-from ucp_sdk.models.schemas.shopping.types import line_item_update_req
+from ucp_sdk.models.schemas.shopping import discount as discount
+from ucp_sdk.models.schemas.shopping import checkout as checkout
+from ucp_sdk.models.schemas.shopping import payment_update_request
+from ucp_sdk.models.schemas.shopping.payment import (
+  Payment,
+)
+from ucp_sdk.models.schemas.shopping.types import buyer_update_request
+from ucp_sdk.models.schemas.shopping.types import item_update_request
+from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 
 # Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"PaymentResponse": Payment})
+checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
@@ -58,12 +60,9 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
     expected_price = int(default_item.get("price", 3500))
 
-    # Create with wrong title in payload. The helper sends a default price
-    # if not specified, but the server should ignore client-provided values
-    # and use the authoritative price from its DB (which matches our config).
-    response_json = self.create_checkout_session(
-      title="Wrong Title", select_fulfillment=False
-    )
+    # Create checkout (client cannot send title/price per schema). The server
+    # should use the authoritative price from its DB (which matches our config).
+    response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
 
     # Verify Line Item Calculations
@@ -129,22 +128,16 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_price = int(expected_price)
 
     # Update quantity to 2. Total should be 2 * expected_price.
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
     )
 
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -155,7 +148,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -198,22 +191,16 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_price = int(expected_price)
 
     # Apply Discount
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=1,
     )
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
     )
 
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -229,7 +216,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     update_dict["discounts"] = {"codes": ["10OFF"]}
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_dict,
       headers=integration_test_utils.get_headers(),
     )
@@ -447,7 +434,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     }
 
     response = self.client.post(
-      "/checkout-sessions",
+      self.get_shopping_url("/checkout-sessions"),
       json=create_payload_dict,
       headers=integration_test_utils.get_headers(),
     )
@@ -455,7 +442,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout.Checkout(**response.json()).id
 
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=integration_test_utils.get_headers(),
     )
     self.assert_response_status(response, 200)
@@ -492,22 +479,16 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     checkout_id = checkout_obj.id
 
     # Update with buyer info
-    item_update = item_update_req.ItemUpdateRequest(
+    item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
-      title=checkout_obj.line_items[0].item.title,
     )
-    line_item_update = line_item_update_req.LineItemUpdateRequest(
+    line_item_update = line_item_update_request.LineItemUpdateRequest(
       id=checkout_obj.line_items[0].id,
       item=item_update,
       quantity=1,
     )
-    payment_update = payment_update_req.PaymentUpdateRequest(
-      selected_instrument_id=checkout_obj.payment.selected_instrument_id,
+    payment_update = payment_update_request.PaymentUpdateRequest(
       instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.handlers
-      ],
     )
 
     update_payload = checkout_update_req.CheckoutUpdateRequest(
@@ -515,7 +496,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       currency=checkout_obj.currency,
       line_items=[line_item_update],
       payment=payment_update,
-      buyer=buyer.Buyer(
+      buyer=buyer_update_request.BuyerUpdateRequest(
         email="test@example.com",
         first_name="Test",
         last_name="User",
@@ -523,7 +504,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
 
     response = self.client.put(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
@@ -533,7 +514,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
 
     # GET and verify
     response = self.client.get(
-      f"/checkout-sessions/{checkout_id}",
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=integration_test_utils.get_headers(),
     )
     checkout_obj = checkout.Checkout(**response.json())
