@@ -44,50 +44,56 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
   """
 
   def assert_totals_consistent(
-      self, checkout_obj, expected_subtotal, expected_discount=0
+    self, checkout_obj, expected_subtotal, expected_discount=0
   ):
+    """Assert that the checkout totals are consistent and correct."""
     subtotal = next(
-        (t.amount for t in checkout_obj.totals if t.type == "subtotal"), 0
+      (t.amount for t in checkout_obj.totals if t.type == "subtotal"), 0
     )
     fulfillment = next(
-        (t.amount for t in checkout_obj.totals if t.type == "fulfillment"), 0
+      (t.amount for t in checkout_obj.totals if t.type == "fulfillment"), 0
     )
     tax = next((t.amount for t in checkout_obj.totals if t.type == "tax"), 0)
     fee = next((t.amount for t in checkout_obj.totals if t.type == "fee"), 0)
     discount = sum(
-        t.amount
-        for t in checkout_obj.totals
-        if t.type in ["items_discount", "discount"]
+      t.amount
+      for t in checkout_obj.totals
+      if t.type in ["items_discount", "discount"]
     )
-    total = next((t.amount for t in checkout_obj.totals if t.type == "total"), 0)
+    total = next(
+      (t.amount for t in checkout_obj.totals if t.type == "total"), 0
+    )
 
     self.assertEqual(
-        subtotal,
-        expected_subtotal,
-        f"Subtotal mismatch: expected {expected_subtotal}, got {subtotal}",
+      subtotal,
+      expected_subtotal,
+      f"Subtotal mismatch: expected {expected_subtotal}, got {subtotal}",
     )
     if expected_discount:
       if isinstance(expected_discount, (list, set, tuple)):
         self.assertIn(
-            abs(discount),
-            expected_discount,
-            f"Discount mismatch: expected one of {expected_discount}, got {discount}",
+          abs(discount),
+          expected_discount,
+          (
+            f"Discount mismatch: expected one of {expected_discount}, got"
+            f" {discount}"
+          ),
         )
       else:
         self.assertEqual(
-            abs(discount),
-            expected_discount,
-            f"Discount mismatch: expected {expected_discount}, got {discount}",
+          abs(discount),
+          expected_discount,
+          f"Discount mismatch: expected {expected_discount}, got {discount}",
         )
     calculated_total = subtotal + fulfillment + tax + fee - abs(discount)
     self.assertEqual(
-        total,
-        calculated_total,
-        (
-            f"Total math mismatch: calculated {calculated_total} (subtotal="
-            f"{subtotal}, fulfillment={fulfillment}, tax={tax}, fee={fee}, "
-            f"discount={discount}), got {total}"
-        ),
+      total,
+      calculated_total,
+      (
+        f"Total math mismatch: calculated {calculated_total} (subtotal="
+        f"{subtotal}, fulfillment={fulfillment}, tax={tax}, fee={fee}, "
+        f"discount={discount}), got {total}"
+      ),
     )
 
   def test_totals_calculation_on_create(self):
@@ -228,7 +234,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response.json())
 
     self.assert_totals_consistent(
-        discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Parse discounts from extra fields
@@ -275,7 +281,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     expected_discount_sequential = d1_seq + d2_seq
 
     # Accept either approach
-    expected_discount = [expected_discount_sequential, expected_discount_cumulative]
+    expected_discount = [
+      expected_discount_sequential,
+      expected_discount_cumulative,
+    ]
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -288,7 +297,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response_json)
 
     self.assert_totals_consistent(
-        discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Verify both applied discounts are present
@@ -325,7 +334,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response_json)
 
     self.assert_totals_consistent(
-        discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Verify only one applied discount is present
@@ -362,7 +371,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response_json)
 
     self.assert_totals_consistent(
-        discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Parse discounts from extra fields

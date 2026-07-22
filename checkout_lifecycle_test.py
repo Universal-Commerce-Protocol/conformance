@@ -51,8 +51,8 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
   """
 
   DEFAULT_BUYER = {
-      "email": "conformance-test-buyer@example.com",
-      "name": "Conformance Test Buyer",
+    "email": "conformance-test-buyer@example.com",
+    "name": "Conformance Test Buyer",
   }
 
   def test_create_checkout(self):
@@ -185,7 +185,8 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # Verify updates in the response
     resp_json = response.json()
     self.assertEqual(
-      resp_json.get("buyer", {}).get("email"), "update-checkout-buyer@example.com"
+      resp_json.get("buyer", {}).get("email"),
+      "update-checkout-buyer@example.com",
     )
     self.assertEqual(resp_json.get("buyer", {}).get("first_name"), "Jane")
     self.assertEqual(resp_json.get("buyer", {}).get("last_name"), "Doe")
