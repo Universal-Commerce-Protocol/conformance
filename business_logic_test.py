@@ -43,6 +43,46 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
   - GET /checkout-sessions/{id}
   """
 
+  def assert_totals_consistent(
+      self, checkout_obj, expected_subtotal, expected_discount=0
+  ):
+    subtotal = next(
+        (t.amount for t in checkout_obj.totals if t.type == "subtotal"), 0
+    )
+    fulfillment = next(
+        (t.amount for t in checkout_obj.totals if t.type == "fulfillment"), 0
+    )
+    tax = next((t.amount for t in checkout_obj.totals if t.type == "tax"), 0)
+    fee = next((t.amount for t in checkout_obj.totals if t.type == "fee"), 0)
+    discount = sum(
+        t.amount
+        for t in checkout_obj.totals
+        if t.type in ["items_discount", "discount"]
+    )
+    total = next((t.amount for t in checkout_obj.totals if t.type == "total"), 0)
+
+    self.assertEqual(
+        subtotal,
+        expected_subtotal,
+        f"Subtotal mismatch: expected {expected_subtotal}, got {subtotal}",
+    )
+    if expected_discount > 0:
+      self.assertEqual(
+          abs(discount),
+          expected_discount,
+          f"Discount mismatch: expected {expected_discount}, got {discount}",
+      )
+    calculated_total = subtotal + fulfillment + tax + fee - abs(discount)
+    self.assertEqual(
+        total,
+        calculated_total,
+        (
+            f"Total math mismatch: calculated {calculated_total} (subtotal="
+            f"{subtotal}, fulfillment={fulfillment}, tax={tax}, fee={fee}, "
+            f"discount={discount}), got {total}"
+        ),
+    )
+
   def test_totals_calculation_on_create(self):
     """Test that totals are calculated correctly upon checkout creation.
 
@@ -52,13 +92,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     and grand total correctly reflect the database price, ignoring client
     input.
     """
-    # Get expected item details from config
-    default_item = (
-      self.conformance_config.get("items", [{}])[0]
-      if self.conformance_config
-      else {}
-    )
-    expected_price = int(default_item.get("price", 3500))
+    expected_price = self.fixture_ctx.get_test_price()
 
     # Create checkout (client cannot send title/price per schema). The server
     # should use the authoritative price from its DB (which matches our config).
@@ -86,26 +120,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
 
     # Verify Totals Breakdown
-    subtotal = next(
-      (t for t in checkout_obj.totals if t.type == "subtotal"), None
-    )
-    total_obj = next(
-      (t for t in checkout_obj.totals if t.type == "total"), None
-    )
-
-    self.assertIsNotNone(subtotal, "Subtotal missing")
-    self.assertEqual(
-      subtotal.amount,
-      expected_price,
-      f"Subtotal amount should match DB price {expected_price}",
-    )
-
-    self.assertIsNotNone(total_obj, "Total missing")
-    self.assertEqual(
-      total_obj.amount,
-      expected_price,
-      f"Total amount should match DB price {expected_price}",
-    )
+    self.assert_totals_consistent(checkout_obj, expected_price)
 
   def test_totals_recalculation_on_update(self):
     """Test that totals are recalculated correctly upon checkout update.
@@ -119,15 +134,9 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
 
-    # Get expected price from config
-    expected_price = (
-      self.conformance_config.get("items", [{}])[0].get("price", 3500)
-      if self.conformance_config
-      else 3500
-    )
-    expected_price = int(expected_price)
+    expected_price = self.fixture_ctx.get_test_price()
 
-    # Update quantity to 2. Total should be 2 * expected_price.
+    # Update quantity to 2.
     item_update = item_update_request.ItemUpdateRequest(
       id=checkout_obj.line_items[0].item.id,
     )
@@ -157,38 +166,24 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     self.assert_response_status(response, 200)
 
     updated_checkout = checkout.Checkout(**response.json())
-    total_obj = next(
-      (t for t in updated_checkout.totals if t.type == "total"), None
-    )
     expected_total = expected_price * 2
-    self.assertEqual(
-      total_obj.amount,
-      expected_total,
-      msg=(
-        "Server did not correct totals on update. Expected"
-        f" {expected_total}, got {total_obj.amount}"
-      ),
-    )
+    self.assert_totals_consistent(updated_checkout, expected_total)
 
   def test_discount_flow(self):
     """Test that valid discount codes decrease the total amount.
 
     Given an existing checkout session with a total amount,
-    When the valid discount code '10OFF' is applied,
-    Then the total amount should be reduced by 10%, and the
+    When a valid discount code is applied,
+    Then the total amount should be reduced, and the
     applied discount details should be present.
     """
+    valid_code = self.fixture_ctx.get_test_discount_code()
+    expected_price = self.fixture_ctx.get_test_price()
+    expected_discount = self.fixture_ctx.get_expected_discount_reduction()
+
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
-
-    # Get expected price from config
-    expected_price = (
-      self.conformance_config.get("items", [{}])[0].get("price", 3500)
-      if self.conformance_config
-      else 3500
-    )
-    expected_price = int(expected_price)
 
     # Apply Discount
     item_update = item_update_request.ItemUpdateRequest(
@@ -213,7 +208,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     update_dict = update_payload.model_dump(
       mode="json", by_alias=True, exclude_none=True
     )
-    update_dict["discounts"] = {"codes": ["10OFF"]}
+    update_dict["discounts"] = {"codes": [valid_code]}
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
@@ -223,19 +218,9 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     self.assert_response_status(response, 200)
 
     discounted_checkout = checkout.Checkout(**response.json())
-    expected_total = int(expected_price * 0.9)
 
-    total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
-    )
-    self.assertIsNotNone(total_obj, "Total object missing")
-    self.assertEqual(
-      total_obj.amount,
-      expected_total,
-      msg=(
-        f"Discount not applied correctly. Expected {expected_total}, got"
-        f" {total_obj.amount}"
-      ),
+    self.assert_totals_consistent(
+        discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Parse discounts from extra fields
@@ -250,7 +235,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertEqual(
       discounts_obj.applied[0].code,
-      "10OFF",
+      valid_code,
       "Applied discounts field incorrect",
     )
 
@@ -258,39 +243,33 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     """Test that multiple valid discount codes are both applied.
 
     Given an existing checkout session,
-    When two valid discount codes ('10OFF' and 'WELCOME20') are applied,
+    When two valid discount codes are applied,
     Then the total amount should be reduced by both discounts sequentially,
     and both should be present in the applied list.
     """
+    valid_code_1 = self.fixture_ctx.get_test_discount_code()
+    valid_code_2 = self.fixture_ctx.get_test_discount_code_2()
+    if not valid_code_2:
+      self.skipTest("Second valid discount code not configured in fixtures.")
+
+    expected_price = self.fixture_ctx.get_test_price()
+    expected_discount = (
+        self.fixture_ctx.get_expected_discount_reduction()
+        + self.fixture_ctx.get_expected_discount_reduction_2()
+    )
+
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
 
-    # Get expected price from config
-    expected_price = (
-      self.conformance_config.get("items", [{}])[0].get("price", 3500)
-      if self.conformance_config
-      else 3500
-    )
-    expected_price = int(expected_price)
-
-    # Apply both discounts using helper to ensure all required fields are
-    # present
+    # Apply both discounts using helper
     response_json = self.update_checkout_session(
-      checkout_obj, discounts={"codes": ["10OFF", "WELCOME20"]}
+      checkout_obj, discounts={"codes": [valid_code_1, valid_code_2]}
     )
 
     discounted_checkout = checkout.Checkout(**response_json)
-    # 3500 -> 3500 * 0.9 = 3150 -> 3150 * 0.8 = 2520
-    expected_total = int(int(expected_price * 0.9) * 0.8)
 
-    total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
-    )
-    self.assertEqual(
-      total_obj.amount,
-      expected_total,
-      f"Multiple discounts failed. Exp {expected_total}, "
-      f"got {total_obj.amount}",
+    self.assert_totals_consistent(
+        discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Verify both applied discounts are present
@@ -300,41 +279,34 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertTrue(discounts_obj and len(discounts_obj.applied) == 2)
     applied_codes = [d.code for d in discounts_obj.applied]
-    self.assertIn("10OFF", applied_codes)
-    self.assertIn("WELCOME20", applied_codes)
+    self.assertIn(valid_code_1, applied_codes)
+    self.assertIn(valid_code_2, applied_codes)
 
   def test_multiple_discounts_one_rejected(self):
     """Test requesting multiple discounts where one is valid and one is not.
 
     Given an existing checkout session,
-    When one valid ('10OFF') and one invalid ('INVALID_CODE') are applied,
+    When one valid and one invalid are applied,
     Then only the valid discount should be applied, and the invalid one
     should be omitted from the applied list.
     """
+    valid_code = self.fixture_ctx.get_test_discount_code()
+    expected_price = self.fixture_ctx.get_test_price()
+    expected_discount = self.fixture_ctx.get_expected_discount_reduction()
+
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
 
-    # Get expected price
-    expected_price = (
-      self.conformance_config.get("items", [{}])[0].get("price", 3500)
-      if self.conformance_config
-      else 3500
-    )
-    expected_price = int(expected_price)
-
     # Apply one valid and one invalid discount using helper
     response_json = self.update_checkout_session(
-      checkout_obj, discounts={"codes": ["10OFF", "INVALID_CODE"]}
+      checkout_obj, discounts={"codes": [valid_code, "INVALID_CODE"]}
     )
 
     discounted_checkout = checkout.Checkout(**response_json)
-    # Only 10% off
-    expected_total = int(expected_price * 0.9)
 
-    total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
+    self.assert_totals_consistent(
+        discounted_checkout, expected_price, expected_discount=expected_discount
     )
-    self.assertEqual(total_obj.amount, expected_total)
 
     # Verify only one applied discount is present
     discounts_data = getattr(discounted_checkout, "discounts", {})
@@ -342,46 +314,35 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discount.DiscountsObject(**discounts_data) if discounts_data else None
     )
     self.assertTrue(discounts_obj and len(discounts_obj.applied) == 1)
-    self.assertEqual(discounts_obj.applied[0].code, "10OFF")
+    self.assertEqual(discounts_obj.applied[0].code, valid_code)
 
   def test_fixed_amount_discount(self):
     """Test that a fixed-amount discount code decreases the total correctly.
 
     Given an existing checkout session with a total amount,
-    When the valid fixed-amount discount code 'FIXED500' is applied,
-    Then the total amount should be reduced by 500 cents, and the
+    When a valid fixed-amount discount code is applied,
+    Then the total amount should be reduced, and the
     applied discount details should be present.
     """
+    fixed_code = self.fixture_ctx.get_test_fixed_discount_code()
+    if not fixed_code:
+      self.skipTest("Fixed discount code not configured in fixtures.")
+
+    expected_price = self.fixture_ctx.get_test_price()
+    expected_discount = self.fixture_ctx.get_expected_fixed_discount_reduction()
+
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
 
-    # Get expected price from config
-    expected_price = (
-      self.conformance_config.get("items", [{}])[0].get("price", 3500)
-      if self.conformance_config
-      else 3500
-    )
-    expected_price = int(expected_price)
-
     # Apply Fixed-amount Discount
     response_json = self.update_checkout_session(
-      checkout_obj, discounts={"codes": ["FIXED500"]}
+      checkout_obj, discounts={"codes": [fixed_code]}
     )
 
     discounted_checkout = checkout.Checkout(**response_json)
-    # 3500 - 500 = 3000
-    expected_total = expected_price - 500
 
-    total_obj = next(
-      (t for t in discounted_checkout.totals if t.type == "total"), None
-    )
-    self.assertIsNotNone(total_obj, "Total object missing")
-    self.assertEqual(
-      total_obj.amount,
-      expected_total,
-      msg=(
-        f"Fixed discount failed. Exp {expected_total}, got {total_obj.amount}"
-      ),
+    self.assert_totals_consistent(
+        discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
     # Parse discounts from extra fields
@@ -396,7 +357,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertEqual(
       discounts_obj.applied[0].code,
-      "FIXED500",
+      fixed_code,
     )
     self.assertEqual(
       discounts_obj.applied[0].amount,

@@ -5,8 +5,12 @@
       "expected_price": 35.0,
       "quantity": 1
     },
-    "valid_discount_code": "SPRING20",
-    "expected_discount_reduction": 5.0
+    "valid_discount_code": "10OFF",
+    "expected_discount_reduction": 3.5,
+    "valid_discount_code_2": "WELCOME20",
+    "expected_discount_reduction_2": 6.3,
+    "valid_fixed_discount_code": "FIXED500",
+    "expected_fixed_discount_reduction": 5.0
   },
   "shipping_locations": {
     "domestic_destination": {
