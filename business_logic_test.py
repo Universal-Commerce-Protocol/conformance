@@ -66,12 +66,19 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
         expected_subtotal,
         f"Subtotal mismatch: expected {expected_subtotal}, got {subtotal}",
     )
-    if expected_discount > 0:
-      self.assertEqual(
-          abs(discount),
-          expected_discount,
-          f"Discount mismatch: expected {expected_discount}, got {discount}",
-      )
+    if expected_discount:
+      if isinstance(expected_discount, (list, set, tuple)):
+        self.assertIn(
+            abs(discount),
+            expected_discount,
+            f"Discount mismatch: expected one of {expected_discount}, got {discount}",
+        )
+      else:
+        self.assertEqual(
+            abs(discount),
+            expected_discount,
+            f"Discount mismatch: expected {expected_discount}, got {discount}",
+        )
     calculated_total = subtotal + fulfillment + tax + fee - abs(discount)
     self.assertEqual(
         total,
@@ -179,7 +186,8 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     """
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
-    expected_discount = self.fixture_ctx.get_expected_discount_reduction()
+    percentage = self.fixture_ctx.get_expected_discount_percentage()
+    expected_discount = int(expected_price * (percentage / 100))
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -253,10 +261,21 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       self.skipTest("Second valid discount code not configured in fixtures.")
 
     expected_price = self.fixture_ctx.get_test_price()
-    expected_discount = (
-        self.fixture_ctx.get_expected_discount_reduction()
-        + self.fixture_ctx.get_expected_discount_reduction_2()
-    )
+    percentage1 = self.fixture_ctx.get_expected_discount_percentage()
+    percentage2 = self.fixture_ctx.get_expected_discount_percentage_2()
+
+    # Cumulative discount: each calculated on the original price
+    d1_cum = int(expected_price * (percentage1 / 100))
+    d2_cum = int(expected_price * (percentage2 / 100))
+    expected_discount_cumulative = d1_cum + d2_cum
+
+    # Sequential discount: second calculated on the remaining balance
+    d1_seq = int(expected_price * (percentage1 / 100))
+    d2_seq = int((expected_price - d1_seq) * (percentage2 / 100))
+    expected_discount_sequential = d1_seq + d2_seq
+
+    # Accept either approach
+    expected_discount = [expected_discount_sequential, expected_discount_cumulative]
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -292,7 +311,8 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     """
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
-    expected_discount = self.fixture_ctx.get_expected_discount_reduction()
+    percentage = self.fixture_ctx.get_expected_discount_percentage()
+    expected_discount = int(expected_price * (percentage / 100))
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)

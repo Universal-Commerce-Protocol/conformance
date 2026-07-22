@@ -524,23 +524,23 @@ class DynamicFixtureContext:
       return str(val)
     return None
 
-  def get_expected_discount_reduction(self, default=0.0) -> int:
-    """Get expected discount reduction in minor units."""
-    val = self._config.get("test_fixtures", {}).get("expected_discount_reduction")
+  def get_expected_discount_percentage(self, default=0.0) -> float:
+    """Get expected discount percentage (e.g. 10.0 for 10%)."""
+    val = self._config.get("test_fixtures", {}).get("expected_discount_percentage")
     if val is None:
-      val = self._fallback_config.get("test_fixtures", {}).get("expected_discount_reduction")
+      val = self._fallback_config.get("test_fixtures", {}).get("expected_discount_percentage")
     if val is not None:
-      return int(round(float(val) * 100))
-    return int(round(default * 100))
+      return float(val)
+    return float(default)
 
-  def get_expected_discount_reduction_2(self, default=0.0) -> int:
-    """Get expected discount reduction 2 in minor units."""
-    val = self._config.get("test_fixtures", {}).get("expected_discount_reduction_2")
+  def get_expected_discount_percentage_2(self, default=0.0) -> float:
+    """Get expected discount percentage 2."""
+    val = self._config.get("test_fixtures", {}).get("expected_discount_percentage_2")
     if val is None:
-      val = self._fallback_config.get("test_fixtures", {}).get("expected_discount_reduction_2")
+      val = self._fallback_config.get("test_fixtures", {}).get("expected_discount_percentage_2")
     if val is not None:
-      return int(round(float(val) * 100))
-    return int(round(default * 100))
+      return float(val)
+    return float(default)
 
   def get_expected_fixed_discount_reduction(self, default=0.0) -> int:
     """Get expected fixed discount reduction in minor units."""
