@@ -137,12 +137,11 @@ NOTE: These instructions assume the commands are executed from the directory con
 
 ### Prerequisites
 
-Sync dependencies for the test suite, the sample server, and the SDK:
+Sync dependencies for the test suite and the sample server:
 
 ```bash
 uv sync
 uv sync --directory ../samples/rest/python/server/
-uv sync --directory ../python-sdk/
 ```
 
 ### 1. Initialize the Sample Database
