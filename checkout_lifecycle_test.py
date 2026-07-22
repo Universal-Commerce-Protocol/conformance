@@ -120,7 +120,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     )
 
     buyer_update = buyer_update_request.BuyerUpdateRequest(
-      email="jane.doe@example.com",
+      email="update-checkout-buyer@example.com",
       first_name="Jane",
       last_name="Doe",
       phone_number="+15555555556",
@@ -185,7 +185,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # Verify updates in the response
     resp_json = response.json()
     self.assertEqual(
-      resp_json.get("buyer", {}).get("email"), "jane.doe@example.com"
+      resp_json.get("buyer", {}).get("email"), "update-checkout-buyer@example.com"
     )
     self.assertEqual(resp_json.get("buyer", {}).get("first_name"), "Jane")
     self.assertEqual(resp_json.get("buyer", {}).get("last_name"), "Doe")
