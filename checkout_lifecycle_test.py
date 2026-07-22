@@ -50,6 +50,11 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
   - POST /checkout-sessions/{id}/cancel
   """
 
+  DEFAULT_BUYER = {
+      "email": "conformance-test-buyer@example.com",
+      "name": "Conformance Test Buyer",
+  }
+
   def test_create_checkout(self):
     """Test successful checkout creation.
 
@@ -232,7 +237,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     Then the response should be 200 OK, the status should be 'completed', and an
     order ID should be generated.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
 
@@ -378,7 +383,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     When a complete request is sent,
     Then the server should reject it with a non-200 status.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
 
     self._cancel_checkout(checkout_id)
@@ -413,7 +418,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # check BEFORE the status check. If we use a different key (which
     # default get_headers does), it should fail.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
 
     self._complete_checkout(checkout_id)
@@ -437,7 +442,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     When an update request is sent,
     Then the server should reject it with a non-200 status.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
 
@@ -486,7 +491,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     When a cancel request is sent,
     Then the server should reject it with a non-200 status.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
 
     self._complete_checkout(checkout_id)

@@ -1,0 +1,20 @@
+{
+  "test_fixtures": {
+    "valid_item": {
+      "sku": "sw005",
+      "expected_price": 990.0,
+      "quantity": 1
+    },
+    "valid_discount_code": "WELCOME10",
+    "expected_discount_reduction": 99.0
+  },
+  "shipping_locations": {
+    "domestic_destination": {
+      "street": "123 Market St",
+      "city": "San Francisco",
+      "state": "CA",
+      "postal_code": "94105",
+      "country": "US"
+    }
+  }
+}
