@@ -81,7 +81,11 @@ Example `test_fixtures.json`:
       "quantity": 1
     },
     "valid_discount_code": "PROMO10",
-    "expected_discount_reduction": 1.0
+    "expected_discount_reduction": 1.0,
+    "valid_discount_code_2": "PROMO20",
+    "expected_discount_reduction_2": 1.8,
+    "valid_fixed_discount_code": "FIXED5",
+    "expected_fixed_discount_reduction": 5.0
   },
   "shipping_locations": {
     "domestic_destination": {
@@ -96,7 +100,10 @@ Example `test_fixtures.json`:
 ```
 
 - `valid_item`: The SKU and expected price (in major units, e.g., `10.00`) of the item used in tests.
-- `valid_discount_code` & `expected_discount_reduction`: A discount code that should apply successfully and the expected reduction amount (in major units).
+- **Discounts Configuration**:
+  - `valid_discount_code` & `expected_discount_reduction`: **Required** for basic discount flow tests. The code must be valid on your server, and the reduction is the expected amount in major units.
+  - `valid_discount_code_2` & `expected_discount_reduction_2`: **Optional**. Used for testing multiple discount codes applied sequentially. If your server does not support multiple discounts or you don't configure this, the corresponding test will be skipped.
+  - `valid_fixed_discount_code` & `expected_fixed_discount_reduction`: **Optional**. Used for testing fixed-amount discounts. If your server only supports percentage discounts or you don't configure this, the test will be skipped.
 - `shipping_locations`: Addresses used for fulfillment tests.
 
 ### 4. Run the Tests
