@@ -193,7 +193,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = int(expected_price * (percentage / 100))
+    expected_discount = round(expected_price * (percentage / 100))
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -271,13 +271,13 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     percentage2 = self.fixture_ctx.get_expected_discount_percentage_2()
 
     # Cumulative discount: each calculated on the original price
-    d1_cum = int(expected_price * (percentage1 / 100))
-    d2_cum = int(expected_price * (percentage2 / 100))
+    d1_cum = round(expected_price * (percentage1 / 100))
+    d2_cum = round(expected_price * (percentage2 / 100))
     expected_discount_cumulative = d1_cum + d2_cum
 
     # Sequential discount: second calculated on the remaining balance
-    d1_seq = int(expected_price * (percentage1 / 100))
-    d2_seq = int((expected_price - d1_seq) * (percentage2 / 100))
+    d1_seq = round(expected_price * (percentage1 / 100))
+    d2_seq = round((expected_price - d1_seq) * (percentage2 / 100))
     expected_discount_sequential = d1_seq + d2_seq
 
     # Accept either approach
@@ -321,7 +321,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = int(expected_price * (percentage / 100))
+    expected_discount = round(expected_price * (percentage / 100))
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
