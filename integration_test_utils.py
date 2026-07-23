@@ -319,7 +319,14 @@ class MockWebhookServer:
     async def order_event(partner_id: str, request: Request) -> dict[str, str]:
       """Record an incoming order event."""
       payload = await request.json()
-      self.events.append({"partner_id": partner_id, "payload": payload})
+      headers = dict(request.headers)
+      self.events.append(
+        {
+          "partner_id": partner_id,
+          "payload": payload,
+          "headers": headers,
+        }
+      )
       return {"status": "ok"}
 
     @self.app.get("/healthz")
