@@ -331,7 +331,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       ),
       headers=headers,
     )
-    self.assert_response_status(response, 400)
+    self.assert_response_status(response, 422)
 
 
 if __name__ == "__main__":
