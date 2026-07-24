@@ -373,10 +373,22 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     if 400 <= response.status_code < 500:
       # 4xx posture: the body must be structured, not free text.
       data = response.json()
-      self.assertTrue(
-        data.get("detail"), "Error response missing 'detail' field"
-      )
-      self.assertIn("stock", str(data["detail"]).lower())
+      if "messages" in data:
+        # Compliant UCP error shape
+        errors = [
+          m for m in data.get("messages", []) if m.get("type") == "error"
+        ]
+        self.assertTrue(
+          errors, "Compliant 4xx response must have at least one error message"
+        )
+        self.assertIn("stock", errors[0].get("content", "").lower())
+      else:
+        # Legacy/Default FastAPI error shape
+        self.assertTrue(
+          data.get("detail"),
+          "Error response missing 'detail' or 'messages' field",
+        )
+        self.assertIn("stock", str(data["detail"]).lower())
       return
 
     # In-band posture: the message envelope IS the structured error; the
