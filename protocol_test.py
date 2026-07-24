@@ -276,7 +276,6 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     When the request includes a 'UCP-Agent' header with an incompatible version,
     then the request fails with 400 Bad Request.
     """
-    # Discover shopping service endpoint
     discovery_resp = self.client.get("/.well-known/ucp")
     self.assert_response_status(discovery_resp, 200)
     profile_dict = discovery_resp.json()
