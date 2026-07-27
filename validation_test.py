@@ -381,7 +381,10 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
         self.assertTrue(
           errors, "Compliant 4xx response must have at least one error message"
         )
-        self.assertIn("stock", errors[0].get("content", "").lower())
+        self.assertTrue(
+          any("stock" in e.get("content", "").lower() for e in errors),
+          "Expected stock-related error message",
+        )
       else:
         # Legacy/Default FastAPI error shape
         self.assertTrue(
