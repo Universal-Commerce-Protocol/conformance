@@ -26,6 +26,8 @@ from ucp_sdk.models.schemas.shopping.payment import (
 )
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
+from ucp_sdk.models.schemas.shopping.types.error_response import ErrorResponse
+from pydantic import ValidationError
 
 
 # Rebuild models to resolve forward references
@@ -375,16 +377,19 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       data = response.json()
       if "messages" in data:
         # Compliant UCP error shape
-        errors = [
-          m for m in data.get("messages", []) if m.get("type") == "error"
-        ]
-        self.assertTrue(
-          errors, "Compliant 4xx response must have at least one error message"
-        )
-        self.assertTrue(
-          any("stock" in e.get("content", "").lower() for e in errors),
-          "Expected stock-related error message",
-        )
+        try:
+          error_resp = ErrorResponse(**data)
+          errors = [m for m in error_resp.messages if m.type == "error"]
+          self.assertTrue(
+            errors,
+            "Compliant 4xx response must have at least one error message",
+          )
+          self.assertTrue(
+            any("stock" in e.content.lower() for e in errors),
+            "Expected stock-related error message",
+          )
+        except ValidationError as e:
+          self.fail(f"Failed to parse ErrorResponse: {e}")
       else:
         # Legacy/Default FastAPI error shape
         self.assertTrue(
