@@ -81,11 +81,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
         ``order``).
     """
     if 400 <= response.status_code < 500:
-      self.assertIn(
-        error_4xx_substring.lower(),
-        response.text.lower(),
-        msg=f"Expected '{error_4xx_substring}' in the 4xx error body",
-      )
+      self._assert_structured_4xx_error(response, error_4xx_substring)
       return
 
     self.assert_response_status(response, [200, 201])
@@ -152,6 +148,50 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
         "A checkout carrying an in-band business-failure message must "
         "not carry an order",
       )
+
+  def _assert_structured_4xx_error(self, response, substring: str) -> None:
+    """Assert that a 4xx response is structured correctly (UCP or legacy)."""
+    try:
+      data = response.json()
+      if "messages" in data:
+        try:
+          error_resp = ErrorResponse(**data)
+          errors = [m for m in error_resp.messages if m.type == "error"]
+          self.assertTrue(
+            errors,
+            "Compliant 4xx response must have at least one error message",
+          )
+          self.assertTrue(
+            any(substring.lower() in e.content.lower() for e in errors),
+            f"Expected '{substring}' in error messages",
+          )
+        except ValidationError as e:
+          self.fail(f"Failed to parse ErrorResponse: {e}")
+      else:
+        self.assertTrue(
+          data.get("detail"),
+          "Error response missing 'detail' or 'messages' field",
+        )
+        self.assertIn(
+          substring.lower(),
+          str(data["detail"]).lower(),
+        )
+    except ValueError:
+      self.assertIn(
+        substring.lower(),
+        response.text.lower(),
+        msg=f"Expected '{substring}' in the 4xx error body",
+      )
+
+  def assert_4xx_error(
+    self,
+    response,
+    expected_status: int,
+    substring: str,
+  ) -> None:
+    """Assert a 4xx rejection with a specific status and error message."""
+    self.assert_response_status(response, expected_status)
+    self._assert_structured_4xx_error(response, substring)
 
   def test_out_of_stock(self) -> None:
     """Test validation for out-of-stock items.
@@ -318,7 +358,11 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_response_status(response, 402)
+    self.assert_4xx_error(
+      response,
+      expected_status=402,
+      substring="Payment Failed",
+    )
 
   def test_complete_without_fulfillment(self) -> None:
     """Test completion rejection when fulfillment is missing.
@@ -338,11 +382,10 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_response_status(response, 400)
-    self.assertIn(
-      "Fulfillment address and option must be selected",
-      response.text,
-      msg="Expected error message for missing fulfillment",
+    self.assert_4xx_error(
+      response,
+      expected_status=400,
+      substring="Fulfillment address and option must be selected",
     )
 
   def test_structured_error_messages(self) -> None:
@@ -372,35 +415,6 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    if 400 <= response.status_code < 500:
-      # 4xx posture: the body must be structured, not free text.
-      data = response.json()
-      if "messages" in data:
-        # Compliant UCP error shape
-        try:
-          error_resp = ErrorResponse(**data)
-          errors = [m for m in error_resp.messages if m.type == "error"]
-          self.assertTrue(
-            errors,
-            "Compliant 4xx response must have at least one error message",
-          )
-          self.assertTrue(
-            any("stock" in e.content.lower() for e in errors),
-            "Expected stock-related error message",
-          )
-        except ValidationError as e:
-          self.fail(f"Failed to parse ErrorResponse: {e}")
-      else:
-        # Legacy/Default FastAPI error shape
-        self.assertTrue(
-          data.get("detail"),
-          "Error response missing 'detail' or 'messages' field",
-        )
-        self.assertIn("stock", str(data["detail"]).lower())
-      return
-
-    # In-band posture: the message envelope IS the structured error; the
-    # shared assertion validates every required envelope field.
     self.assert_business_error(
       response,
       accepted_codes={"out_of_stock", "item_unavailable"},
