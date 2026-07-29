@@ -264,7 +264,11 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       msg="Shopping service version must be date-based (YYYY-MM-DD)",
     )
     self.assertEqual(shopping_service.get("version"), expected_version)
-    self.assertIsNotNone(shopping_service.get("transport") == "rest")
+    self.assertEqual(
+      shopping_service.get("transport"),
+      "rest",
+      "Shopping service must advertise the REST transport",
+    )
     self.assertIsNotNone(shopping_service.get("endpoint"))
 
   def test_version_negotiation(self):
@@ -274,7 +278,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     When the request includes a 'UCP-Agent' header with a compatible version,
     then the request succeeds (200/201).
     When the request includes a 'UCP-Agent' header with an incompatible version,
-    then the request fails with 400 Bad Request.
+    then the request fails with 422 Unprocessable Content.
     """
     # Discover shopping service endpoint
     discovery_resp = self.client.get("/.well-known/ucp")
@@ -290,9 +294,10 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
       if isinstance(shopping_services, list)
       else shopping_services
     )
-    self.assertIsNotNone(
-      (shopping_service.get("transport") == "rest"),
-      "REST config not found for shopping service",
+    self.assertEqual(
+      shopping_service.get("transport"),
+      "rest",
+      "Shopping service must advertise the REST transport",
     )
     self.assertIsNotNone(
       shopping_service.get("endpoint"),
