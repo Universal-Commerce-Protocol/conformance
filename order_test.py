@@ -115,7 +115,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": integration_test_utils.get_valid_payment_payload()["payment"],
       "fulfillment": fulfillment_payload,
     }
 
@@ -231,7 +231,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": integration_test_utils.get_valid_payment_payload()["payment"],
       "fulfillment": fulfillment_payload,
     }
 
