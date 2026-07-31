@@ -390,7 +390,8 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertEqual(
       discounts_obj.applied[0].amount,
-      500,
+      expected_discount,
+      "applied discount amount must match the configured fixed reduction",
     )
 
   def test_buyer_consent(self):
