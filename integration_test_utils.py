@@ -318,13 +318,17 @@ class MockWebhookServer:
     @self.app.post("/webhooks/partners/{partner_id}/events/order")
     async def order_event(partner_id: str, request: Request) -> dict[str, str]:
       """Record an incoming order event."""
-      payload = await request.json()
+      # Keep the raw bytes: Content-Digest (RFC 9530) is computed over the
+      # body as transmitted, and verifiers must not re-serialize JSON.
+      raw_body = await request.body()
+      payload = json.loads(raw_body)
       headers = dict(request.headers)
       self.events.append(
         {
           "partner_id": partner_id,
           "payload": payload,
           "headers": headers,
+          "raw_body": raw_body,
         }
       )
       return {"status": "ok"}
