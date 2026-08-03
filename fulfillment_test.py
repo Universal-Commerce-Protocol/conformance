@@ -134,7 +134,9 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     )
     final_checkout = checkout.Checkout(**response_json)
 
-    expected_total = 3500 + option_cost  # Base 3500 + shipping
+    expected_total = (
+      self.fixture_ctx.get_test_price() + option_cost
+    )  # base price + shipping
     total_obj = next(
       (t for t in final_checkout.totals if t.type == "total"), None
     )
