@@ -574,6 +574,52 @@ class DynamicFixtureContext:
       return int(round(float(val) * 100))
     return int(round(default * 100))
 
+  def _get_test_fixture(self, key: str) -> Any:
+    """Look up a key under test_fixtures in config, then fallback config."""
+    val = self._config.get("test_fixtures", {}).get(key)
+    if val is None:
+      val = self._fallback_config.get("test_fixtures", {}).get(key)
+    return val
+
+  def get_known_customer(self) -> dict[str, Any] | None:
+    """Get a buyer the server knows and stores addresses for, if configured.
+
+    Expected shape: {"full_name": str, "email": str, "addresses": [dict]}
+    where each address uses response-schema field names (street_address,
+    address_locality, address_region, postal_code, address_country).
+    Returns None when the server under test declares no such customer, in
+    which case the stored-address tests skip.
+    """
+    val = self._get_test_fixture("known_customer")
+    if isinstance(val, dict) and val.get("email"):
+      return val
+    return None
+
+  def get_known_customer_without_address(self) -> dict[str, Any] | None:
+    """Get a buyer the server knows but has no stored addresses for."""
+    val = self._get_test_fixture("known_customer_without_address")
+    if isinstance(val, dict) and val.get("email"):
+      return val
+    return None
+
+  def get_free_shipping_min_subtotal(self) -> int | None:
+    """Get the subtotal threshold for free shipping in minor units.
+
+    Returns None when the server under test declares no order-value
+    free-shipping promotion, in which case the threshold test skips.
+    """
+    val = self._get_test_fixture("free_shipping_min_subtotal")
+    if val is None:
+      return None
+    return int(round(float(val) * 100))
+
+  def get_free_shipping_item_sku(self) -> str | None:
+    """Get the SKU of an item eligible for item-based free shipping."""
+    val = self._get_test_fixture("free_shipping_item_sku")
+    if val is None:
+      return None
+    return str(val)
+
 
 ConfiguredFixtureContext = DynamicFixtureContext
 
