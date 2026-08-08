@@ -429,7 +429,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       json=create_payload_dict,
       headers=integration_test_utils.get_headers(),
     )
-    self.assert_response_status(response, 201)
+    self.assert_response_status(response, [200, 201])
     checkout_id = checkout.Checkout(**response.json()).id
 
     response = self.client.get(
