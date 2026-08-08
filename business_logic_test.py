@@ -46,23 +46,34 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
   def assert_totals_consistent(
     self, checkout_obj, expected_subtotal, expected_discount=0
   ):
-    """Assert that the checkout totals are consistent and correct."""
+    """Assert that the checkout totals are consistent and correct.
+
+    The grand total is verified with the spec's own formula (checkout.md
+    "Verification"): sum of the signed amounts of every non-``total``
+    entry equals the ``total`` entry's amount. Every entry participates:
+    all types except ``subtotal``/``total`` MAY repeat (checkout.md
+    "Repeating Types" — e.g. multi-jurisdiction tax lines or itemized
+    fees) and ``type`` is an open string, so picking one entry per
+    well-known type would both reject conformant servers and miss
+    servers whose total drops a repeated or custom entry.
+    """
     subtotal = next(
       (t.amount for t in checkout_obj.totals if t.type == "subtotal"), 0
     )
-    fulfillment = next(
-      (t.amount for t in checkout_obj.totals if t.type == "fulfillment"), 0
-    )
-    tax = next((t.amount for t in checkout_obj.totals if t.type == "tax"), 0)
-    fee = next((t.amount for t in checkout_obj.totals if t.type == "fee"), 0)
     discount = sum(
       t.amount
       for t in checkout_obj.totals
       if t.type in ["items_discount", "discount"]
     )
-    total = next(
-      (t.amount for t in checkout_obj.totals if t.type == "total"), 0
+    total_entries = [t for t in checkout_obj.totals if t.type == "total"]
+    self.assertLen(
+      total_entries,
+      1,
+      "Exactly one totals entry of type 'total' must be present "
+      "(checkout.md totals invariants), got "
+      f"{[(t.type, t.amount) for t in checkout_obj.totals]}",
     )
+    total = total_entries[0].amount
 
     self.assertEqual(
       subtotal,
@@ -85,14 +96,19 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
           expected_discount,
           f"Discount mismatch: expected {expected_discount}, got {discount}",
         )
-    calculated_total = subtotal + fulfillment + tax + fee - abs(discount)
+    # checkout.md "Verification":
+    #   assert sum(e.amount for e in totals if e.type != "total") \
+    #     == total_entry.amount
+    # Amounts are signed integers; the sign IS the direction.
+    calculated_total = sum(
+      t.amount for t in checkout_obj.totals if t.type != "total"
+    )
     self.assertEqual(
       total,
       calculated_total,
       (
-        f"Total math mismatch: calculated {calculated_total} (subtotal="
-        f"{subtotal}, fulfillment={fulfillment}, tax={tax}, fee={fee}, "
-        f"discount={discount}), got {total}"
+        f"Total math mismatch: calculated {calculated_total} from entries "
+        f"{[(t.type, t.amount) for t in checkout_obj.totals]}, got {total}"
       ),
     )
 
