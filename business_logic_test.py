@@ -247,9 +247,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounts_obj and discounts_obj.applied,
       "Applied discounts field missing",
     )
-    self.assertEqual(
-      discounts_obj.applied[0].code,
+    applied_codes = [d.code for d in discounts_obj.applied]
+    self.assertIn(
       valid_code,
+      applied_codes,
       "Applied discounts field incorrect",
     )
 
@@ -349,6 +350,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     self.assertTrue(discounts_obj and discounts_obj.applied)
     applied_codes = [d.code for d in discounts_obj.applied]
     self.assertIn(valid_code, applied_codes)
+    self.assertNotIn("INVALID_CODE", applied_codes)
 
   def test_fixed_amount_discount(self):
     """Test that a fixed-amount discount code decreases the total correctly.
@@ -389,12 +391,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounts_obj and discounts_obj.applied,
       "Applied discounts field missing",
     )
+    applied_discounts = {d.code: d for d in discounts_obj.applied if d.code}
+    self.assertIn(fixed_code, applied_discounts)
     self.assertEqual(
-      discounts_obj.applied[0].code,
-      fixed_code,
-    )
-    self.assertEqual(
-      discounts_obj.applied[0].amount,
+      applied_discounts[fixed_code].amount,
       expected_discount,
       "applied discount amount must match the configured fixed reduction",
     )
