@@ -36,8 +36,10 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
   - PUT /checkout-sessions/{id}
   """
 
-  def _buyer_payload(self, customer: dict) -> dict:
-    """Build a buyer payload from a configured customer fixture."""
+  def _build_buyer_payload(
+    self, customer: integration_test_utils.CustomerFixture
+  ) -> dict[str, str]:
+    """Build a create-checkout buyer payload from a customer fixture."""
     return {
       "fullName": customer.get("full_name", "Known Customer"),
       "email": customer["email"],
@@ -63,14 +65,13 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
       (d for d in destinations if self._address_matches(d, address)), None
     )
 
-  def _zero_cost_option(self, options: list[dict]) -> dict | None:
-    """Find a fulfillment option whose total amount is zero."""
+  def _get_free_shipping_option(self, options: list[dict]) -> dict | None:
+    """Find a fulfillment option offered at a total cost of zero."""
     for option in options:
-      total = next(
-        (t["amount"] for t in option.get("totals", []) if t["type"] == "total"),
-        None,
-      )
-      if total == 0:
+      if any(
+        t["type"] == "total" and t["amount"] == 0
+        for t in option.get("totals", [])
+      ):
         return option
     return None
 
@@ -311,7 +312,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
         "No known customer without stored addresses configured in fixtures."
       )
     response_json = self.create_checkout_session(
-      buyer=self._buyer_payload(customer),
+      buyer=self._build_buyer_payload(customer),
       select_fulfillment=False,
     )
     checkout_obj = checkout.Checkout(**response_json)
@@ -344,7 +345,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     stored_addresses = customer["addresses"]
 
     response_json = self.create_checkout_session(
-      buyer=self._buyer_payload(customer),
+      buyer=self._build_buyer_payload(customer),
       select_fulfillment=False,
     )
     checkout_obj = checkout.Checkout(**response_json)
@@ -383,7 +384,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
       )
 
     response_json = self.create_checkout_session(
-      buyer=self._buyer_payload(customer),
+      buyer=self._build_buyer_payload(customer),
       select_fulfillment=False,
     )
     checkout_obj = checkout.Checkout(**response_json)
@@ -462,7 +463,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
       self.skipTest("No known customer configured in fixtures.")
 
     response_json = self.create_checkout_session(
-      buyer=self._buyer_payload(customer)
+      buyer=self._build_buyer_payload(customer)
     )
     checkout_obj = checkout.Checkout(**response_json)
 
@@ -548,7 +549,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     stored_address = customer["addresses"][0]
 
     response_json = self.create_checkout_session(
-      buyer=self._buyer_payload(customer),
+      buyer=self._build_buyer_payload(customer),
       select_fulfillment=False,
     )
     checkout_obj = checkout.Checkout(**response_json)
@@ -657,7 +658,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     # A zero-cost option must be offered; its id and title are the
     # server's own to choose.
-    free_shipping_option = self._zero_cost_option(options)
+    free_shipping_option = self._get_free_shipping_option(options)
     self.assertIsNotNone(
       free_shipping_option,
       "No zero-cost fulfillment option offered above the configured"
@@ -705,7 +706,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     # A zero-cost option must be offered; its id and title are the
     # server's own to choose.
-    free_shipping_option = self._zero_cost_option(options)
+    free_shipping_option = self._get_free_shipping_option(options)
     self.assertIsNotNone(
       free_shipping_option,
       "No zero-cost fulfillment option offered for the configured"

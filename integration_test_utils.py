@@ -21,7 +21,7 @@ import os
 from pathlib import Path
 import threading
 import time
-from typing import Any
+from typing import Any, TypedDict
 import uuid
 
 from absl import flags
@@ -372,6 +372,24 @@ class MockWebhookServer:
     self.events = []
 
 
+class AddressFixture(TypedDict, total=False):
+  """A stored address fixture, keyed with response-schema field names."""
+
+  street_address: str
+  address_locality: str
+  address_region: str
+  postal_code: str
+  address_country: str
+
+
+class CustomerFixture(TypedDict, total=False):
+  """A buyer the server under test knows, with any stored addresses."""
+
+  full_name: str
+  email: str
+  addresses: list[AddressFixture]
+
+
 class DynamicFixtureContext:
   """Context for loading dynamic test fixtures from configuration."""
 
@@ -581,25 +599,22 @@ class DynamicFixtureContext:
       val = self._fallback_config.get("test_fixtures", {}).get(key)
     return val
 
-  def get_known_customer(self) -> dict[str, Any] | None:
+  def get_known_customer(self) -> CustomerFixture | None:
     """Get a buyer the server knows and stores addresses for, if configured.
 
-    Expected shape: {"full_name": str, "email": str, "addresses": [dict]}
-    where each address uses response-schema field names (street_address,
-    address_locality, address_region, postal_code, address_country).
     Returns None when the server under test declares no such customer, in
     which case the stored-address tests skip.
     """
     val = self._get_test_fixture("known_customer")
     if isinstance(val, dict) and val.get("email"):
-      return val
+      return CustomerFixture(val)
     return None
 
-  def get_known_customer_without_address(self) -> dict[str, Any] | None:
+  def get_known_customer_without_address(self) -> CustomerFixture | None:
     """Get a buyer the server knows but has no stored addresses for."""
     val = self._get_test_fixture("known_customer_without_address")
     if isinstance(val, dict) and val.get("email"):
-      return val
+      return CustomerFixture(val)
     return None
 
   def get_free_shipping_min_subtotal(self) -> int | None:
