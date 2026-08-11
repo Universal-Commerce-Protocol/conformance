@@ -47,11 +47,6 @@ _ADDITIVE_TYPES = frozenset({"subtotal", "fulfillment", "tax", "fee"})
 # Entry types whose amount MUST be negative (total.json: exclusiveMaximum 0).
 _NEGATIVE_TYPES = frozenset({"discount", "items_discount"})
 
-# A percentage discount code recognized by the reference data set. If the
-# server under test does not recognize it, the discount-sign test skips.
-_DISCOUNT_CODE = "10OFF"
-
-
 class TotalsTest(integration_test_utils.IntegrationTestBase):
   """Structural-integrity tests for the checkout ``totals`` breakdown.
 
@@ -85,8 +80,9 @@ class TotalsTest(integration_test_utils.IntegrationTestBase):
     """
     checkout_json = self.create_checkout_session(select_fulfillment=True)
     checkout_obj = checkout.Checkout(**checkout_json)
+    discount_code = self.fixture_ctx.get_test_discount_code()
     updated = self.update_checkout_session(
-      checkout_obj, discounts={"codes": [_DISCOUNT_CODE]}
+      checkout_obj, discounts={"codes": [discount_code]}
     )
     totals = updated.get("totals")
     self.assertIsInstance(
