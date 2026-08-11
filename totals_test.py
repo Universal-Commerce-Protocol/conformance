@@ -47,6 +47,7 @@ _ADDITIVE_TYPES = frozenset({"subtotal", "fulfillment", "tax", "fee"})
 # Entry types whose amount MUST be negative (total.json: exclusiveMaximum 0).
 _NEGATIVE_TYPES = frozenset({"discount", "items_discount"})
 
+
 class TotalsTest(integration_test_utils.IntegrationTestBase):
   """Structural-integrity tests for the checkout ``totals`` breakdown.
 
