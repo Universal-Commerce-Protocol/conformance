@@ -10,7 +10,33 @@
     "valid_discount_code_2": "WELCOME20",
     "expected_discount_percentage_2": 20.0,
     "valid_fixed_discount_code": "FIXED500",
-    "expected_fixed_discount_reduction": 5.0
+    "expected_fixed_discount_reduction": 5.0,
+    "known_customer": {
+      "full_name": "John Doe",
+      "email": "john.doe@example.com",
+      "addresses": [
+        {
+          "street_address": "123 Main St",
+          "address_locality": "Springfield",
+          "address_region": "IL",
+          "postal_code": "62704",
+          "address_country": "US"
+        },
+        {
+          "street_address": "456 Oak Ave",
+          "address_locality": "Metropolis",
+          "address_region": "NY",
+          "postal_code": "10012",
+          "address_country": "US"
+        }
+      ]
+    },
+    "known_customer_without_address": {
+      "full_name": "Jane Doe",
+      "email": "jane.doe@example.com"
+    },
+    "free_shipping_min_subtotal": 100.0,
+    "free_shipping_item_sku": "bouquet_roses"
   },
   "shipping_locations": {
     "domestic_destination": {

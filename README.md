@@ -85,7 +85,26 @@ Example `test_fixtures.json`:
     "valid_discount_code_2": "PROMO20",
     "expected_discount_reduction_2": 1.8,
     "valid_fixed_discount_code": "FIXED5",
-    "expected_fixed_discount_reduction": 5.0
+    "expected_fixed_discount_reduction": 5.0,
+    "known_customer": {
+      "full_name": "John Doe",
+      "email": "john.doe@example.com",
+      "addresses": [
+        {
+          "street_address": "123 Main St",
+          "address_locality": "Springfield",
+          "address_region": "IL",
+          "postal_code": "62704",
+          "address_country": "US"
+        }
+      ]
+    },
+    "known_customer_without_address": {
+      "full_name": "Jane Doe",
+      "email": "jane.doe@example.com"
+    },
+    "free_shipping_min_subtotal": 100.0,
+    "free_shipping_item_sku": "item_1"
   },
   "shipping_locations": {
     "domestic_destination": {
@@ -104,6 +123,11 @@ Example `test_fixtures.json`:
   - `valid_discount_code` & `expected_discount_reduction`: **Required** for basic discount flow tests. The code must be valid on your server, and the reduction is the expected amount in major units.
   - `valid_discount_code_2` & `expected_discount_reduction_2`: **Optional**. Used for testing multiple discount codes applied sequentially. If your server does not support multiple discounts or you don't configure this, the corresponding test will be skipped.
   - `valid_fixed_discount_code` & `expected_fixed_discount_reduction`: **Optional**. Used for testing fixed-amount discounts. If your server only supports percentage discounts or you don't configure this, the test will be skipped.
+- **Fulfillment Configuration**:
+  - `known_customer`: **Optional**. A buyer your server recognizes by email and stores addresses for, with the stored address contents (response-schema field names). Used by the stored-address injection, selection, and reuse tests; each skips if this is not configured. Address ids are read from your server's responses, so only the contents must match.
+  - `known_customer_without_address`: **Optional**. A buyer your server recognizes but has no stored addresses for. The corresponding test skips if not configured.
+  - `free_shipping_min_subtotal`: **Optional**. Order subtotal (major units) at which your server offers a zero-cost fulfillment option. The threshold test skips if not configured.
+  - `free_shipping_item_sku`: **Optional**. An item SKU eligible for free shipping regardless of order value. The item test skips if not configured.
 - `shipping_locations`: Addresses used for fulfillment tests.
 
 ### 4. Run the Tests
