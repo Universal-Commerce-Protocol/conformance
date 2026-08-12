@@ -96,7 +96,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
       "methods": [
         {
           "id": "method_1",
-          "line_item_ids": ["item_123"],
+          "line_item_ids": [checkout_obj.line_items[0].id],
           "type": "shipping",
           "destinations": [fulfillment_address],
           "selected_destination_id": "dest_manual",
@@ -149,7 +149,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     update_payload["fulfillment"]["methods"][0]["groups"] = [
       {
         "id": group_info.get("id", "group_1"),
-        "line_item_ids": group_info.get("line_item_ids", ["item_123"]),
+        "line_item_ids": group_info.get(
+          "line_item_ids", [checkout_obj.line_items[0].id]
+        ),
         "selected_option_id": option_id,
       }
     ]
@@ -212,7 +214,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
       "methods": [
         {
           "id": "method_1",
-          "line_item_ids": ["item_123"],
+          "line_item_ids": [checkout_obj.line_items[0].id],
           "type": "shipping",
           "destinations": [addr],
           "selected_destination_id": "dest_manual_2",
@@ -258,7 +260,9 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
     update_payload["fulfillment"]["methods"][0]["groups"] = [
       {
         "id": group_info.get("id", "group_1"),
-        "line_item_ids": group_info.get("line_item_ids", ["item_123"]),
+        "line_item_ids": group_info.get(
+          "line_item_ids", [checkout_obj.line_items[0].id]
+        ),
         "selected_option_id": options[0]["id"],
       }
     ]
