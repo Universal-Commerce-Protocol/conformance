@@ -247,9 +247,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounts_obj and discounts_obj.applied,
       "Applied discounts field missing",
     )
-    self.assertEqual(
-      discounts_obj.applied[0].code,
+    applied_codes = [d.code for d in discounts_obj.applied]
+    self.assertIn(
       valid_code,
+      applied_codes,
       "Applied discounts field incorrect",
     )
 
@@ -300,12 +301,14 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
-    # Verify both applied discounts are present
+    # Verify both submitted codes are present in the applied list. The applied
+    # list also carries any automatic discounts (discount.md: applied contains
+    # code-based + automatic), so assert membership rather than an exact count.
     discounts_data = getattr(discounted_checkout, "discounts", {})
     discounts_obj = (
       discount.DiscountsObject(**discounts_data) if discounts_data else None
     )
-    self.assertTrue(discounts_obj and len(discounts_obj.applied) == 2)
+    self.assertTrue(discounts_obj and discounts_obj.applied)
     applied_codes = [d.code for d in discounts_obj.applied]
     self.assertIn(valid_code_1, applied_codes)
     self.assertIn(valid_code_2, applied_codes)
@@ -337,13 +340,17 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounted_checkout, expected_price, expected_discount=expected_discount
     )
 
-    # Verify only one applied discount is present
+    # Verify the valid code is present in the applied list. The applied list
+    # also carries any automatic discounts, so assert membership rather than an
+    # exact count or a fixed position (automatic discounts have no code).
     discounts_data = getattr(discounted_checkout, "discounts", {})
     discounts_obj = (
       discount.DiscountsObject(**discounts_data) if discounts_data else None
     )
-    self.assertTrue(discounts_obj and len(discounts_obj.applied) == 1)
-    self.assertEqual(discounts_obj.applied[0].code, valid_code)
+    self.assertTrue(discounts_obj and discounts_obj.applied)
+    applied_codes = [d.code for d in discounts_obj.applied]
+    self.assertIn(valid_code, applied_codes)
+    self.assertNotIn("INVALID_CODE", applied_codes)
 
   def test_fixed_amount_discount(self):
     """Test that a fixed-amount discount code decreases the total correctly.
@@ -384,12 +391,10 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       discounts_obj and discounts_obj.applied,
       "Applied discounts field missing",
     )
+    applied_discounts = {d.code: d for d in discounts_obj.applied if d.code}
+    self.assertIn(fixed_code, applied_discounts)
     self.assertEqual(
-      discounts_obj.applied[0].code,
-      fixed_code,
-    )
-    self.assertEqual(
-      discounts_obj.applied[0].amount,
+      applied_discounts[fixed_code].amount,
       expected_discount,
       "applied discount amount must match the configured fixed reduction",
     )
