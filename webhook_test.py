@@ -15,6 +15,8 @@
 """Tests for Webhook notifications in UCP SDK Server."""
 
 import time
+from typing import Any
+
 from absl.testing import absltest
 import integration_test_utils
 from ucp_sdk.models.schemas.shopping import checkout
@@ -44,14 +46,34 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     self.webhook_server.stop()
     super().tearDown()
 
+  def _deliveries_for(self, order_id: str) -> list[dict[str, Any]]:
+    """All captured deliveries whose payload is the given order.
+
+    order.md defines only ``Webhook-Id`` and ``Webhook-Timestamp`` as required
+    delivery headers, so a conformant Business need not label the event type in
+    a header; the order entity in the body is what identifies the delivery.
+
+    A delivery whose body carries no ``id`` (a delta rather than the full
+    entity) is invisible here and reads as "not delivered". That deviation is
+    diagnosed by webhook_structure_test, which asserts the full-entity contract
+    directly.
+    """
+    return [
+      e
+      for e in self.webhook_server.events
+      if isinstance(e.get("payload"), dict)
+      and e["payload"].get("id") == order_id
+    ]
+
   def test_webhook_event_stream(self) -> None:
-    """Test that the server sends order_placed and order_shipped events.
+    """Test that completing and then shipping an order each notify.
 
     Given a mock webhook server is running,
     When a checkout is completed with a webhook_url (via Agent Profile),
-    Then the server should send an 'order_placed' event.
+    Then the server should deliver the "Order created" event.
     When the order is subsequently shipped,
-    Then the server should send an 'order_shipped' event.
+    Then the server should deliver an update whose order snapshot reflects
+    the shipment.
     """
     # 1. Create checkout (webhook URL passed via UCP-Agent header)
     checkout_data = self.create_checkout_session(headers=self.get_headers())
@@ -63,7 +85,20 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     complete_response = self.complete_checkout_session(checkout_id)
     order_id = complete_response["order"]["id"]
 
-    # 3. Trigger Shipping
+    # 3. Observe the "Order created" delivery before shipping. Checking it
+    # here, rather than counting deliveries at the end, is what stops a
+    # Business that only announces the shipment from satisfying the count
+    # (order.md: MUST send the "Order created" event on completion).
+    for _ in range(50):
+      if self._deliveries_for(order_id):
+        break
+      time.sleep(0.1)
+    self.assertTrue(
+      self._deliveries_for(order_id),
+      "no order-event webhook delivered for the completed order",
+    )
+
+    # 4. Trigger Shipping
     headers = self.get_headers()
     headers["Simulation-Secret"] = (
       integration_test_utils.FLAGS.simulation_secret
@@ -74,52 +109,41 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     )
     self.assert_response_status(ship_response, 200)
 
-    # 4. Verify Webhook Events
-    # Poll for events to arrive (up to 2 seconds)
-    for _ in range(20):
-      if len(self.webhook_server.events) >= 2:
+    # 5. Verify Webhook Events
+    # Poll for the update delivery to arrive (up to 5 seconds)
+    for _ in range(50):
+      if len(self._deliveries_for(order_id)) >= 2:
         break
       time.sleep(0.1)
 
-    events = self.webhook_server.events
+    deliveries = self._deliveries_for(order_id)
     self.assertGreaterEqual(
-      len(events),
+      len(deliveries),
       2,
-      f"Expected at least 2 events, got {len(events)}",
+      f"Expected at least 2 deliveries for order {order_id}, "
+      f"got {len(deliveries)}",
     )
 
-    # Verify order_placed event
-    placed_event = next(
+    # Every delivery belongs to this checkout.
+    for delivery in deliveries:
+      self.assertEqual(delivery["payload"].get("checkout_id"), checkout_id)
+
+    # The shipment is observable in the order snapshot itself, which is what
+    # order.md requires the Business to send — not a header label.
+    shipped_delivery = next(
       (
-        e
-        for e in events
-        if e.get("headers", {}).get("x-event-type") == "order_placed"
+        d
+        for d in deliveries
+        if any(
+          fe.get("type") == "shipped"
+          for fe in (d["payload"].get("fulfillment") or {}).get("events") or []
+        )
       ),
       None,
     )
-    self.assertIsNotNone(placed_event, "Missing order_placed event")
-    self.assertEqual(placed_event["payload"]["checkout_id"], checkout_id)
-    self.assertEqual(placed_event["payload"]["id"], order_id)
-
-    # Verify order_shipped event
-    shipped_event = next(
-      (
-        e
-        for e in events
-        if e.get("headers", {}).get("x-event-type") == "order_shipped"
-      ),
-      None,
-    )
-    self.assertIsNotNone(shipped_event, "Missing order_shipped event")
-    self.assertEqual(shipped_event["payload"]["checkout_id"], checkout_id)
-    self.assertEqual(shipped_event["payload"]["id"], order_id)
-
-    fulfillment_events = shipped_event["payload"]["fulfillment"].get(
-      "events", []
-    )
-    self.assertTrue(
-      any(e["type"] == "shipped" for e in fulfillment_events),
-      "order_shipped event did not contain shipment info in order data",
+    self.assertIsNotNone(
+      shipped_delivery,
+      "no delivery reflected the shipped state in the order data",
     )
 
   def test_webhook_order_address_known_customer(self) -> None:
