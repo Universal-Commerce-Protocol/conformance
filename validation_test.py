@@ -341,7 +341,11 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     Given a checkout session ready for completion,
     When a payment instrument with a known failing token ('fail_token') is
     submitted,
-    Then the server should return a 402 Payment Required error.
+    Then the server either rejects with a 4xx describing the payment
+    problem, or answers in-band per the spec's error model with a typed
+    'payment_failed' error message (checkout.md standard error codes /
+    error_code.json; checkout-rest.md "Error Responses": business
+    outcomes return HTTP 200 with the UCP envelope and messages[]).
     """
     response_json = self.create_checkout_session(handlers=[])
     checkout_id = checkout.Checkout(**response_json).id
@@ -358,10 +362,10 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_4xx_error(
+    self.assert_business_error(
       response,
-      expected_status=402,
-      substring="Payment Failed",
+      accepted_codes={"payment_failed"},
+      error_4xx_substring="payment",
     )
 
   def test_complete_without_fulfillment(self) -> None:
