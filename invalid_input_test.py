@@ -49,7 +49,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     order_obj = order.Order(**response.json())
     order_dict = order_obj.model_dump(
@@ -71,7 +71,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_dict,
       headers=self.get_headers(),
     )
@@ -116,7 +116,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     order_obj = order.Order(**response.json())
     order_dict = order_obj.model_dump(
@@ -128,7 +128,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_dict,
       headers=self.get_headers(),
     )
