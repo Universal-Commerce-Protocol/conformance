@@ -141,7 +141,11 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       checkout_obj,
       fulfillment={
         "methods": [
-          {"id": "method_1", "line_item_ids": ["item_123"], "type": "shipping"}
+          {
+            "id": "method_1",
+            "line_item_ids": [checkout_obj.line_items[0].id],
+            "type": "shipping",
+          }
         ]
       },
     )
@@ -173,7 +177,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
           "methods": [
             {
               "id": "method_1",
-              "line_item_ids": ["item_1"],
+              "line_item_ids": [checkout_obj.line_items[0].id],
               "type": "shipping",
               "selected_destination_id": dest_id,
             }
@@ -198,13 +202,13 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
             "methods": [
               {
                 "id": "method_1",
-                "line_item_ids": ["item_1"],
+                "line_item_ids": [checkout_obj.line_items[0].id],
                 "type": "shipping",
                 "selected_destination_id": dest_id,
                 "groups": [
                   {
                     "id": "group_1",
-                    "line_item_ids": ["item_1"],
+                    "line_item_ids": [checkout_obj.line_items[0].id],
                     "selected_option_id": option_id,
                   }
                 ],
@@ -263,7 +267,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       "methods": [
         {
           "id": "method_1",
-          "line_item_ids": ["item_123"],
+          "line_item_ids": [checkout_obj.line_items[0].id],
           "type": "shipping",
           "destinations": [new_address],
           "selected_destination_id": "dest_new_webhook",
@@ -288,13 +292,15 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       fulfillment_payload["methods"][0]["groups"] = [
         {
           "id": "group_1",
-          "line_item_ids": ["item_123"],
+          "line_item_ids": [checkout_obj.line_items[0].id],
           "selected_option_id": option_id,
         }
       ]
       fulfillment_payload["methods"][0]["type"] = "shipping"
       fulfillment_payload["methods"][0]["id"] = "method_1"
-      fulfillment_payload["methods"][0]["line_item_ids"] = ["item_123"]
+      fulfillment_payload["methods"][0]["line_item_ids"] = [
+        checkout_obj.line_items[0].id
+      ]
       self.update_checkout_session(
         checkout_obj, fulfillment=fulfillment_payload
       )
