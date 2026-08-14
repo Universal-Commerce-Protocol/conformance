@@ -403,6 +403,20 @@ class CustomerFixture(TypedDict, total=False):
   addresses: list[AddressFixture]
 
 
+class DynamicFulfillmentCaseFixture(TypedDict):
+  """A destination and fulfillment option expected for dynamic options."""
+
+  destination: AddressFixture
+  expected_option_id: str
+
+
+class DynamicFulfillmentFixture(TypedDict):
+  """Dynamic fulfillment cases declared by the server under test."""
+
+  domestic: DynamicFulfillmentCaseFixture
+  international: DynamicFulfillmentCaseFixture
+
+
 class DynamicFixtureContext:
   """Context for loading dynamic test fixtures from configuration."""
 
@@ -647,6 +661,35 @@ class DynamicFixtureContext:
     if val is None:
       return None
     return str(val)
+
+  def get_dynamic_fulfillment(self) -> DynamicFulfillmentFixture | None:
+    """Get destination/option pairs for dynamic fulfillment tests.
+
+    Returns None when the server under test declares no dynamic fulfillment
+    cases, in which case the dynamic-options test skips. Each case declares a
+    destination address (response-schema field names) and the fulfillment
+    option id the server returns for that destination.
+    """
+    val = self._get_test_fixture("dynamic_fulfillment")
+    if not isinstance(val, dict):
+      return None
+    if not isinstance(val.get("domestic"), dict) or not isinstance(
+      val.get("international"), dict
+    ):
+      return None
+    domestic = val["domestic"]
+    international = val["international"]
+    if not isinstance(domestic.get("destination"), dict) or not isinstance(
+      domestic.get("expected_option_id"), str
+    ):
+      return None
+    if not isinstance(international.get("destination"), dict) or not isinstance(
+      international.get("expected_option_id"), str
+    ):
+      return None
+    return DynamicFulfillmentFixture(
+      domestic=domestic, international=international
+    )
 
 
 ConfiguredFixtureContext = DynamicFixtureContext

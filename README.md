@@ -104,7 +104,29 @@ Example `test_fixtures.json`:
       "email": "jane.doe@example.com"
     },
     "free_shipping_min_subtotal": 100.0,
-    "free_shipping_item_sku": "item_1"
+    "free_shipping_item_sku": "item_1",
+    "dynamic_fulfillment": {
+      "domestic": {
+        "destination": {
+          "street_address": "123 Main St",
+          "address_locality": "Springfield",
+          "address_region": "IL",
+          "postal_code": "62704",
+          "address_country": "US"
+        },
+        "expected_option_id": "exp-ship-us"
+      },
+      "international": {
+        "destination": {
+          "street_address": "25 King St W",
+          "address_locality": "Toronto",
+          "address_region": "ON",
+          "postal_code": "M5V 2H1",
+          "address_country": "CA"
+        },
+        "expected_option_id": "exp-ship-intl"
+      }
+    }
   },
   "shipping_locations": {
     "domestic_destination": {
@@ -128,6 +150,7 @@ Example `test_fixtures.json`:
   - `known_customer_without_address`: **Optional**. A buyer your server recognizes but has no stored addresses for. The corresponding test skips if not configured.
   - `free_shipping_min_subtotal`: **Optional**. Order subtotal (major units) at which your server offers a zero-cost fulfillment option. The threshold test skips if not configured.
   - `free_shipping_item_sku`: **Optional**. An item SKU eligible for free shipping regardless of order value. The item test skips if not configured.
+  - `dynamic_fulfillment`: **Optional**. Destination/option pairs for the dynamic fulfillment test: each case declares a destination address (response-schema field names) and the option id your server returns for that destination. The test verifies that updating the fulfillment address to the domestic destination makes that destination's option available, and likewise for the international destination; it skips if not configured.
 - `shipping_locations`: Addresses used for fulfillment tests.
 
 ### 4. Run the Tests
