@@ -319,7 +319,9 @@ class MockWebhookServer:
     """Set up the routes for the mock server."""
 
     @self.app.post("/webhooks/partners/{partner_id}/events/order")
-    async def order_event(partner_id: str, request: Request) -> dict[str, str]:
+    async def order_event(
+      partner_id: str, request: Request
+    ) -> JSONResponse | dict[str, str]:
       """Record an incoming order event."""
       # Keep the raw bytes: Content-Digest (RFC 9530) is computed over the
       # body as transmitted, and verifiers must not re-serialize JSON.

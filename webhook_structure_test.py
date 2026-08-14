@@ -210,12 +210,7 @@ class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
 
   def test_transient_failure_retries_preserve_event_identity(self) -> None:
     """A failed delivery is retried as the same webhook event."""
-    self.webhook_server.stop()
-    port = integration_test_utils.FLAGS.mock_webhook_port
-    self.webhook_server = integration_test_utils.MockWebhookServer(
-      port=port, failures_before_success=1
-    )
-    self.webhook_server.start()
+    self.webhook_server.failures_before_success = 1
 
     checkout_data = self.create_checkout_session(headers=self.get_headers())
     checkout_id = checkout_data["id"]
@@ -231,10 +226,18 @@ class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
     )
     self.assertEqual(deliveries[0]["response_status"], 500)
     self.assertEqual(deliveries[1]["response_status"], 200)
+    self.assertTrue(
+      deliveries[0]["headers"].get("webhook-id"),
+      "delivery is missing the required Webhook-Id header",
+    )
     self.assertEqual(
       len({delivery["headers"].get("webhook-id") for delivery in deliveries}),
       1,
       "retry attempts must preserve the Webhook-Id of the original event",
+    )
+    self.assertTrue(
+      deliveries[0]["headers"].get("webhook-timestamp"),
+      "delivery is missing the required Webhook-Timestamp header",
     )
     self.assertEqual(
       len(
