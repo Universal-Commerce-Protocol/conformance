@@ -124,7 +124,15 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
   def test_webhook_order_address_known_customer(self) -> None:
     """Test that webhook contains correct address for known customer/address."""
-    buyer_info = {"fullName": "John Doe", "email": "john.doe@example.com"}
+    customer = self.fixture_ctx.get_known_customer()
+    if not customer or not customer.get("addresses"):
+      self.skipTest(
+        "No known customer with stored addresses configured in fixtures."
+      )
+    buyer_info = {
+      "fullName": customer.get("full_name", ""),
+      "email": customer["email"],
+    }
     checkout_data = self.create_checkout_session(buyer=buyer_info)
     checkout_obj = checkout.Checkout(**checkout_data)
 
@@ -151,11 +159,13 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
       and checkout_obj.model_extra.get("fulfillment")
       and checkout_obj.model_extra["fulfillment"].get("methods")
     )
+    selected_destination = None
     if checkout_obj.model_extra["fulfillment"]["methods"][0].get(
       "destinations"
     ):
       method = checkout_obj.model_extra["fulfillment"]["methods"][0]
-      dest_id = method["destinations"][0]["id"]
+      selected_destination = method["destinations"][0]
+      dest_id = selected_destination["id"]
       # Select destination first to calculate options
       self.update_checkout_session(
         checkout_obj,
@@ -218,11 +228,27 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     self.assertIsNotNone(event)
     expectations = event["payload"]["fulfillment"]["expectations"]
     self.assertTrue(expectations)
-    self.assertEqual(expectations[0]["destination"]["address_country"], "US")
+    destination = expectations[0]["destination"]
+    self.assertIsNotNone(selected_destination)
+    for field in (
+      "street_address",
+      "address_locality",
+      "address_region",
+      "postal_code",
+      "address_country",
+    ):
+      if field in selected_destination:
+        self.assertEqual(destination.get(field), selected_destination[field])
 
   def test_webhook_order_address_new_address(self) -> None:
     """Test that webhook contains correct address when a new one is provided."""
-    buyer_info = {"fullName": "John Doe", "email": "john.doe@example.com"}
+    customer = self.fixture_ctx.get_known_customer()
+    if not customer:
+      self.skipTest("No known customer configured in fixtures.")
+    buyer_info = {
+      "fullName": customer.get("full_name", ""),
+      "email": customer["email"],
+    }
     checkout_data = self.create_checkout_session(buyer=buyer_info)
     checkout_obj = checkout.Checkout(**checkout_data)
 
