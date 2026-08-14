@@ -208,6 +208,56 @@ class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
       f"Webhook-Timestamp {timestamp} does not parse as unix seconds",
     )
 
+  def test_transient_failure_retries_preserve_event_identity(self) -> None:
+    """A failed delivery is retried as the same webhook event."""
+    self.webhook_server.failures_before_success = 1
+
+    checkout_data = self.create_checkout_session(headers=self.get_headers())
+    checkout_id = checkout_data["id"]
+    complete_response = self.complete_checkout_session(checkout_id)
+    order_id = complete_response["order"]["id"]
+    deliveries = self._wait_for_events(order_id, 2)
+
+    self.assertGreaterEqual(
+      len(deliveries),
+      2,
+      "failed webhook delivery was not retried (order.md: MUST retry failed "
+      "webhook deliveries)",
+    )
+    self.assertEqual(deliveries[0]["response_status"], 500)
+    self.assertEqual(deliveries[1]["response_status"], 200)
+    self.assertTrue(
+      deliveries[0]["headers"].get("webhook-id"),
+      "delivery is missing the required Webhook-Id header",
+    )
+    self.assertEqual(
+      len({delivery["headers"].get("webhook-id") for delivery in deliveries}),
+      1,
+      "retry attempts must preserve the Webhook-Id of the original event",
+    )
+    self.assertTrue(
+      deliveries[0]["headers"].get("webhook-timestamp"),
+      "delivery is missing the required Webhook-Timestamp header",
+    )
+    self.assertEqual(
+      len(
+        {
+          delivery["headers"].get("webhook-timestamp")
+          for delivery in deliveries
+        }
+      ),
+      1,
+      "retry attempts must preserve the Webhook-Timestamp of the original "
+      "event",
+    )
+    self.assertTrue(
+      all(
+        delivery["payload"] == deliveries[0]["payload"]
+        for delivery in deliveries
+      ),
+      "retry attempts must carry the same full order entity",
+    )
+
   # ── order.md "Events": fully populated order entity ─────────────────────
   def test_order_created_event_is_full_order_entity(self) -> None:
     """The 'Order created' delivery body is the full order entity."""

@@ -298,16 +298,19 @@ class AgentProfileServer:
 class MockWebhookServer:
   """A background mock webhook server that records incoming events."""
 
-  def __init__(self, port: int):
+  def __init__(self, port: int, failures_before_success: int = 0):
     """Initialize the MockWebhookServer.
 
     Args:
       port: The port to listen on.
+      failures_before_success: Number of initial delivery attempts to reject
+        with HTTP 500 after recording them.
 
     """
     self.port = port
-    self.app = FastAPI()
+    self.failures_before_success = failures_before_success
     self.events: list[dict[str, Any]] = []
+    self.app = FastAPI()
     self._setup_routes()
     self._server: uvicorn.Server | None
     self._thread: threading.Thread | None
@@ -316,21 +319,31 @@ class MockWebhookServer:
     """Set up the routes for the mock server."""
 
     @self.app.post("/webhooks/partners/{partner_id}/events/order")
-    async def order_event(partner_id: str, request: Request) -> dict[str, str]:
+    async def order_event(
+      partner_id: str, request: Request
+    ) -> JSONResponse | dict[str, str]:
       """Record an incoming order event."""
       # Keep the raw bytes: Content-Digest (RFC 9530) is computed over the
       # body as transmitted, and verifiers must not re-serialize JSON.
       raw_body = await request.body()
       payload = json.loads(raw_body)
       headers = dict(request.headers)
+      response_status = (
+        500 if len(self.events) < self.failures_before_success else 200
+      )
       self.events.append(
         {
           "partner_id": partner_id,
           "payload": payload,
           "headers": headers,
           "raw_body": raw_body,
+          "response_status": response_status,
         }
       )
+      if response_status == 500:
+        return JSONResponse(
+          status_code=response_status, content={"status": "retry"}
+        )
       return {"status": "ok"}
 
     @self.app.get("/healthz")
