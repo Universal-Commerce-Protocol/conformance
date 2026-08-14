@@ -27,6 +27,7 @@ from ucp_sdk.models.schemas.shopping.payment import (
 )
 from ucp_sdk.models.schemas.shopping.types import adjustment
 from ucp_sdk.models.schemas.shopping.types import fulfillment_event
+from ucp_sdk.models.schemas.shopping.types import total
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
@@ -339,7 +340,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
       type="refund",
       occurred_at=datetime.datetime.now(datetime.timezone.utc),
       status="pending",
-      amount=500,
+      totals=[total.Total(type="total", amount=-500)],
       description="Customer refund request",
     )
 
@@ -357,7 +358,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     updated_order = order.Order(**resp.json())
     self.assertTrue(updated_order.adjustments, "No adjustments returned")
-    self.assertEqual(updated_order.adjustments[0].amount, 500)
+    self.assertEqual(updated_order.adjustments[0].totals[0].amount, -500)
     self.assertEqual(updated_order.adjustments[0].type, "refund")
 
 
