@@ -162,15 +162,17 @@ uv run checkout_lifecycle_test.py \
 
 ## Example Walkthrough: Running against the Python Sample Server
 
-For a quick demonstration or local development, you can run the suite against the reference Python sample server included in this repository.
+For a quick demonstration or local development, you can run the suite against the reference Python sample server from the separate [`samples`](https://github.com/Universal-Commerce-Protocol/samples) repository.
 
-NOTE: These instructions assume the commands are executed from the directory containing this README.
+NOTE: These instructions assume the `samples`, `python-sdk`, and `conformance` repositories are sibling directories and commands are executed from the directory containing this README.
 
 ### Prerequisites
 
-Sync dependencies for the test suite and the sample server:
+Clone the sample server and SDK next to this repository, then sync both environments:
 
 ```bash
+git clone https://github.com/Universal-Commerce-Protocol/samples.git ../samples
+git clone https://github.com/Universal-Commerce-Protocol/python-sdk.git ../python-sdk
 uv sync
 uv sync --directory ../samples/rest/python/server/
 ```
