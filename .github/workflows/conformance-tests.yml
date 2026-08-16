@@ -62,6 +62,9 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Validate published SDK dependency
+        run: uv sync --directory conformance/ --no-sources --no-install-project
+
       - name: Sync dependencies
         run: |
           uv sync --directory python-sdk/
