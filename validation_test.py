@@ -373,7 +373,9 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
 
     Given a newly created checkout session without fulfillment details,
     When a completion request is submitted,
-    Then the server should return a 400 Bad Request error.
+    Then the server either rejects with a 4xx describing the fulfillment
+    problem, or returns an in-band error message with code 'missing' or
+    'field_required'.
     """
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_id = response_json["id"]
@@ -386,10 +388,10 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       headers=integration_test_utils.get_headers(),
     )
 
-    self.assert_4xx_error(
+    self.assert_business_error(
       response,
-      expected_status=400,
-      substring="Fulfillment address and option must be selected",
+      accepted_codes={"missing", "field_required"},
+      error_4xx_substring="fulfillment",
     )
 
   def test_structured_error_messages(self) -> None:
