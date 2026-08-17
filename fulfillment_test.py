@@ -195,80 +195,87 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     """Test that fulfillment options are dynamically generated based on address.
 
     Given a checkout session,
-    When the fulfillment address is updated to a US address, then a US-specific
-    option is available.
-    When the fulfillment address is updated to a CA address, then a CA-specific
-    option is available.
+    When the fulfillment address is updated to the domestic destination, then
+    the option id declared for it in the fixtures is available.
+    When the fulfillment address is updated to the international destination,
+    then the option id declared for it in the fixtures is available.
     """
+    dynamic = self.fixture_ctx.get_dynamic_fulfillment()
+    if dynamic is None:
+      self.skipTest(
+        "No dynamic fulfillment cases configured in fixtures "
+        "(test_fixtures.dynamic_fulfillment)."
+      )
+
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
 
-    # 1. Update with US Address
-    # addr_1 is US in CSV
-    addr_data = integration_test_utils.test_data.addresses[0]
-    us_address = {
-      "id": "dest_us",
-      "address_country": addr_data["country"],
-      "postal_code": addr_data["postal_code"],
+    # 1. Update with the domestic destination
+    domestic = dynamic["domestic"]
+    domestic_dest = {
+      "id": "dest_domestic",
+      **domestic["destination"],
     }
-
-    fulfillment_us = {
+    fulfillment_domestic = {
       "methods": [
         {
           "type": "shipping",
           "id": "method_1",
           "line_item_ids": [checkout_obj.line_items[0].id],
-          "destinations": [us_address],
-          "selected_destination_id": "dest_us",
+          "destinations": [domestic_dest],
+          "selected_destination_id": "dest_domestic",
         }
       ]
     }
 
     response_json = self.update_checkout_session(
-      checkout_obj, fulfillment=fulfillment_us
+      checkout_obj, fulfillment=fulfillment_domestic
     )
-    us_checkout = checkout.Checkout(**response_json)
+    domestic_checkout = checkout.Checkout(**response_json)
 
-    # Check for US options
-    options = us_checkout.model_extra["fulfillment"]["methods"][0]["groups"][0][
-      "options"
-    ]
+    # Check that the declared domestic option is available
+    options = domestic_checkout.model_extra["fulfillment"]["methods"][0][
+      "groups"
+    ][0]["options"]
     self.assertTrue(
-      options and any(o["id"] == "exp-ship-us" for o in options),
-      f"Expected US express option, got {options}",
+      options
+      and any(o["id"] == domestic["expected_option_id"] for o in options),
+      "Expected domestic option "
+      f"{domestic['expected_option_id']}, got {options}",
     )
 
-    # 2. Update with CA Address
-    ca_address = {
-      "id": "dest_ca",
-      "address_country": "CA",
-      "postal_code": "M5V 2H1",
+    # 2. Update with the international destination
+    international = dynamic["international"]
+    international_dest = {
+      "id": "dest_international",
+      **international["destination"],
     }
-
-    fulfillment_ca = {
+    fulfillment_international = {
       "methods": [
         {
           "type": "shipping",
           "id": "method_1",
           "line_item_ids": [checkout_obj.line_items[0].id],
-          "destinations": [ca_address],
-          "selected_destination_id": "dest_ca",
+          "destinations": [international_dest],
+          "selected_destination_id": "dest_international",
         }
       ]
     }
 
     response_json = self.update_checkout_session(
-      us_checkout, fulfillment=fulfillment_ca
+      domestic_checkout, fulfillment=fulfillment_international
     )
-    ca_checkout = checkout.Checkout(**response_json)
+    international_checkout = checkout.Checkout(**response_json)
 
-    # Check for International options
-    options = ca_checkout.model_extra["fulfillment"]["methods"][0]["groups"][0][
-      "options"
-    ]
+    # Check that the declared international option is available
+    options = international_checkout.model_extra["fulfillment"]["methods"][0][
+      "groups"
+    ][0]["options"]
     self.assertTrue(
-      options and any(o["id"] == "exp-ship-intl" for o in options),
-      f"Expected Intl express option, got {options}",
+      options
+      and any(o["id"] == international["expected_option_id"] for o in options),
+      "Expected international option "
+      f"{international['expected_option_id']}, got {options}",
     )
 
   def test_unknown_customer_no_address(self) -> None:
