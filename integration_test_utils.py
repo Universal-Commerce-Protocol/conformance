@@ -318,7 +318,9 @@ class MockWebhookServer:
   def _setup_routes(self) -> None:
     """Set up the routes for the mock server."""
 
-    @self.app.post("/webhooks/partners/{partner_id}/events/order")
+    @self.app.post(
+      "/webhooks/partners/{partner_id}/events/order", response_model=None
+    )
     async def order_event(
       partner_id: str, request: Request
     ) -> JSONResponse | dict[str, str]:
