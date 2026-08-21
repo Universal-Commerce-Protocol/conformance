@@ -742,14 +742,7 @@ class IntegrationTestBase(absltest.TestCase):
 
     # Load CSV Test Data
     try:
-      # Resolve relative to this file if not absolute
-      data_dir = FLAGS.test_data_dir
-      if not Path(data_dir).is_absolute():
-        # Assumption: run from where this file is reachable via relative path
-        # Actually, FLAGS.test_data_dir is passed by run_conformance.sh
-        # Let's try to resolve it.
-        pass
-      test_data.load(data_dir)
+      test_data.load(FLAGS.test_data_dir)
     except Exception as e:  # pylint: disable=broad-exception-caught
       logging.warning("Failed to load test CSV data: %s", e)
 
