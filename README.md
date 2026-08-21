@@ -164,11 +164,13 @@ uv sync
 Run the tests pointing to your server:
 
 ```bash
-SERVER_URL=https://your-merchant-server.com \
-SIMULATION_SECRET=your-sim-secret \
-uv run pytest \
-  --conformance_input=path/to/your/conformance_input.json \
-  --fixture_config=path/to/your/test_fixtures.json
+for test_file in *_test.py; do
+  uv run "${test_file}" \
+    --server_url=https://your-merchant-server.com \
+    --simulation_secret=your-sim-secret \
+    --conformance_input=path/to/your/conformance_input.json \
+    --fixture_config=path/to/your/test_fixtures.json || exit 1
+done
 ```
 
 Alternatively, you can run individual test files and pass arguments:
