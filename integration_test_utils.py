@@ -48,7 +48,9 @@ from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_create_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 from ucp_sdk.models.schemas import payment_handler
-from ucp_sdk.models.schemas.shopping.types import shipping_destination
+from ucp_sdk.models.schemas.shopping.types import (
+  shipping_destination_create_request,
+)
 import uvicorn
 
 
@@ -889,15 +891,19 @@ class IntegrationTestBase(absltest.TestCase):
     if include_fulfillment:
       # Hierarchical Fulfillment Construction using dynamic destination
       dest_data = ctx.get_test_destination()
-      destination = shipping_destination.ShippingDestination(
-        id="dest_1",
-        address_country=dest_data.get(
-          "address_country", dest_data.get("country", "US")
-        ),
-        postal_code=dest_data.get("postal_code", "94105"),
-        locality=dest_data.get("locality", dest_data.get("city")),
-        region=dest_data.get("region", dest_data.get("state")),
-        street_address=dest_data.get("street_address", dest_data.get("street")),
+      destination = (
+        shipping_destination_create_request.ShippingDestinationCreateRequest(
+          id="dest_1",
+          address_country=dest_data.get(
+            "address_country", dest_data.get("country", "US")
+          ),
+          postal_code=dest_data.get("postal_code", "94105"),
+          address_locality=dest_data.get("locality", dest_data.get("city")),
+          address_region=dest_data.get("region", dest_data.get("state")),
+          street_address=dest_data.get(
+            "street_address", dest_data.get("street")
+          ),
+        )
       )
       group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
         id="group_1",

@@ -33,7 +33,9 @@ from ucp_sdk.models.schemas.shopping.types import (
 )
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
-from ucp_sdk.models.schemas.shopping.types import shipping_destination
+from ucp_sdk.models.schemas.shopping.types import (
+  shipping_destination_update_request,
+)
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
@@ -126,13 +128,15 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       phone_number="+15555555556",
     )
 
-    new_destination = shipping_destination.ShippingDestination(
-      id="dest_2",
-      address_country="US",
-      postal_code="90210",
-      locality="Beverly Hills",
-      region="CA",
-      street_address="456 Elm St",
+    new_destination = (
+      shipping_destination_update_request.ShippingDestinationUpdateRequest(
+        id="dest_2",
+        address_country="US",
+        postal_code="90210",
+        address_locality="Beverly Hills",
+        address_region="CA",
+        street_address="456 Elm St",
+      )
     )
 
     existing_method = checkout_obj.fulfillment["methods"][0]
