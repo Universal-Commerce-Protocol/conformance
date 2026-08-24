@@ -528,8 +528,15 @@ class DynamicFixtureContext:
       }
     dest.setdefault("address_country", dest.get("country", "US"))
     dest.setdefault("postal_code", dest.get("postal_code", "94105"))
-    dest.setdefault("locality", dest.get("city", "San Francisco"))
-    dest.setdefault("region", dest.get("state", "CA"))
+    dest.setdefault(
+      "address_locality",
+      dest.get("locality", dest.get("city", "San Francisco")),
+    )
+    dest.setdefault(
+      "address_region", dest.get("region", dest.get("state", "CA"))
+    )
+    dest.setdefault("locality", dest.get("address_locality"))
+    dest.setdefault("region", dest.get("address_region"))
     dest.setdefault("street_address", dest.get("street", "123 Market St"))
     return dest
 
@@ -898,8 +905,8 @@ class IntegrationTestBase(absltest.TestCase):
             "address_country", dest_data.get("country", "US")
           ),
           postal_code=dest_data.get("postal_code", "94105"),
-          locality=dest_data.get("locality", dest_data.get("city")),
-          region=dest_data.get("region", dest_data.get("state")),
+          address_locality=dest_data.get("locality", dest_data.get("city")),
+          address_region=dest_data.get("region", dest_data.get("state")),
           street_address=dest_data.get(
             "street_address", dest_data.get("street")
           ),
