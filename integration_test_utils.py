@@ -895,8 +895,8 @@ class IntegrationTestBase(absltest.TestCase):
           "address_country", dest_data.get("country", "US")
         ),
         postal_code=dest_data.get("postal_code", "94105"),
-        locality=dest_data.get("locality", dest_data.get("city")),
-        region=dest_data.get("region", dest_data.get("state")),
+        address_locality=dest_data.get("locality", dest_data.get("city")),
+        address_region=dest_data.get("region", dest_data.get("state")),
         street_address=dest_data.get("street_address", dest_data.get("street")),
       )
       group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(

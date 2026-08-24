@@ -130,8 +130,8 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       id="dest_2",
       address_country="US",
       postal_code="90210",
-      locality="Beverly Hills",
-      region="CA",
+      address_locality="Beverly Hills",
+      address_region="CA",
       street_address="456 Elm St",
     )
 
