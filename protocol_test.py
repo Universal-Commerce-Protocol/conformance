@@ -96,9 +96,21 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     return sorted(urls, key=lambda x: x[0])
 
-  import unittest
+  def _is_allowed_unreachable_url(self, url: str) -> bool:
+    """Whether a discovery URL is declared not-yet-published by its owner.
 
-  @unittest.skip("Schemas not yet published on remote ucp.dev domain")
+    Some payment-handler (Google Pay / Shop Pay), mock-handler and REST schema
+    URLs in the merchant's discovery profile are owned by external parties and
+    not yet published for the declared UCP version. They remain real pointer
+    entries in the profile, but their absence must not fail a conformance run.
+    Unreachable URLs are configured per fixture via ``allow_unreachable_urls``
+    in ``conformance_input.json`` (matched as substrings) and should be deleted
+    as each owning party publishes its URL. Every other URL is strictly
+    validated.
+    """
+    allow = (self.conformance_config or {}).get("allow_unreachable_urls", [])
+    return any(pattern in url for pattern in allow)
+
   def test_discovery_urls(self):
     """Verify all spec and schema URLs in discovery profile are valid.
 
@@ -123,6 +135,11 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
           # Handle relative URLs if any (AnyUrl should be absolute though)
           res = client.get(url)
           if res.status_code != 200:
+            if self._is_allowed_unreachable_url(url):
+              # Real profile pointer whose owning party has not published it
+              # yet (see _is_allowed_unreachable_url); keep the suite green
+              # while the dependency ships without weakening other checks.
+              continue
             failures.append(f"[{path}] {url} returned status {res.status_code}")
             continue
 
