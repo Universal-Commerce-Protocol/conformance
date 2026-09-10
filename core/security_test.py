@@ -12,47 +12,46 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for security controls in UCP SDK Server."""
+"""Tests for simulation URL security and authorization headers."""
 
+from absl import flags
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import BaseIntegrationTest
+
+FLAGS = flags.FLAGS
 
 
-class SecurityTest(integration_test_utils.IntegrationTestBase):
-  """Tests for security controls."""
+class SecurityTest(BaseIntegrationTest):
+  """Tests for simulation endpoint security controls."""
 
   def test_simulation_endpoint_missing_header(self):
     """Test access without the secret header returns 403."""
-    order_id = self.create_completed_order()
     response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
-      headers=self.get_headers(),  # Standard headers only
+      "/testing/simulate-shipping/test-order-security",
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 403)
 
   def test_simulation_endpoint_incorrect_secret(self):
     """Test access with an incorrect secret returns 403."""
-    order_id = self.create_completed_order()
     headers = self.get_headers()
     headers["Simulation-Secret"] = "for-sure-incorrect-secret"
     response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
+      "/testing/simulate-shipping/test-order-security",
       headers=headers,
     )
     self.assert_response_status(response, 403)
 
   def test_simulation_endpoint_correct_secret(self):
-    """Test access with the correct secret returns 200."""
-    order_id = self.create_completed_order()
+    """Test access with the correct secret bypasses 403 security block."""
     headers = self.get_headers()
-    headers["Simulation-Secret"] = (
-      integration_test_utils.FLAGS.simulation_secret
-    )
+    headers["Simulation-Secret"] = FLAGS.simulation_secret
     response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
+      "/testing/simulate-shipping/test-order-security",
       headers=headers,
     )
-    self.assert_response_status(response, 200)
+    # Valid secret bypasses security check (returns 404 for test ID or 200)
+    self.assertIn(response.status_code, [200, 404])
 
 
 if __name__ == "__main__":

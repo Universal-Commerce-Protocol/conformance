@@ -14,7 +14,7 @@
 
 """Configuration file for pytest."""
 
-from integration_test_utils import FLAGS
+from framework.base_test import FLAGS
 
 
 FLAGS(["pytest"])

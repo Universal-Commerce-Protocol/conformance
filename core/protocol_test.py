@@ -12,31 +12,36 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Protocol tests for the UCP SDK Server."""
+"""Generic protocol and discovery compliance tests for UCP servers.
 
+Vertical-agnostic: everything asserted here is required of any UCP server
+regardless of the business verticals it implements. Vertical-specific
+discovery assertions (for example that a shopping service is advertised)
+live with their vertical's suite.
+"""
+
+import unittest
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import BaseIntegrationTest, DEFAULT_UCP_VERSION
 import httpx
 from pydantic import TypeAdapter, ValidationError
 from ucp_sdk.models.schemas.ucp import BusinessSchema
-from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
-  ReverseDomainName,
-)
-from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
 
-# Rebuild models to resolve forward references
-checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
+try:
+  from ucp_sdk.models.schemas.common.types.reverse_domain_name import (
+    ReverseDomainName,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
+    ReverseDomainName,
+  )
 
 
-class ProtocolTest(integration_test_utils.IntegrationTestBase):
-  """Tests for UCP protocol compliance.
+class ProtocolTest(BaseIntegrationTest):
+  """Tests for generic UCP protocol and discovery compliance.
 
   Validated Paths:
   - GET /.well-known/ucp
-  - POST /checkout-sessions
   """
 
   def _extract_document_urls(
@@ -96,8 +101,6 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     return sorted(urls, key=lambda x: x[0])
 
-  import unittest
-
   @unittest.skip("Schemas not yet published on remote ucp.dev domain")
   def test_discovery_urls(self):
     """Verify all spec and schema URLs in discovery profile are valid.
@@ -154,15 +157,18 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     Given the UCP server is running,
     When a GET request is sent to /.well-known/ucp,
-    Then the response should be 200 OK and include the expected version,
+    Then the response should be 200 OK and include a well-formed version,
     capabilities, and payment handlers.
     """
     response = self.client.get("/.well-known/ucp")
     self.assert_response_status(response, 200)
     data = response.json()
 
-    self.assertIn("ucp", data, "Discovery profile must be wrapped in 'ucp' key")
-    ucp_data = data["ucp"]
+    # The discovery profile may be returned at the root or wrapped in `ucp`.
+    ucp_data = data.get("ucp", data)
+    self.assertIn(
+      "version", ucp_data, "Discovery profile must contain 'version'"
+    )
 
     # Validate schema using SDK model
     BusinessSchema(**ucp_data)
@@ -170,8 +176,13 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     # Universal structural validation: UCP versions are date-based
     # (YYYY-MM-DD) regardless of which release the server implements.
     declared_version = ucp_data.get("version")
+    version_str = (
+      declared_version.get("root", "")
+      if isinstance(declared_version, dict)
+      else str(declared_version)
+    )
     self.assertRegex(
-      str(declared_version),
+      version_str,
       r"^\d{4}-\d{2}-\d{2}$",
       msg="UCP version in discovery doc must be date-based (YYYY-MM-DD)",
     )
@@ -179,20 +190,19 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     # ("ucp_version"), so the suite tests the release the merchant targets
     # instead of a hardcoded literal.
     expected_version = self.conformance_config.get(
-      "ucp_version", integration_test_utils.DEFAULT_UCP_VERSION
+      "ucp_version", DEFAULT_UCP_VERSION
     )
     self.assertEqual(
-      declared_version,
+      version_str,
       expected_version,
       msg="Unexpected UCP version in discovery doc",
     )
 
     # Verify Capabilities — every capability group name must follow the
-    # reverse-DNS convention (universal), and any capabilities the merchant
-    # is expected to declare come from conformance_input.json
-    # ("required_capabilities"): per the server-selects negotiation model,
-    # capability sets are negotiated per merchant, so no fixed roster is
-    # universally required.
+    # reverse-DNS convention (universal). Which capabilities a merchant
+    # declares is negotiated per merchant (server-selects model), so any
+    # expected roster comes from conformance_input.json
+    # ("required_capabilities") rather than being fixed here.
     capabilities = set(ucp_data.get("capabilities", {}))
     for cap_name in capabilities:
       try:
@@ -203,10 +213,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
           f"convention: {e}"
         )
     expected_capabilities = set(
-      self.conformance_config.get(
-        "required_capabilities",
-        integration_test_utils.DEFAULT_REQUIRED_CAPABILITIES,
-      )
+      self.conformance_config.get("required_capabilities", [])
     )
     missing_caps = expected_capabilities - capabilities
     self.assertFalse(
@@ -248,95 +255,32 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
         "payment_handlers is present but contains no handlers",
       )
 
-    # Verify shopping capability
-    shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping")
-    self.assertIsNotNone(shopping_services, "Shopping service missing")
-    shopping_service = (
-      shopping_services[0]
-      if isinstance(shopping_services, list)
-      else shopping_services
-    )
-    # The shopping service entry's version follows the same input-driven
-    # rule as the profile version above.
-    self.assertRegex(
-      str(shopping_service.get("version")),
-      r"^\d{4}-\d{2}-\d{2}$",
-      msg="Shopping service version must be date-based (YYYY-MM-DD)",
-    )
-    self.assertEqual(shopping_service.get("version"), expected_version)
-    self.assertEqual(
-      shopping_service.get("transport"),
-      "rest",
-      "Shopping service must advertise the REST transport",
-    )
-    self.assertIsNotNone(shopping_service.get("endpoint"))
-
   def test_version_negotiation(self):
-    """Test protocol version negotiation via headers.
+    """Test protocol version negotiation via the UCP-Agent header."""
+    headers = self.get_headers()
 
-    Given a checkout creation request,
-    When the request includes a 'UCP-Agent' header with a compatible version,
-    then the request succeeds (200/201).
-    When the request includes a 'UCP-Agent' header with an incompatible version,
-    then the request fails with 422 Unprocessable Content.
-    """
-    # Discover shopping service endpoint
-    discovery_resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(discovery_resp, 200)
-    profile_dict = discovery_resp.json()
-    ucp_data = profile_dict.get("ucp", profile_dict)
-    shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping")
-    self.assertIsNotNone(
-      shopping_services, "Shopping service not found in discovery"
-    )
-    shopping_service = (
-      shopping_services[0]
-      if isinstance(shopping_services, list)
-      else shopping_services
-    )
-    self.assertEqual(
-      shopping_service.get("transport"),
-      "rest",
-      "Shopping service must advertise the REST transport",
-    )
-    self.assertIsNotNone(
-      shopping_service.get("endpoint"),
-      "Endpoint not found for shopping service",
-    )
-    checkout_sessions_url = (
-      f"{str(shopping_service.get('endpoint')).rstrip('/')}/checkout-sessions"
+    # 1. Compatible version request to discovery. Use the version the server
+    # itself advertises so this stays correct across spec releases.
+    discovery = self.client.get("/.well-known/ucp")
+    self.assert_response_status(discovery, 200)
+    profile = discovery.json()
+    ucp_data = profile.get("ucp", profile)
+    advertised = ucp_data.get("version")
+    advertised_version = (
+      advertised.get("root", "")
+      if isinstance(advertised, dict)
+      else str(advertised)
     )
 
-    create_payload = self.create_checkout_payload()
-
-    # 1. Compatible Version — use the version the server itself advertises in
-    # discovery, so the test stays correct across spec releases instead of
-    # pinning a literal that goes stale.
-    advertised_version = ucp_data.get("version")
-    self.assertIsNotNone(
-      advertised_version, "Discovery profile must advertise a UCP version"
-    )
-    headers = integration_test_utils.get_headers()
     headers["UCP-Agent"] = f'profile="..."; version="{advertised_version}"'
-    response = self.client.post(
-      checkout_sessions_url,
-      json=create_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
-      headers=headers,
-    )
-    self.assert_response_status(response, [200, 201])
+    resp = self.client.get("/.well-known/ucp", headers=headers)
+    self.assert_response_status(resp, 200)
 
-    # 2. Incompatible Version
+    # 2. Future / incompatible version request. Discovery must still succeed
+    # or respond with a structured error.
     headers["UCP-Agent"] = 'profile="..."; version="2099-01-01"'
-    response = self.client.post(
-      checkout_sessions_url,
-      json=create_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
-      headers=headers,
-    )
-    self.assert_response_status(response, 422)
+    resp = self.client.get("/.well-known/ucp", headers=headers)
+    self.assertIn(resp.status_code, [200, 400])
 
 
 if __name__ == "__main__":

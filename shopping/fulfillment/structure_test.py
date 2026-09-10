@@ -43,10 +43,15 @@ server under test.
 """
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import checkout_create_request
-from ucp_sdk.models.schemas.shopping import payment_create_request
+
+try:
+  from ucp_sdk.models.schemas.shopping import payment_create_request
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import payment_create_request
 from ucp_sdk.models.schemas import payment_handler
 from ucp_sdk.models.schemas.shopping.types import item_create_request
 from ucp_sdk.models.schemas.shopping.types import line_item_create_request
@@ -67,34 +72,14 @@ def _methods(response_json: dict) -> list[dict]:
   return fulfillment.get("methods") or []
 
 
-class FulfillmentStructureTest(integration_test_utils.IntegrationTestBase):
+@requires_capability(_FULFILLMENT_CAPABILITY)
+class FulfillmentStructureTest(ShoppingIntegrationTestBase):
   """Structural invariants of the checkout fulfillment tree.
 
   Validated Paths:
   - POST /checkout-sessions
   - PUT /checkout-sessions/{id}
   """
-
-  def setUp(self) -> None:
-    """Skip unless the business advertises the fulfillment capability."""
-    super().setUp()
-    if not self._advertises_fulfillment():
-      self.skipTest(
-        f"business does not advertise {_FULFILLMENT_CAPABILITY}; skipping"
-      )
-
-  def _advertises_fulfillment(self) -> bool:
-    """Return True if discovery advertises the fulfillment capability."""
-    resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(resp, 200)
-    ucp = resp.json().get("ucp", resp.json())
-    caps = ucp.get("capabilities") or {}
-    names = (
-      list(caps.keys())
-      if isinstance(caps, dict)
-      else [c.get("name") for c in caps if isinstance(c, dict)]
-    )
-    return _FULFILLMENT_CAPABILITY in names
 
   def _checkout_with_options(self) -> dict:
     """Create a checkout and drive it to a state that carries options.
