@@ -15,15 +15,26 @@
 """Validation tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import get_valid_payment_payload
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import (
   checkout_update_request as checkout_update_req,
 )
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_request
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping import payment_update_request
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import payment_update_request
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 
@@ -32,7 +43,8 @@ from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class ValidationTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class ValidationTest(ShoppingIntegrationTestBase):
   """Tests for input validation and error handling.
 
   Validated Paths:
@@ -64,7 +76,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 400)
@@ -115,7 +127,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 400)
@@ -145,7 +157,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 400)
@@ -166,14 +178,12 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
 
     # Use the helper to get valid structure, but request the failing instrument
     # 'instr_fail' is loaded from payment_instruments.csv
-    payment_payload = integration_test_utils.get_valid_payment_payload(
-      instrument_id="instr_fail"
-    )
+    payment_payload = get_valid_payment_payload(instrument_id="instr_fail")
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 402)
@@ -188,12 +198,12 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_id = response_json["id"]
 
-    payment_payload = integration_test_utils.get_valid_payment_payload()
+    payment_payload = get_valid_payment_payload()
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 400)
@@ -226,7 +236,7 @@ class ValidationTest(integration_test_utils.IntegrationTestBase):
       json=create_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 400)

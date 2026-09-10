@@ -75,7 +75,7 @@ jobs:
           uv run --directory samples/rest/python/server import_csv.py \
             --products_db_path=${DATABASE_PATH}/products.db \
             --transactions_db_path=${DATABASE_PATH}/transactions.db \
-            --data_dir=../../../../conformance/test_data/flower_shop
+            --data_dir=../../../../conformance/shopping/fixtures/flower_shop
 
       - name: Start Flower Shop server
         run: |
@@ -101,15 +101,9 @@ jobs:
         continue-on-error: ${{ github.event_name == 'pull_request' }}
         working-directory: conformance
         run: |
-          EXIT_CODE=0
-          for test_file in *_test.py; do
-            echo "::group::${test_file}"
-            if ! uv run "${test_file}" \
-              --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
-              --simulation_secret=${SIMULATION_SECRET} \
-              --conformance_input=test_data/flower_shop/conformance_input.json; then
-              EXIT_CODE=1
-            fi
-            echo "::endgroup::"
-          done
-          exit ${EXIT_CODE}
+          uv run ucp-conformance \
+            --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
+            --simulation_secret=${SIMULATION_SECRET} \
+            --platform=google \
+            --suite=all \
+            -v

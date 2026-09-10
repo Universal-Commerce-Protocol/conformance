@@ -18,13 +18,22 @@ import datetime
 import uuid
 from absl import flags
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
 from pydantic import AnyUrl
+from shopping.base import get_valid_payment_payload
+from shopping.base import shopping_test_data
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import order
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 from ucp_sdk.models.schemas.shopping.types import adjustment
 from ucp_sdk.models.schemas.shopping.types import fulfillment_event
 
@@ -34,7 +43,8 @@ checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 FLAGS = flags.FLAGS
 
 
-class OrderTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.order")
+class OrderTest(ShoppingIntegrationTestBase):
   """Tests for order management.
 
   Validated Paths:
@@ -81,9 +91,10 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Update with Address to get options
     # Use helper to get a valid address from CSV
-    address_data = integration_test_utils.test_data.addresses[0]
+    address_data = shopping_test_data.addresses[0]
     fulfillment_address = {
       "id": "dest_manual",
+      "type": "shipping_address",
       "full_name": "Jane Doe",
       "street_address": address_data["street_address"],
       "address_locality": address_data["city"],
@@ -115,7 +126,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": get_valid_payment_payload(),
       "fulfillment": fulfillment_payload,
     }
 
@@ -197,9 +208,10 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
 
     # Update with Address to get options
     # Use helper to get a valid address from CSV
-    address_data = integration_test_utils.test_data.addresses[0]
+    address_data = shopping_test_data.addresses[0]
     addr = {
       "id": "dest_manual_2",
+      "type": "shipping_address",
       "full_name": "Jane Doe",
       "street_address": address_data["street_address"],
       "address_locality": address_data["city"],
@@ -231,7 +243,7 @@ class OrderTest(integration_test_utils.IntegrationTestBase):
         }
         for li in checkout_obj.line_items
       ],
-      "payment": integration_test_utils.get_valid_payment_payload(),
+      "payment": get_valid_payment_payload(),
       "fulfillment": fulfillment_payload,
     }
 

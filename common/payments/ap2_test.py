@@ -12,60 +12,71 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for Token Binding in UCP SDK Server."""
+"""Tests for AP2 Mandate in UCP SDK Server."""
 
 from absl.testing import absltest
+from framework.decorators import requires_capability
 import integration_test_utils
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class TokenBindingTest(integration_test_utils.IntegrationTestBase):
-  """Tests for Token Binding.
+@requires_capability("dev.ucp.common.payments.ap2")
+class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
+  """Tests for AP2 Mandate.
 
   Validated Paths:
   - POST /checkout-sessions/{id}/complete
   """
 
-  def test_token_binding_completion(self) -> None:
-    """Test successful checkout completion with bound token.
+  def test_ap2_mandate_completion(self) -> None:
+    """Test successful checkout completion with AP2 mandate.
 
     Given a ready-to-complete checkout session,
-    When a completion request is made using a token with binding data,
+    When a completion request is made including ap2 extension data,
     Then the request should succeed with status 200.
     """
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    payment_payload = {
-      "payment": {
-        "instruments": [
-          {
-            "id": "instr_1",
-            "handler_id": "mock_payment_handler",
-            "type": "card",
-            "display": {
-              "brand": "visa",
-              "last_digits": "4242",
-            },
-            "credential": {
-              "type": "token",
-              "token": "success_token",
-              "binding": {
-                "checkout_id": checkout_id,
-                "identity": {"access_token": "user_access_token"},
-              },
-            },
-          }
-        ]
+    payment_instrument = {
+      "id": "instr_1",
+      "handler_id": "mock_payment_handler",
+      "type": "card",
+      "display": {
+        "brand": "visa",
+        "last_digits": "4242",
       },
+      "credential": {"type": "token", "token": "success_token"},
+    }
+
+    # SD-JWT+kb pattern:
+    # ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+(~[A-Za-z0-9_-]+)*$
+    #
+    # The UCP 01-23 SDK simplifies the AP2 protocol definitions.
+    # The extension payload is now defined directly against the `ap2` key.
+    # The `mandate` wrapper object and `ap2_data` nested objects were removed
+    # from the completion payload in this release to flatten the schema.
+
+    payment_payload = {
+      "payment": {"instruments": [payment_instrument]},
       "risk_signals": {},
+      "ap2": {
+        **response_json,
+        "checkout_mandate": "header.payload.signature~kb_signature",
+      },
     }
 
     response = self.client.post(

@@ -16,16 +16,25 @@
 
 import time
 from absl.testing import absltest
+from framework.decorators import requires_capability
+from framework.mock_webhook_server import MockWebhookServer
 import integration_test_utils
 from ucp_sdk.models.schemas.shopping import checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
+@requires_capability("dev.ucp.common.webhooks")
 class WebhookTest(integration_test_utils.IntegrationTestBase):
   """Tests for Webhook notifications."""
 
@@ -33,7 +42,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
     """Set up the webhook server and configuration."""
     super().setUp()
     port = integration_test_utils.FLAGS.mock_webhook_port
-    self.webhook_server = integration_test_utils.MockWebhookServer(port=port)
+    self.webhook_server = MockWebhookServer(port=port)
     self.webhook_server.start()
     self.webhook_url = (
       f"http://localhost:{port}/webhooks/partners/test_partner/events/order"

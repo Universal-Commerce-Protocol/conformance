@@ -17,22 +17,29 @@
 import datetime
 import uuid
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import order
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class InvalidInputTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.order")
+class InvalidInputTest(ShoppingIntegrationTestBase):
   """Tests for invalid inputs and schema validation.
 
   Validated Paths:
-  - PUT /checkout-sessions/{id}
   - GET /orders/{id}
   - PUT /orders/{id}
   """
@@ -49,7 +56,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     order_obj = order.Order(**response.json())
     order_dict = order_obj.model_dump(
@@ -71,38 +78,12 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_dict,
       headers=self.get_headers(),
     )
     # Pydantic validation error should result in 422
     self.assert_response_status(resp, 422)
-
-  def test_unknown_discount_code(self):
-    """Test that unknown discount codes are ignored.
-
-    Given an existing checkout session,
-    When an update request includes an unknown discount code,
-    Then the request should succeed (200 OK) but no discount should be applied
-    to the totals.
-    """
-    response_json = self.create_checkout_session()
-    checkout_obj = checkout.Checkout(**response_json)
-
-    # Update with unknown discount code using helper
-    # The helper preserves existing fields, so we just pass the discount
-    resp_json = self.update_checkout_session(
-      checkout_obj, discounts={"codes": ["INVALID_CODE_123"]}
-    )
-
-    updated_checkout = checkout.Checkout(**resp_json)
-    # Verify no discount applied
-    discount_total = next(
-      (t for t in updated_checkout.totals if t.type == "discount"), None
-    )
-    self.assertIsNone(
-      discount_total, "Unknown discount code should not apply discount"
-    )
 
   def test_malformed_adjustment_payload(self):
     """Test that malformed adjustment payloads are rejected.
@@ -116,7 +97,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Get Order
     response = self.client.get(
-      f"/orders/{order_id}", headers=self.get_headers()
+      self.get_order_url(order_id), headers=self.get_headers()
     )
     order_obj = order.Order(**response.json())
     order_dict = order_obj.model_dump(
@@ -128,7 +109,7 @@ class InvalidInputTest(integration_test_utils.IntegrationTestBase):
 
     # Update Order
     resp = self.client.put(
-      f"/orders/{order_id}",
+      self.get_order_url(order_id),
       json=order_dict,
       headers=self.get_headers(),
     )

@@ -12,30 +12,43 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Idempotency tests for the UCP SDK Server."""
+"""Idempotency tests for UCP protocol servers."""
 
 import uuid
-
 from absl.testing import absltest
+from framework.base_test import BaseIntegrationTest
+from framework.decorators import requires_capability
 import integration_test_utils
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class IdempotencyTest(integration_test_utils.IntegrationTestBase):
-  """Tests for API idempotency.
+class GenericIdempotencyTest(BaseIntegrationTest):
+  """Agnostic transport tests for Idempotency-Key headers."""
 
-  Validated Paths:
-  - POST /checkout-sessions
-  - PUT /checkout-sessions/{id}
-  - POST /checkout-sessions/{id}/complete
-  - POST /checkout-sessions/{id}/cancel
-  """
+  def test_idempotency_header_accepted(self) -> None:
+    """Test that protocol endpoints accept idempotency-key header."""
+    headers = self.get_headers(idempotency_key=str(uuid.uuid4()))
+    response = self.client.get("/.well-known/ucp", headers=headers)
+    self.assert_response_status(response, 200)
+
+
+@requires_capability("dev.ucp.shopping.checkout")
+class ShoppingVehicleIdempotencyTest(
+  integration_test_utils.IntegrationTestBase
+):
+  """Tests for state-mutating idempotency using checkout sessions."""
 
   def test_idempotency_create(self) -> None:
     """Test that checkout creation is idempotent.

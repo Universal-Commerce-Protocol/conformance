@@ -16,18 +16,30 @@
 
 import uuid
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import shopping_test_data
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
-from ucp_sdk.models.schemas.shopping.types import postal_address
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
+try:
+  from ucp_sdk.models.schemas.shopping.types import postal_address
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import postal_address
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class FulfillmentTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.fulfillment")
+class FulfillmentTest(ShoppingIntegrationTestBase):
   """Tests for fulfillment logic.
 
   Validated Paths:
@@ -53,7 +65,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     ctx = getattr(self, "fixture_ctx", None)
     dest_data = ctx.get_test_destination() if ctx else None
     if not dest_data:
-      addr_csv = integration_test_utils.test_data.addresses[0]
+      addr_csv = shopping_test_data.addresses[0]
       dest_data = {
         "street": addr_csv["street_address"],
         "city": addr_csv["city"],
@@ -163,7 +175,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     # 1. Update with US Address
     # addr_1 is US in CSV
-    addr_data = integration_test_utils.test_data.addresses[0]
+    addr_data = shopping_test_data.addresses[0]
     us_address = {
       "id": "dest_us",
       "address_country": addr_data["country"],
@@ -559,7 +571,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     checkout_obj = checkout.Checkout(**response_json)
 
     # addr_1 is US in CSV
-    addr_data = integration_test_utils.test_data.addresses[0]
+    addr_data = shopping_test_data.addresses[0]
     address = {
       "id": "dest_us",
       "address_country": addr_data["country"],
@@ -609,7 +621,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     checkout_obj = checkout.Checkout(**response_json)
 
     # addr_1 is US in CSV
-    addr_data = integration_test_utils.test_data.addresses[0]
+    addr_data = shopping_test_data.addresses[0]
     address = {
       "id": "dest_us",
       "address_country": addr_data["country"],

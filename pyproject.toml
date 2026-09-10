@@ -15,7 +15,11 @@ dependencies = [
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.38.0",
     "ruff>=0.14.11",
+    "pyyaml>=6.0",
 ]
+
+[project.scripts]
+ucp-conformance = "runner:main"
 
 [dependency-groups]
 dev = []
@@ -25,7 +29,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["framework", "core", "common", "shopping", "platforms"]
 
 [tool.uv.sources]
 # The relative path is stored here
