@@ -80,7 +80,14 @@ class IdempotencyTest(integration_test_utils.IntegrationTestBase):
 
     # 3. Conflict Request
     conflict_payload = create_payload.model_copy(deep=True)
-    conflict_payload.currency = "EUR"
+    # Pick any currency other than the merchant's own so the conflict
+    # request differs for every conformance input (a hardcoded "EUR" is a
+    # no-op for merchants that already trade in EUR).
+    conflict_payload.currency = next(
+      code
+      for code in ("EUR", "USD", "GBP", "JPY")
+      if code != create_payload.currency
+    )
     response3 = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=conflict_payload.model_dump(
