@@ -288,7 +288,13 @@ def main(argv: list[str] | None = None) -> int:
   )
   result = runner.run(test_suite)
 
-  passed = result.testsRun - len(result.failures) - len(result.errors)
+  # testsRun counts skipped tests too, so take them out of the passes.
+  passed = (
+    result.testsRun
+    - len(result.failures)
+    - len(result.errors)
+    - len(result.skipped)
+  )
   sys.stdout.write("\n" + "=" * 70 + "\n")
   sys.stdout.write("CONFORMANCE TEST SUMMARY\n")
   sys.stdout.write(f"Total Executed: {result.testsRun}\n")
