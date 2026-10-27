@@ -22,12 +22,16 @@ contract agreed on ucp#413 and specified in ucp#839:
   * The platform MAY set it on Create Checkout; it is immutable afterwards
     (``ucp_request``: create optional, update omit, complete omit).
   * The business MUST echo it verbatim on every checkout response, MUST
-    carry it onto the order created from that checkout, and MUST include it
-    in every order event webhook for that order. It is opaque: the business
-    MUST NOT interpret, parse or modify it.
-  * A value received on Update or Complete MUST be ignored; the value set on
-    Create is retained.
-  * ``maxLength`` is 512.
+    carry it onto every order created from that checkout, return it on Get
+    Order to the originating platform, and include it in every order event
+    webhook for that order. It is opaque: the business MUST NOT interpret,
+    parse or modify it, and it is never synthesized when none was set.
+  * A value received on Update or Complete MUST be ignored, the request MUST
+    NOT be rejected because of it, and the value set on Create is retained.
+  * When Create Checkout returns an existing checkout (idempotent cart
+    conversion), the stored value is kept and echoed.
+  * A Create Checkout whose value exceeds 512 characters MUST be rejected as
+    an invalid request, never truncated.
 
 Scope: a single business (ucp#413 agreed single-Business first). The
 multi-Business fan-out (one platform reference across checkouts at several
@@ -39,9 +43,10 @@ skips unless discovery advertises ``dev.ucp.shopping.checkout`` at or after
 ``_MIN_VERSION``. Set ``UCP_CONFORMANCE_PREVIEW=platform_reference`` to run it
 against a server that implements the field ahead of that release.
 
-Not covered here, pending clarification in ucp#839 review: behavior for a
-value over 512 characters (reject vs. otherwise), and whether a strict
-business may reject a resent value instead of ignoring it.
+Not graded here: the platform-side rules (no PII, opaque values scoped to
+one purchase flow), the SHOULD rules on permalinks and on other platforms'
+Get Order, and the empty string, which the schema rejects (``minLength`` 1)
+but the prose leaves to the platform to omit.
 """
 
 import os
@@ -64,6 +69,8 @@ _FIELD = "platform_reference"
 _REF = "pr_01J9Z6R7NQ2K4T8V0X3Y5B7C9D-Mx.~_:"
 _REF_ALT = "pr_01J9Z6R8ALT0000000000000000-Zz.~_:"
 _REF_MAX = "a" * 512
+_REF_OVER = "a" * 513
+_CART_CAPABILITY = "dev.ucp.shopping.cart"
 
 
 class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
@@ -266,11 +273,9 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
     """A different value sent on Update is ignored; the original is kept."""
     checkout = self._create({_FIELD: _REF})
     response = self._update(checkout, {_FIELD: _REF_ALT})
-    # ucp#839: the business MUST ignore the value. Whether a strict business
-    # may reject the request instead is pending review, so only the stored
-    # value is graded here.
-    if response.status_code == 200:
-      self._assert_reference(response.json(), _REF, "Update Checkout response")
+    # ucp#839: MUST ignore the value and MUST NOT reject the request.
+    self.assert_response_status(response, 200)
+    self._assert_reference(response.json(), _REF, "Update Checkout response")
     self._assert_reference(
       self._get_checkout(checkout["id"]), _REF, "Get Checkout after Update"
     )
@@ -279,8 +284,8 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
     """Resending the same value on Update leaves it unchanged."""
     checkout = self._create({_FIELD: _REF})
     response = self._update(checkout, {_FIELD: _REF})
-    if response.status_code == 200:
-      self._assert_reference(response.json(), _REF, "Update Checkout response")
+    self.assert_response_status(response, 200)
+    self._assert_reference(response.json(), _REF, "Update Checkout response")
     self._assert_reference(
       self._get_checkout(checkout["id"]), _REF, "Get Checkout after Update"
     )
@@ -288,7 +293,8 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
   def test_update_cannot_add_reference(self) -> None:
     """A reference first sent on Update is ignored (it is Create-only)."""
     checkout = self._create()
-    self._update(checkout, {_FIELD: _REF})
+    response = self._update(checkout, {_FIELD: _REF})
+    self.assert_response_status(response, 200)
     self.assertNotIn(
       _FIELD,
       self._get_checkout(checkout["id"]),
@@ -382,6 +388,60 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
         events[0]["payload"], expected, f"order event for {order_id}"
       )
 
+  # ── Length ──────────────────────────────────────────────────────────────
+  def test_over_length_reference_is_rejected(self) -> None:
+    """A 513-character reference is rejected as an invalid request."""
+    payload = self.create_checkout_payload().model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
+    payload[_FIELD] = _REF_OVER
+    response = self.client.post(
+      self.get_shopping_url("/checkout-sessions"),
+      json=payload,
+      headers=self.get_headers(),
+    )
+    self.assertTrue(
+      400 <= response.status_code < 500,
+      f"Create Checkout with a 513-character {_FIELD} returned "
+      f"{response.status_code} (ucp#839: MUST reject as an invalid request, "
+      "without creating a checkout, and MUST NOT truncate). "
+      f"Resp: {response.text}",
+    )
+
+  # ── Cart conversion ─────────────────────────────────────────────────────
+  def test_cart_conversion_keeps_stored_reference(self) -> None:
+    """Converting the same cart again returns the stored reference."""
+    if not self._advertised_versions(_CART_CAPABILITY):
+      self.skipTest(f"business does not advertise {_CART_CAPABILITY}")
+    cart = self.client.post(
+      self.get_shopping_url("/carts"),
+      json={
+        "line_items": [
+          {"item": {"id": self.fixture_ctx.get_test_sku()}, "quantity": 1}
+        ]
+      },
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(cart, [200, 201])
+    cart_id = cart.json()["id"]
+    first = self._create({"cart_id": cart_id, _FIELD: _REF})
+    self._assert_reference(first, _REF, "Create Checkout from cart")
+    again = self._create({"cart_id": cart_id, _FIELD: _REF_ALT})
+    if again["id"] != first["id"]:
+      self.skipTest(
+        "converting the same cart created a new checkout; the idempotent "
+        "conversion case does not apply"
+      )
+    self._assert_reference(
+      again,
+      _REF,
+      "Create Checkout returning the existing checkout (ucp#839: MUST NOT "
+      "replace the stored value)",
+    )
+    self._assert_reference(
+      self._get_checkout(first["id"]), _REF, "Get Checkout after reconversion"
+    )
+
   # ── Absence ─────────────────────────────────────────────────────────────
   def test_absent_reference_is_not_synthesized(self) -> None:
     """Without a reference on Create, none appears on checkout or order."""
@@ -399,7 +459,7 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
         _FIELD,
         order,
         f"order carries a {_FIELD} although the checkout had none "
-        "(order.json: present when the originating checkout carried one)",
+        "(ucp#839: absent otherwise, never synthesized by the business)",
       )
 
 
