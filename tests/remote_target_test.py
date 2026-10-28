@@ -24,13 +24,28 @@ from absl.testing import flagsaver
 import runner
 from framework.base_test import flag_value
 from framework.discovery import resolve_discovery_url
-from shopping.base import shopping_rest_endpoint
+from shopping.base import (
+  DEFAULT_SHOPPING_FIXTURES,
+  fixture_paths,
+  shopping_rest_endpoint,
+)
 
 
-def run_main(*argv: str, names: tuple[str, ...] = ()) -> dict:
-  """Run the runner as a dry run with no tests and no server.
+class _Probe(unittest.TestCase):
+  """A test that needs no server, so the runner has something to run."""
 
-  Flags and environment variables are restored afterwards.
+  def test_nothing(self):
+    """Pass."""
+
+
+def run_main(
+  *argv: str, names: tuple[str, ...] = (), dry_run: bool = True
+) -> dict:
+  """Run the runner on one trivial test with the discovery fetch failing.
+
+  A dry run lists the test and returns before contacting the server; a real
+  run fetches the discovery profile first. Flags and environment variables
+  are restored afterwards.
 
   Returns:
     The exit code, the output, the mock that stood in for the discovery
@@ -39,15 +54,16 @@ def run_main(*argv: str, names: tuple[str, ...] = ()) -> dict:
   """
   out = io.StringIO()
   fetch = mock.Mock(side_effect=OSError("offline"))
+  suite = unittest.TestSuite([_Probe("test_nothing")])
   with (
     flagsaver.flagsaver(),
     mock.patch.dict(os.environ),
     mock.patch.object(runner, "fetch_server_profile", fetch),
-    mock.patch.object(runner, "_load_tests", return_value=unittest.TestSuite()),
+    mock.patch.object(runner, "_load_tests", return_value=(suite, [])),
     contextlib.redirect_stdout(out),
     contextlib.redirect_stderr(out),
   ):
-    code = runner.main(["--dry-run", *argv])
+    code = runner.main([*(["--dry-run"] if dry_run else []), *argv])
     seen = {name: flag_value(name) for name in names}
   return {"code": code, "output": out.getvalue(), "fetch": fetch, **seen}
 
@@ -84,6 +100,7 @@ class DiscoveryUrlTest(unittest.TestCase):
       "--server_url=https://shop.example",
       "--discovery_url=/.well-known/ucp/v2",
       names=("discovery_url",),
+      dry_run=False,
     )
     url = "https://shop.example/.well-known/ucp/v2"
     self.assertEqual(run["code"], 0, run["output"])
@@ -96,7 +113,7 @@ class DiscoveryUrlTest(unittest.TestCase):
 
   def test_runner_default(self):
     """Test that without the option the runner uses /.well-known/ucp."""
-    run = run_main("--server_url=https://shop.example")
+    run = run_main("--server_url=https://shop.example", dry_run=False)
     url = "https://shop.example/.well-known/ucp"
     run["fetch"].assert_called_once_with(
       "https://shop.example", discovery_url=url
@@ -189,6 +206,102 @@ class FlagValueTest(unittest.TestCase):
     """Test that a flag nobody has defined yet is read from the environment."""
     with mock.patch.dict(os.environ, {"FLAGS_defined_later": "value"}):
       self.assertEqual(flag_value("defined_later"), "value")
+
+
+_FIXTURE_FLAGS = (
+  "conformance_input",
+  "fixture_config",
+  "test_data_dir",
+)
+
+
+@contextlib.contextmanager
+def no_fixture_options():
+  """Clear the fixture flags and their environment; restore them after."""
+  with (
+    flagsaver.flagsaver(**dict.fromkeys(_FIXTURE_FLAGS)),
+    mock.patch.dict(os.environ),
+  ):
+    for name in _FIXTURE_FLAGS:
+      os.environ.pop(f"FLAGS_{name}", None)
+    yield
+
+
+class FixturePathsTest(unittest.TestCase):
+  """Tests for choosing the shopping tests' fixture files."""
+
+  def test_defaults(self):
+    """Test that the flower shop's files are used when nothing is set."""
+    with no_fixture_options():
+      paths = fixture_paths()
+    self.assertEqual(
+      paths,
+      {
+        "conformance_input": f"{DEFAULT_SHOPPING_FIXTURES}/"
+        "conformance_input.json",
+        "fixture_config": f"{DEFAULT_SHOPPING_FIXTURES}/test_fixtures.json",
+        "data_dir": DEFAULT_SHOPPING_FIXTURES,
+      },
+    )
+
+  def test_general_flags(self):
+    """Test that the general flags are no longer shadowed by defaults."""
+    with (
+      no_fixture_options(),
+      flagsaver.flagsaver(
+        conformance_input="shop/input.json",
+        fixture_config="shop/fixtures.json",
+        test_data_dir="shop",
+      ),
+    ):
+      paths = fixture_paths()
+    self.assertEqual(
+      paths,
+      {
+        "conformance_input": "shop/input.json",
+        "fixture_config": "shop/fixtures.json",
+        "data_dir": "shop",
+      },
+    )
+
+  def test_environment(self):
+    """Test the runner's environment variables, as pytest runs see them."""
+    with no_fixture_options():
+      os.environ["FLAGS_fixture_config"] = "shop/fixtures.json"  # noqa: SIM112
+      os.environ["FLAGS_test_data_dir"] = "shop"  # noqa: SIM112
+      paths = fixture_paths()
+    self.assertEqual(paths["fixture_config"], "shop/fixtures.json")
+    self.assertEqual(paths["data_dir"], "shop")
+
+  def test_runner_passes_the_options(self):
+    """Test that the runner's options reach the tests."""
+    fixture = f"{DEFAULT_SHOPPING_FIXTURES}/test_fixtures.json"
+    with no_fixture_options():
+      run = run_main(
+        f"--fixture_config={fixture}",
+        f"--test_data_dir={DEFAULT_SHOPPING_FIXTURES}",
+        names=("fixture_config", "test_data_dir"),
+      )
+    self.assertEqual(run["code"], 0, run["output"])
+    self.assertEqual(run["fixture_config"], fixture)
+    self.assertEqual(run["test_data_dir"], DEFAULT_SHOPPING_FIXTURES)
+
+  def test_runner_stops_on_missing_paths(self):
+    """Test that paths that name nothing stop the run before it starts."""
+    with no_fixture_options():
+      run = run_main(
+        "--conformance_input=nowhere/input.json",
+        f"--fixture_config={DEFAULT_SHOPPING_FIXTURES}",
+        "--test_data_dir=nowhere",
+      )
+    self.assertEqual(run["code"], 1)
+    for message in (
+      "--conformance_input: no such file: nowhere/input.json",
+      f"--fixture_config: no such file: {DEFAULT_SHOPPING_FIXTURES}",
+      "--test_data_dir: no such directory: nowhere",
+    ):
+      self.assertIn(message, run["output"])
+    run["fetch"].assert_not_called()
 
 
 if __name__ == "__main__":

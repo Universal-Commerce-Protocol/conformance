@@ -162,6 +162,25 @@ _TEST_OPTIONS = (
   "discovery_url",
 )
 
+# Options that name a file, and one that names a folder. The tests use
+# their defaults for a path that does not exist, so the runner checks them.
+_FILE_OPTIONS = ("conformance_input", "fixture_config")
+_DIR_OPTIONS = ("test_data_dir",)
+
+
+def _missing_paths(args: argparse.Namespace) -> list[str]:
+  """Return a message for each path option that names nothing usable."""
+  problems = []
+  for name in _FILE_OPTIONS:
+    value = getattr(args, name)
+    if value and not Path(value).is_file():
+      problems.append(f"--{name}: no such file: {value}")
+  for name in _DIR_OPTIONS:
+    value = getattr(args, name)
+    if value and not Path(value).is_dir():
+      problems.append(f"--{name}: no such directory: {value}")
+  return problems
+
 
 def _sync_absl_flags(args: argparse.Namespace) -> None:
   """Pass the parsed CLI arguments on to the absl flags the suites read.
@@ -293,6 +312,11 @@ def _platform_file(name_or_path: str) -> Path | None:
 def main(argv: list[str] | None = None) -> int:
   """Execute the UCP conformance test orchestrator."""
   args = parse_args(argv)
+
+  problems = _missing_paths(args)
+  if problems:
+    sys.stderr.write("Error: " + "\n       ".join(problems) + "\n")
+    return 1
 
   logging_level = logging.DEBUG if args.verbose else logging.INFO
   logging.basicConfig(level=logging_level, format="%(levelname)s: %(message)s")
