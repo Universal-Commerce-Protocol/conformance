@@ -18,6 +18,8 @@ import contextlib
 import io
 import json
 import os
+from pathlib import Path
+import tempfile
 import unittest
 from unittest import mock
 
@@ -208,6 +210,122 @@ class FlagValueTest(unittest.TestCase):
     """Test that a flag nobody has defined yet is read from the environment."""
     with mock.patch.dict(os.environ, {"FLAGS_defined_later": "value"}):
       self.assertEqual(flag_value("defined_later"), "value")
+
+
+def write_target(directory: str, data: object) -> None:
+  """Write a target file into a folder."""
+  (Path(directory) / runner.TARGET_FILE).write_text(
+    json.dumps(data), encoding="utf-8"
+  )
+
+
+class TargetDirTest(unittest.TestCase):
+  """Tests for reading a server's options from a target folder."""
+
+  def test_load(self):
+    """Test the options read, paths resolved and keys ignored."""
+    with tempfile.TemporaryDirectory() as directory:
+      write_target(
+        directory,
+        {
+          "name": "a shop",
+          "server_url": "https://shop.example",
+          "discovery_url": "/.well-known/ucp/v2",
+          "fixture_config": "fixtures.json",
+          "test_data_dir": "/data",
+          "webhook_base_url": "",
+        },
+      )
+      target = runner.load_target(directory)
+    self.assertEqual(
+      target,
+      {
+        "server_url": "https://shop.example",
+        "discovery_url": "/.well-known/ucp/v2",
+        "fixture_config": f"{directory}/fixtures.json",
+        "test_data_dir": "/data",
+      },
+    )
+
+  def test_command_line_wins(self):
+    """Test that options on the command line override the target's."""
+    with tempfile.TemporaryDirectory() as directory:
+      write_target(
+        directory,
+        {
+          "server_url": "https://shop.example",
+          "discovery_url": "/.well-known/ucp/v2",
+        },
+      )
+      args = runner.parse_args(
+        [f"--target_dir={directory}", "--server_url=http://localhost:9"]
+      )
+    self.assertEqual(args.server_url, "http://localhost:9")
+    self.assertEqual(args.discovery_url, "/.well-known/ucp/v2")
+
+  def test_server_url_defaults(self):
+    """Test the server URL's fallbacks when no target gives one."""
+    with mock.patch.dict(os.environ):
+      os.environ.pop("UCP_SERVER_URL", None)
+      self.assertEqual(
+        runner.parse_args([]).server_url, runner.DEFAULT_SERVER_URL
+      )
+      os.environ["UCP_SERVER_URL"] = "https://env.example"
+      self.assertEqual(runner.parse_args([]).server_url, "https://env.example")
+      with tempfile.TemporaryDirectory() as directory:
+        write_target(directory, {"server_url": "https://shop.example"})
+        args = runner.parse_args([f"--target_dir={directory}"])
+      self.assertEqual(args.server_url, "https://shop.example")
+
+  def test_bad_targets(self):
+    """Test that an unusable target file is a usage error."""
+    with tempfile.TemporaryDirectory() as directory:
+      cases = {
+        "missing": (None, "no target.json in"),
+        "not_json": ("{", "cannot read"),
+        "list": ([], "is not a JSON object"),
+        "number": ({"server_url": 8182}, "server_url is not a string"),
+      }
+      for name, (data, message) in cases.items():
+        with self.subTest(name=name):
+          folder = Path(directory) / name
+          folder.mkdir()
+          if isinstance(data, str):
+            (folder / runner.TARGET_FILE).write_text(data, encoding="utf-8")
+          elif data is not None:
+            write_target(str(folder), data)
+          err = io.StringIO()
+          with (
+            contextlib.redirect_stderr(err),
+            self.assertRaises(SystemExit),
+          ):
+            runner.parse_args([f"--target_dir={folder}"])
+          self.assertIn(message, err.getvalue())
+
+  def test_runner_uses_the_target(self):
+    """Test a run that takes its server and profile from a target."""
+    with tempfile.TemporaryDirectory() as directory:
+      write_target(
+        directory,
+        {
+          "server_url": "https://shop.example",
+          "discovery_url": "/.well-known/ucp/v2",
+          "agent_profile_url": "https://agent.example/profiles/agent.json",
+          "webhook_base_url": "https://hooks.example",
+        },
+      )
+      run = run_main(
+        f"--target_dir={directory}", names=("discovery_url",), dry_run=False
+      )
+    self.assertEqual(run["code"], 0, run["output"])
+    self.assertIn("Target Server: https://shop.example\n", run["output"])
+    self.assertIn(f"Target Folder: {directory}\n", run["output"])
+    self.assertNotIn("Note:", run["output"])
+    run["fetch"].assert_called_once_with(
+      "https://shop.example",
+      discovery_url="https://shop.example/.well-known/ucp/v2",
+    )
+    self.assertEqual(run["discovery_url"], "/.well-known/ucp/v2")
 
 
 class PublicAddressTest(unittest.TestCase):

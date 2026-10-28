@@ -17,6 +17,7 @@
 import argparse
 from collections.abc import Iterator
 import importlib
+import json
 import logging
 import os
 from pathlib import Path
@@ -226,6 +227,77 @@ def _sync_absl_flags(args: argparse.Namespace) -> None:
   flags.FLAGS(flag_args, known_only=True)
 
 
+# A target folder describes one server under test in this file.
+TARGET_FILE = "target.json"
+# The options a target file may give; other keys are ignored.
+TARGET_KEYS = (
+  "server_url",
+  "discovery_url",
+  "conformance_input",
+  "fixture_config",
+  "test_data_dir",
+  "agent_profile_url",
+  "webhook_base_url",
+)
+# The options that are paths, resolved against the target folder.
+_TARGET_PATH_KEYS = ("conformance_input", "fixture_config", "test_data_dir")
+DEFAULT_SERVER_URL = "http://localhost:8182"
+
+
+class TargetError(Exception):
+  """The target folder's file is missing or is not usable."""
+
+
+def load_target(target_dir: str) -> dict[str, str]:
+  """Read the options a target folder's file gives.
+
+  Paths are made relative to the folder, unless absolute. Keys other than
+  TARGET_KEYS, and empty values, are left out.
+
+  Raises:
+    TargetError: The file is missing, is not JSON, or is not an object, or
+      a known option is not a string.
+
+  """
+  path = Path(target_dir) / TARGET_FILE
+  try:
+    data = json.loads(path.read_text(encoding="utf-8"))
+  except FileNotFoundError as error:
+    raise TargetError(f"no {TARGET_FILE} in {target_dir}") from error
+  except (OSError, ValueError) as error:
+    raise TargetError(f"cannot read {path}: {error}") from error
+  if not isinstance(data, dict):
+    raise TargetError(f"{path} is not a JSON object")
+  options = {}
+  for key in TARGET_KEYS:
+    value = data.get(key)
+    if value in (None, ""):
+      continue
+    if not isinstance(value, str):
+      raise TargetError(f"{path}: {key} is not a string")
+    if key in _TARGET_PATH_KEYS:
+      value = str(Path(target_dir) / value)
+    options[key] = value
+  return options
+
+
+def apply_target(args: argparse.Namespace, target: dict[str, str]) -> None:
+  """Fill in the options not given on the command line from a target.
+
+  Then give --server_url its remaining defaults: $SERVER_URL, then
+  $UCP_SERVER_URL, then DEFAULT_SERVER_URL.
+  """
+  for key, value in target.items():
+    if getattr(args, key) is None:
+      setattr(args, key, value)
+  if args.server_url is None:
+    args.server_url = (
+      os.environ.get("SERVER_URL")
+      or os.environ.get("UCP_SERVER_URL")
+      or DEFAULT_SERVER_URL
+    )
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   """Parse command line arguments for the conformance runner."""
   parser = argparse.ArgumentParser(
@@ -233,12 +305,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     description="Universal Commerce Protocol Conformance Test Runner",
   )
   parser.add_argument(
+    "--target_dir",
+    metavar="DIR",
+    default=None,
+    help=f"Folder with a {TARGET_FILE} that gives the target server's "
+    f"options ({', '.join(TARGET_KEYS)}); paths in it are relative to the "
+    "folder, and options given on the command line win.",
+  )
+  parser.add_argument(
     "--server_url",
-    default=os.environ.get("SERVER_URL")
-    or os.environ.get("UCP_SERVER_URL")
-    or "http://localhost:8182",
-    help="Target UCP server base URL (default: $SERVER_URL or "
-    "http://localhost:8182).",
+    default=None,
+    help="Target UCP server base URL (default: the target file's, else "
+    "$SERVER_URL, else $UCP_SERVER_URL, else http://localhost:8182).",
   )
   parser.add_argument(
     "--discovery_url",
@@ -328,7 +406,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     action="store_true",
     help="List selected test cases without contacting the server.",
   )
-  return parser.parse_args(argv)
+  args = parser.parse_args(argv)
+  target = {}
+  if args.target_dir:
+    try:
+      target = load_target(args.target_dir)
+    except TargetError as error:
+      parser.error(f"--target_dir: {error}")
+  apply_target(args, target)
+  return args
 
 
 def _platform_file(name_or_path: str) -> Path | None:
@@ -366,6 +452,8 @@ def main(argv: list[str] | None = None) -> int:
   sys.stdout.write("=" * 70 + "\n")
   sys.stdout.write("UCP CONFORMANCE TEST RUNNER\n")
   sys.stdout.write(f"Target Server: {args.server_url}\n")
+  if args.target_dir:
+    sys.stdout.write(f"Target Folder: {args.target_dir}\n")
   if args.discovery_url:
     sys.stdout.write(f"Discovery Profile: {discovery_url}\n")
   sys.stdout.write("=" * 70 + "\n")
