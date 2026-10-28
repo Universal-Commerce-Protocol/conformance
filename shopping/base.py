@@ -98,6 +98,28 @@ DEFAULT_REQUIRED_CAPABILITIES = [
 ]
 
 
+class FixturePaths(TypedDict):
+  """The fixture files the shopping tests use."""
+
+  conformance_input: str
+  fixture_config: str
+  data_dir: str
+
+
+def fixture_paths() -> FixturePaths:
+  """Return the fixture files to use: those configured, else the defaults.
+
+  Each value comes from a flag or its FLAGS_<name> environment variable
+  (see flag_value); the flower shop's files are the fallback.
+  """
+  return FixturePaths(
+    conformance_input=flag_value("conformance_input")
+    or DEFAULT_CONFORMANCE_INPUT,
+    fixture_config=flag_value("fixture_config") or DEFAULT_FIXTURE_CONFIG,
+    data_dir=flag_value("test_data_dir") or DEFAULT_SHOPPING_FIXTURES,
+  )
+
+
 class ShoppingTestData:
   """Holder for loaded retail test data."""
 
@@ -542,9 +564,11 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     """Set up shopping fixtures, configs, and endpoints."""
     super().setUp()
 
+    paths = fixture_paths()
+
     # Load fixture configuration
     fixture_config = {}
-    fix_cfg_path = flag_value("fixture_config") or DEFAULT_FIXTURE_CONFIG
+    fix_cfg_path = paths["fixture_config"]
     if Path(fix_cfg_path).exists():
       with Path(fix_cfg_path).open(encoding="utf-8") as f:
         fixture_config = json.load(f)
@@ -556,7 +580,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     )
 
     # Load CSV test data
-    fixtures_dir = flag_value("test_data_dir") or DEFAULT_SHOPPING_FIXTURES
+    fixtures_dir = paths["data_dir"]
     if Path(fixtures_dir).exists():
       try:
         shopping_test_data.load(fixtures_dir)
