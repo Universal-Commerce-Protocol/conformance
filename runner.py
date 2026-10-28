@@ -24,7 +24,11 @@ import sys
 import unittest
 from absl import flags
 from framework.base_test import BaseIntegrationTest
-from framework.discovery import UcpProfile, fetch_server_profile
+from framework.discovery import (
+  UcpProfile,
+  fetch_server_profile,
+  resolve_discovery_url,
+)
 from framework.platform import PlatformProfile
 
 SUITE_REGISTRY: dict[str, list[str]] = {
@@ -150,6 +154,16 @@ def _load_tests(
   return suite, unresolved
 
 
+# Optional runner options that reach the tests as absl flags of the same
+# name (see framework.base_test.flag_value).
+_TEST_OPTIONS = (
+  "conformance_input",
+  "fixture_config",
+  "test_data_dir",
+  "discovery_url",
+)
+
+
 def _sync_absl_flags(args: argparse.Namespace) -> None:
   """Pass the parsed CLI arguments on to the absl flags the suites read.
 
@@ -164,7 +178,7 @@ def _sync_absl_flags(args: argparse.Namespace) -> None:
   ]
   if args.simulation_secret:
     flag_args.append(f"--simulation_secret={args.simulation_secret}")
-  for name in ("conformance_input", "fixture_config", "test_data_dir"):
+  for name in _TEST_OPTIONS:
     value = getattr(args, name)
     if value:
       flag_args.append(f"--{name}={value}")
@@ -187,6 +201,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     or "http://localhost:8182",
     help="Target UCP server base URL (default: $SERVER_URL or "
     "http://localhost:8182).",
+  )
+  parser.add_argument(
+    "--discovery_url",
+    default=None,
+    help="URL of the server's discovery profile, if it is not at "
+    "SERVER_URL/.well-known/ucp: a full URL, or a path on --server_url. The "
+    "core tests still check /.well-known/ucp.",
   )
   parser.add_argument(
     "--platform",
@@ -285,10 +306,13 @@ def main(argv: list[str] | None = None) -> int:
   test_suite, unresolved = _load_tests(test_specs, filter_pattern=args.filter)
   total_tests = test_suite.countTestCases()
   _sync_absl_flags(args)
+  discovery_url = resolve_discovery_url(args.server_url, args.discovery_url)
 
   sys.stdout.write("=" * 70 + "\n")
   sys.stdout.write("UCP CONFORMANCE TEST RUNNER\n")
   sys.stdout.write(f"Target Server: {args.server_url}\n")
+  if args.discovery_url:
+    sys.stdout.write(f"Discovery Profile: {discovery_url}\n")
   sys.stdout.write("=" * 70 + "\n")
 
   # An empty suite would "pass", so a selection that loads nothing is an
@@ -318,7 +342,9 @@ def main(argv: list[str] | None = None) -> int:
 
   server_profile: UcpProfile | None = None
   try:
-    server_profile = fetch_server_profile(args.server_url)
+    server_profile = fetch_server_profile(
+      args.server_url, discovery_url=discovery_url
+    )
     BaseIntegrationTest.server_profile = server_profile
     sys.stdout.write("\nDiscovered Server Capabilities:\n")
     for cap in server_profile.capabilities.values():
@@ -327,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
       handlers_str = ", ".join(sorted(server_profile.payment_handlers))
       sys.stdout.write(f"Payment Handlers: {handlers_str}\n")
   except Exception as exc:  # pylint: disable=broad-exception-caught
-    sys.stdout.write(f"Warning: Failed to fetch /.well-known/ucp: {exc}\n")
+    sys.stdout.write(f"Warning: Failed to fetch {discovery_url}: {exc}\n")
 
   if args.platform:
     platform_path = _platform_file(args.platform)

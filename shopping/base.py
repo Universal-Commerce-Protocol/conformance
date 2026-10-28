@@ -534,7 +534,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
   def shopping_service_endpoint(self) -> str:
     """Cached property for the shopping service endpoint."""
     if self._shopping_service_endpoint is None:
-      discovery_resp = self.client.get("/.well-known/ucp")
+      discovery_resp = self.client.get(self.discovery_url)
       self.assert_response_status(discovery_resp, 200)
 
       profile_data = discovery_resp.json()
