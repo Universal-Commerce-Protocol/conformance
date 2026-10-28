@@ -23,7 +23,7 @@ from pathlib import Path
 import sys
 import unittest
 from absl import flags
-from framework.base_test import BaseIntegrationTest
+from framework.base_test import BaseIntegrationTest, is_local_url
 from framework.discovery import (
   UcpProfile,
   fetch_server_profile,
@@ -156,10 +156,12 @@ def _load_tests(
 # Optional runner options that reach the tests as absl flags of the same
 # name (see framework.base_test.flag_value).
 _TEST_OPTIONS = (
+  "agent_profile_url",
   "conformance_input",
   "fixture_config",
   "test_data_dir",
   "discovery_url",
+  "webhook_base_url",
 )
 
 # Options that name a file, and one that names a folder. The tests use
@@ -180,6 +182,24 @@ def _missing_paths(args: argparse.Namespace) -> list[str]:
     if value and not Path(value).is_dir():
       problems.append(f"--{name}: no such directory: {value}")
   return problems
+
+
+def _remote_notes(args: argparse.Namespace) -> list[str]:
+  """Say what a server elsewhere can't reach on this machine's localhost."""
+  if is_local_url(args.server_url):
+    return []
+  notes = []
+  if not args.agent_profile_url:
+    notes.append(
+      "the server is not on this machine, but the UCP-Agent header names a "
+      "localhost profile; a server that fetches it needs --agent_profile_url"
+    )
+  if not args.webhook_base_url:
+    notes.append(
+      "webhook tests will skip: the server is not on this machine and no "
+      "--webhook_base_url was given"
+    )
+  return notes
 
 
 def _sync_absl_flags(args: argparse.Namespace) -> None:
@@ -273,6 +293,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     help="Port for local mock agent profile server (default: 8285).",
   )
   parser.add_argument(
+    "--agent_profile_url",
+    default=None,
+    help="Public URL of the test agent's profile, sent in the UCP-Agent "
+    "header, for a server that cannot reach this machine's localhost: for "
+    "example a tunnel to the mock agent port, ending in /profiles/agent.json.",
+  )
+  parser.add_argument(
+    "--webhook_base_url",
+    default=None,
+    help="Public URL that reaches the mock webhook port, such as a tunnel, "
+    "for a server that cannot reach this machine's localhost. Without it, "
+    "webhook tests skip when the server is not on this machine.",
+  )
+  parser.add_argument(
     "-k",
     "--filter",
     default=None,
@@ -335,6 +369,8 @@ def main(argv: list[str] | None = None) -> int:
   if args.discovery_url:
     sys.stdout.write(f"Discovery Profile: {discovery_url}\n")
   sys.stdout.write("=" * 70 + "\n")
+  for note in _remote_notes(args):
+    sys.stdout.write(f"Note: {note}\n")
 
   # An empty suite would "pass", so a selection that loads nothing is an
   # error rather than a successful run of zero tests.
