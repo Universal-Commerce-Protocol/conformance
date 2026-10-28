@@ -24,6 +24,7 @@ from absl.testing import flagsaver
 import runner
 from framework.base_test import flag_value
 from framework.discovery import resolve_discovery_url
+from shopping.base import shopping_rest_endpoint
 
 
 def run_main(*argv: str, names: tuple[str, ...] = ()) -> dict:
@@ -102,6 +103,57 @@ class DiscoveryUrlTest(unittest.TestCase):
     )
     self.assertNotIn("Discovery Profile:", run["output"])
     self.assertIn(f"Warning: Failed to fetch {url}: offline", run["output"])
+
+
+class ShoppingEndpointTest(unittest.TestCase):
+  """Tests for finding the shopping service's REST endpoint."""
+
+  def test_rest_entry_listed_second(self):
+    """Test that the REST entry is found after another transport's."""
+    profile = {
+      "ucp": {
+        "services": {
+          "dev.ucp.shopping": [
+            {"transport": "mcp", "endpoint": "https://shop.example/mcp"},
+            {"transport": "rest", "endpoint": "https://shop.example/api"},
+          ]
+        }
+      }
+    }
+    self.assertEqual(
+      shopping_rest_endpoint(profile), "https://shop.example/api"
+    )
+
+  def test_single_entry(self):
+    """Test an entry given on its own rather than in a list."""
+    profile = {
+      "services": {
+        "dev.ucp.shopping": {
+          "transport": "rest",
+          "endpoint": "https://shop.example/api",
+        }
+      }
+    }
+    self.assertEqual(
+      shopping_rest_endpoint(profile), "https://shop.example/api"
+    )
+
+  def test_no_rest_entry(self):
+    """Test that a service with no REST entry is an error."""
+    profile = {
+      "services": {
+        "dev.ucp.shopping": [
+          {"transport": "mcp", "endpoint": "https://shop.example/mcp"}
+        ]
+      }
+    }
+    with self.assertRaisesRegex(RuntimeError, "endpoint not found"):
+      shopping_rest_endpoint(profile)
+
+  def test_no_shopping_service(self):
+    """Test that a profile with no shopping service is an error."""
+    with self.assertRaisesRegex(RuntimeError, "service not found"):
+      shopping_rest_endpoint({"services": {}})
 
 
 class FlagValueTest(unittest.TestCase):
