@@ -19,6 +19,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 import uuid
 from absl import flags
 from absl.testing import absltest
@@ -37,7 +38,9 @@ __all__ = [
   "DEFAULT_UCP_VERSION",
   "BaseIntegrationTest",
   "FLAGS",
+  "agent_profile_url",
   "flag_value",
+  "is_local_url",
 ]
 
 FLAGS = flags.FLAGS
@@ -128,6 +131,41 @@ def flag_value(name: str):
   ):
     return FLAGS[name].value
   return os.environ.get(f"FLAGS_{name}") or None
+
+
+_define_flag(
+  flags.DEFINE_string,
+  "agent_profile_url",
+  None,
+  "Public URL of the test agent's profile, sent in the UCP-Agent header, "
+  "for a server that cannot reach this machine's localhost (default: the "
+  "local mock agent server).",
+)
+_define_flag(
+  flags.DEFINE_string,
+  "webhook_base_url",
+  None,
+  "Public URL that reaches the local mock webhook server, for a server "
+  "that cannot reach this machine's localhost. The agent profile gives "
+  "it as the webhook address.",
+)
+
+_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "0.0.0.0"})
+
+
+def is_local_url(url: str) -> bool:
+  """Return whether a URL is on this machine, so it can reach localhost."""
+  host = urlsplit(url).hostname or ""
+  return host in _LOCAL_HOSTS or host.endswith(".localhost")
+
+
+def agent_profile_url() -> str:
+  """Return the test agent's profile URL for the UCP-Agent header."""
+  agent_port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
+  return (
+    flag_value("agent_profile_url")
+    or f"http://localhost:{agent_port}{AgentProfileServer.PROFILE_PATH}"
+  )
 
 
 class BaseIntegrationTest(absltest.TestCase):
@@ -228,9 +266,24 @@ class BaseIntegrationTest(absltest.TestCase):
       port=agent_port,
       webhook_port=webhook_port,
       ucp_version=self.ucp_version,
+      webhook_base_url=flag_value("webhook_base_url"),
     )
     self.agent_server.start()
     self.addCleanup(self.agent_server.stop)
+
+  def skip_unless_webhooks_reachable(self) -> None:
+    """Skip if the server can't reach the mock webhook server.
+
+    A server on another machine can't deliver to this machine's localhost,
+    so its webhook tests need --webhook_base_url: a public address, such as
+    a tunnel, that reaches the mock webhook server.
+    """
+    if not is_local_url(self.base_url) and not flag_value("webhook_base_url"):
+      self.skipTest(
+        "the server is not on this machine, so it cannot deliver webhooks to "
+        "localhost: pass --webhook_base_url with a public address, such as a "
+        "tunnel, that reaches the mock webhook server's port"
+      )
 
   def get_headers(
     self,
@@ -239,11 +292,7 @@ class BaseIntegrationTest(absltest.TestCase):
     custom_profile_url: str | None = None,
   ) -> dict[str, str]:
     """Generate standard UCP transport headers."""
-    agent_port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
-    profile_url = (
-      custom_profile_url
-      or f"http://localhost:{agent_port}{AgentProfileServer.PROFILE_PATH}"
-    )
+    profile_url = custom_profile_url or agent_profile_url()
     return {
       "UCP-Agent": f'profile="{profile_url}"',
       "request-signature": "test",

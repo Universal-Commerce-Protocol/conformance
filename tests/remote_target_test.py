@@ -16,13 +16,15 @@
 
 import contextlib
 import io
+import json
 import os
 import unittest
 from unittest import mock
 
 from absl.testing import flagsaver
 import runner
-from framework.base_test import flag_value
+from framework.agent_profile_server import AgentProfileServer
+from framework.base_test import agent_profile_url, flag_value, is_local_url
 from framework.discovery import resolve_discovery_url
 from shopping.base import (
   DEFAULT_SHOPPING_FIXTURES,
@@ -206,6 +208,109 @@ class FlagValueTest(unittest.TestCase):
     """Test that a flag nobody has defined yet is read from the environment."""
     with mock.patch.dict(os.environ, {"FLAGS_defined_later": "value"}):
       self.assertEqual(flag_value("defined_later"), "value")
+
+
+class PublicAddressTest(unittest.TestCase):
+  """Tests for the addresses a server on another machine can reach."""
+
+  def test_is_local_url(self):
+    """Test which servers count as on this machine."""
+    for url in (
+      "http://localhost:8182",
+      "http://127.0.0.1:8182",
+      "http://[::1]:8182",
+      "http://0.0.0.0:8182",
+      "http://shop.localhost",
+    ):
+      with self.subTest(url=url):
+        self.assertTrue(is_local_url(url))
+    for url in ("https://shop.example", "http://192.168.1.20:8182"):
+      with self.subTest(url=url):
+        self.assertFalse(is_local_url(url))
+
+  def test_profile_webhook_address(self):
+    """Test that a webhook base URL replaces the localhost address."""
+    template = {
+      "webhook": "http://localhost:{webhook_port}/webhooks/test",
+      "version": "{ucp_version}",
+    }
+    local = AgentProfileServer(
+      port=0, webhook_port=8284, ucp_version="2026-04-08", profile_dict=template
+    )
+    public = AgentProfileServer(
+      port=0,
+      webhook_port=8284,
+      ucp_version="2026-04-08",
+      profile_dict=template,
+      webhook_base_url="https://hooks.example/",
+    )
+    self.assertEqual(
+      local.render_profile(),
+      {
+        "webhook": "http://localhost:8284/webhooks/test",
+        "version": "2026-04-08",
+      },
+    )
+    self.assertEqual(
+      public.render_profile(),
+      {
+        "webhook": "https://hooks.example/webhooks/test",
+        "version": "2026-04-08",
+      },
+    )
+
+  def test_default_profile_template(self):
+    """Test the repository's agent profile with a webhook base URL."""
+    server = AgentProfileServer(
+      port=0, webhook_port=8284, webhook_base_url="https://hooks.example"
+    )
+    text = json.dumps(server.render_profile())
+    self.assertIn(
+      "https://hooks.example/webhooks/partners/test_partner/events/order", text
+    )
+    self.assertNotIn("localhost", text)
+
+  def test_agent_profile_url(self):
+    """Test the UCP-Agent profile URL, by default and when set."""
+    with (
+      flagsaver.flagsaver(agent_profile_url=None),
+      mock.patch.dict(os.environ),
+    ):
+      os.environ.pop("FLAGS_agent_profile_url", None)
+      self.assertRegex(
+        agent_profile_url(), r"^http://localhost:\d+/profiles/agent\.json$"
+      )
+    with flagsaver.flagsaver(
+      agent_profile_url="https://agent.example/profiles/agent.json"
+    ):
+      self.assertEqual(
+        agent_profile_url(), "https://agent.example/profiles/agent.json"
+      )
+
+  def test_runner_notes_for_a_remote_server(self):
+    """Test the runner's notes about addresses a remote server lacks."""
+    run = run_main("--server_url=https://shop.example")
+    self.assertIn("needs --agent_profile_url", run["output"])
+    self.assertIn("webhook tests will skip", run["output"])
+
+  def test_runner_passes_the_addresses(self):
+    """Test that the runner passes both addresses and makes no notes."""
+    run = run_main(
+      "--server_url=https://shop.example",
+      "--agent_profile_url=https://agent.example/profiles/agent.json",
+      "--webhook_base_url=https://hooks.example",
+      names=("agent_profile_url", "webhook_base_url"),
+    )
+    self.assertNotIn("Note:", run["output"])
+    self.assertEqual(
+      run["agent_profile_url"], "https://agent.example/profiles/agent.json"
+    )
+    self.assertEqual(run["webhook_base_url"], "https://hooks.example")
+
+  def test_runner_no_notes_for_a_local_server(self):
+    """Test that a server on this machine needs no public addresses."""
+    run = run_main("--server_url=http://localhost:8182")
+    self.assertNotIn("Note:", run["output"])
 
 
 _FIXTURE_FLAGS = (
