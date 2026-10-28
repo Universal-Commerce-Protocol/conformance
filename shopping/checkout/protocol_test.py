@@ -43,13 +43,13 @@ class ShoppingProtocolTest(ShoppingIntegrationTestBase):
   """Shopping service advertisement and version negotiation.
 
   Validated Paths:
-  - GET /.well-known/ucp
+  - GET /.well-known/ucp, or the profile at --discovery_url
   - POST /checkout-sessions
   """
 
   def _discovery_profile(self) -> dict:
     """Fetch and unwrap the discovery profile."""
-    response = self.client.get("/.well-known/ucp")
+    response = self.client.get(self.discovery_url)
     self.assert_response_status(response, 200)
     profile = response.json()
     return profile.get("ucp", profile)

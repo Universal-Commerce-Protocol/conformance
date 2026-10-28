@@ -24,7 +24,11 @@ from absl import flags
 from absl.testing import absltest
 from framework.agent_profile_server import AgentProfileServer
 from framework.constants import DEFAULT_UCP_VERSION
-from framework.discovery import UcpProfile, fetch_server_profile
+from framework.discovery import (
+  UcpProfile,
+  fetch_server_profile,
+  resolve_discovery_url,
+)
 import httpx
 
 # Re-exported so suites can keep importing the default release from the base
@@ -103,13 +107,27 @@ _define_flag(
   None,
   "Directory containing CSV test data.",
 )
+_define_flag(
+  flags.DEFINE_string,
+  "discovery_url",
+  None,
+  "URL of the target server's discovery profile, if it is not at "
+  "<server_url>/.well-known/ucp: a full URL, or a path on --server_url.",
+)
 
 
 def flag_value(name: str):
-  """Return a flag's value, or None when flags have not been parsed yet."""
-  if not FLAGS.is_parsed():
-    return None
-  return getattr(FLAGS, name, None)
+  """Return a flag's value, or else its FLAGS_<name> environment variable.
+
+  The runner forwards its options as flags. Pytest parses no flags, so
+  pytest runs can set an option in the environment instead, as with
+  SERVER_URL; None means neither was given.
+  """
+  if (
+    FLAGS.is_parsed() and name in FLAGS and FLAGS[name].value not in (None, "")
+  ):
+    return FLAGS[name].value
+  return os.environ.get(f"FLAGS_{name}") or None
 
 
 class BaseIntegrationTest(absltest.TestCase):
@@ -138,6 +156,9 @@ class BaseIntegrationTest(absltest.TestCase):
     if not server_url:
       self.skipTest("Missing --server_url flag (or SERVER_URL variable)")
     self.base_url = server_url.rstrip("/")
+    self.discovery_url = resolve_discovery_url(
+      self.base_url, flag_value("discovery_url")
+    )
 
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
@@ -150,9 +171,11 @@ class BaseIntegrationTest(absltest.TestCase):
     # Lazily cache server discovery profile across tests
     if BaseIntegrationTest.server_profile is None:
       try:
-        BaseIntegrationTest.server_profile = fetch_server_profile(self.base_url)
+        BaseIntegrationTest.server_profile = fetch_server_profile(
+          self.base_url, discovery_url=self.discovery_url
+        )
       except Exception as e:  # pylint: disable=broad-exception-caught
-        logging.warning("Could not pre-fetch /.well-known/ucp: %s", e)
+        logging.warning("Could not pre-fetch %s: %s", self.discovery_url, e)
 
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
