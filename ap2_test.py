@@ -130,30 +130,42 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
       "completed",
       msg=f"Checkout completed without an AP2 mandate. Resp: {response.text}",
     )
-    if response.status_code == 200:
-      # Business outcome: UCP envelope with an error message.
+    self.assertTrue(
+      response.status_code == 200 or 400 <= response.status_code < 500,
+      msg=(
+        "Expected HTTP 200 or 4xx for a missing mandate, got "
+        f"{response.status_code}. Resp: {response.text}"
+      ),
+    )
+    # mandate_required may arrive as an error message on 200 or 4xx, or as
+    # a top-level code on 4xx. A resourceless 200 must be a UCP error
+    # envelope.
+    messages = body.get("messages")
+    if not isinstance(messages, list):
+      messages = []
+    has_message_error = any(
+      isinstance(m, dict)
+      and m.get("type") == "error"
+      and m.get("code") == "mandate_required"
+      for m in messages
+    )
+    has_top_level_code = (
+      400 <= response.status_code < 500
+      and body.get("code") == "mandate_required"
+    )
+    if response.status_code == 200 and "id" not in body:
       self.assertEqual(
         body.get("ucp", {}).get("status"),
         "error",
         msg=f"Expected a UCP error envelope. Resp: {response.text}",
       )
-      codes = {
-        m.get("code")
-        for m in body.get("messages", [])
-        if isinstance(m, dict) and m.get("type") == "error"
-      }
-      self.assertIn(
-        "mandate_required",
-        codes,
-        msg=f"Expected error message 'mandate_required'. Resp: {response.text}",
-      )
-    else:
-      # Protocol error: non-200 with a top-level code.
-      self.assertEqual(
-        body.get("code"),
-        "mandate_required",
-        msg=f"Expected protocol error mandate_required. Resp: {response.text}",
-      )
+    self.assertTrue(
+      has_message_error or has_top_level_code,
+      msg=(
+        "Expected error code 'mandate_required' in messages or body. "
+        f"Resp: {response.text}"
+      ),
+    )
 
 
 if __name__ == "__main__":

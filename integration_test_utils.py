@@ -219,8 +219,8 @@ def ap2_release(ucp_version: str) -> dict[str, str] | None:
   """Return the AP2 Mandates names and URLs for a UCP release.
 
   The capability name, spec and schema paths, and the profile key field
-  differ between releases, so only releases listed here are supported. The
-  suite currently targets 2026-04-08. Returns None for any other release.
+  differ between releases, so only releases listed here are supported:
+  2026-04-08 and 2026-08-25. Returns None for any other release.
   """
   base = f"https://ucp.dev/{ucp_version}"
   if ucp_version == "2026-04-08":
@@ -231,6 +231,15 @@ def ap2_release(ucp_version: str) -> dict[str, str] | None:
       "checkout_spec": f"{base}/specification/checkout",
       "checkout_schema": f"{base}/schemas/shopping/checkout.json",
       "keys_field": "signing_keys",
+    }
+  if ucp_version == "2026-08-25":
+    return {
+      "capability": "dev.ucp.common.payment.ap2_mandate",
+      "spec": f"{base}/specification/payment/extensions/ap2-mandates",
+      "schema": f"{base}/schemas/common/payment_ap2_mandate.json",
+      "checkout_spec": f"{base}/specification/shopping/checkout",
+      "checkout_schema": f"{base}/schemas/shopping/checkout.json",
+      "keys_field": "keys",
     }
   return None
 
