@@ -30,35 +30,19 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-# Top-level modules and data files are not packages, so they are listed
-# explicitly: `runner.py` backs the `ucp-conformance` console script, the
-# test modules are what it runs, `integration_test_utils.py` is their shared
-# base, and `shopping-agent-test.json` is the agent profile
-# `framework/agent_profile_server.py` serves.
+# Top-level modules and data files are not packages, so they must be listed
+# explicitly: `runner.py` backs the `ucp-conformance` console script,
+# `integration_test_utils.py` is the compatibility facade for tests written
+# before the tiered layout, and `shopping-agent-test.json` is the agent
+# profile `framework/agent_profile_server.py` serves.
 only-include = [
     "framework",
+    "common",
+    "shopping",
     "platforms",
-    "test_data",
     "runner.py",
     "integration_test_utils.py",
     "shopping-agent-test.json",
-    "ap2_test.py",
-    "binding_test.py",
-    "business_logic_test.py",
-    "card_credential_test.py",
-    "checkout_lifecycle_test.py",
-    "discount_test.py",
-    "fulfillment_structure_test.py",
-    "fulfillment_test.py",
-    "idempotency_test.py",
-    "invalid_input_test.py",
-    "order_test.py",
-    "protocol_test.py",
-    "simulation_url_security_test.py",
-    "totals_test.py",
-    "validation_test.py",
-    "webhook_structure_test.py",
-    "webhook_test.py",
 ]
 
 [tool.uv.sources]
