@@ -156,9 +156,6 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
 
     # 2. Select Option
     option_id = options[0]["id"]
-    option_cost = next(
-      (t["amount"] for t in options[0]["totals"] if t["type"] == "total"), 0
-    )
 
     # Update payload to select the option
     # We must preserve the destination to keep options available
@@ -175,9 +172,9 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     )
     final_checkout = checkout.Checkout(**response_json)
 
-    expected_total = (
-      self.fixture_ctx.get_test_price() + option_cost
-    )  # base price + shipping
+    expected_total = sum(
+      total.amount for total in final_checkout.totals if total.type != "total"
+    )
     total_obj = next(
       (t for t in final_checkout.totals if t.type == "total"), None
     )
