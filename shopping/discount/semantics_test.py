@@ -1,20 +1,20 @@
-# Copyright 2026 UCP Authors
+#   Copyright 2026 UCP Authors
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 """Conformance tests for the discount capability (discount.md).
 
-Complements business_logic_test.py (discount flow, multiple-code accept/reject,
+Complements discount_test.py (discount flow, multiple-code accept/reject,
 fixed-amount) by covering discount MUSTs the existing suite does not assert:
 
   DSC-003  a new codes[] set replaces the previous one
@@ -34,36 +34,19 @@ code is supplied or when the business does not advertise the capability.
 """
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
-_DISCOUNT_CAPABILITY = "dev.ucp.shopping.discount"
 
-
-class DiscountTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.discount")
+class DiscountSemanticsTest(ShoppingIntegrationTestBase):
   """Discount capability conformance (discount.md)."""
 
   def setUp(self) -> None:
-    """Skip unless the business advertises discount + a code is configured."""
+    """Resolve the discount code the business declared for the suite."""
     super().setUp()
-    if not self._advertises_discount():
-      self.skipTest(
-        f"business does not advertise {_DISCOUNT_CAPABILITY}; skipping"
-      )
     self._code = self.fixture_ctx.get_test_discount_code()
-
-  def _advertises_discount(self) -> bool:
-    """Return True if discovery advertises the discount capability."""
-    resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(resp, 200)
-    ucp = resp.json().get("ucp", resp.json())
-    caps = ucp.get("capabilities") or {}
-    names = (
-      list(caps.keys())
-      if isinstance(caps, dict)
-      else [c.get("name") for c in caps if isinstance(c, dict)]
-    )
-    return _DISCOUNT_CAPABILITY in names
 
   # ── shared drivers (operate on the raw response dict, as discount.md
   #    describes the wire shape and the sample suite asserts) ──────────────
@@ -77,7 +60,7 @@ class DiscountTest(integration_test_utils.IntegrationTestBase):
     return self.update_checkout_session(
       checkout_obj,
       discounts={"codes": codes},
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
   @staticmethod
@@ -200,7 +183,7 @@ class DiscountTest(integration_test_utils.IntegrationTestBase):
           }
         ],
       },
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assertEqual(
       self._total_amount(injected),

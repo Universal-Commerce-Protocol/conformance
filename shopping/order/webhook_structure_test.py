@@ -49,7 +49,10 @@ import time
 from typing import Any
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import FLAGS
+from framework.decorators import requires_capability
+from framework.mock_webhook_server import MockWebhookServer
+from shopping.base import ShoppingIntegrationTestBase
 
 _ORDER_CAPABILITY = "dev.ucp.shopping.order"
 
@@ -74,18 +77,15 @@ _SIGNATURE_HEADERS = (
 )
 
 
-class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
+@requires_capability(_ORDER_CAPABILITY)
+class WebhookStructureTest(ShoppingIntegrationTestBase):
   """Order-event webhook contract: headers, full entity, signing."""
 
   def setUp(self) -> None:
-    """Start the receiver; skip unless the order capability is advertised."""
+    """Start the webhook receiver."""
     super().setUp()
-    if not self._advertises_order():
-      self.skipTest(
-        f"business does not advertise {_ORDER_CAPABILITY}; skipping"
-      )
-    port = integration_test_utils.FLAGS.mock_webhook_port
-    self.webhook_server = integration_test_utils.MockWebhookServer(port=port)
+    port = FLAGS.mock_webhook_port
+    self.webhook_server = MockWebhookServer(port=port)
     self.webhook_server.start()
 
   def tearDown(self) -> None:
@@ -93,19 +93,6 @@ class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
     if hasattr(self, "webhook_server"):
       self.webhook_server.stop()
     super().tearDown()
-
-  def _advertises_order(self) -> bool:
-    """Return True if discovery advertises the order capability."""
-    resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(resp, 200)
-    ucp = resp.json().get("ucp", resp.json())
-    caps = ucp.get("capabilities") or {}
-    names = (
-      list(caps.keys())
-      if isinstance(caps, dict)
-      else [c.get("name") for c in caps if isinstance(c, dict)]
-    )
-    return _ORDER_CAPABILITY in names
 
   # ── shared drivers ──────────────────────────────────────────────────────
   def _events_for(self, order_id: str) -> list[dict[str, Any]]:
@@ -268,9 +255,7 @@ class WebhookStructureTest(integration_test_utils.IntegrationTestBase):
     """An update delivery is the full current-state snapshot, not a delta."""
     checkout_id, order_id, _ = self._place_order()
     headers = self.get_headers()
-    headers["Simulation-Secret"] = (
-      integration_test_utils.FLAGS.simulation_secret
-    )
+    headers["Simulation-Secret"] = FLAGS.simulation_secret
     ship_response = self.client.post(
       f"/testing/simulate-shipping/{order_id}",
       headers=headers,

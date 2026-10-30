@@ -17,18 +17,26 @@
 import datetime
 import uuid
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import order
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class InvalidInputTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.order")
+class InvalidInputTest(ShoppingIntegrationTestBase):
   """Tests for invalid inputs and schema validation.
 
   Validated Paths:
