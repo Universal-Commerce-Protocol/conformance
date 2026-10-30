@@ -15,17 +15,28 @@
 """Business Logic tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import buyer_consent as buyer_consent
 from ucp_sdk.models.schemas.shopping import (
   checkout_update_request as checkout_update_req,
 )
 from ucp_sdk.models.schemas.shopping import discount as discount
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_request
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping import payment_update_request
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import payment_update_request
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 from ucp_sdk.models.schemas.shopping.types import buyer_update_request
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
@@ -34,7 +45,8 @@ from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class BusinessLogicTest(ShoppingIntegrationTestBase):
   """Tests for business logic and calculations.
 
   Validated Paths:
@@ -190,7 +202,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
@@ -243,7 +255,7 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       json=update_dict,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
@@ -448,14 +460,14 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
     response = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=create_payload_dict,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, [200, 201])
     checkout_id = checkout.Checkout(**response.json()).id
 
     response = self.client.get(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
@@ -520,14 +532,14 @@ class BusinessLogicTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
     # GET and verify
     response = self.client.get(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     checkout_obj = checkout.Checkout(**response.json())
     self.assertTrue(checkout_obj.buyer, "Buyer info missing")

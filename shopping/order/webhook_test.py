@@ -12,30 +12,42 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for Webhook notifications in UCP SDK Server."""
+"""Tests for order-event webhook notifications."""
 
 import time
 from typing import Any
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import FLAGS
+from framework.decorators import requires_capability
+from framework.mock_webhook_server import MockWebhookServer
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class WebhookTest(integration_test_utils.IntegrationTestBase):
+# Webhooks are configured through the order capability's `webhook_url`
+# (order.md), so that capability is what this test requires.
+@requires_capability("dev.ucp.shopping.order")
+class WebhookTest(ShoppingIntegrationTestBase):
   """Tests for Webhook notifications."""
 
   def setUp(self) -> None:
     """Set up the webhook server and configuration."""
     super().setUp()
-    port = integration_test_utils.FLAGS.mock_webhook_port
-    self.webhook_server = integration_test_utils.MockWebhookServer(port=port)
+    port = FLAGS.mock_webhook_port
+    self.webhook_server = MockWebhookServer(port=port)
     self.webhook_server.start()
     self.webhook_url = (
       f"http://localhost:{port}/webhooks/partners/test_partner/events/order"
@@ -100,9 +112,7 @@ class WebhookTest(integration_test_utils.IntegrationTestBase):
 
     # 4. Trigger Shipping
     headers = self.get_headers()
-    headers["Simulation-Secret"] = (
-      integration_test_utils.FLAGS.simulation_secret
-    )
+    headers["Simulation-Secret"] = FLAGS.simulation_secret
     ship_response = self.client.post(
       f"/testing/simulate-shipping/{order_id}",
       headers=headers,

@@ -15,23 +15,41 @@
 """Protocol tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import DEFAULT_UCP_VERSION
+from framework.decorators import requires_capability
 import httpx
 from pydantic import TypeAdapter, ValidationError
+from shopping.base import (
+  DEFAULT_REQUIRED_CAPABILITIES,
+  ShoppingIntegrationTestBase,
+)
 from ucp_sdk.models.schemas.ucp import BusinessSchema
-from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
-  ReverseDomainName,
-)
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.common.types.reverse_domain_name import (
+    ReverseDomainName,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
+    ReverseDomainName,
+  )
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class ProtocolTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class ProtocolTest(ShoppingIntegrationTestBase):
   """Tests for UCP protocol compliance.
 
   Validated Paths:
@@ -179,7 +197,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     # ("ucp_version"), so the suite tests the release the merchant targets
     # instead of a hardcoded literal.
     expected_version = self.conformance_config.get(
-      "ucp_version", integration_test_utils.DEFAULT_UCP_VERSION
+      "ucp_version", DEFAULT_UCP_VERSION
     )
     self.assertEqual(
       declared_version,
@@ -205,7 +223,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     expected_capabilities = set(
       self.conformance_config.get(
         "required_capabilities",
-        integration_test_utils.DEFAULT_REQUIRED_CAPABILITIES,
+        DEFAULT_REQUIRED_CAPABILITIES,
       )
     )
     missing_caps = expected_capabilities - capabilities
@@ -316,7 +334,7 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
     self.assertIsNotNone(
       advertised_version, "Discovery profile must advertise a UCP version"
     )
-    headers = integration_test_utils.get_headers()
+    headers = self.get_headers()
     headers["UCP-Agent"] = f'profile="..."; version="{advertised_version}"'
     response = self.client.post(
       checkout_sessions_url,
