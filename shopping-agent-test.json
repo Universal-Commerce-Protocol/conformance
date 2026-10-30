@@ -2,6 +2,41 @@
   "ucp": {
     "version": "{ucp_version}",
     "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        {
+          "name": "dev.ucp.shopping.checkout",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/checkout/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/checkout.json"
+        }
+      ],
+      "dev.ucp.shopping.discount": [
+        {
+          "name": "dev.ucp.shopping.discount",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/discount/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/discount.json",
+          "extends": ["dev.ucp.shopping.checkout", "dev.ucp.shopping.cart"]
+        }
+      ],
+      "dev.ucp.shopping.fulfillment": [
+        {
+          "name": "dev.ucp.shopping.fulfillment",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/fulfillment/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/fulfillment.json",
+          "extends": "dev.ucp.shopping.checkout"
+        }
+      ],
+      "dev.ucp.shopping.buyer_consent": [
+        {
+          "name": "dev.ucp.shopping.buyer_consent",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/buyer-consent/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/buyer_consent.json",
+          "extends": "dev.ucp.shopping.checkout"
+        }
+      ],
       "dev.ucp.shopping.order": [
         {
           "name": "dev.ucp.shopping.order",
