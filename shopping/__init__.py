@@ -13,3 +13,17 @@
 #   limitations under the License.
 
 """UCP Shopping Vertical Plugin (retail & e-commerce)."""
+
+from shopping.base import (
+  ShoppingIntegrationTestBase,
+  ShoppingTestData,
+  get_valid_payment_payload,
+  shopping_test_data,
+)
+
+__all__ = [
+  "ShoppingIntegrationTestBase",
+  "ShoppingTestData",
+  "get_valid_payment_payload",
+  "shopping_test_data",
+]
