@@ -18,6 +18,31 @@
 
 This suite contains language-agnostic integration tests that run against a running UCP Merchant Server instance. It verifies the server's adherence to the [Universal Commerce Protocol (UCP) specification](https://github.com/Universal-Commerce-Protocol/ucp).
 
+## Architecture
+
+The test suite follows a 4-tier modular architecture per UCP RFC #520:
+
+- **`framework/`**: Shared testing harness decoupled from any business vertical.
+  Provides capability discovery, platform profile evaluation, mock webhook and
+  agent servers, base test cases, and capability decorators.
+- **`core/`**: Agnostic protocol tests (`protocol_test`, `binding_test`) that
+  only need the discovery document. Can be run against any UCP server
+  regardless of business vertical.
+- **`common/`**: Cross-cutting protocol capabilities such as payment
+  credentials and extensions (`common/payments/`). These currently use the
+  shopping checkout as their vehicle and are gated on the capabilities they
+  need.
+- **`shopping/`**: Retail shopping domain tests organized by functional domain:
+  `checkout/` (including idempotency), `discount/`, `fulfillment/`, `order/`
+  (including order-event webhooks), and `validation/`.
+- **`platforms/`**: Platform certification profiles (e.g. `google.yaml`) that
+  mandate required capabilities and payment handlers.
+
+Tests declare the capabilities they exercise with `@requires_capability`, and
+are skipped automatically when the server under test does not advertise them in
+its discovery profile. This is what allows the same suite to run against a
+server implementing any subset of UCP.
+
 ## Testing a Custom Server (Agnostic)
 
 The conformance tests are designed to be run against _any_ UCP server implementation. To run tests against your own server, follow these steps:
@@ -171,9 +196,8 @@ uv run pytest \
   --fixture_config=path/to/your/test_fixtures.json
 ```
 
-Alternatively, use the `ucp-conformance` runner, which discovers the server's
-capabilities first, can select suites or individual test modules, and can apply
-a platform certification profile:
+Alternatively, use the `ucp-conformance` runner, which understands the tiered
+layout and can select suites or apply a platform certification profile:
 
 ```bash
 uv run ucp-conformance \
@@ -184,9 +208,9 @@ uv run ucp-conformance \
   --suite=all
 ```
 
-`--suite` accepts a suite name, a test module or class path, or a
-comma-separated combination. Use `-k/--filter` to run a subset of tests by
-name, and `--dry-run` to list what would execute without contacting the server.
+`--suite` accepts `core`, `common`, `shopping`, `all`, or a comma-separated
+combination. Running only `--suite=core` is useful for a server that does not
+implement the shopping vertical.
 
 To validate against a platform's certification requirements, pass a profile
 from `platforms/`. The run then fails if the server does not advertise every
@@ -200,15 +224,8 @@ uv run ucp-conformance \
   --suite=all
 ```
 
-Individual test files can still be run directly with the same arguments:
-
-```bash
-uv run shopping/checkout/lifecycle_test.py \
-  --server_url=https://your-merchant-server.com \
-  --simulation_secret=your-sim-secret \
-  --conformance_input=path/to/your/conformance_input.json \
-  --fixture_config=path/to/your/test_fixtures.json
-```
+Use `-k/--filter` to run a subset of tests by name, and `--dry-run` to list
+what would execute without contacting the server.
 
 ---
 

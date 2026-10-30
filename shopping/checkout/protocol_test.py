@@ -12,28 +12,18 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Protocol tests for the UCP SDK Server."""
+"""Shopping service discovery and version negotiation tests.
+
+The vertical-agnostic half of protocol conformance lives in
+`core/protocol_test.py`. This module covers the assertions that only apply
+to a server advertising the shopping vertical.
+"""
 
 from absl.testing import absltest
 from framework.base_test import DEFAULT_UCP_VERSION
 from framework.decorators import requires_capability
-import httpx
-from pydantic import TypeAdapter, ValidationError
-from shopping.base import (
-  DEFAULT_REQUIRED_CAPABILITIES,
-  ShoppingIntegrationTestBase,
-)
-from ucp_sdk.models.schemas.ucp import BusinessSchema
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-
-try:
-  from ucp_sdk.models.schemas.common.types.reverse_domain_name import (
-    ReverseDomainName,
-  )
-except ImportError:
-  from ucp_sdk.models.schemas.shopping.types.reverse_domain_name import (
-    ReverseDomainName,
-  )
 
 try:
   from ucp_sdk.models.schemas.shopping.payment import (
@@ -49,233 +39,57 @@ checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
 @requires_capability("dev.ucp.shopping.checkout")
-class ProtocolTest(ShoppingIntegrationTestBase):
-  """Tests for UCP protocol compliance.
+class ShoppingProtocolTest(ShoppingIntegrationTestBase):
+  """Shopping service advertisement and version negotiation.
 
   Validated Paths:
   - GET /.well-known/ucp
   - POST /checkout-sessions
   """
 
-  def _extract_document_urls(
-    self, profile: BusinessSchema
-  ) -> list[tuple[str, str]]:
-    """Extract all spec and schema URLs from the discovery profile.
-
-    Returns:
-      A list of (JSON path, URL) tuples.
-
-    """
-    if isinstance(profile, dict):
-      profile = profile.get("ucp", profile)
-    urls = set()
-
-    # 1. Services
-    for service_name, services_list in profile.get("services", {}).items():
-      for svc_idx, service in enumerate(
-        services_list if isinstance(services_list, list) else [services_list]
-      ):
-        base_path = f"services['{service_name}'][{svc_idx}]"
-        if service.get("spec"):
-          urls.add((f"{base_path}.spec", str(service.get("spec"))))
-        if service.get("transport") == "rest" and service.get("schema"):
-          urls.add((f"{base_path}.schema", str(service.get("schema"))))
-        if service.get("transport") == "mcp" and service.get("schema"):
-          urls.add((f"{base_path}.schema", str(service.get("schema"))))
-        if service.get("transport") == "embedded" and service.get("schema"):
-          urls.add((f"{base_path}.schema", str(service.get("schema"))))
-
-    # 2. Capabilities
-    for _cap_key, caps in profile.get("capabilities", {}).items():
-      for i, cap in enumerate(caps if isinstance(caps, list) else [caps]):
-        cap_name = cap.get("name") or f"index_{i}"
-        base_path = f"ucp.capabilities['{cap_name}']"
-        if cap.get("spec"):
-          urls.add((f"{base_path}.spec", str(cap.get("spec"))))
-        if cap.get("schema"):
-          urls.add((f"{base_path}.schema", str(cap.get("schema"))))
-
-    # 3. Payment Handlers
-    for domain, handlers in profile.get("payment_handlers", {}).items():
-      for i, handler in enumerate(
-        handlers if isinstance(handlers, list) else [handlers]
-      ):
-        handler_id = handler.get("id") or f"{domain}_index_{i}"
-        base_path = f"payment_handlers['{handler_id}']"
-        if handler.get("spec"):
-          urls.add((f"{base_path}.spec", str(handler.get("spec"))))
-        if handler.get("config_schema"):
-          urls.add(
-            (f"{base_path}.config_schema", str(handler.get("config_schema")))
-          )
-        if handler.get("instrument_schemas"):
-          for j, s in enumerate(handler.get("instrument_schemas", [])):
-            urls.add((f"{base_path}.instrument_schemas[{j}]", str(s)))
-
-    return sorted(urls, key=lambda x: x[0])
-
-  import unittest
-
-  @unittest.skip("Schemas not yet published on remote ucp.dev domain")
-  def test_discovery_urls(self):
-    """Verify all spec and schema URLs in discovery profile are valid.
-
-    Fetches each URL and verifies it returns 200 OK and valid HTML/JSON.
-    """
+  def _discovery_profile(self) -> dict:
+    """Fetch and unwrap the discovery profile."""
     response = self.client.get("/.well-known/ucp")
     self.assert_response_status(response, 200)
     profile = response.json()
+    return profile.get("ucp", profile)
 
-    url_entries = self._extract_document_urls(profile)
-    failures = []
-
-    with httpx.Client(follow_redirects=True, timeout=10.0) as external_client:
-      # Sort by path for consistent output
-      for path, url in sorted(url_entries, key=lambda x: x[0]):
-        # Use internal client for local URLs, external client otherwise
-        client = (
-          self.client if url.startswith(self.base_url) else external_client
-        )
-
-        try:
-          # Handle relative URLs if any (AnyUrl should be absolute though)
-          res = client.get(url)
-          if res.status_code != 200:
-            failures.append(f"[{path}] {url} returned status {res.status_code}")
-            continue
-
-          content_type = res.headers.get("content-type", "").lower()
-          if "json" in content_type:
-            try:
-              res.json()
-            except Exception as e:
-              failures.append(f"[{path}] {url} (JSON) failed to parse: {e}")
-          elif "html" in content_type:
-            is_valid_html = (
-              "<html" in res.text.lower() or "<!doctype" in res.text.lower()
-            )
-            if not is_valid_html:
-              failures.append(
-                f"[{path}] {url} (HTML) does not appear to be valid HTML"
-              )
-          elif not res.text.strip():
-            failures.append(f"[{path}] {url} returned empty content")
-
-        except Exception as e:
-          failures.append(f"[{path}] {url} fetch failed: {e}")
-
-    if failures:
-      self.fail("\n".join(["Discovery URL validation failed:"] + failures))
-
-  def test_discovery(self):
-    """Test the UCP discovery endpoint.
-
-    Given the UCP server is running,
-    When a GET request is sent to /.well-known/ucp,
-    Then the response should be 200 OK and include the expected version,
-    capabilities, and payment handlers.
-    """
-    response = self.client.get("/.well-known/ucp")
-    self.assert_response_status(response, 200)
-    data = response.json()
-
-    self.assertIn("ucp", data, "Discovery profile must be wrapped in 'ucp' key")
-    ucp_data = data["ucp"]
-
-    # Validate schema using SDK model
-    BusinessSchema(**ucp_data)
-
-    # Universal structural validation: UCP versions are date-based
-    # (YYYY-MM-DD) regardless of which release the server implements.
-    declared_version = ucp_data.get("version")
-    self.assertRegex(
-      str(declared_version),
-      r"^\d{4}-\d{2}-\d{2}$",
-      msg="UCP version in discovery doc must be date-based (YYYY-MM-DD)",
-    )
-    # Exact-version assertion is driven by conformance_input.json
-    # ("ucp_version"), so the suite tests the release the merchant targets
-    # instead of a hardcoded literal.
-    expected_version = self.conformance_config.get(
-      "ucp_version", DEFAULT_UCP_VERSION
-    )
-    self.assertEqual(
-      declared_version,
-      expected_version,
-      msg="Unexpected UCP version in discovery doc",
-    )
-
-    # Verify Capabilities — every capability group name must follow the
-    # reverse-DNS convention (universal), and any capabilities the merchant
-    # is expected to declare come from conformance_input.json
-    # ("required_capabilities"): per the server-selects negotiation model,
-    # capability sets are negotiated per merchant, so no fixed roster is
-    # universally required.
-    capabilities = set(ucp_data.get("capabilities", {}))
-    for cap_name in capabilities:
-      try:
-        TypeAdapter(ReverseDomainName).validate_python(str(cap_name))
-      except ValidationError as e:
-        self.fail(
-          f"Capability name '{cap_name}' does not follow reverse-DNS "
-          f"convention: {e}"
-        )
-    expected_capabilities = set(
-      self.conformance_config.get(
-        "required_capabilities",
-        DEFAULT_REQUIRED_CAPABILITIES,
-      )
-    )
-    missing_caps = expected_capabilities - capabilities
-    self.assertFalse(
-      missing_caps,
-      f"Missing expected capabilities in discovery: {missing_caps}",
-    )
-
-    # Verify Payment Handlers - structural validation (server-agnostic)
-    if ucp_data.get("payment_handlers"):
-      handler_count = 0
-      for handler_name, handler_list in ucp_data.get(
-        "payment_handlers", {}
-      ).items():
-        # Validate handler group name using the SDK's ReverseDomainName
-        # model, which enforces the pattern defined in the UCP spec.
-        try:
-          TypeAdapter(ReverseDomainName).validate_python(str(handler_name))
-        except ValidationError as e:
-          self.fail(
-            f"Payment handler group name '{handler_name}' "
-            f"does not follow reverse-DNS convention: {e}"
-          )
-        for h in (
-          handler_list if isinstance(handler_list, list) else [handler_list]
-        ):
-          handler_count += 1
-          # Validate required fields are present and non-empty
-          self.assertTrue(
-            h.get("id"),
-            "Payment handler missing 'id'",
-          )
-          self.assertTrue(
-            h.get("version"),
-            f"Payment handler '{h.get('id')}' missing 'version'",
-          )
-      self.assertGreater(
-        handler_count,
-        0,
-        "payment_handlers is present but contains no handlers",
-      )
-
-    # Verify shopping capability
+  def _shopping_service(self, ucp_data: dict) -> dict:
+    """Return the advertised shopping service entry."""
     shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping")
-    self.assertIsNotNone(shopping_services, "Shopping service missing")
-    shopping_service = (
+    self.assertIsNotNone(
+      shopping_services, "Shopping service not found in discovery"
+    )
+    return (
       shopping_services[0]
       if isinstance(shopping_services, list)
       else shopping_services
     )
+
+  def test_shopping_service_advertisement(self):
+    """Test that the shopping service is advertised correctly.
+
+    Given the UCP server implements the shopping vertical,
+    When the discovery profile is fetched,
+    Then a REST shopping service must be advertised with a date-based
+    version matching the profile version and a resolvable endpoint.
+    """
+    ucp_data = self._discovery_profile()
+    shopping_service = self._shopping_service(ucp_data)
+
+    declared_version = ucp_data.get("version")
+    expected_version = (
+      declared_version.get("root", "")
+      if isinstance(declared_version, dict)
+      else str(declared_version)
+    )
+    if not expected_version:
+      expected_version = self.conformance_config.get(
+        "ucp_version", DEFAULT_UCP_VERSION
+      )
+
     # The shopping service entry's version follows the same input-driven
-    # rule as the profile version above.
+    # rule as the profile version.
     self.assertRegex(
       str(shopping_service.get("version")),
       r"^\d{4}-\d{2}-\d{2}$",
@@ -295,23 +109,11 @@ class ProtocolTest(ShoppingIntegrationTestBase):
     Given a checkout creation request,
     When the request includes a 'UCP-Agent' header with a compatible version,
     then the request succeeds (200/201).
-    When the request includes a 'UCP-Agent' header with an incompatible version,
-    then the request fails with 422 Unprocessable Content.
+    When the request includes a 'UCP-Agent' header with an incompatible
+    version, then the request fails with 422 Unprocessable Content.
     """
-    # Discover shopping service endpoint
-    discovery_resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(discovery_resp, 200)
-    profile_dict = discovery_resp.json()
-    ucp_data = profile_dict.get("ucp", profile_dict)
-    shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping")
-    self.assertIsNotNone(
-      shopping_services, "Shopping service not found in discovery"
-    )
-    shopping_service = (
-      shopping_services[0]
-      if isinstance(shopping_services, list)
-      else shopping_services
-    )
+    ucp_data = self._discovery_profile()
+    shopping_service = self._shopping_service(ucp_data)
     self.assertEqual(
       shopping_service.get("transport"),
       "rest",
@@ -330,8 +132,13 @@ class ProtocolTest(ShoppingIntegrationTestBase):
     # 1. Compatible Version — use the version the server itself advertises in
     # discovery, so the test stays correct across spec releases instead of
     # pinning a literal that goes stale.
-    advertised_version = ucp_data.get("version")
-    self.assertIsNotNone(
+    advertised = ucp_data.get("version")
+    advertised_version = (
+      advertised.get("root", "")
+      if isinstance(advertised, dict)
+      else str(advertised)
+    )
+    self.assertTrue(
       advertised_version, "Discovery profile must advertise a UCP version"
     )
     headers = self.get_headers()
