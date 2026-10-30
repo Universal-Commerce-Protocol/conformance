@@ -26,7 +26,7 @@ The conformance tests are designed to be run against _any_ UCP server implementa
 
 Your server must be populated with test data (products, inventory, shipping rates, discounts) that match the expectations defined in your test configuration.
 
-You can use the default [flower_shop test data](test_data/flower_shop) as a reference for what data is needed.
+You can use the default [flower_shop test data](shopping/fixtures/flower_shop) as a reference for what data is needed.
 
 ### 2. Configure Conformance Input (`conformance_input.json`)
 
@@ -171,10 +171,39 @@ uv run pytest \
   --fixture_config=path/to/your/test_fixtures.json
 ```
 
-Alternatively, you can run individual test files and pass arguments:
+Alternatively, use the `ucp-conformance` runner, which discovers the server's
+capabilities first, can select suites or individual test modules, and can apply
+a platform certification profile:
 
 ```bash
-uv run checkout_lifecycle_test.py \
+uv run ucp-conformance \
+  --server_url=https://your-merchant-server.com \
+  --simulation_secret=your-sim-secret \
+  --conformance_input=path/to/your/conformance_input.json \
+  --fixture_config=path/to/your/test_fixtures.json \
+  --suite=all
+```
+
+`--suite` accepts a suite name, a test module or class path, or a
+comma-separated combination. Use `-k/--filter` to run a subset of tests by
+name, and `--dry-run` to list what would execute without contacting the server.
+
+To validate against a platform's certification requirements, pass a profile
+from `platforms/`. The run then fails if the server does not advertise every
+mandated capability and payment handler:
+
+```bash
+uv run ucp-conformance \
+  --server_url=https://your-merchant-server.com \
+  --simulation_secret=your-sim-secret \
+  --platform=google \
+  --suite=all
+```
+
+Individual test files can still be run directly with the same arguments:
+
+```bash
+uv run shopping/checkout/lifecycle_test.py \
   --server_url=https://your-merchant-server.com \
   --simulation_secret=your-sim-secret \
   --conformance_input=path/to/your/conformance_input.json \
@@ -211,7 +240,7 @@ rm -rf ${DATABASE_PATH} && mkdir -p ${DATABASE_PATH}
 uv run --directory ../samples/rest/python/server import_csv.py \
     --products_db_path=${DATABASE_PATH}/products.db \
     --transactions_db_path=${DATABASE_PATH}/transactions.db \
-    --data_dir=../../../../conformance/test_data/flower_shop
+    --data_dir=../../../../conformance/shopping/fixtures/flower_shop
 ```
 
 ### 2. Start the Sample Server
