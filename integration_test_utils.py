@@ -14,13 +14,14 @@
 
 """Compatibility facade for tests written before the tiered layout.
 
-The shopping helpers live in `shopping.base`; the vertical-agnostic pieces
-live in `framework`. This module re-exports both under the names tests have
-always imported from here, so a test can keep `import integration_test_utils`
-until it is updated.
+Deprecated:
+  The shopping helpers live in `shopping.base`; the vertical-agnostic pieces
+  live in `framework`. This module re-exports both under the names tests used
+  to import from here and will be removed in a future release.
 """
 
 import uuid
+import warnings
 from framework.agent_profile_server import AgentProfileServer
 from framework.base_test import (
   BaseIntegrationTest,
@@ -45,6 +46,13 @@ from shopping.base import (
   ShoppingIntegrationTestBase,
   ShoppingTestData,
   UnifiedUpdate,
+)
+
+warnings.warn(
+  "integration_test_utils is deprecated and will be removed in a future"
+  " release. Use framework.base_test and shopping.base instead.",
+  DeprecationWarning,
+  stacklevel=2,
 )
 
 __all__ = [
