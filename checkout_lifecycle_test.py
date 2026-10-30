@@ -275,6 +275,68 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       "order.permalink_url missing",
     )
 
+  def test_ready_for_complete_when_nothing_is_outstanding(self):
+    """Test that a checkout with nothing outstanding reports readiness.
+
+    Given a checkout session with a buyer, a selected fulfillment destination
+    and a selected fulfillment option, carrying no error message and no Action,
+    When the session is read with GET /checkout-sessions/{id} and then
+    completed with POST /checkout-sessions/{id}/complete,
+    Then the completion should succeed, which shows nothing was outstanding,
+    and the status read before it should have been 'ready_for_complete'.
+    """
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
+    checkout_id = response_json["id"]
+
+    response = self.client.get(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      headers=integration_test_utils.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    before = response.json()
+
+    method = before["fulfillment"]["methods"][0]
+    self.assertTrue(
+      method.get("selected_destination_id"),
+      "Fixture did not reach a selected fulfillment destination",
+    )
+    self.assertTrue(
+      method["groups"][0].get("selected_option_id"),
+      "Fixture did not reach a selected fulfillment option",
+    )
+    errors = [
+      m for m in before.get("messages") or [] if m.get("type") == "error"
+    ]
+    self.assertFalse(errors, f"Checkout carries error messages: {errors}")
+    self.assertFalse(
+      before.get("actions"),
+      f"Checkout carries outstanding Actions: {before.get('actions')}",
+    )
+
+    # The business accepts Complete Checkout from this state without any
+    # further input, so nothing was outstanding when the status was read.
+    response = self.client.post(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
+      json=integration_test_utils.get_valid_payment_payload(),
+      headers=integration_test_utils.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    self.assertEqual(
+      response.json().get("status"),
+      "completed",
+      msg="Complete Checkout did not place the order",
+    )
+
+    self.assertEqual(
+      before.get("status"),
+      "ready_for_complete",
+      msg=(
+        "The business completed this checkout programmatically with nothing"
+        f" outstanding, but reported status '{before.get('status')}' before"
+        " completion, expected 'ready_for_complete'."
+      ),
+    )
+
   def _cancel_checkout(self, checkout_id):
     """Cancel a checkout."""
     response = self.client.post(
