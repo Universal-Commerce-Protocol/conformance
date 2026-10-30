@@ -297,6 +297,12 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
     self.assert_response_status(response, 200)
     self.assertNotIn(
       _FIELD,
+      response.json(),
+      f"Update Checkout response echoed a {_FIELD} sent only on Update "
+      "(ucp#839: Create-only; a value received on Update MUST be ignored)",
+    )
+    self.assertNotIn(
+      _FIELD,
       self._get_checkout(checkout["id"]),
       f"{_FIELD} sent only on Update was applied (ucp#839: Create-only; a "
       "value received on Update MUST be ignored)",
@@ -346,6 +352,13 @@ class PlatformReferenceTest(integration_test_utils.IntegrationTestBase):
     """Every order event, including updates, carries the reference."""
     self._require_order()
     _, order_id = self._place_order({_FIELD: _REF})
+    # Observe the order-created delivery before triggering the shipping
+    # update, so a server that dispatches webhooks asynchronously cannot race
+    # the two events.
+    self.assertTrue(
+      self._wait_for_events(order_id, 1),
+      "no order event webhook delivered for the completed order",
+    )
     headers = self.get_headers()
     headers["Simulation-Secret"] = (
       integration_test_utils.FLAGS.simulation_secret
