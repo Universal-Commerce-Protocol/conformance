@@ -8,6 +8,12 @@
     "dev.ucp.shopping.buyer_consent"
   ],
   "currency": "USD",
+  "allow_unreachable_urls": [
+    "pay.google.com/gp/p/ucp/2026-04-08",
+    "shopify.dev/ucp/shop-pay-handler/2026-04-08",
+    "ucp.dev/2026-04-08/schemas/mock_payment_handler/spec",
+    "ucp.dev/2026-04-08/services/shopping/openapi.json"
+  ],
   "items": [
     {
       "id": "bouquet_roses",
