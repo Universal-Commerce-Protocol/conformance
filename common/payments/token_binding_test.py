@@ -12,21 +12,31 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for Token Binding in UCP SDK Server."""
+"""Tests for payment credential token binding (common/types/binding.json)."""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class TokenBindingTest(integration_test_utils.IntegrationTestBase):
+# Token binding is a property of the credential type, not an advertised
+# capability; the checkout endpoint is the only precondition.
+@requires_capability("dev.ucp.shopping.checkout")
+class TokenBindingTest(ShoppingIntegrationTestBase):
   """Tests for Token Binding.
 
   Validated Paths:
@@ -71,7 +81,7 @@ class TokenBindingTest(integration_test_utils.IntegrationTestBase):
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 200)

@@ -32,9 +32,14 @@ directly and do not presume a client uses the SDK's coercing model.
 """
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import Payment
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import Payment
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import Payment
 
 # Rebuild models to resolve forward references (needed to parse a full
 # checkout response before driving a discount update).
@@ -48,7 +53,8 @@ _ADDITIVE_TYPES = frozenset({"subtotal", "fulfillment", "tax", "fee"})
 _NEGATIVE_TYPES = frozenset({"discount", "items_discount"})
 
 
-class TotalsTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class TotalsTest(ShoppingIntegrationTestBase):
   """Structural-integrity tests for the checkout ``totals`` breakdown.
 
   Validated Paths:

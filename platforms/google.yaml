@@ -1,0 +1,12 @@
+platform: "google"
+capabilities:
+  - name: "dev.ucp.shopping.checkout"
+    required: true
+  - name: "dev.ucp.shopping.fulfillment"
+    required: true
+  - name: "dev.ucp.shopping.order"
+    required: true
+  - name: "dev.ucp.shopping.discount"
+    required: false
+payment_handlers:
+  - "google_pay"

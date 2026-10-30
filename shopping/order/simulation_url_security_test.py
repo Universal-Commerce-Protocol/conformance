@@ -12,13 +12,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for security controls in UCP SDK Server."""
+"""Tests for the access controls on the order simulation endpoint.
+
+`/testing/simulate-shipping/{order_id}` is the hook a merchant exposes so the
+suite can advance an order; it is not part of the UCP specification, which is
+why these tests live with the shopping order suite rather than in `core/`.
+"""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.base_test import FLAGS
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 
 
-class SecurityTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.order")
+class SecurityTest(ShoppingIntegrationTestBase):
   """Tests for security controls."""
 
   def test_simulation_endpoint_missing_header(self):
@@ -45,9 +53,7 @@ class SecurityTest(integration_test_utils.IntegrationTestBase):
     """Test access with the correct secret returns 200."""
     order_id = self.create_completed_order()
     headers = self.get_headers()
-    headers["Simulation-Secret"] = (
-      integration_test_utils.FLAGS.simulation_secret
-    )
+    headers["Simulation-Secret"] = FLAGS.simulation_secret
     response = self.client.post(
       f"/testing/simulate-shipping/{order_id}",
       headers=headers,
