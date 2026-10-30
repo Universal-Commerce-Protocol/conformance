@@ -20,8 +20,10 @@ import logging
 from pathlib import Path
 from typing import Any, TypedDict
 import uuid
-from absl import flags
-from framework.base_test import _define_flag, BaseIntegrationTest
+from framework.base_test import (
+  BaseIntegrationTest,
+  flag_value,
+)
 from ucp_sdk.models.schemas import payment_handler
 from ucp_sdk.models.schemas.shopping import checkout as f_models
 from ucp_sdk.models.schemas.shopping import checkout_create_request
@@ -66,9 +68,16 @@ class UnifiedUpdate(CheckoutUpdateRequest):
   """Client-side unified update model to support extensions."""
 
 
-FLAGS = flags.FLAGS
 DEFAULT_SHOPPING_FIXTURES = str(
   Path(__file__).resolve().parent / "fixtures" / "flower_shop"
+)
+# Used when --conformance_input / --fixture_config / --test_data_dir are not
+# given. The flags themselves live in framework.base_test.
+DEFAULT_CONFORMANCE_INPUT = str(
+  Path(DEFAULT_SHOPPING_FIXTURES) / "conformance_input.json"
+)
+DEFAULT_FIXTURE_CONFIG = str(
+  Path(DEFAULT_SHOPPING_FIXTURES) / "test_fixtures.json"
 )
 
 # Capabilities a shopping merchant is expected to declare when its
@@ -80,31 +89,6 @@ DEFAULT_REQUIRED_CAPABILITIES = [
   "dev.ucp.shopping.fulfillment",
   "dev.ucp.shopping.buyer_consent",
 ]
-
-_define_flag(
-  flags.DEFINE_string,
-  "shopping_fixtures_dir",
-  DEFAULT_SHOPPING_FIXTURES,
-  "Directory containing retail CSVs and fixtures.",
-)
-_define_flag(
-  flags.DEFINE_string,
-  "shopping_conformance_input",
-  str(Path(DEFAULT_SHOPPING_FIXTURES) / "conformance_input.json"),
-  "Path to retail conformance input JSON.",
-)
-_define_flag(
-  flags.DEFINE_string,
-  "fixture_config",
-  str(Path(DEFAULT_SHOPPING_FIXTURES) / "test_fixtures.json"),
-  "Path to test fixtures configuration JSON.",
-)
-_define_flag(
-  flags.DEFINE_string,
-  "test_data_dir",
-  DEFAULT_SHOPPING_FIXTURES,
-  "Directory containing test CSV data.",
-)
 
 
 class ShoppingTestData:
@@ -505,6 +489,8 @@ ConfiguredFixtureContext = DynamicFixtureContext
 class ShoppingIntegrationTestBase(BaseIntegrationTest):
   """Base integration test class for all UCP Retail Shopping tests."""
 
+  default_conformance_input = DEFAULT_CONFORMANCE_INPUT
+
   def setUp(self) -> None:
     """Set up shopping fixtures, configs, and endpoints."""
     super().setUp()
@@ -517,41 +503,28 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
         "Server does not support capability: dev.ucp.shopping.checkout"
       )
 
-    # Load conformance input configuration
-    self.conformance_config = {}
-    config_path = (
-      getattr(FLAGS, "shopping_conformance_input", None)
-      or getattr(FLAGS, "conformance_input", None)
-      or str(Path(DEFAULT_SHOPPING_FIXTURES) / "conformance_input.json")
-    )
-    if Path(config_path).exists():
-      with Path(config_path).open(encoding="utf-8") as f:
-        self.conformance_config = json.load(f)
-
     # Load fixture configuration
     fixture_config = {}
-    fix_cfg_path = getattr(FLAGS, "fixture_config", None) or str(
-      Path(DEFAULT_SHOPPING_FIXTURES) / "test_fixtures.json"
-    )
-    if fix_cfg_path and Path(fix_cfg_path).exists():
+    fix_cfg_path = flag_value("fixture_config") or DEFAULT_FIXTURE_CONFIG
+    if Path(fix_cfg_path).exists():
       with Path(fix_cfg_path).open(encoding="utf-8") as f:
         fixture_config = json.load(f)
+    else:
+      logging.warning("Fixture config not found at %s", fix_cfg_path)
 
     self.fixture_ctx = DynamicFixtureContext(
       fixture_config, fallback_config=self.conformance_config
     )
 
     # Load CSV test data
-    fixtures_dir = (
-      getattr(FLAGS, "shopping_fixtures_dir", None)
-      or getattr(FLAGS, "test_data_dir", None)
-      or DEFAULT_SHOPPING_FIXTURES
-    )
+    fixtures_dir = flag_value("test_data_dir") or DEFAULT_SHOPPING_FIXTURES
     if Path(fixtures_dir).exists():
       try:
         shopping_test_data.load(fixtures_dir)
       except Exception as e:  # pylint: disable=broad-exception-caught
         logging.warning("Failed to load shopping CSV fixtures: %s", e)
+    else:
+      logging.warning("Test data directory not found at %s", fixtures_dir)
 
     self._shopping_service_endpoint: str | None = None
 

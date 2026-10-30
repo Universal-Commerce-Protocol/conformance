@@ -29,7 +29,12 @@ import httpx
 
 # Re-exported so suites can keep importing the default release from the base
 # test module they already depend on.
-__all__ = ["DEFAULT_UCP_VERSION", "BaseIntegrationTest", "FLAGS"]
+__all__ = [
+  "DEFAULT_UCP_VERSION",
+  "BaseIntegrationTest",
+  "FLAGS",
+  "flag_value",
+]
 
 FLAGS = flags.FLAGS
 
@@ -44,13 +49,18 @@ def _define_flag(definer, *args, **kwargs) -> None:
     definer(*args, **kwargs)
 
 
+# `SERVER_URL` and `SIMULATION_SECRET` keep working as environment variables
+# so `uv run pytest` can be configured without flags.
 _define_flag(
-  flags.DEFINE_string, "server_url", None, "Base URL of the target UCP server"
+  flags.DEFINE_string,
+  "server_url",
+  os.getenv("SERVER_URL"),
+  "Base URL of the target UCP server",
 )
 _define_flag(
   flags.DEFINE_string,
   "simulation_secret",
-  str(uuid.uuid4()),
+  os.getenv("SIMULATION_SECRET", str(uuid.uuid4())),
   "Secret for simulation endpoints",
 )
 _define_flag(
@@ -71,6 +81,9 @@ _define_flag(
   False,
   "Whether to log HTTP requests and responses",
 )
+# Merchant-supplied inputs. They default to None so that a value given on the
+# command line always wins; a vertical's base class supplies its bundled
+# sample fixtures when nothing is given.
 _define_flag(
   flags.DEFINE_string,
   "conformance_input",
@@ -78,6 +91,25 @@ _define_flag(
   "Path to the conformance input configuration JSON describing the "
   "merchant under test.",
 )
+_define_flag(
+  flags.DEFINE_string,
+  "fixture_config",
+  None,
+  "Path to the test fixtures configuration JSON.",
+)
+_define_flag(
+  flags.DEFINE_string,
+  "test_data_dir",
+  None,
+  "Directory containing CSV test data.",
+)
+
+
+def flag_value(name: str):
+  """Return a flag's value, or None when flags have not been parsed yet."""
+  if not FLAGS.is_parsed():
+    return None
+  return getattr(FLAGS, name, None)
 
 
 class BaseIntegrationTest(absltest.TestCase):
@@ -85,29 +117,30 @@ class BaseIntegrationTest(absltest.TestCase):
 
   server_profile: UcpProfile | None = None
 
+  # Conformance input used when --conformance_input is not given. A vertical's
+  # base class points this at its bundled sample fixture. It is resolved here,
+  # before the agent profile server starts, so the agent advertises the
+  # release the merchant declares.
+  default_conformance_input: str | None = None
+
   def setUp(self) -> None:
     """Set up test environment, HTTP client, and mock agent server."""
     super().setUp()
     server_url = (
-      FLAGS.server_url
-      if FLAGS.is_parsed() and FLAGS.server_url
-      else os.environ.get("FLAGS_server_url")  # noqa: SIM112
+      FLAGS.server_url if FLAGS.is_parsed() else os.getenv("SERVER_URL")
     )
     if not server_url:
-      self.skipTest("Missing --server_url flag")
+      self.skipTest("Missing --server_url flag (or SERVER_URL variable)")
 
     self.base_url = server_url.rstrip("/")
     self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
 
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
-      logging.INFO
-      if (FLAGS.is_parsed() and FLAGS.verbose_http)
-      else logging.WARNING
+      logging.INFO if flag_value("verbose_http") else logging.WARNING
     )
 
-    # Merchant-declared conformance input. Subclasses for a specific vertical
-    # may override this with a fixture path of their own.
+    # Merchant-declared conformance input.
     self.conformance_config = self._load_conformance_config()
 
     # Lazily cache server discovery profile across tests
@@ -122,9 +155,16 @@ class BaseIntegrationTest(absltest.TestCase):
 
     self._start_agent_server()
 
+  @property
+  def ucp_version(self) -> str:
+    """The UCP release the merchant declares in its conformance input."""
+    return self.conformance_config.get("ucp_version", DEFAULT_UCP_VERSION)
+
   def _load_conformance_config(self) -> dict:
     """Load the merchant's conformance input JSON, if one is configured."""
-    config_path = getattr(FLAGS, "conformance_input", None)
+    config_path = (
+      flag_value("conformance_input") or self.default_conformance_input
+    )
     if not config_path:
       return {}
     path = Path(config_path)
@@ -157,9 +197,7 @@ class BaseIntegrationTest(absltest.TestCase):
     self.agent_server = AgentProfileServer(
       port=agent_port,
       webhook_port=webhook_port,
-      ucp_version=self.conformance_config.get(
-        "ucp_version", DEFAULT_UCP_VERSION
-      ),
+      ucp_version=self.ucp_version,
     )
     self.agent_server.start()
 
