@@ -25,13 +25,16 @@ The test suite follows a 4-tier modular architecture per UCP RFC #520:
 - **`framework/`**: Shared testing harness decoupled from any business vertical.
   Provides capability discovery, platform profile evaluation, mock webhook and
   agent servers, base test cases, and capability decorators.
-- **`core/`**: Agnostic protocol tests (`protocol_test`, `binding_test`,
-  `security_test`, generic `idempotency_test`). Can be run against any UCP server
+- **`core/`**: Agnostic protocol tests (`protocol_test`, `binding_test`) that
+  only need the discovery document. Can be run against any UCP server
   regardless of business vertical.
-- **`common/`**: Cross-cutting protocol capabilities such as webhooks
-  (`common/webhooks/`) and payment handlers (`common/payments/`).
+- **`common/`**: Cross-cutting protocol capabilities such as payment
+  credentials and extensions (`common/payments/`). These currently use the
+  shopping checkout as their vehicle and are gated on the capabilities they
+  need.
 - **`shopping/`**: Retail shopping domain tests organized by functional domain:
-  `checkout/`, `discount/`, `fulfillment/`, `order/`, and `validation/`.
+  `checkout/` (including idempotency), `discount/`, `fulfillment/`, `order/`
+  (including order-event webhooks), and `validation/`.
 - **`platforms/`**: Platform certification profiles (e.g. `google.yaml`) that
   mandate required capabilities and payment handlers.
 

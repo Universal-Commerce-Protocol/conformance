@@ -38,22 +38,10 @@ class ProtocolBindingTest(BaseIntegrationTest):
     content_type = response.headers.get("content-type", "")
     self.assertIn("application/json", content_type.lower())
 
-  def test_invalid_content_type_rejected(self) -> None:
-    """Test that POST requests with unsupported Content-Type return 400 or 415.
-
-    When sending non-JSON payloads to protocol endpoints,
-    Then the server should reject the request.
-    """
-    headers = self.get_headers()
-    headers["Content-Type"] = "text/plain"
-    # POST with non-JSON content type to well-known or discovery
-    response = self.client.post(
-      "/.well-known/ucp",
-      content="plain text body",
-      headers=headers,
-    )
-    # Server should return 405 (Method Not Allowed), 415, or 400
-    self.assertIn(response.status_code, [400, 404, 405, 415])
+  # Rejection of an unsupported request Content-Type can only be observed on
+  # an endpoint that reads a body. Discovery is GET-only, so a POST to it is
+  # answered 405 before the Content-Type is examined; such a check belongs
+  # with a vertical's own endpoints (for example POST /checkout-sessions).
 
 
 if __name__ == "__main__":

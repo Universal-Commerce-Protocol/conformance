@@ -16,7 +16,7 @@
 
 from absl.testing import absltest
 from framework.decorators import requires_capability
-import integration_test_utils
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
 try:
@@ -33,8 +33,10 @@ except ImportError:
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-@requires_capability("dev.ucp.common.payments.ap2")
-class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
+# Servers released before 2026-08-25 advertise this capability as
+# `dev.ucp.shopping.ap2_mandate`; framework.discovery accepts either name.
+@requires_capability("dev.ucp.common.payment.ap2_mandate")
+class Ap2MandateTest(ShoppingIntegrationTestBase):
   """Tests for AP2 Mandate.
 
   Validated Paths:
@@ -82,7 +84,7 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 200)

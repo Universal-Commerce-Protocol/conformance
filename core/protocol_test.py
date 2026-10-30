@@ -164,8 +164,9 @@ class ProtocolTest(BaseIntegrationTest):
     self.assert_response_status(response, 200)
     data = response.json()
 
-    # The discovery profile may be returned at the root or wrapped in `ucp`.
-    ucp_data = data.get("ucp", data)
+    # profile.json requires the top-level `ucp` object.
+    self.assertIn("ucp", data, "Discovery profile must be wrapped in 'ucp' key")
+    ucp_data = data["ucp"]
     self.assertIn(
       "version", ucp_data, "Discovery profile must contain 'version'"
     )
@@ -255,32 +256,10 @@ class ProtocolTest(BaseIntegrationTest):
         "payment_handlers is present but contains no handlers",
       )
 
-  def test_version_negotiation(self):
-    """Test protocol version negotiation via the UCP-Agent header."""
-    headers = self.get_headers()
-
-    # 1. Compatible version request to discovery. Use the version the server
-    # itself advertises so this stays correct across spec releases.
-    discovery = self.client.get("/.well-known/ucp")
-    self.assert_response_status(discovery, 200)
-    profile = discovery.json()
-    ucp_data = profile.get("ucp", profile)
-    advertised = ucp_data.get("version")
-    advertised_version = (
-      advertised.get("root", "")
-      if isinstance(advertised, dict)
-      else str(advertised)
-    )
-
-    headers["UCP-Agent"] = f'profile="..."; version="{advertised_version}"'
-    resp = self.client.get("/.well-known/ucp", headers=headers)
-    self.assert_response_status(resp, 200)
-
-    # 2. Future / incompatible version request. Discovery must still succeed
-    # or respond with a structured error.
-    headers["UCP-Agent"] = 'profile="..."; version="2099-01-01"'
-    resp = self.client.get("/.well-known/ucp", headers=headers)
-    self.assertIn(resp.status_code, [200, 400])
+  # Version negotiation can only be observed on a request the server
+  # validates; discovery is a public GET that returns 200 whatever UCP-Agent
+  # version is sent. The check lives with the shopping checkout suite
+  # (ShoppingProtocolTest.test_version_negotiation), which asserts the 422.
 
 
 if __name__ == "__main__":

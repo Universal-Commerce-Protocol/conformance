@@ -16,7 +16,7 @@
 
 from absl.testing import absltest
 from framework.decorators import requires_capability
-import integration_test_utils
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
 try:
@@ -33,8 +33,11 @@ except ImportError:
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-@requires_capability("dev.ucp.common.payments.cards")
-class CardCredentialTest(integration_test_utils.IntegrationTestBase):
+# A card credential is a payment data type (common/types/card_credential.json),
+# not an advertised capability, so the only precondition is the checkout
+# endpoint the payment is submitted to.
+@requires_capability("dev.ucp.shopping.checkout")
+class CardCredentialTest(ShoppingIntegrationTestBase):
   """Tests for Card Credential.
 
   Validated Paths:
@@ -77,7 +80,7 @@ class CardCredentialTest(integration_test_utils.IntegrationTestBase):
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 200)

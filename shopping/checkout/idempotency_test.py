@@ -12,13 +12,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Idempotency tests for UCP protocol servers."""
+"""Idempotency tests for the shopping checkout endpoints."""
 
 import uuid
 from absl.testing import absltest
-from framework.base_test import BaseIntegrationTest
 from framework.decorators import requires_capability
-import integration_test_utils
+from shopping.base import get_valid_payment_payload, ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
 try:
@@ -34,21 +33,16 @@ except ImportError:
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class GenericIdempotencyTest(BaseIntegrationTest):
-  """Agnostic transport tests for Idempotency-Key headers."""
-
-  def test_idempotency_header_accepted(self) -> None:
-    """Test that protocol endpoints accept idempotency-key header."""
-    headers = self.get_headers(idempotency_key=str(uuid.uuid4()))
-    response = self.client.get("/.well-known/ucp", headers=headers)
-    self.assert_response_status(response, 200)
-
-
 @requires_capability("dev.ucp.shopping.checkout")
-class ShoppingVehicleIdempotencyTest(
-  integration_test_utils.IntegrationTestBase
-):
-  """Tests for state-mutating idempotency using checkout sessions."""
+class IdempotencyTest(ShoppingIntegrationTestBase):
+  """Tests for Idempotency-Key handling on state-changing checkout requests.
+
+  Validated Paths:
+  - POST /checkout-sessions
+  - PUT /checkout-sessions/{id}
+  - POST /checkout-sessions/{id}/complete
+  - POST /checkout-sessions/{id}/cancel
+  """
 
   def test_idempotency_create(self) -> None:
     """Test that checkout creation is idempotent.
@@ -62,7 +56,7 @@ class ShoppingVehicleIdempotencyTest(
     create_payload = self.create_checkout_payload()
 
     # 1. Initial Request
-    headers = integration_test_utils.get_headers(idempotency_key=idem_key)
+    headers = self.get_headers(idempotency_key=idem_key)
     response1 = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=create_payload.model_dump(
@@ -117,7 +111,7 @@ class ShoppingVehicleIdempotencyTest(
 
     # 1. Initial Update
     idem_key = str(uuid.uuid4())
-    headers = integration_test_utils.get_headers(idempotency_key=idem_key)
+    headers = self.get_headers(idempotency_key=idem_key)
 
     # Use the helper logic but manually call to control headers/idempotency key
     # We construct the update payload same as helper does
@@ -194,8 +188,8 @@ class ShoppingVehicleIdempotencyTest(
 
     # 1. Initial Complete
     idem_key = str(uuid.uuid4())
-    headers = integration_test_utils.get_headers(idempotency_key=idem_key)
-    complete_payload = integration_test_utils.get_valid_payment_payload()
+    headers = self.get_headers(idempotency_key=idem_key)
+    complete_payload = get_valid_payment_payload()
 
     response1 = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
@@ -222,7 +216,7 @@ class ShoppingVehicleIdempotencyTest(
     )
 
     # 3. Conflict Request
-    complete_payload_diff = integration_test_utils.get_valid_payment_payload()
+    complete_payload_diff = get_valid_payment_payload()
     complete_payload_diff["payment"]["instruments"][0]["credential"][
       "token"
     ] = "different_token"
@@ -245,7 +239,7 @@ class ShoppingVehicleIdempotencyTest(
 
     # 1. Initial Cancel
     idem_key = str(uuid.uuid4())
-    headers = integration_test_utils.get_headers(idempotency_key=idem_key)
+    headers = self.get_headers(idempotency_key=idem_key)
 
     response1 = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
