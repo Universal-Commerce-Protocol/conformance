@@ -37,6 +37,7 @@ build-backend = "hatchling.build"
 # profile `framework/agent_profile_server.py` serves.
 only-include = [
     "framework",
+    "core",
     "common",
     "shopping",
     "platforms",
