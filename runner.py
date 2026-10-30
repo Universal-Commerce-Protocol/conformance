@@ -27,27 +27,30 @@ from framework.base_test import BaseIntegrationTest
 from framework.discovery import UcpProfile, fetch_server_profile
 from framework.platform import PlatformProfile
 
-# Suites map to test modules. Every module exercises a shopping server for
-# now; the tiered layout (core/, common/, shopping/) follows in later changes.
+# Suites map to test modules. `common` tests exercise cross-vertical payment
+# types through the shopping checkout; a vertical-agnostic `core` suite
+# follows in a later change.
 SUITE_REGISTRY: dict[str, list[str]] = {
+  "common": [
+    "common.payments.card_credential_test",
+    "common.payments.ap2_test",
+    "common.payments.token_binding_test",
+  ],
   "shopping": [
-    "protocol_test",
-    "binding_test",
-    "idempotency_test",
-    "checkout_lifecycle_test",
-    "business_logic_test",
-    "totals_test",
-    "discount_test",
-    "fulfillment_test",
-    "fulfillment_structure_test",
-    "order_test",
-    "webhook_test",
-    "webhook_structure_test",
-    "simulation_url_security_test",
-    "validation_test",
-    "invalid_input_test",
-    "card_credential_test",
-    "ap2_test",
+    "shopping.checkout.protocol_test",
+    "shopping.checkout.lifecycle_test",
+    "shopping.checkout.business_logic_test",
+    "shopping.checkout.idempotency_test",
+    "shopping.checkout.totals_test",
+    "shopping.discount.semantics_test",
+    "shopping.fulfillment.fulfillment_test",
+    "shopping.fulfillment.structure_test",
+    "shopping.order.order_test",
+    "shopping.order.webhook_test",
+    "shopping.order.webhook_structure_test",
+    "shopping.order.simulation_url_security_test",
+    "shopping.validation.validation_test",
+    "shopping.validation.invalid_input_test",
   ],
 }
 

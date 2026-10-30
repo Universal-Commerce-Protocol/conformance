@@ -79,7 +79,7 @@ jobs:
           uv run --directory samples/rest/python/server import_csv.py \
             --products_db_path=${DATABASE_PATH}/products.db \
             --transactions_db_path=${DATABASE_PATH}/transactions.db \
-            --data_dir=../../../../conformance/test_data/flower_shop
+            --data_dir=../../../../conformance/shopping/fixtures/flower_shop
 
       - name: Start Flower Shop server
         run: |
@@ -108,6 +108,6 @@ jobs:
           uv run ucp-conformance \
             --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
             --simulation_secret=${SIMULATION_SECRET} \
-            --conformance_input=test_data/flower_shop/conformance_input.json \
+            --conformance_input=shopping/fixtures/flower_shop/conformance_input.json \
             --suite=all \
             -v
