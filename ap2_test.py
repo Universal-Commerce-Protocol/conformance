@@ -107,10 +107,10 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
     Then the checkout must not complete, and the refusal must carry the
     `mandate_required` error code.
 
-    The spec does not pin whether this is a protocol error or a business
-    outcome, so either form is accepted, each in its own shape: HTTP 200
-    requires the UCP error envelope with a `messages` entry, and any other
-    status requires a top-level `code`.
+    Accept `mandate_required` in error messages on HTTP 200 or 4xx, or as
+    a top-level code on 4xx. A 200 response without a checkout resource
+    must carry a UCP error envelope. Completion must be neither accepted
+    for processing nor completed.
     """
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
@@ -125,10 +125,16 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
     )
 
     body = response.json() if response.content else {}
-    self.assertNotEqual(
+    self.assertIsInstance(
+      body, dict, msg=f"Expected a JSON object. Resp: {response.text}"
+    )
+    self.assertNotIn(
       body.get("status"),
-      "completed",
-      msg=f"Checkout completed without an AP2 mandate. Resp: {response.text}",
+      ("complete_in_progress", "completed"),
+      msg=(
+        "Checkout accepted completion without an AP2 mandate. "
+        f"Resp: {response.text}"
+      ),
     )
     self.assertTrue(
       response.status_code == 200 or 400 <= response.status_code < 500,
@@ -153,12 +159,31 @@ class Ap2MandateTest(integration_test_utils.IntegrationTestBase):
       400 <= response.status_code < 500
       and body.get("code") == "mandate_required"
     )
-    if response.status_code == 200 and "id" not in body:
-      self.assertEqual(
-        body.get("ucp", {}).get("status"),
-        "error",
-        msg=f"Expected a UCP error envelope. Resp: {response.text}",
-      )
+    if response.status_code == 200:
+      if "id" in body:
+        self.assertIsInstance(
+          body["id"], str, msg=f"Expected a checkout id. Resp: {response.text}"
+        )
+        self.assertIn(
+          body.get("status"),
+          (
+            "incomplete",
+            "requires_escalation",
+            "ready_for_complete",
+            "canceled",
+          ),
+          msg=f"Expected a non-completing status. Resp: {response.text}",
+        )
+      else:
+        ucp = body.get("ucp")
+        self.assertIsInstance(
+          ucp, dict, msg=f"Expected a UCP error envelope. Resp: {response.text}"
+        )
+        self.assertEqual(
+          ucp.get("status"),
+          "error",
+          msg=f"Expected a UCP error envelope. Resp: {response.text}",
+        )
     self.assertTrue(
       has_message_error or has_top_level_code,
       msg=(
