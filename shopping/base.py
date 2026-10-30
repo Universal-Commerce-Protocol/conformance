@@ -664,7 +664,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
         payment_handler.Base(
           id="google_pay",
           name="google.pay",
-          version="2026-04-08",
+          version=self.ucp_version,
           spec="https://example.com/spec",
           config_schema="https://example.com/schema",
           instrument_schemas=["https://example.com/instrument_schema"],
@@ -732,7 +732,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
       fulfillment=fulfillment,
     )
     checkout_req.status = "incomplete"
-    checkout_req.ucp = {"version": "2026-04-08"}
+    checkout_req.ucp = {"version": self.ucp_version}
     checkout_req.totals = []
     checkout_req.links = []
 
@@ -905,8 +905,28 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     platform: Any | None = None,
     headers: dict[str, str] | None = None,
   ) -> Any:
-    """Update a checkout session."""
+    """Update a checkout session.
+
+    PUT replaces the whole checkout, so every optional field that is not
+    passed explicitly is carried over from `checkout_obj`; otherwise a partial
+    update such as `update_checkout_session(obj, discounts=...)` would wipe
+    the buyer and fulfillment state the test set up earlier.
+    """
     currency = currency if currency is not None else checkout_obj.currency
+
+    def to_json(obj):
+      if obj is not None and hasattr(obj, "model_dump"):
+        return obj.model_dump(mode="json", exclude_none=True)
+      return obj
+
+    if buyer is None:
+      buyer = to_json(getattr(checkout_obj, "buyer", None))
+    if fulfillment is None:
+      fulfillment = to_json(getattr(checkout_obj, "fulfillment", None))
+    if discounts is None:
+      discounts = to_json(getattr(checkout_obj, "discounts", None))
+    if platform is None:
+      platform = to_json(getattr(checkout_obj, "platform", None))
 
     if line_items is None:
       line_items = []
