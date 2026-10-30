@@ -25,16 +25,12 @@ from framework.constants import DEFAULT_UCP_VERSION
 import httpx
 import uvicorn
 
-DEFAULT_PROFILE = {
-  "agent": {
-    "id": "mock-test-agent",
-    "name": "Conformance Test Agent",
-    "version": "1.0.0",
-  },
-  "endpoints": {
-    "webhook": "http://localhost:{webhook_port}/webhooks/test",
-  },
-}
+# The agent profile served to the merchant under test. It is shipped with the
+# package (see `only-include` in pyproject.toml) and declares the release and
+# webhook endpoint through the `{ucp_version}` / `{webhook_port}` placeholders.
+DEFAULT_PROFILE_TEMPLATE = (
+  Path(__file__).resolve().parent.parent / "shopping-agent-test.json"
+)
 
 
 class AgentProfileServer:
@@ -71,18 +67,15 @@ class AgentProfileServer:
 
     if profile_dict is not None:
       self._profile_template = json.dumps(profile_dict)
-    elif profile_template_path and Path(profile_template_path).exists():
-      with Path(profile_template_path).open(encoding="utf-8") as f:
-        self._profile_template = f.read()
     else:
-      legacy_path = (
-        Path(__file__).resolve().parent.parent / "shopping-agent-test.json"
+      template = (
+        Path(profile_template_path)
+        if profile_template_path
+        else DEFAULT_PROFILE_TEMPLATE
       )
-      if legacy_path.exists():
-        with legacy_path.open(encoding="utf-8") as f:
-          self._profile_template = f.read()
-      else:
-        self._profile_template = json.dumps(DEFAULT_PROFILE)
+      if not template.is_file():
+        raise FileNotFoundError(f"Agent profile template not found: {template}")
+      self._profile_template = template.read_text(encoding="utf-8")
 
     self._setup_routes()
     self._server: uvicorn.Server | None = None

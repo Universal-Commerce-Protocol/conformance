@@ -56,18 +56,16 @@ DEFAULT_FIXTURE_CONFIG = f"{DEFAULT_SHOPPING_FIXTURES}/test_fixtures.json"
 def get_headers(
   idempotency_key: str | None = None, request_id: str | None = None
 ) -> dict[str, str]:
-  """Generate headers for UCP requests."""
+  """Generate headers for UCP requests (same set as BaseIntegrationTest)."""
   port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
   profile_url = f"http://localhost:{port}{AgentProfileServer.PROFILE_PATH}"
-  headers = {
+  return {
     "UCP-Agent": f'profile="{profile_url}"',
     "request-signature": "test",
+    "idempotency-key": idempotency_key or str(uuid.uuid4()),
     "request-id": request_id or str(uuid.uuid4()),
     "Content-Type": "application/json",
   }
-  if idempotency_key:
-    headers["idempotency-key"] = idempotency_key
-  return headers
 
 
 __all__ = [
