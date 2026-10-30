@@ -40,7 +40,6 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
   """Tests for invalid inputs and schema validation.
 
   Validated Paths:
-  - PUT /checkout-sessions/{id}
   - GET /orders/{id}
   - PUT /orders/{id}
   """
@@ -85,32 +84,6 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
     )
     # Pydantic validation error should result in 422
     self.assert_response_status(resp, 422)
-
-  def test_unknown_discount_code(self):
-    """Test that unknown discount codes are ignored.
-
-    Given an existing checkout session,
-    When an update request includes an unknown discount code,
-    Then the request should succeed (200 OK) but no discount should be applied
-    to the totals.
-    """
-    response_json = self.create_checkout_session()
-    checkout_obj = checkout.Checkout(**response_json)
-
-    # Update with unknown discount code using helper
-    # The helper preserves existing fields, so we just pass the discount
-    resp_json = self.update_checkout_session(
-      checkout_obj, discounts={"codes": ["INVALID_CODE_123"]}
-    )
-
-    updated_checkout = checkout.Checkout(**resp_json)
-    # Verify no discount applied
-    discount_total = next(
-      (t for t in updated_checkout.totals if t.type == "discount"), None
-    )
-    self.assertIsNone(
-      discount_total, "Unknown discount code should not apply discount"
-    )
 
   def test_malformed_adjustment_payload(self):
     """Test that malformed adjustment payloads are rejected.
