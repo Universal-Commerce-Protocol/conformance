@@ -78,35 +78,60 @@ def _iter_tests(suite: unittest.TestSuite) -> Iterator[unittest.TestCase]:
       yield item
 
 
+def _load_specifier(
+  loader: unittest.TestLoader, spec: str
+) -> unittest.TestSuite | None:
+  """Load one specifier: a module, or a TestCase class as `module.Class`.
+
+  Returns None, after logging why, when nothing could be loaded.
+  """
+  try:
+    return loader.loadTestsFromModule(importlib.import_module(spec))
+  except ModuleNotFoundError as exc:
+    if exc.name != spec:
+      # The module exists but one of its own imports is missing.
+      logging.error("Failed to import test module %s: %s", spec, exc)
+      return None
+
+  if "." not in spec:
+    logging.error("Unknown test specifier: %s", spec)
+    return None
+
+  parent, attr = spec.rsplit(".", 1)
+  try:
+    mod = importlib.import_module(parent)
+  except ImportError as exc:
+    logging.error("Failed to import test specifier %s: %s", spec, exc)
+    return None
+  cls = getattr(mod, attr, None)
+  if isinstance(cls, type) and issubclass(cls, unittest.TestCase):
+    return loader.loadTestsFromTestCase(cls)
+  logging.error(
+    "Unknown test specifier: %s (%s has no TestCase class named %r)",
+    spec,
+    parent,
+    attr,
+  )
+  return None
+
+
 def _load_tests(
   specifiers: list[str], filter_pattern: str | None = None
-) -> unittest.TestSuite:
-  """Load unittest test cases from module or class specifiers."""
+) -> tuple[unittest.TestSuite, list[str]]:
+  """Load unittest test cases from module or class specifiers.
+
+  Returns the suite and the specifiers that could not be loaded.
+  """
   loader = unittest.TestLoader()
   suite = unittest.TestSuite()
+  unresolved: list[str] = []
 
   for spec in specifiers:
-    # First try loading directly as a module
-    try:
-      mod = importlib.import_module(spec)
-      suite.addTests(loader.loadTestsFromModule(mod))
-      continue
-    except ModuleNotFoundError:
-      pass
-
-    # If not a direct module, try parent module and class/method attribute
-    if "." in spec:
-      parent, attr = spec.rsplit(".", 1)
-      try:
-        mod = importlib.import_module(parent)
-        cls = getattr(mod, attr, None)
-        if cls and isinstance(cls, type) and issubclass(cls, unittest.TestCase):
-          suite.addTests(loader.loadTestsFromTestCase(cls))
-          continue
-      except (ImportError, AttributeError) as exc:
-        logging.error("Failed to import test specifier %s: %s", spec, exc)
+    tests = _load_specifier(loader, spec)
+    if tests is None:
+      unresolved.append(spec)
     else:
-      logging.error("Unknown test specifier: %s", spec)
+      suite.addTests(tests)
 
   if filter_pattern:
     filtered = unittest.TestSuite()
@@ -114,9 +139,9 @@ def _load_tests(
     for test in _iter_tests(suite):
       if pattern in test.id().lower():
         filtered.addTest(test)
-    return filtered
+    return filtered, unresolved
 
-  return suite
+  return suite, unresolved
 
 
 def _sync_absl_flags(args: argparse.Namespace) -> None:
@@ -249,7 +274,7 @@ def main(argv: list[str] | None = None) -> int:
   # Import the test modules first: they register the absl flags that
   # _sync_absl_flags forwards.
   test_specs = _resolve_suites(args.suite)
-  test_suite = _load_tests(test_specs, filter_pattern=args.filter)
+  test_suite, unresolved = _load_tests(test_specs, filter_pattern=args.filter)
   total_tests = test_suite.countTestCases()
   _sync_absl_flags(args)
 
@@ -257,6 +282,22 @@ def main(argv: list[str] | None = None) -> int:
   sys.stdout.write("UCP CONFORMANCE TEST RUNNER\n")
   sys.stdout.write(f"Target Server: {args.server_url}\n")
   sys.stdout.write("=" * 70 + "\n")
+
+  # An empty suite would "pass", so a selection that loads nothing is an
+  # error rather than a successful run of zero tests.
+  if unresolved:
+    sys.stderr.write(
+      "Error: could not load test specifier(s): " + ", ".join(unresolved) + "\n"
+    )
+    return 1
+  if total_tests == 0:
+    sys.stderr.write(
+      f"Error: no tests matched suite '{args.suite}'"
+      + (f" with filter '{args.filter}'" if args.filter else "")
+      + "\n"
+    )
+    return 1
+
   sys.stdout.write(
     f"Resolved {total_tests} test cases across suite '{args.suite}'\n"
   )
