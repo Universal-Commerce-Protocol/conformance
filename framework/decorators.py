@@ -27,6 +27,8 @@ def requires_capability(
   """Mark a test class or test method as requiring a specific UCP capability.
 
   If the server under test does not advertise the capability, skip the test.
+  Requirements accumulate down the class hierarchy: a decorated subclass
+  needs its own capability and everything its base classes declared.
 
   Args:
     capability_name: The name of the capability.
@@ -38,9 +40,12 @@ def requires_capability(
   """
 
   def decorator(obj: T) -> T:
-    if not hasattr(obj, "_required_capabilities"):
-      obj._required_capabilities = set()
-    obj._required_capabilities.add((capability_name, min_version))
+    # `getattr` sees requirements inherited from base classes; copy them so
+    # the base class's own set is never mutated through a subclass.
+    inherited = getattr(obj, "_required_capabilities", set())
+    obj._required_capabilities = set(inherited) | {
+      (capability_name, min_version)
+    }
     return obj
 
   return decorator

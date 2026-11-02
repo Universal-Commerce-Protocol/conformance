@@ -33,6 +33,7 @@ from framework.base_test import (
   flag_value,
   FLAGS,
 )
+from framework.decorators import requires_capability
 from framework.mock_webhook_server import MockWebhookServer
 from ucp_sdk.models.schemas import payment_handler
 from ucp_sdk.models.schemas.shopping import checkout as f_models
@@ -526,6 +527,9 @@ class DynamicFixtureContext:
 ConfiguredFixtureContext = DynamicFixtureContext
 
 
+# Every shopping test needs the checkout capability; declaring it here makes
+# BaseIntegrationTest skip before it starts the agent profile server.
+@requires_capability("dev.ucp.shopping.checkout")
 class ShoppingIntegrationTestBase(BaseIntegrationTest):
   """Base integration test class for all UCP Retail Shopping tests."""
 
@@ -534,14 +538,6 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
   def setUp(self) -> None:
     """Set up shopping fixtures, configs, and endpoints."""
     super().setUp()
-
-    # Verify server advertises shopping checkout
-    if self.server_profile and not self.server_profile.supports_capability(
-      "dev.ucp.shopping.checkout"
-    ):
-      self.skipTest(
-        "Server does not support capability: dev.ucp.shopping.checkout"
-      )
 
     # Load fixture configuration
     fixture_config = {}
