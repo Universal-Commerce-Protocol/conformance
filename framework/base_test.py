@@ -124,16 +124,20 @@ class BaseIntegrationTest(absltest.TestCase):
   default_conformance_input: str | None = None
 
   def setUp(self) -> None:
-    """Set up test environment, HTTP client, and mock agent server."""
+    """Set up test environment, HTTP client, and mock agent server.
+
+    Everything that can skip the test runs before any resource is created,
+    and each resource is registered with `addCleanup`: unittest skips
+    `tearDown()` when `setUp()` raises (including `SkipTest`), but always
+    runs the cleanups.
+    """
     super().setUp()
     server_url = (
       FLAGS.server_url if FLAGS.is_parsed() else os.getenv("SERVER_URL")
     )
     if not server_url:
       self.skipTest("Missing --server_url flag (or SERVER_URL variable)")
-
     self.base_url = server_url.rstrip("/")
-    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
 
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
@@ -152,6 +156,9 @@ class BaseIntegrationTest(absltest.TestCase):
 
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
+
+    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
+    self.addCleanup(self.client.close)
 
     self._start_agent_server()
 
@@ -200,13 +207,7 @@ class BaseIntegrationTest(absltest.TestCase):
       ucp_version=self.ucp_version,
     )
     self.agent_server.start()
-
-  def tearDown(self) -> None:
-    """Tear down HTTP client and mock agent server."""
-    self.client.close()
-    if hasattr(self, "agent_server") and self.agent_server is not None:
-      self.agent_server.stop()
-    super().tearDown()
+    self.addCleanup(self.agent_server.stop)
 
   def get_headers(
     self,
