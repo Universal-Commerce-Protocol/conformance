@@ -183,15 +183,15 @@ class BaseIntegrationTest(absltest.TestCase):
 
   def _verify_required_capabilities(self) -> None:
     """Verify that the server supports capabilities required by class/method."""
-    reqs = set()
+    required_caps = set()
     if hasattr(self, "_required_capabilities"):
-      reqs.update(self._required_capabilities)
+      required_caps.update(self._required_capabilities)
     test_method = getattr(self, self._testMethodName, None)
     if test_method and hasattr(test_method, "_required_capabilities"):
-      reqs.update(test_method._required_capabilities)
+      required_caps.update(test_method._required_capabilities)
 
     if self.server_profile is not None:
-      for cap_name, min_ver in reqs:
+      for cap_name, min_ver in required_caps:
         if not self.server_profile.supports_capability(cap_name, min_ver):
           self.skipTest(
             f"Server does not support required capability: '{cap_name}' "

@@ -107,9 +107,9 @@ class UcpProfile:
 
     # Extract services
     self.services: dict[str, list[dict[str, Any]]] = {}
-    svcs = ucp_section.get("services", {})
-    if isinstance(svcs, dict):
-      for svc_name, svc_items in svcs.items():
+    services_data = ucp_section.get("services", {})
+    if isinstance(services_data, dict):
+      for svc_name, svc_items in services_data.items():
         self.services[svc_name] = (
           svc_items if isinstance(svc_items, list) else [svc_items]
         )
