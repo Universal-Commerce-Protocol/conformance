@@ -29,6 +29,16 @@ class Capability:
   schema_url: str | None = None
 
 
+# Capabilities the specification renamed, keyed by their current name. A
+# server that advertises a former name supports the capability all the same,
+# so tests can cite the current name and still run against older releases.
+FORMER_NAMES: dict[str, tuple[str, ...]] = {
+  # Moved from the shopping vertical to the common payment specification in
+  # the 2026-08-25 release.
+  "dev.ucp.common.payment.ap2_mandate": ("dev.ucp.shopping.ap2_mandate",),
+}
+
+
 class UcpProfile:
   """Represents an advertised server profile from /.well-known/ucp."""
 
@@ -119,13 +129,16 @@ class UcpProfile:
   ) -> bool:
     """Check if the server advertises a capability.
 
-    Optionally checks version requirement.
+    A capability counts as advertised under its current name or any former
+    name listed in FORMER_NAMES. Optionally checks a minimum version.
     """
-    if capability_name not in self.capabilities:
-      return False
-    return not (
-      min_version and self.capabilities[capability_name].version < min_version
-    )
+    names = (capability_name, *FORMER_NAMES.get(capability_name, ()))
+    for name in names:
+      capability = self.capabilities.get(name)
+      if capability is None:
+        continue
+      return not (min_version and capability.version < min_version)
+    return False
 
   def supports_payment_handler(self, handler_id: str) -> bool:
     """Check if the server supports a payment handler by ID or name."""
