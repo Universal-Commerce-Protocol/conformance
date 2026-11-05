@@ -15,7 +15,10 @@
 """Validation tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import (
@@ -209,6 +212,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
     self.assert_response_status(response, expected_status)
     self._assert_structured_4xx_error(response, substring)
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   def test_out_of_stock(self) -> None:
     """Test validation for out-of-stock items.
 
@@ -242,6 +248,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="stock",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   def test_update_inventory_validation(self) -> None:
     """Test that inventory validation is enforced on update.
 
@@ -319,6 +328,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="stock",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   def test_product_not_found(self) -> None:
     """Test validation for non-existent products.
 
@@ -351,6 +363,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="not found",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   def test_payment_failure(self) -> None:
     """Test handling of payment failures.
 
@@ -382,6 +397,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="payment",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   @requires_capability("dev.ucp.shopping.fulfillment")
   def test_complete_without_fulfillment(self) -> None:
     """Test completion rejection when fulfillment is missing.
@@ -409,6 +427,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="fulfillment",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0105",  # SHOULD provide accurate error messages
+  )
   def test_structured_error_messages(self) -> None:
     """Test that error responses carry structured, machine-readable detail.
 

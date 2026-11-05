@@ -32,7 +32,11 @@ directly and do not presume a client uses the SDK's coercing model.
 """
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -97,6 +101,9 @@ class TotalsTest(ShoppingIntegrationTestBase):
     )
     return totals
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0133",  # Exactly one "subtotal" MUST be present
+  )
   def test_single_subtotal_entry(self):
     """Test that totals contain exactly one subtotal entry.
 
@@ -112,6 +119,9 @@ class TotalsTest(ShoppingIntegrationTestBase):
       f"totals[] must contain exactly one 'subtotal' entry, found {totals}.",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
+  )
   def test_single_total_entry(self):
     """Test that totals contain exactly one total entry.
 
@@ -127,6 +137,10 @@ class TotalsTest(ShoppingIntegrationTestBase):
       f"totals[] must contain exactly one 'total' entry, found {totals}.",
     )
 
+  @no_rule(
+    "checkout/index.md, totals[] invariants: 'Every entry carries a type and "
+    "an amount' and 'Amounts are signed integers', with no keyword"
+  )
   def test_entries_have_type_and_amount(self):
     """Test that every totals entry carries a type and an amount.
 
@@ -156,6 +170,9 @@ class TotalsTest(ShoppingIntegrationTestBase):
         f"totals 'amount' must be an integer, not a boolean: {entry}.",
       )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0143",  # additive types MUST be non-negative
+  )
   def test_additive_entries_non_negative(self):
     """Test that additive charge entries have a non-negative amount.
 
@@ -177,6 +194,9 @@ class TotalsTest(ShoppingIntegrationTestBase):
         f"Additive '{entry.get('type')}' entry must be >= 0: {entry}.",
       )
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0142",  # subtractive types MUST be negative
+  )
   @requires_capability("dev.ucp.shopping.discount")
   def test_discount_entry_is_negative(self):
     """Test that a discount totals entry has a negative amount.

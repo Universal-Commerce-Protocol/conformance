@@ -17,7 +17,13 @@
 import uuid
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  older_version,
+  requires_capability,
+  scenario,
+  spec_assert,
+)
 from shopping.base import CustomerFixture
 from shopping.base import shopping_test_data
 from shopping.base import ShoppingIntegrationTestBase
@@ -86,6 +92,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
         return option
     return None
 
+  @no_rule(
+    "fulfillment.md, Overview: Checkout fulfillment covers 'selection and "
+    "cost'; no keyword says the total includes the selected option's cost"
+  )
   def test_fulfillment_flow(self) -> None:
     """Test the complete fulfillment selection flow.
 
@@ -202,6 +212,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       ),
     )
 
+  @scenario(
+    "the domestic and international destinations offer the option IDs set "
+    "in the fixtures, which are the store's own data"
+  )
   def test_dynamic_fulfillment(self) -> None:
     """Test that fulfillment options are dynamically generated based on address.
 
@@ -289,6 +303,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       f"{international['expected_option_id']}, got {options}",
     )
 
+  @scenario(
+    "an unknown buyer gets no saved addresses filled in; filling in saved "
+    "addresses by buyer email is a store feature no rule covers"
+  )
   def test_unknown_customer_no_address(self) -> None:
     """Test that an unknown customer gets no automatic address injection."""
     # Create checkout with a randomized buyer email so it cannot collide
@@ -322,6 +340,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
     destinations = method.get("destinations")
     self.assertTrue(destinations is None or len(destinations) == 0)
 
+  @scenario(
+    "a known buyer with no saved addresses gets none filled in; filling in "
+    "saved addresses is a store feature no rule covers"
+  )
   def test_known_customer_no_address(self) -> None:
     """Test that a known customer with no stored address gets no injection."""
     customer = self.fixture_ctx.get_known_customer_without_address()
@@ -353,6 +375,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
     destinations = method.get("destinations")
     self.assertTrue(destinations is None or len(destinations) == 0)
 
+  @scenario(
+    "a known buyer's saved addresses are filled in as destinations; filling "
+    "in saved addresses is a store feature no rule covers"
+  )
   def test_known_customer_one_address(self) -> None:
     """Test that a known customer's stored addresses get injected."""
     customer = self.fixture_ctx.get_known_customer()
@@ -392,6 +418,11 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
         f"Stored address {address} not found in destinations {destinations}",
       )
 
+  @spec_assert(
+    "REQ-SHOPPING-FULFILLMENT-0012",  # same selected_destination_id returned
+    "REQ-SHOPPING-FULFILLMENT-0013",  # one matching typed destination entry
+    "REQ-SHOPPING-FULFILLMENT-0015",  # no silent substitution of destination
+  )
   def test_known_customer_multiple_addresses_selection(self) -> None:
     """Test selecting between multiple addresses for a known customer."""
     customer = self.fixture_ctx.get_known_customer()
@@ -474,6 +505,11 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       f"Selected destination {selected_dest} does not match {target_address}",
     )
 
+  @older_version(
+    "2026-04-08",
+    "accepts a server-substituted selected_destination_id; the draft "
+    "forbids returning a different one (REQ-SHOPPING-FULFILLMENT-0015)",
+  )
   def test_known_customer_new_address(self) -> None:
     """Test that providing a new address works for a known customer."""
     customer = self.fixture_ctx.get_known_customer()
@@ -552,6 +588,10 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       f"No fulfillment options generated for new destination: {group}",
     )
 
+  @scenario(
+    "resubmitted saved-address content comes back under its existing ID, "
+    "a store feature (address de-duplication) that no rule covers"
+  )
   def test_known_user_existing_address_reuse(self) -> None:
     """Test that an existing address is reused (same ID returned).
 
@@ -632,6 +672,9 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       "Resubmitted stored address was not reused under its existing id",
     )
 
+  @scenario(
+    "a zero-cost option above the store's free-shipping threshold (fixtures)"
+  )
   def test_free_shipping_on_expensive_order(self) -> None:
     """Test that free shipping is offered above the configured threshold."""
     threshold = self.fixture_ctx.get_free_shipping_min_subtotal()
@@ -683,6 +726,7 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       f" free-shipping threshold. Options: {options}",
     )
 
+  @scenario("a zero-cost option for the store's free-shipping item (fixtures)")
   def test_free_shipping_for_specific_item(self) -> None:
     """Test that free shipping is offered for eligible items."""
     eligible_sku = self.fixture_ctx.get_free_shipping_item_sku()
