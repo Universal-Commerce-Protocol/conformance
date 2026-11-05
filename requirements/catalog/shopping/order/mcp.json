@@ -1,0 +1,423 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/order/mcp.md",
+  "summary": {
+    "total": 7,
+    "must_count": 5,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 1,
+    "should_not_count": 0,
+    "may_count": 1,
+    "by_level": {
+      "MAY": 1,
+      "MUST": 5,
+      "SHOULD": 1
+    },
+    "by_actor": {
+      "PLATFORM": 3,
+      "UNRESOLVED": 4
+    },
+    "by_file": {
+      "docs/specification/shopping/order/mcp.md": 7
+    },
+    "with_condition": 0,
+    "with_referenced_fields": 5,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 1,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 4,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-ORDER-0027",
+      "text_digest": "7d9d798bfd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "MCP clients **MUST** include a `meta` object in every request containing protocol metadata:",
+      "normalized": "mcp clients must include a meta object in every request containing protocol metadata",
+      "condition": null,
+      "referenced_fields": [
+        "meta"
+      ],
+      "compound_parent": null,
+      "document_order": 3,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 61,
+        "end_line": 62,
+        "section": "Order Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-REQUEST-METADATA-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 59,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 61,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0028",
+      "text_digest": "160daf898a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** include additional metadata fields.",
+      "normalized": "platforms may include additional metadata fields",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 5,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 84,
+        "end_line": 86,
+        "section": "Order Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-REQUEST-METADATA-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 81,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 84,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0029",
+      "text_digest": "dfdf1af93d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MUST** check `messages` before accessing order fields.",
+      "normalized": "platforms must check messages before accessing order fields",
+      "condition": null,
+      "referenced_fields": [
+        "messages"
+      ],
+      "compound_parent": null,
+      "document_order": 22,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 283,
+        "end_line": 285,
+        "section": "Order Capability - MCP Binding > Error Handling",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "error-handling"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-ERROR-HANDLING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 276,
+            "level": "MUST",
+            "text_digest": "dfdf1af93d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 283,
+            "level": "MUST",
+            "text_digest": "dfdf1af93d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0030",
+      "text_digest": "50d0db61d3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include `meta.ucp-agent.profile` on all requests",
+      "normalized": "must include meta.ucp-agent.profile on all requests",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "Platforms implementing the MCP binding:",
+      "document_order": 24,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 291,
+        "end_line": 291,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-CONFORMANCE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 284,
+            "level": "MUST",
+            "text_digest": "50d0db61d3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 291,
+            "level": "MUST",
+            "text_digest": "50d0db61d3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0031",
+      "text_digest": "61b7633392",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** check the `messages` array in responses before accessing order data",
+      "normalized": "must check the messages array in responses before accessing order data",
+      "condition": null,
+      "referenced_fields": [
+        "messages"
+      ],
+      "compound_parent": "Platforms implementing the MCP binding:",
+      "document_order": 25,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 292,
+        "end_line": 292,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-CONFORMANCE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 285,
+            "level": "MUST",
+            "text_digest": "61b7633392"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 292,
+            "level": "MUST",
+            "text_digest": "61b7633392"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0032",
+      "text_digest": "a8dce026f4",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+      "normalized": "should delegate to the business via permalink_url for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+      "condition": null,
+      "referenced_fields": [
+        "permalink_url"
+      ],
+      "compound_parent": "Platforms implementing the MCP binding:",
+      "document_order": 26,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 293,
+        "end_line": 295,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-CONFORMANCE-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 286,
+            "level": "SHOULD",
+            "text_digest": "a8dce026f4"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 293,
+            "level": "SHOULD",
+            "text_digest": "a8dce026f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0033",
+      "text_digest": "62046948e1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** implement the `get_order` tool per the [OpenRPC schema](site:services/shopping/mcp.openrpc.json)",
+      "normalized": "must implement the get_order tool per the openrpc schema",
+      "condition": null,
+      "referenced_fields": [
+        "get_order"
+      ],
+      "compound_parent": "Businesses implementing the MCP binding:",
+      "document_order": 28,
+      "source": {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "start_line": 299,
+        "end_line": 300,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-MCP-CONFORMANCE-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-mcp.md",
+            "start_line": 292,
+            "level": "MUST",
+            "text_digest": "62046948e1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/mcp.md",
+            "start_line": 299,
+            "level": "MUST",
+            "text_digest": "62046948e1"
+          }
+        ]
+      }
+    }
+  ]
+}

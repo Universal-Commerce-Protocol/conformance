@@ -1,0 +1,3035 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/extensions/fulfillment.md",
+  "summary": {
+    "total": 55,
+    "must_count": 16,
+    "must_not_count": 4,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 15,
+    "should_not_count": 2,
+    "may_count": 18,
+    "by_level": {
+      "MAY": 18,
+      "MUST": 16,
+      "MUST NOT": 4,
+      "SHOULD": 15,
+      "SHOULD NOT": 2
+    },
+    "by_actor": {
+      "BUSINESS": 33,
+      "EXTENSION": 9,
+      "PLATFORM": 13
+    },
+    "by_file": {
+      "docs/specification/shopping/extensions/fulfillment.md": 55
+    },
+    "with_condition": 12,
+    "with_referenced_fields": 32,
+    "from_compound_split": 15,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 19,
+      "actor_unresolved": 0,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 1,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 7,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0001",
+      "text_digest": "cdbd5fec10",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When Catalog `filters.fulfills_to` is present, a Business **MUST** resolve the fulfillment destination and method `availability` from it rather than from `context`.",
+      "normalized": "when catalog filters.fulfills_to is present, a business must resolve the fulfillment destination and method availability from it rather than from context",
+      "condition": "When Catalog `filters.fulfills_to` is present",
+      "referenced_fields": [
+        "availability",
+        "context",
+        "filters.fulfills_to"
+      ],
+      "compound_parent": "Precedence is scoped to what each field governs:",
+      "document_order": 39,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 80,
+        "end_line": 82,
+        "section": "Fulfillment Extension > Location Context",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 80,
+            "level": "MUST",
+            "text_digest": "cdbd5fec10"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0002",
+      "text_digest": "fe8277d08b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Once a Platform sets `selected_destination_id` on a Checkout method, a Business **MUST** use the referenced destination rather than `context.location` for that method's fulfillment scope.",
+      "normalized": "once a platform sets selected_destination_id on a checkout method, a business must use the referenced destination rather than context.location for that method's fulfillment scope",
+      "condition": null,
+      "referenced_fields": [
+        "context.location",
+        "selected_destination_id"
+      ],
+      "compound_parent": "Precedence is scoped to what each field governs:",
+      "document_order": 41,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 83,
+        "end_line": 86,
+        "section": "Fulfillment Extension > Location Context",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 83,
+            "level": "MUST",
+            "text_digest": "fe8277d08b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0003",
+      "text_digest": "40ffef1f4a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "[Cart-to-Checkout conversion](../cart/index.md#cart-to-checkout-conversion) initializes the Checkout from the Cart's `context`, so the Business **MAY** use `loc_123` to generate an initial Checkout fulfillment destination.",
+      "normalized": "cart-to-checkout conversion initializes the checkout from the cart's context, so the business may use loc_123 to generate an initial checkout fulfillment destination",
+      "condition": null,
+      "referenced_fields": [
+        "context",
+        "loc_123"
+      ],
+      "compound_parent": null,
+      "document_order": 46,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 88,
+        "end_line": 95,
+        "section": "Fulfillment Extension > Location Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 88,
+            "level": "MAY",
+            "text_digest": "40ffef1f4a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0004",
+      "text_digest": "eb39670f05",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The two discriminators play different roles by direction: in Business responses, every destination carries a required `type`, so responses are self-describing; in Platform requests, the method's contract determines who authors `destinations[]` and MAY define a default destination shape when `type` is omitted.",
+      "normalized": "the two discriminators play different roles by direction: in business responses, every destination carries a required type, so responses are self-describing; in platform requests, the method's contract determines who authors destinations[] and may define a default destination shape when type is omitted",
+      "condition": "when `type` is omitted",
+      "referenced_fields": [
+        "destinations[]",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 64,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 222,
+        "end_line": 229,
+        "section": "Fulfillment Extension > Destinations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "destinations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: the MAY is for the method's defining contract",
+        "review": {
+          "verdict": "rule",
+          "actor": "SPEC_AUTHORS",
+          "testable": false,
+          "reason": "the MAY is for the method's defining contract"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 222,
+            "level": "MAY",
+            "text_digest": "eb39670f05"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0005",
+      "text_digest": "2526f4c07e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "By default, the Platform does not write a method's `destinations[]`; a contract keyed on the method's `type` **MAY** opt into a Platform-writable request shape:",
+      "normalized": "by default, the platform does not write a method's destinations[]; a contract keyed on the method's type may opt into a platform-writable request shape",
+      "condition": null,
+      "referenced_fields": [
+        "destinations[]",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 65,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 231,
+        "end_line": 233,
+        "section": "Fulfillment Extension > Destinations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "destinations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 231,
+            "level": "MAY",
+            "text_digest": "2526f4c07e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0006",
+      "text_digest": "3049f1a8c3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.9,
+      "clause": "That method's defining contract — a future revision of this specification or a negotiated extension — **MAY** narrow the response destination shape or opt into a Platform-writable request shape.",
+      "normalized": "that method's defining contract - a future revision of this specification or a negotiated extension - may narrow the response destination shape or opt into a platform-writable request shape",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "Destination `type` is **required in responses and optional in requests**. In responses, every destination carries `type`, so destinations remain self-describing wherever they appear. In requests, `destinations[]` is omitted unless a method-specific contract opts into a Platform-writable shape:",
+      "document_order": 82,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 252,
+        "end_line": 258,
+        "section": "Fulfillment Extension > Destinations",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "destinations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at future spec revisions and extensions",
+        "review": {
+          "verdict": "rule",
+          "actor": "SPEC_AUTHORS",
+          "testable": false,
+          "reason": "aimed at future spec revisions and extensions"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 252,
+            "level": "MAY",
+            "text_digest": "3049f1a8c3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0007",
+      "text_digest": "09193f5629",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "A request that includes `destinations[]` MUST also include the method's `type`.",
+      "normalized": "a request that includes destinations[] must also include the method's type",
+      "condition": null,
+      "referenced_fields": [
+        "destinations[]",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 83,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 260,
+        "end_line": 261,
+        "section": "Fulfillment Extension > Destinations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "destinations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-04",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: constrains the request",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "constrains the request"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 260,
+            "level": "MUST",
+            "text_digest": "09193f5629"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0008",
+      "text_digest": "b44067a978",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MUST NOT** write Business Location Destinations into `destinations[]`; it selects a location by submitting its stable, opaque, Business-scoped ID as `selected_destination_id`.",
+      "normalized": "the platform must not write business location destinations into destinations[]; it selects a location by submitting its stable, opaque, business-scoped id as selected_destination_id",
+      "condition": null,
+      "referenced_fields": [
+        "destinations[]",
+        "selected_destination_id"
+      ],
+      "compound_parent": null,
+      "document_order": 95,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 308,
+        "end_line": 314,
+        "section": "Fulfillment Extension > Destinations > Business Location Destination",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-location-destination"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 308,
+            "level": "MUST NOT",
+            "text_digest": "b44067a978"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0009",
+      "text_digest": "ebf819f726",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST** return `type: \"business_location\"`, `id`, and its Buyer-facing `name`",
+      "normalized": "the business must return type: \"business_location\", id, and its buyer-facing name",
+      "condition": null,
+      "referenced_fields": [
+        "id",
+        "name",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 96,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 308,
+        "end_line": 314,
+        "section": "Fulfillment Extension > Destinations > Business Location Destination",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-location-destination"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 308,
+            "level": "MUST",
+            "text_digest": "ebf819f726"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0010",
+      "text_digest": "0656640d46",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MAY** return its Postal Address in `address`.",
+      "normalized": "the business may return its postal address in address",
+      "condition": null,
+      "referenced_fields": [
+        "address"
+      ],
+      "compound_parent": null,
+      "document_order": 96,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 308,
+        "end_line": 314,
+        "section": "Fulfillment Extension > Destinations > Business Location Destination",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-location-destination"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 308,
+            "level": "MAY",
+            "text_digest": "0656640d46"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0011",
+      "text_digest": "62c051ee37",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "A non-null `selected_destination_id` **MAY** carry an ID the Platform obtained from a Catalog response, a Location search or lookup, an earlier Checkout, or any other source the Business recognizes for that method.",
+      "normalized": "a non-null selected_destination_id may carry an id the platform obtained from a catalog response, a location search or lookup, an earlier checkout, or any other source the business recognizes for that method",
+      "condition": null,
+      "referenced_fields": [
+        "selected_destination_id"
+      ],
+      "compound_parent": null,
+      "document_order": 100,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 353,
+        "end_line": 356,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: about which IDs the platform may send",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "about which IDs the platform may send"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 353,
+            "level": "MAY",
+            "text_digest": "62c051ee37"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0012",
+      "text_digest": "bdf46e29a3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** carry that same `selected_destination_id` value on the method; and",
+      "normalized": "must carry that same selected_destination_id value on the method; and",
+      "condition": null,
+      "referenced_fields": [
+        "selected_destination_id"
+      ],
+      "compound_parent": "When the Business accepts a non-null `selected_destination_id`, its response:",
+      "document_order": 103,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 360,
+        "end_line": 360,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 360,
+            "level": "MUST",
+            "text_digest": "bdf46e29a3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0013",
+      "text_digest": "ac1221953c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** include exactly one destination in that same method's `destinations[]` whose `id` equals it, typed as specified in [Destinations](#destinations) — so the response is self-describing whatever the ID's source.",
+      "normalized": "must include exactly one destination in that same method's destinations[] whose id equals it, typed as specified in destinations - so the response is self-describing whatever the id's source",
+      "condition": null,
+      "referenced_fields": [
+        "destinations[]",
+        "id"
+      ],
+      "compound_parent": "When the Business accepts a non-null `selected_destination_id`, its response:",
+      "document_order": 104,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 361,
+        "end_line": 364,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 361,
+            "level": "MUST",
+            "text_digest": "ac1221953c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0014",
+      "text_digest": "cb549868ae",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST** revalidate the selected destination's current availability and terms; recognizing an ID neither reserves inventory nor guarantees eligibility.",
+      "normalized": "the business must revalidate the selected destination's current availability and terms; recognizing an id neither reserves inventory nor guarantees eligibility",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 105,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 366,
+        "end_line": 372,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 366,
+            "level": "MUST",
+            "text_digest": "cb549868ae"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0015",
+      "text_digest": "3405a629ce",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST NOT** silently substitute another destination: it **MUST NOT** return a different `selected_destination_id`, and **MUST NOT** keep the submitted ID while returning a destination that describes another location.",
+      "normalized": "the business must not silently substitute another destination: it must not return a different selected_destination_id, and must not keep the submitted id while returning a destination that describes another location",
+      "condition": "while returning a destination that describes another location",
+      "referenced_fields": [
+        "selected_destination_id"
+      ],
+      "compound_parent": null,
+      "document_order": 106,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 366,
+        "end_line": 372,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 366,
+            "level": "MUST NOT",
+            "text_digest": "3405a629ce"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0016",
+      "text_digest": "de41b39472",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When the Business cannot accept a `selected_destination_id` submitted on [Update Checkout](../checkout/index.md#update-checkout) — the ID is not recognized for that method, or revalidation fails — it follows the general behavior for a rejected Update: it **MUST** leave the current Checkout unchanged",
+      "normalized": "when the business cannot accept a selected_destination_id submitted on update checkout - the id is not recognized for that method, or revalidation fails - it follows the general behavior for a rejected update: it must leave the current checkout unchanged",
+      "condition": "When the Business cannot accept a `selected_destination_id` submitted on Update Checkout — the ID is not recognized for that method",
+      "referenced_fields": [
+        "selected_destination_id"
+      ],
+      "compound_parent": null,
+      "document_order": 108,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 374,
+        "end_line": 383,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 374,
+            "level": "MUST",
+            "text_digest": "de41b39472"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0017",
+      "text_digest": "4b4188b3b6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When the Business cannot accept a `selected_destination_id` submitted on [Update Checkout](../checkout/index.md#update-checkout) — the ID is not recognized for that method, or revalidation fails — it follows the general behavior for a rejected Update: it **MUST** return that Checkout with an error Message with `severity: \"recoverable\"` whose `path` selects the attempted method's `selected_destination_id` (for example `$.fulfillment.methods[0].selected_destination_id`).",
+      "normalized": "when the business cannot accept a selected_destination_id submitted on update checkout - the id is not recognized for that method, or revalidation fails - it follows the general behavior for a rejected update: it must return that checkout with an error message with severity: \"recoverable\" whose path selects the attempted method's selected_destination_id (for example $.fulfillment.methods[0].selected_destination_id)",
+      "condition": "When the Business cannot accept a `selected_destination_id` submitted on Update Checkout — the ID is not recognized for that method",
+      "referenced_fields": [
+        "path",
+        "selected_destination_id",
+        "severity"
+      ],
+      "compound_parent": null,
+      "document_order": 108,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 374,
+        "end_line": 383,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "selection-and-location-identity"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 374,
+            "level": "MUST",
+            "text_digest": "4b4188b3b6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0018",
+      "text_digest": "c7748bb9e7",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** distinguish this option from its siblings",
+      "normalized": "must distinguish this option from its siblings",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For `options[].title`:**",
+      "document_order": 130,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 405,
+        "end_line": 405,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 178,
+            "level": "MUST",
+            "text_digest": "69636c2e67",
+            "clause": "**MUST** distinguish this option from its siblings"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 177,
+            "level": "MUST",
+            "text_digest": "c7748bb9e7"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 177,
+            "level": "MUST",
+            "text_digest": "c7748bb9e7"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 405,
+            "level": "MUST",
+            "text_digest": "c7748bb9e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0019",
+      "text_digest": "7dcad6bd86",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** include method and speed (e.g., \"Express Shipping\", \"Curbside Pickup\")",
+      "normalized": "should include method and speed (e.g., \"express shipping\", \"curbside pickup\")",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For `options[].title`:**",
+      "document_order": 131,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 406,
+        "end_line": 406,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 179,
+            "level": "SHOULD",
+            "text_digest": "7a4c2d337c",
+            "clause": "**SHOULD** include method and speed (e.g., \"Express Shipping\", \"Curbside Pickup\")"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 178,
+            "level": "SHOULD",
+            "text_digest": "7dcad6bd86"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 178,
+            "level": "SHOULD",
+            "text_digest": "7dcad6bd86"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 406,
+            "level": "SHOULD",
+            "text_digest": "7dcad6bd86"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0020",
+      "text_digest": "3c15b23155",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** be sufficient for buyer decision if `description` is absent",
+      "normalized": "must be sufficient for buyer decision if description is absent",
+      "condition": "if `description` is absent",
+      "referenced_fields": [
+        "description"
+      ],
+      "compound_parent": "**For `options[].title`:**",
+      "document_order": 132,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 407,
+        "end_line": 407,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: subjective copywriting quality ('sufficient for buyer decision'); non-empty distinct titles are checked by FULFILLMENT-0018",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "subjective copywriting quality ('sufficient for buyer decision'); non-empty distinct titles are checked by FULFILLMENT-0018"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 181,
+            "level": "MUST",
+            "text_digest": "9aa994e2ba",
+            "clause": "**MUST** be sufficient for buyer decision if `description` is absent"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 179,
+            "level": "MUST",
+            "text_digest": "3c15b23155"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 179,
+            "level": "MUST",
+            "text_digest": "3c15b23155"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 407,
+            "level": "MUST",
+            "text_digest": "3c15b23155"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0021",
+      "text_digest": "57af5875a4",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MUST NOT** repeat `title` or `total`—provides supplementary context only",
+      "normalized": "must not repeat title or total-provides supplementary context only",
+      "condition": null,
+      "referenced_fields": [
+        "title",
+        "total"
+      ],
+      "compound_parent": "**For `options[].description`:**",
+      "document_order": 134,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 411,
+        "end_line": 411,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 185,
+            "level": "MUST NOT",
+            "text_digest": "a73cf69190",
+            "clause": "**MUST NOT** repeat `title` or `total`—provides supplementary context only"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 183,
+            "level": "MUST NOT",
+            "text_digest": "57af5875a4"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 183,
+            "level": "MUST NOT",
+            "text_digest": "57af5875a4"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 411,
+            "level": "MUST NOT",
+            "text_digest": "57af5875a4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0022",
+      "text_digest": "7e4d50e16f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** include timing, carrier, or other decision-relevant details",
+      "normalized": "should include timing, carrier, or other decision-relevant details",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For `options[].description`:**",
+      "document_order": 135,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 412,
+        "end_line": 412,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 186,
+            "level": "SHOULD",
+            "text_digest": "acc11310b9",
+            "clause": "**SHOULD** include timing, carrier, or other decision-relevant details"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 184,
+            "level": "SHOULD",
+            "text_digest": "7e4d50e16f"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 184,
+            "level": "SHOULD",
+            "text_digest": "7e4d50e16f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 412,
+            "level": "SHOULD",
+            "text_digest": "7e4d50e16f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0023",
+      "text_digest": "b82083a42f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** be a complete phrase (e.g., \"Arrives Dec 12-15 via FedEx\")",
+      "normalized": "should be a complete phrase (e.g., \"arrives dec 12-15 via fedex\")",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For `options[].description`:**",
+      "document_order": 136,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 413,
+        "end_line": 413,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 187,
+            "level": "SHOULD",
+            "text_digest": "e31699662f",
+            "clause": "**SHOULD** be a complete phrase (e.g., \"Arrives Dec 12-15 via FedEx\")"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 185,
+            "level": "SHOULD",
+            "text_digest": "b82083a42f"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 185,
+            "level": "SHOULD",
+            "text_digest": "b82083a42f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 413,
+            "level": "SHOULD",
+            "text_digest": "b82083a42f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0024",
+      "text_digest": "210c8c5962",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MAY** be omitted if title is self-explanatory",
+      "normalized": "may be omitted if title is self-explanatory",
+      "condition": "if title is self-explanatory",
+      "referenced_fields": [],
+      "compound_parent": "**For `options[].description`:**",
+      "document_order": 137,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 414,
+        "end_line": 414,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 188,
+            "level": "MAY",
+            "text_digest": "b69042155a",
+            "clause": "**MAY** be omitted if title is self-explanatory"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 186,
+            "level": "MAY",
+            "text_digest": "210c8c5962"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 186,
+            "level": "MAY",
+            "text_digest": "210c8c5962"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 414,
+            "level": "MAY",
+            "text_digest": "210c8c5962"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0025",
+      "text_digest": "d8d326773b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** be a standalone sentence explaining what, when, and where",
+      "normalized": "must be a standalone sentence explaining what, when, and where",
+      "condition": "when, and where",
+      "referenced_fields": [],
+      "compound_parent": "**For `available_methods[].description`:**",
+      "document_order": 139,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 418,
+        "end_line": 418,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-08",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: natural-language prose requirement ('standalone sentence explaining what, when, and where'); not machine-verifiable across locales",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "natural-language prose requirement ('standalone sentence explaining what, when, and where'); not machine-verifiable across locales"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 192,
+            "level": "MUST",
+            "text_digest": "98ebc9e32a",
+            "clause": "**MUST** be a standalone sentence explaining what, when, and where"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 190,
+            "level": "MUST",
+            "text_digest": "d8d326773b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 190,
+            "level": "MUST",
+            "text_digest": "d8d326773b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 418,
+            "level": "MUST",
+            "text_digest": "d8d326773b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0026",
+      "text_digest": "b8449b14d9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** be usable verbatim in platform dialogue (e.g., \"Pants available for pickup at Downtown Store today at 2pm\")",
+      "normalized": "should be usable verbatim in platform dialogue (e.g., \"pants available for pickup at downtown store today at 2pm\")",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For `available_methods[].description`:**",
+      "document_order": 140,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 419,
+        "end_line": 420,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-09",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 193,
+            "level": "SHOULD",
+            "text_digest": "1f6551d13b",
+            "clause": "**SHOULD** be usable verbatim in platform dialogue (e.g., \"Pants available for pickup at Downtown Store today at 2pm\")"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 191,
+            "level": "SHOULD",
+            "text_digest": "b8449b14d9"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 191,
+            "level": "SHOULD",
+            "text_digest": "b8449b14d9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 419,
+            "level": "SHOULD",
+            "text_digest": "b8449b14d9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0027",
+      "text_digest": "a953e97c48",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **SHOULD** return `options[]` in a meaningful order (e.g., cheapest first, fastest first)",
+      "normalized": "businesses should return options[] in a meaningful order (e.g., cheapest first, fastest first)",
+      "condition": null,
+      "referenced_fields": [
+        "options[]"
+      ],
+      "compound_parent": "**For ordering:**",
+      "document_order": 142,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 424,
+        "end_line": 425,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-10",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 198,
+            "level": "SHOULD",
+            "text_digest": "4ffe4368f5",
+            "clause": "Businesses **SHOULD** return `options[]` in a meaningful order (e.g., cheapest first, fastest first)"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 196,
+            "level": "SHOULD",
+            "text_digest": "a953e97c48"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 196,
+            "level": "SHOULD",
+            "text_digest": "a953e97c48"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 424,
+            "level": "SHOULD",
+            "text_digest": "a953e97c48"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0028",
+      "text_digest": "765f49eb7f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** preserve that order",
+      "normalized": "platforms should preserve that order",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For ordering:**",
+      "document_order": 143,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 426,
+        "end_line": 428,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-11",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 426,
+            "level": "SHOULD",
+            "text_digest": "765f49eb7f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0029",
+      "text_digest": "b4c3462586",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** re-order it (e.g. to match known buyer preferences or surface-specific ranking)",
+      "normalized": "platforms may re-order it (e.g. to match known buyer preferences or surface-specific ranking)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For ordering:**",
+      "document_order": 143,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 426,
+        "end_line": 428,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-12",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 426,
+            "level": "MAY",
+            "text_digest": "b4c3462586"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0030",
+      "text_digest": "676047abce",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "they **MUST** preserve the method/option grouping",
+      "normalized": "they must preserve the method/option grouping",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For ordering:**",
+      "document_order": 143,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 426,
+        "end_line": 428,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-13",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: 'they' refers to 'Platforms' in the first half of the sentence",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "'they' refers to 'Platforms' in the first half of the sentence"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 426,
+            "level": "MUST",
+            "text_digest": "676047abce"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0031",
+      "text_digest": "0a0dc9bdef",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** treat fulfillment as a generic, renderable structure:",
+      "normalized": "platforms should treat fulfillment as a generic, renderable structure",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 144,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 432,
+        "end_line": 432,
+        "section": "Fulfillment Extension > Rendering > Platform Responsibilities",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "platform-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 204,
+            "level": "SHOULD",
+            "text_digest": "0a0dc9bdef"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 202,
+            "level": "SHOULD",
+            "text_digest": "0a0dc9bdef"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 202,
+            "level": "SHOULD",
+            "text_digest": "0a0dc9bdef"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 432,
+            "level": "SHOULD",
+            "text_digest": "0a0dc9bdef"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0032",
+      "text_digest": "ae5940e52e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** provide enhanced UX for recognized method types (store selectors for pickup, carrier logos for shipping), but this is optional.",
+      "normalized": "platforms may provide enhanced ux for recognized method types (store selectors for pickup, carrier logos for shipping), but this is optional",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 149,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 440,
+        "end_line": 444,
+        "section": "Fulfillment Extension > Rendering > Platform Responsibilities",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "platform-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 211,
+            "level": "MAY",
+            "text_digest": "ae5940e52e"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 209,
+            "level": "MAY",
+            "text_digest": "ae5940e52e"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 209,
+            "level": "MAY",
+            "text_digest": "ae5940e52e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 440,
+            "level": "MAY",
+            "text_digest": "ae5940e52e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0033",
+      "text_digest": "10dcc01036",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "When a buyer selects an option the platform cannot fully process, the platform **SHOULD** use `continue_url` to hand off to the business's checkout.",
+      "normalized": "when a buyer selects an option the platform cannot fully process, the platform should use continue_url to hand off to the business's checkout",
+      "condition": "When a buyer selects an option the platform cannot fully process",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 152,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 446,
+        "end_line": 447,
+        "section": "Fulfillment Extension > Rendering > Platform Responsibilities",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "platform-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 216,
+            "level": "SHOULD",
+            "text_digest": "10dcc01036"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 215,
+            "level": "SHOULD",
+            "text_digest": "10dcc01036"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 215,
+            "level": "SHOULD",
+            "text_digest": "10dcc01036"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 446,
+            "level": "SHOULD",
+            "text_digest": "10dcc01036"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0034",
+      "text_digest": "c3d38466fe",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "If the buyer chooses pickup but the platform doesn't support split fulfillment, the platform **SHOULD** use `continue_url` to hand off to the business's checkout.",
+      "normalized": "if the buyer chooses pickup but the platform doesn't support split fulfillment, the platform should use continue_url to hand off to the business's checkout",
+      "condition": "If the buyer chooses pickup but the platform doesn't support split fulfillment",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 161,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 502,
+        "end_line": 504,
+        "section": "Fulfillment Extension > Available Methods",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "available-methods"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-AVAILABLE-METHODS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 266,
+            "level": "SHOULD",
+            "text_digest": "c3d38466fe"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 263,
+            "level": "SHOULD",
+            "text_digest": "c3d38466fe"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 263,
+            "level": "SHOULD",
+            "text_digest": "c3d38466fe"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 502,
+            "level": "SHOULD",
+            "text_digest": "c3d38466fe"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0035",
+      "text_digest": "c663a9746e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A Business that advertises pickup at a `location` **MUST** accept that same ID as `selected_destination_id` for that method in Checkout.",
+      "normalized": "a business that advertises pickup at a location must accept that same id as selected_destination_id for that method in checkout",
+      "condition": null,
+      "referenced_fields": [
+        "location",
+        "selected_destination_id"
+      ],
+      "compound_parent": "`fulfillment.methods[]` lists the methods available for a variant. Each method has:",
+      "document_order": 170,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 525,
+        "end_line": 533,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "methods"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 525,
+            "level": "MUST",
+            "text_digest": "c663a9746e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0036",
+      "text_digest": "2cf57b7024",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "Where a method states `availability`, consumers MUST use it for that method",
+      "normalized": "where a method states availability, consumers must use it for that method",
+      "condition": null,
+      "referenced_fields": [
+        "availability"
+      ],
+      "compound_parent": null,
+      "document_order": 177,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 541,
+        "end_line": 545,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "methods"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: 'consumers' are platforms",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "'consumers' are platforms"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 541,
+            "level": "MUST",
+            "text_digest": "2cf57b7024"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0037",
+      "text_digest": "443d2106bc",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "Where a method states `availability`, consumers MUST NOT infer per-method availability from the variant-level value.",
+      "normalized": "where a method states availability, consumers must not infer per-method availability from the variant-level value",
+      "condition": null,
+      "referenced_fields": [
+        "availability"
+      ],
+      "compound_parent": null,
+      "document_order": 177,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 541,
+        "end_line": 545,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "methods"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-03",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: 'consumers' are platforms",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "'consumers' are platforms"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 541,
+            "level": "MUST NOT",
+            "text_digest": "443d2106bc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0038",
+      "text_digest": "2212f639d3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "A method MAY carry `options[]`, a representative subset of its fulfillment options — not an exhaustive list.",
+      "normalized": "a method may carry options[], a representative subset of its fulfillment options - not an exhaustive list",
+      "condition": null,
+      "referenced_fields": [
+        "options[]"
+      ],
+      "compound_parent": null,
+      "document_order": 178,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 549,
+        "end_line": 553,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "options"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on catalog response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on catalog response content"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 549,
+            "level": "MAY",
+            "text_digest": "2212f639d3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0039",
+      "text_digest": "62d55044f9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Without a destination or full cart, a Business **SHOULD** preview meaningful boundary options for the Buyer (e.g. cheapest, fastest); more specific options are negotiated in Checkout once the line items and destination are known.",
+      "normalized": "without a destination or full cart, a business should preview meaningful boundary options for the buyer (e.g. cheapest, fastest); more specific options are negotiated in checkout once the line items and destination are known",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 179,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 549,
+        "end_line": 553,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "options"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 549,
+            "level": "SHOULD",
+            "text_digest": "62d55044f9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0040",
+      "text_digest": "a1a4de15f2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The option is open, so a business MAY annotate it with additional fields.",
+      "normalized": "the option is open, so a business may annotate it with additional fields",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 182,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 555,
+        "end_line": 562,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "options"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-03",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 555,
+            "level": "MAY",
+            "text_digest": "a1a4de15f2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0041",
+      "text_digest": "185fc4c8c0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "A method MAY also carry none, surfacing only `type`, `description`, and `availability`; options are nested directly under the method, with no group layer (unlike checkout `methods[].groups[].options[]`).",
+      "normalized": "a method may also carry none, surfacing only type, description, and availability; options are nested directly under the method, with no group layer (unlike checkout methods[].groups[].options[])",
+      "condition": null,
+      "referenced_fields": [
+        "availability",
+        "description",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 183,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 555,
+        "end_line": 562,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "options"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-04",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on catalog response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on catalog response content"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 555,
+            "level": "MAY",
+            "text_digest": "185fc4c8c0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0042",
+      "text_digest": "417161b1bb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A discovered option `id` lets a Buyer's choice carry forward: a Business **SHOULD** accept the same ID as `methods[].groups[].selected_option_id` in Checkout.",
+      "normalized": "a discovered option id lets a buyer's choice carry forward: a business should accept the same id as methods[].groups[].selected_option_id in checkout",
+      "condition": null,
+      "referenced_fields": [
+        "id"
+      ],
+      "compound_parent": null,
+      "document_order": 184,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 564,
+        "end_line": 568,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "options"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 564,
+            "level": "SHOULD",
+            "text_digest": "417161b1bb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0043",
+      "text_digest": "f9ed828394",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "On a market-scoped Catalog a Business **MAY** narrow results with these hints; otherwise they annotate results rather than remove them.",
+      "normalized": "on a market-scoped catalog a business may narrow results with these hints; otherwise they annotate results rather than remove them",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 192,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 594,
+        "end_line": 599,
+        "section": "Fulfillment Extension > Catalog Discovery > Location and method: `context` and `filters`",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-and-method-context-and-filters"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 594,
+            "level": "MAY",
+            "text_digest": "f9ed828394"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0044",
+      "text_digest": "3a8712da69",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** provide one or the other, not both",
+      "normalized": "platforms should provide one or the other, not both",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 194,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 600,
+        "end_line": 608,
+        "section": "Fulfillment Extension > Catalog Discovery > Location and method: `context` and `filters`",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-and-method-context-and-filters"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 600,
+            "level": "SHOULD",
+            "text_digest": "3a8712da69"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0045",
+      "text_digest": "100391f5f5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "if both are present, a business **SHOULD** use the more specific — typically `location`.",
+      "normalized": "if both are present, a business should use the more specific - typically location",
+      "condition": "if both are present",
+      "referenced_fields": [
+        "location"
+      ],
+      "compound_parent": null,
+      "document_order": 194,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 600,
+        "end_line": 608,
+        "section": "Fulfillment Extension > Catalog Discovery > Location and method: `context` and `filters`",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "location-and-method-context-and-filters"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 600,
+            "level": "SHOULD",
+            "text_digest": "100391f5f5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0046",
+      "text_digest": "ae3b66a72c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "A party that does not expose catalog discovery MAY narrow `extends` to `\"dev.ucp.shopping.checkout\"` (string form) or to a single-element array.",
+      "normalized": "a party that does not expose catalog discovery may narrow extends to \"dev.ucp.shopping.checkout\" (string form) or to a single-element array",
+      "condition": null,
+      "referenced_fields": [
+        "extends"
+      ],
+      "compound_parent": null,
+      "document_order": 215,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 724,
+        "end_line": 725,
+        "section": "Fulfillment Extension > Configuration > Platform Profile",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "platform-profile"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-PROFILE-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: about the platform profile",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "about the platform profile"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 724,
+            "level": "MAY",
+            "text_digest": "ae3b66a72c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0047",
+      "text_digest": "37e1ff580a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Opt-in declaration (business MAY return multiple groups per method):",
+      "normalized": "opt-in declaration (business may return multiple groups per method)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 216,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 727,
+        "end_line": 727,
+        "section": "Fulfillment Extension > Configuration > Platform Profile",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "platform-profile"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-PROFILE-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 727,
+            "level": "MAY",
+            "text_digest": "37e1ff580a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0048",
+      "text_digest": "5a0da8cb6d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Business **MUST** consolidate all items into a **single group per method**",
+      "normalized": "business must consolidate all items into a single group per method",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**When `supports_multi_group: false` (default):**",
+      "document_order": 221,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 786,
+        "end_line": 786,
+        "section": "Fulfillment Extension > Configuration > Business Response Behavior",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-response-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 324,
+            "level": "MUST",
+            "text_digest": "d5a3626ecd",
+            "clause": "Business **MUST** consolidate all items into a **single group per method**"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 323,
+            "level": "MUST",
+            "text_digest": "5a0da8cb6d"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 323,
+            "level": "MUST",
+            "text_digest": "5a0da8cb6d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 786,
+            "level": "MUST",
+            "text_digest": "5a0da8cb6d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0049",
+      "text_digest": "f390899b31",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Business **MAY** still return multiple methods (e.g., shipping + pickup) if cart items require it",
+      "normalized": "business may still return multiple methods (e.g., shipping + pickup) if cart items require it",
+      "condition": "if cart items require it",
+      "referenced_fields": [],
+      "compound_parent": "**When `supports_multi_group: false` (default):**",
+      "document_order": 224,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 788,
+        "end_line": 789,
+        "section": "Fulfillment Extension > Configuration > Business Response Behavior",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-response-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 327,
+            "level": "MAY",
+            "text_digest": "57382e3863",
+            "clause": "Business **MAY** still return multiple methods (e.g., shipping + pickup) if cart items require it"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 325,
+            "level": "MAY",
+            "text_digest": "f390899b31"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 325,
+            "level": "MAY",
+            "text_digest": "f390899b31"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 788,
+            "level": "MAY",
+            "text_digest": "f390899b31"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0050",
+      "text_digest": "ea0855e957",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Business **MAY** return multiple groups per method based on inventory, packaging, or warehouse logic",
+      "normalized": "business may return multiple groups per method based on inventory, packaging, or warehouse logic",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**When `supports_multi_group: true`:**",
+      "document_order": 226,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 793,
+        "end_line": 794,
+        "section": "Fulfillment Extension > Configuration > Business Response Behavior",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "business-response-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 332,
+            "level": "MAY",
+            "text_digest": "75e8361a86",
+            "clause": "Business **MAY** return multiple groups per method based on inventory, packaging, or warehouse logic"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 330,
+            "level": "MAY",
+            "text_digest": "ea0855e957"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 330,
+            "level": "MAY",
+            "text_digest": "ea0855e957"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 793,
+            "level": "MAY",
+            "text_digest": "ea0855e957"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0051",
+      "text_digest": "746f0c1c71",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Presentation is method-agnostic: platforms **SHOULD** present every method, rendering `description` and `availability` regardless of its `type` (see [Rendering](#rendering))",
+      "normalized": "presentation is method-agnostic: platforms should present every method, rendering description and availability regardless of its type (see rendering)",
+      "condition": null,
+      "referenced_fields": [
+        "availability",
+        "description",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 229,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 800,
+        "end_line": 805,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "method-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 800,
+            "level": "SHOULD",
+            "text_digest": "746f0c1c71"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0052",
+      "text_digest": "f3e16becc1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Presentation is method-agnostic: platforms **SHOULD NOT** omit a method solely because they do not recognize its `type`.",
+      "normalized": "presentation is method-agnostic: platforms should not omit a method solely because they do not recognize its type",
+      "condition": null,
+      "referenced_fields": [
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 229,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 800,
+        "end_line": 805,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "method-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 800,
+            "level": "SHOULD NOT",
+            "text_digest": "f3e16becc1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0053",
+      "text_digest": "79e7a637e6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A business **SHOULD** model same-scope variation (e.g. Standard vs Express) as `options`",
+      "normalized": "a business should model same-scope variation (e.g. standard vs express) as options",
+      "condition": null,
+      "referenced_fields": [
+        "options"
+      ],
+      "compound_parent": null,
+      "document_order": 232,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 807,
+        "end_line": 813,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "method-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 807,
+            "level": "SHOULD",
+            "text_digest": "79e7a637e6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0054",
+      "text_digest": "15788b383d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A business **SHOULD NOT** emit multiple methods that differ only in option-level detail.",
+      "normalized": "a business should not emit multiple methods that differ only in option-level detail",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 232,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 807,
+        "end_line": 813,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "method-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 807,
+            "level": "SHOULD NOT",
+            "text_digest": "15788b383d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0055",
+      "text_digest": "378c4f8068",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**Adding method types.** Because `type` is an open string, a business MAY introduce a new value at any time with no consumer change: it advertises the value (and filters on it via `filters.methods`), and consumers present it like any other method.",
+      "normalized": "adding method types. because type is an open string, a business may introduce a new value at any time with no consumer change: it advertises the value (and filters on it via filters.methods), and consumers present it like any other method",
+      "condition": null,
+      "referenced_fields": [
+        "filters.methods",
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 242,
+      "source": {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "start_line": 823,
+        "end_line": 826,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/fulfillment/",
+        "anchor": "method-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-05",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/fulfillment.md",
+            "start_line": 823,
+            "level": "MAY",
+            "text_digest": "378c4f8068"
+          }
+        ]
+      }
+    }
+  ]
+}

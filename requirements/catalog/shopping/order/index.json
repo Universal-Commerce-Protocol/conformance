@@ -1,0 +1,1489 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/order/index.md",
+  "summary": {
+    "total": 26,
+    "must_count": 17,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 4,
+    "should_not_count": 0,
+    "may_count": 5,
+    "by_level": {
+      "MAY": 5,
+      "MUST": 17,
+      "SHOULD": 4
+    },
+    "by_actor": {
+      "BUSINESS": 9,
+      "PLATFORM": 2,
+      "UNRESOLVED": 15
+    },
+    "by_file": {
+      "docs/specification/shopping/order/index.md": 26
+    },
+    "with_condition": 2,
+    "with_referenced_fields": 4,
+    "from_compound_split": 2,
+    "diagnostics": {
+      "actor_after_keyword_only": 3,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 15,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 1,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-ORDER-0001",
+      "text_digest": "db110c82c0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include all line items that ever existed on the order regardless of edits or alterations",
+      "normalized": "must include all line items that ever existed on the order regardless of edits or alterations",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Line Items** — what was purchased at checkout:",
+      "document_order": 8,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 34,
+        "end_line": 35,
+        "section": "Order Capability > Overview > Key Concepts",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "key-concepts"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-KEY-CONCEPTS-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: order response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "order response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 34,
+            "level": "MUST",
+            "text_digest": "db110c82c0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 34,
+            "level": "MUST",
+            "text_digest": "db110c82c0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0002",
+      "text_digest": "cc3d0c0f7a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **SHOULD** append new entries rather than mutating existing ones; append-only ledger is preferred.",
+      "normalized": "businesses should append new entries rather than mutating existing ones; append-only ledger is preferred",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Adjustments** — post-order events independent of fulfillment:",
+      "document_order": 16,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 47,
+        "end_line": 50,
+        "section": "Order Capability > Overview > Key Concepts",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "key-concepts"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-KEY-CONCEPTS-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 47,
+            "level": "SHOULD",
+            "text_digest": "cc3d0c0f7a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 47,
+            "level": "SHOULD",
+            "text_digest": "cc3d0c0f7a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0003",
+      "text_digest": "680173e292",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses that do not maintain adjustment history **MAY** perform in-place updates of existing entries (e.g. a single `return` adjustment can transition from `pending` to `completed`)",
+      "normalized": "businesses that do not maintain adjustment history may perform in-place updates of existing entries (e.g. a single return adjustment can transition from pending to completed)",
+      "condition": null,
+      "referenced_fields": [
+        "completed",
+        "pending",
+        "return"
+      ],
+      "compound_parent": "**Adjustments** — post-order events independent of fulfillment:",
+      "document_order": 17,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 47,
+        "end_line": 50,
+        "section": "Order Capability > Overview > Key Concepts",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "key-concepts"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-KEY-CONCEPTS-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 47,
+            "level": "MAY",
+            "text_digest": "680173e292"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 47,
+            "level": "MAY",
+            "text_digest": "680173e292"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0004",
+      "text_digest": "5e0b5a836c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses MAY surface a snapshot of the originating checkout's `attribution` on the order.",
+      "normalized": "businesses may surface a snapshot of the originating checkout's attribution on the order",
+      "condition": null,
+      "referenced_fields": [
+        "attribution"
+      ],
+      "compound_parent": null,
+      "document_order": 40,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 105,
+        "end_line": 108,
+        "section": "Order Capability > Data Model > Attribution",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "attribution"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-ATTRIBUTION-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on order content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on order content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 92,
+            "level": "MAY",
+            "text_digest": "5e0b5a836c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 105,
+            "level": "MAY",
+            "text_digest": "5e0b5a836c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0005",
+      "text_digest": "f650fb481d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses MAY surface a snapshot of the policies that applied at checkout on the order.",
+      "normalized": "businesses may surface a snapshot of the policies that applied at checkout on the order",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 43,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 112,
+        "end_line": 113,
+        "section": "Order Capability > Data Model > Policies",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "policies"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-POLICIES-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on order content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on order content"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 112,
+            "level": "MAY",
+            "text_digest": "f650fb481d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0006",
+      "text_digest": "b3887dba91",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When the price settles against an actual measurement, the adjustment **MUST** carry the settled `measure`",
+      "normalized": "when the price settles against an actual measurement, the adjustment must carry the settled measure",
+      "condition": "When the price settles against an actual measurement",
+      "referenced_fields": [
+        "measure"
+      ],
+      "compound_parent": null,
+      "document_order": 78,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 374,
+        "end_line": 384,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "example-count-sold-measure-priced-settlement"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EXAMPLE-COUNT-SOLD-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: order adjustment content (measure-priced items only)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "order adjustment content (measure-priced items only)"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 374,
+            "level": "MUST",
+            "text_digest": "b3887dba91"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0007",
+      "text_digest": "7e7fe0b12a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "its unit identity **MUST** match the pricing basis (no conversion), and a pure price settlement uses `quantity: 0` so the count is untouched. (A settled `measure` is Business-recorded fact",
+      "normalized": "its unit identity must match the pricing basis (no conversion), and a pure price settlement uses quantity: 0 so the count is untouched. (a settled measure is business-recorded fact",
+      "condition": null,
+      "referenced_fields": [
+        "measure",
+        "quantity"
+      ],
+      "compound_parent": null,
+      "document_order": 78,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 374,
+        "end_line": 384,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "example-count-sold-measure-priced-settlement"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EXAMPLE-COUNT-SOLD-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: order adjustment content (measure-priced items only)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "order adjustment content (measure-priced items only)"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 374,
+            "level": "MUST",
+            "text_digest": "7e7fe0b12a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0008",
+      "text_digest": "8259428a26",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** return the full order entity on every response.",
+      "normalized": "businesses must return the full order entity on every response",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 97,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 554,
+        "end_line": 558,
+        "section": "Order Capability > Operations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "operations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-OPERATIONS-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 289,
+            "level": "MUST",
+            "text_digest": "8259428a26"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 554,
+            "level": "MUST",
+            "text_digest": "8259428a26"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0009",
+      "text_digest": "5f3bf1ba25",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The business **MUST** authenticate requests to order data before returning a response, using any supported UCP mechanism - API keys, OAuth 2.0, mutual TLS, or HTTP Message Signatures (see [Identity and Authentication](../checkout/rest.md#authentication)).",
+      "normalized": "the business must authenticate requests to order data before returning a response, using any supported ucp mechanism - api keys, oauth 2.0, mutual tls, or http message signatures (see identity and authentication)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 107,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 578,
+        "end_line": 583,
+        "section": "Order Capability > Operations > Get Order > Authorization",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "authorization"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-AUTHORIZATION-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 313,
+            "level": "MUST",
+            "text_digest": "5f3bf1ba25"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 578,
+            "level": "MUST",
+            "text_digest": "5f3bf1ba25"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0010",
+      "text_digest": "68f3d605bf",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**Platform credentials** (API key, signatures, OAuth client credentials) - businesses **MAY** allow access for orders the platform originated.",
+      "normalized": "platform credentials (api key, signatures, oauth client credentials) - businesses may allow access for orders the platform originated",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 113,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 590,
+        "end_line": 594,
+        "section": "Order Capability > Operations > Get Order > Authorization",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "authorization"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-AUTHORIZATION-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 325,
+            "level": "MAY",
+            "text_digest": "68f3d605bf"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 590,
+            "level": "MAY",
+            "text_digest": "68f3d605bf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0011",
+      "text_digest": "7562bd96a3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MAY** define additional access policies (e.g., trusted partner agreements), enforce data availability constraints (e.g., retention windows, regulatory erasure), and omit or redact optional fields from the response based on context, business policy, or other requirements - independently of authorization.",
+      "normalized": "businesses may define additional access policies (e.g., trusted partner agreements), enforce data availability constraints (e.g., retention windows, regulatory erasure), and omit or redact optional fields from the response based on context, business policy, or other requirements - independently of authorization",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 117,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 601,
+        "end_line": 605,
+        "section": "Order Capability > Operations > Get Order > Authorization",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "authorization"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-AUTHORIZATION-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 336,
+            "level": "MAY",
+            "text_digest": "7562bd96a3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 601,
+            "level": "MAY",
+            "text_digest": "7562bd96a3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0012",
+      "text_digest": "d79ebec396",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include `UCP-Agent` header with profile URL on all requests",
+      "normalized": "must include ucp-agent header with profile url on all requests",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Platform:**",
+      "document_order": 122,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 662,
+        "end_line": 662,
+        "section": "Order Capability > Operations > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "operations-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-OPERATIONS-GUIDELINES-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platform:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platform:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 395,
+            "level": "MUST",
+            "text_digest": "d79ebec396"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 662,
+            "level": "MUST",
+            "text_digest": "d79ebec396"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0013",
+      "text_digest": "8fb9d0d3c3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** rely on webhooks (see [Events](#events)) as the primary order update channel and use Get Order for reconciliation or on-demand retrieval",
+      "normalized": "should rely on webhooks (see events) as the primary order update channel and use get order for reconciliation or on-demand retrieval",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Platform:**",
+      "document_order": 123,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 663,
+        "end_line": 664,
+        "section": "Order Capability > Operations > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "operations-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-OPERATIONS-GUIDELINES-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platform:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platform:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 396,
+            "level": "SHOULD",
+            "text_digest": "8fb9d0d3c3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 663,
+            "level": "SHOULD",
+            "text_digest": "8fb9d0d3c3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0014",
+      "text_digest": "e3b0e4d162",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** treat order data as ephemeral and discard it when no longer needed for active commerce flows",
+      "normalized": "should treat order data as ephemeral and discard it when no longer needed for active commerce flows",
+      "condition": "when no longer needed for active commerce flows",
+      "referenced_fields": [],
+      "compound_parent": "**Platform:**",
+      "document_order": 124,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 665,
+        "end_line": 666,
+        "section": "Order Capability > Operations > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "operations-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-OPERATIONS-GUIDELINES-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platform:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platform:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 398,
+            "level": "SHOULD",
+            "text_digest": "e3b0e4d162"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 665,
+            "level": "SHOULD",
+            "text_digest": "e3b0e4d162"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0015",
+      "text_digest": "af7faa7edc",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** authenticate requests to order data before returning a response (see [Authorization](#authorization))",
+      "normalized": "must authenticate requests to order data before returning a response (see authorization)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 126,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 670,
+        "end_line": 671,
+        "section": "Order Capability > Operations > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "operations-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-OPERATIONS-GUIDELINES-04",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: unauthenticated requests are refused",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: unauthenticated requests are refused"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 403,
+            "level": "MUST",
+            "text_digest": "af7faa7edc"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 670,
+            "level": "MUST",
+            "text_digest": "af7faa7edc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0016",
+      "text_digest": "6b50b563f9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Webhook payloads **MUST** be signed by the business and verified by the platform to ensure authenticity and integrity.",
+      "normalized": "webhook payloads must be signed by the business and verified by the platform to ensure authenticity and integrity",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 147,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 729,
+        "end_line": 732,
+        "section": "Order Capability > Events > Webhook Signature Verification",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "webhook-signature-verification"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-WEBHOOK-SIGNATURE-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: webhook signatures (verifying them is the platform's half)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: webhook signatures (verifying them is the platform's half)"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 303,
+            "level": "MUST",
+            "text_digest": "6b50b563f9"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 295,
+            "level": "MUST",
+            "text_digest": "6b50b563f9"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 459,
+            "level": "MUST",
+            "text_digest": "6b50b563f9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 729,
+            "level": "MUST",
+            "text_digest": "6b50b563f9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0017",
+      "text_digest": "22a6667ade",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** deduplicate on `Webhook-Id`, which short-circuits retries and separates events that share a `Webhook-Timestamp`, whose resolution is one second.",
+      "normalized": "platforms should deduplicate on webhook-id, which short-circuits retries and separates events that share a webhook-timestamp, whose resolution is one second",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 161,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 751,
+        "end_line": 756,
+        "section": "Order Capability > Events > Webhook Signature Verification",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "webhook-signature-verification"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-WEBHOOK-SIGNATURE-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "draft",
+        "releases": []
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0018",
+      "text_digest": "2bc16e17be",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** send retries with the original `Webhook-Id` and `Webhook-Timestamp`: a retry redelivers the same event, and the deduplication and ordering above rely on both values staying constant.",
+      "normalized": "businesses must send retries with the original webhook-id and webhook-timestamp: a retry redelivers the same event, and the deduplication and ordering above rely on both values staying constant",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 162,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 758,
+        "end_line": 760,
+        "section": "Order Capability > Events > Webhook Signature Verification",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "webhook-signature-verification"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-WEBHOOK-SIGNATURE-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "draft",
+        "releases": []
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0019",
+      "text_digest": "0392cffe09",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "After verifying the signature, the platform **MUST** confirm the signer is authorized to send events for the referenced order:",
+      "normalized": "after verifying the signature, the platform must confirm the signer is authorized to send events for the referenced order",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 178,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 808,
+        "end_line": 809,
+        "section": "Order Capability > Events > Webhook Signature Verification > Verification (Platform)",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/",
+        "anchor": "verification-platform"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-VERIFICATION-PLATFORM-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 512,
+            "level": "MUST",
+            "text_digest": "0392cffe09"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 782,
+            "level": "MUST",
+            "text_digest": "0392cffe09"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0020",
+      "text_digest": "f7fb88a8ea",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** respond quickly with a 2xx HTTP status code to acknowledge webhook receipt; process events asynchronously after responding",
+      "normalized": "must respond quickly with a 2xx http status code to acknowledge webhook receipt; process events asynchronously after responding",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Platform:**",
+      "document_order": 185,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 827,
+        "end_line": 828,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platform:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platform:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 531,
+            "level": "MUST",
+            "text_digest": "f7fb88a8ea"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 801,
+            "level": "MUST",
+            "text_digest": "f7fb88a8ea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0021",
+      "text_digest": "cd10b52eeb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include `UCP-Agent` header with profile URL for signer identification",
+      "normalized": "must include ucp-agent header with profile url for signer identification",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 187,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 832,
+        "end_line": 832,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 536,
+            "level": "MUST",
+            "text_digest": "cd10b52eeb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 806,
+            "level": "MUST",
+            "text_digest": "cd10b52eeb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0022",
+      "text_digest": "a5e8107f1f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** sign all webhook payloads per the [Message Signatures](../../signatures.md) specification using RFC 9421 headers (`Signature`, `Signature-Input`, `Content-Digest`)",
+      "normalized": "must sign all webhook payloads per the message signatures specification using rfc 9421 headers (signature, signature-input, content-digest)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 188,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 833,
+        "end_line": 835,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 537,
+            "level": "MUST",
+            "text_digest": "a5e8107f1f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 807,
+            "level": "MUST",
+            "text_digest": "a5e8107f1f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0023",
+      "text_digest": "103d1048ca",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** send \"Order created\" event with fully populated order entity",
+      "normalized": "must send \"order created\" event with fully populated order entity",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 189,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 836,
+        "end_line": 836,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-04",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 347,
+            "level": "MUST",
+            "text_digest": "6b412de096",
+            "clause": "**MUST** send \"Order created\" event with fully populated order entity"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 337,
+            "level": "MUST",
+            "text_digest": "103d1048ca"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 540,
+            "level": "MUST",
+            "text_digest": "103d1048ca"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 810,
+            "level": "MUST",
+            "text_digest": "103d1048ca"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0024",
+      "text_digest": "4b626e6827",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** send full order entity on updates (not incremental deltas)",
+      "normalized": "must send full order entity on updates (not incremental deltas)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 190,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 837,
+        "end_line": 837,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-05",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 348,
+            "level": "MUST",
+            "text_digest": "195ac0deb4",
+            "clause": "**MUST** send full order entity on updates (not incremental deltas)"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 338,
+            "level": "MUST",
+            "text_digest": "4b626e6827"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 541,
+            "level": "MUST",
+            "text_digest": "4b626e6827"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 811,
+            "level": "MUST",
+            "text_digest": "4b626e6827"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0025",
+      "text_digest": "1f2d85ce9c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** retry failed webhook deliveries",
+      "normalized": "must retry failed webhook deliveries",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 191,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 838,
+        "end_line": 838,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-06",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 349,
+            "level": "MUST",
+            "text_digest": "d6da9182bb",
+            "clause": "**MUST** retry failed webhook deliveries"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 339,
+            "level": "MUST",
+            "text_digest": "1f2d85ce9c"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order.md",
+            "start_line": 542,
+            "level": "MUST",
+            "text_digest": "1f2d85ce9c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/index.md",
+            "start_line": 812,
+            "level": "MUST",
+            "text_digest": "1f2d85ce9c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0026",
+      "text_digest": "fbd2ccba30",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** send retries with the original `Webhook-Id` and `Webhook-Timestamp`; a retry redelivers the same event, and platforms deduplicate on `Webhook-Id` and order deliveries by `Webhook-Timestamp`",
+      "normalized": "must send retries with the original webhook-id and webhook-timestamp; a retry redelivers the same event, and platforms deduplicate on webhook-id and order deliveries by webhook-timestamp",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 192,
+      "source": {
+        "file": "docs/specification/shopping/order/index.md",
+        "start_line": 839,
+        "end_line": 841,
+        "section": "Order Capability > Events > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/",
+        "anchor": "events-guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-EVENTS-GUIDELINES-07",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: listed under 'Business:'; visible in webhooks",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "listed under 'Business:'; visible in webhooks"
+        },
+        "since": "draft",
+        "releases": []
+      }
+    }
+  ]
+}

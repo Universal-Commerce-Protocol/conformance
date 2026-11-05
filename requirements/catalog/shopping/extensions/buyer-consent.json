@@ -1,0 +1,938 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/extensions/buyer-consent.md",
+  "summary": {
+    "total": 17,
+    "must_count": 7,
+    "must_not_count": 5,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 2,
+    "should_not_count": 0,
+    "may_count": 3,
+    "by_level": {
+      "MAY": 3,
+      "MUST": 7,
+      "MUST NOT": 5,
+      "SHOULD": 2
+    },
+    "by_actor": {
+      "BUSINESS": 4,
+      "BUYER": 2,
+      "PLATFORM": 11
+    },
+    "by_file": {
+      "docs/specification/shopping/extensions/buyer-consent.md": 17
+    },
+    "with_condition": 4,
+    "with_referenced_fields": 10,
+    "from_compound_split": 2,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 2,
+      "actor_unresolved": 0,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 1,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0001",
+      "text_digest": "e83d2886ae",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms MAY submit captured consent on `complete_checkout` alongside payment.",
+      "normalized": "platforms may submit captured consent on complete_checkout alongside payment",
+      "condition": null,
+      "referenced_fields": [
+        "complete_checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 22,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 90,
+        "end_line": 93,
+        "section": "Buyer Consent Extension > Schema Composition",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "schema-composition"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-SCHEMA-COMPOSITION-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 90,
+            "level": "MAY",
+            "text_digest": "e83d2886ae"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0002",
+      "text_digest": "c9f256df93",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "On `create_cart`, `update_cart`, `create_checkout`, and `update_checkout`, businesses SHOULD surface missing dependencies as `warning` messages so the platform can collect the data on a subsequent operation.",
+      "normalized": "on create_cart, update_cart, create_checkout, and update_checkout, businesses should surface missing dependencies as warning messages so the platform can collect the data on a subsequent operation",
+      "condition": null,
+      "referenced_fields": [
+        "create_cart",
+        "create_checkout",
+        "update_cart",
+        "update_checkout",
+        "warning"
+      ],
+      "compound_parent": null,
+      "document_order": 77,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 336,
+        "end_line": 339,
+        "section": "Buyer Consent Extension > Data dependencies",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "data-dependencies"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: warning messages in responses",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "warning messages in responses"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 336,
+            "level": "SHOULD",
+            "text_digest": "c9f256df93"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0003",
+      "text_digest": "847433efb5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "On `complete_checkout`, businesses MUST NOT transition the checkout to `completed` while a confirmed consent decision has unmet data dependencies.",
+      "normalized": "on complete_checkout, businesses must not transition the checkout to completed while a confirmed consent decision has unmet data dependencies",
+      "condition": "while a confirmed consent decision has unmet data dependencies",
+      "referenced_fields": [
+        "complete_checkout",
+        "completed"
+      ],
+      "compound_parent": null,
+      "document_order": 79,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 354,
+        "end_line": 357,
+        "section": "Buyer Consent Extension > Data dependencies",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "data-dependencies"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: completion is refused",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: completion is refused"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 354,
+            "level": "MUST NOT",
+            "text_digest": "847433efb5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0004",
+      "text_digest": "ad6ce21b41",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "BUYER",
+      "actor_confidence": 0.5,
+      "clause": "Missing dependencies MUST be surfaced via the standard [Error Handling](../checkout/index.md#error-handling) flow.",
+      "normalized": "missing dependencies must be surfaced via the standard error handling flow",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 80,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 354,
+        "end_line": 357,
+        "section": "Buyer Consent Extension > Data dependencies",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "data-dependencies"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-03",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: the business surfaces them (the extractor read 'buyer')",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "the business surfaces them (the extractor read 'buyer')"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 354,
+            "level": "MUST",
+            "text_digest": "ad6ce21b41"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0005",
+      "text_digest": "0a45016c80",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**Use the advertised settings.** Businesses MUST advertise the complete set of consent options they support.",
+      "normalized": "use the advertised settings. businesses must advertise the complete set of consent options they support",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 81,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 361,
+        "end_line": 370,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: completeness against a business's internal consent catalog is not observable over the wire beyond advertising buyer.consent and ignoring unadvertised keys (BUYER-CONSENT-0010)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "completeness against a business's internal consent catalog is not observable over the wire beyond advertising buyer.consent and ignoring unadvertised keys (BUYER-CONSENT-0010)"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 361,
+            "level": "MUST",
+            "text_digest": "0a45016c80"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0006",
+      "text_digest": "226370a92e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms decide which choices to present to the buyer and when; when presenting a choice, platforms MUST use the advertised `description`, `links`, `granted` value, and purpose/segment grouping.",
+      "normalized": "platforms decide which choices to present to the buyer and when; when presenting a choice, platforms must use the advertised description, links, granted value, and purpose/segment grouping",
+      "condition": "when; when presenting a choice",
+      "referenced_fields": [
+        "description",
+        "granted",
+        "links"
+      ],
+      "compound_parent": null,
+      "document_order": 82,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 361,
+        "end_line": 370,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 361,
+            "level": "MUST",
+            "text_digest": "226370a92e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0007",
+      "text_digest": "13c85fda79",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Identifiers outside the `dev.ucp.consent.*` namespace are opaque handles; platforms MUST NOT infer semantics from such paths alone.",
+      "normalized": "identifiers outside the dev.ucp.consent.* namespace are opaque handles; platforms must not infer semantics from such paths alone",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 84,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 361,
+        "end_line": 370,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-03",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 361,
+            "level": "MUST NOT",
+            "text_digest": "13c85fda79"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0008",
+      "text_digest": "0251ef1234",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "When submitting `consent`, platforms MUST include every advertised purpose and segment key, carrying both `granted` and `source` for each.",
+      "normalized": "when submitting consent, platforms must include every advertised purpose and segment key, carrying both granted and source for each",
+      "condition": "When submitting `consent`",
+      "referenced_fields": [
+        "consent",
+        "granted",
+        "source"
+      ],
+      "compound_parent": null,
+      "document_order": 87,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 372,
+        "end_line": 377,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-04",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 372,
+            "level": "MUST",
+            "text_digest": "0251ef1234"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0009",
+      "text_digest": "4bdc908f46",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUYER",
+      "actor_confidence": 0.5,
+      "clause": "Omitting an advertised key within a submitted `consent` map MUST NOT be used to signal any value.",
+      "normalized": "omitting an advertised key within a submitted consent map must not be used to signal any value",
+      "condition": null,
+      "referenced_fields": [
+        "consent"
+      ],
+      "compound_parent": null,
+      "document_order": 88,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 372,
+        "end_line": 377,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-05",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: about the consent map the platform submits (the extractor read 'buyer')",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "about the consent map the platform submits (the extractor read 'buyer')"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 372,
+            "level": "MUST NOT",
+            "text_digest": "4bdc908f46"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0010",
+      "text_digest": "7affd65168",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**Advertised set is authoritative.** Businesses MUST ignore purposes and segments in a request that were not advertised in a prior response.",
+      "normalized": "advertised set is authoritative. businesses must ignore purposes and segments in a request that were not advertised in a prior response",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 89,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 379,
+        "end_line": 382,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-06",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: unadvertised entries are ignored",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: unadvertised entries are ignored"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 379,
+            "level": "MUST",
+            "text_digest": "7affd65168"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0011",
+      "text_digest": "7918cf85e6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms MUST NOT prompt for or transmit purposes or segments the business did not advertise.",
+      "normalized": "platforms must not prompt for or transmit purposes or segments the business did not advertise",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 90,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 379,
+        "end_line": 382,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-07",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 379,
+            "level": "MUST NOT",
+            "text_digest": "7918cf85e6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0012",
+      "text_digest": "9ea5b9f143",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "**Source attribution requires a buyer-stated preference.** Platforms MUST set `source: \"platform\"` only when the `granted` value reflects the buyer's stated preference.",
+      "normalized": "source attribution requires a buyer-stated preference. platforms must set source: \"platform\" only when the granted value reflects the buyer's stated preference",
+      "condition": "when the `granted` value reflects the buyer's stated preference",
+      "referenced_fields": [
+        "granted",
+        "source"
+      ],
+      "compound_parent": null,
+      "document_order": 92,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 387,
+        "end_line": 392,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-08",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 387,
+            "level": "MUST",
+            "text_digest": "9ea5b9f143"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0013",
+      "text_digest": "d0e9b52bdd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "For choices to which no buyer preference applies, platforms MUST echo the advertised `source` unchanged.",
+      "normalized": "for choices to which no buyer preference applies, platforms must echo the advertised source unchanged",
+      "condition": null,
+      "referenced_fields": [
+        "source"
+      ],
+      "compound_parent": null,
+      "document_order": 93,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 387,
+        "end_line": 392,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-09",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 387,
+            "level": "MUST",
+            "text_digest": "d0e9b52bdd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0014",
+      "text_digest": "72244fd689",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "**Per-business attribution.** A consent decision captured with a specific business is attributable only to that business; platforms MUST NOT propagate it as the basis for `source: \"platform\"` in a different business's request.",
+      "normalized": "per-business attribution. a consent decision captured with a specific business is attributable only to that business; platforms must not propagate it as the basis for source: \"platform\" in a different business's request",
+      "condition": null,
+      "referenced_fields": [
+        "source"
+      ],
+      "compound_parent": null,
+      "document_order": 95,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 394,
+        "end_line": 399,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-10",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 394,
+            "level": "MUST NOT",
+            "text_digest": "72244fd689"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0015",
+      "text_digest": "6b49f63890",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "**Persistence and reversibility.** Platforms MAY persist a buyer's prior preferences (`source: \"platform\"`) across interactions with the same business",
+      "normalized": "persistence and reversibility. platforms may persist a buyer's prior preferences (source: \"platform\") across interactions with the same business",
+      "condition": null,
+      "referenced_fields": [
+        "source"
+      ],
+      "compound_parent": null,
+      "document_order": 97,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 401,
+        "end_line": 405,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-11",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 401,
+            "level": "MAY",
+            "text_digest": "6b49f63890"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0016",
+      "text_digest": "40c2df7171",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "**Persistence and reversibility.** Platforms MAY suppress re-presentation of unchanged values.",
+      "normalized": "persistence and reversibility. platforms may suppress re-presentation of unchanged values",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 97,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 401,
+        "end_line": 405,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-12",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 401,
+            "level": "MAY",
+            "text_digest": "40c2df7171"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-BUYER-CONSENT-0017",
+      "text_digest": "047c97c48a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.buyer_consent"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Where preferences are persisted, platforms SHOULD give the buyer the ability to change them.",
+      "normalized": "where preferences are persisted, platforms should give the buyer the ability to change them",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 98,
+      "source": {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "start_line": 401,
+        "end_line": 405,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/extensions/buyer-consent/",
+        "anchor": "normative-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-13",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/buyer-consent.md",
+            "start_line": 401,
+            "level": "SHOULD",
+            "text_digest": "047c97c48a"
+          }
+        ]
+      }
+    }
+  ]
+}

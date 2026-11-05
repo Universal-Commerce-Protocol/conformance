@@ -1,0 +1,459 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/order/rest.md",
+  "summary": {
+    "total": 7,
+    "must_count": 5,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 2,
+    "should_not_count": 0,
+    "may_count": 0,
+    "by_level": {
+      "MUST": 5,
+      "SHOULD": 2
+    },
+    "by_actor": {
+      "UNRESOLVED": 7
+    },
+    "by_file": {
+      "docs/specification/shopping/order/rest.md": 7
+    },
+    "with_condition": 0,
+    "with_referenced_fields": 2,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 1,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 7,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-ORDER-0034",
+      "text_digest": "de72b2d0de",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }.",
+      "normalized": "all response bodies must be valid json as specified in rfc 8259",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 7,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 68,
+        "end_line": 69,
+        "section": "Order Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "content-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONTENT-TYPES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: response bodies",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response bodies"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 66,
+            "level": "MUST",
+            "text_digest": "de72b2d0de"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 68,
+            "level": "MUST",
+            "text_digest": "de72b2d0de"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0035",
+      "text_digest": "86f31bc40b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.",
+      "normalized": "all rest endpoints must be served over https with minimum tls version 1.3",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 8,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 73,
+        "end_line": 73,
+        "section": "Order Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "block_type": "paragraph",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "transport-security"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-TRANSPORT-SECURITY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the endpoint's TLS version",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the endpoint's TLS version",
+          "note": "the local sample server serves plain HTTP, so it fails this"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 71,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 73,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0036",
+      "text_digest": "15463fa061",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include `UCP-Agent` header with profile URL on all requests",
+      "normalized": "must include ucp-agent header with profile url on all requests",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "Platforms implementing the REST binding:",
+      "document_order": 27,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 249,
+        "end_line": 249,
+        "section": "Order Capability - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platforms implementing the REST binding:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platforms implementing the REST binding:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 252,
+            "level": "MUST",
+            "text_digest": "15463fa061"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 257,
+            "level": "MUST",
+            "text_digest": "15463fa061"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0037",
+      "text_digest": "c299106814",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** check the `messages` array in responses before accessing order data",
+      "normalized": "must check the messages array in responses before accessing order data",
+      "condition": null,
+      "referenced_fields": [
+        "messages"
+      ],
+      "compound_parent": "Platforms implementing the REST binding:",
+      "document_order": 28,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 250,
+        "end_line": 250,
+        "section": "Order Capability - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platforms implementing the REST binding:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platforms implementing the REST binding:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 253,
+            "level": "MUST",
+            "text_digest": "c299106814"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 258,
+            "level": "MUST",
+            "text_digest": "c299106814"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0038",
+      "text_digest": "a6262d6e2e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+      "normalized": "should delegate to the business via permalink_url for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+      "condition": null,
+      "referenced_fields": [
+        "permalink_url"
+      ],
+      "compound_parent": "Platforms implementing the REST binding:",
+      "document_order": 29,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 251,
+        "end_line": 253,
+        "section": "Order Capability - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: listed under 'Platforms implementing the REST binding:'",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "listed under 'Platforms implementing the REST binding:'"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 254,
+            "level": "SHOULD",
+            "text_digest": "a6262d6e2e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 259,
+            "level": "SHOULD",
+            "text_digest": "a6262d6e2e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0039",
+      "text_digest": "10eaedb9f9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** serve all endpoints over HTTPS with TLS 1.3+",
+      "normalized": "must serve all endpoints over https with tls 1.3+",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "Businesses implementing the REST binding:",
+      "document_order": 31,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 257,
+        "end_line": 257,
+        "section": "Order Capability - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the endpoint's TLS version",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the endpoint's TLS version",
+          "note": "same rule as REQ-SHOPPING-ORDER-0035"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 260,
+            "level": "MUST",
+            "text_digest": "10eaedb9f9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 265,
+            "level": "MUST",
+            "text_digest": "10eaedb9f9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0040",
+      "text_digest": "f797370582",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** sign responses per the [Message Signatures](../../signatures.md) specification",
+      "normalized": "should sign responses per the message signatures specification",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "Businesses implementing the REST binding:",
+      "document_order": 32,
+      "source": {
+        "file": "docs/specification/shopping/order/rest.md",
+        "start_line": 258,
+        "end_line": 259,
+        "section": "Order Capability - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/order/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: response signature headers",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: response signature headers"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/order-rest.md",
+            "start_line": 261,
+            "level": "SHOULD",
+            "text_digest": "f797370582"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/order/rest.md",
+            "start_line": 266,
+            "level": "SHOULD",
+            "text_digest": "f797370582"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,578 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/extensions/discount.md",
+  "summary": {
+    "total": 9,
+    "must_count": 5,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 3,
+    "should_not_count": 0,
+    "may_count": 1,
+    "by_level": {
+      "MAY": 1,
+      "MUST": 5,
+      "SHOULD": 3
+    },
+    "by_actor": {
+      "BUSINESS": 4,
+      "EXTENSION": 2,
+      "IMPLEMENTATION": 1,
+      "PLATFORM": 2
+    },
+    "by_file": {
+      "docs/specification/shopping/extensions/discount.md": 9
+    },
+    "with_condition": 3,
+    "with_referenced_fields": 5,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 2,
+      "actor_unresolved": 0,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0001",
+      "text_digest": "75a607ee1b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses MAY advertise discount support for cart only, checkout only, or both.",
+      "normalized": "businesses may advertise discount support for cart only, checkout only, or both",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 11,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 60,
+        "end_line": 62,
+        "section": "Discount Extension > Discovery",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "discovery"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-DISCOVERY-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible in discovery",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible in discovery"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 59,
+            "level": "MAY",
+            "text_digest": "75a607ee1b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 60,
+            "level": "MAY",
+            "text_digest": "75a607ee1b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0002",
+      "text_digest": "15ac700129",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms SHOULD check which resources are extended before submitting discount codes.",
+      "normalized": "platforms should check which resources are extended before submitting discount codes",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 12,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 60,
+        "end_line": 62,
+        "section": "Discount Extension > Discovery",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "discovery"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-DISCOVERY-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 59,
+            "level": "SHOULD",
+            "text_digest": "15ac700129"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 60,
+            "level": "SHOULD",
+            "text_digest": "15ac700129"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0003",
+      "text_digest": "cf1b7d46ea",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**Cart-to-checkout continuity:** When a cart is converted to a checkout via the cart capability's `cart_id` field, businesses MUST carry forward any discount codes that were applied to the cart.",
+      "normalized": "cart-to-checkout continuity: when a cart is converted to a checkout via the cart capability's cart_id field, businesses must carry forward any discount codes that were applied to the cart",
+      "condition": "When a cart is converted to a checkout via the cart capability's `cart_id` field",
+      "referenced_fields": [
+        "cart_id"
+      ],
+      "compound_parent": null,
+      "document_order": 52,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 146,
+        "end_line": 150,
+        "section": "Discount Extension > Operations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "operations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-OPERATIONS-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: codes carried into the checkout",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: codes carried into the checkout"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 143,
+            "level": "MUST",
+            "text_digest": "cf1b7d46ea"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 144,
+            "level": "MUST",
+            "text_digest": "cf1b7d46ea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0004",
+      "text_digest": "99931074ea",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "Codes that are no longer valid at checkout time (e.g., expired, ineligible) SHOULD be communicated via `messages[]` using standard rejection codes.",
+      "normalized": "codes that are no longer valid at checkout time (e.g., expired, ineligible) should be communicated via messages[] using standard rejection codes",
+      "condition": null,
+      "referenced_fields": [
+        "messages[]"
+      ],
+      "compound_parent": null,
+      "document_order": 53,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 146,
+        "end_line": 150,
+        "section": "Discount Extension > Operations",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "operations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-OPERATIONS-02",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: messages in responses",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "messages in responses"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 143,
+            "level": "SHOULD",
+            "text_digest": "99931074ea"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 144,
+            "level": "SHOULD",
+            "text_digest": "99931074ea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0005",
+      "text_digest": "05ed0d297c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "**Implementation guidance:** Operations that affect order totals, or the user's expectation of the total, **SHOULD** use `type: \"warning\"` to ensure they are surfaced to the user rather than silently handled by platforms.",
+      "normalized": "implementation guidance: operations that affect order totals, or the user's expectation of the total, should use type: \"warning\" to ensure they are surfaced to the user rather than silently handled by platforms",
+      "condition": null,
+      "referenced_fields": [
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 55,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 169,
+        "end_line": 173,
+        "section": "Discount Extension > Rejected Codes",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "rejected-codes"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-REJECTED-CODES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: warning type in responses",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "warning type in responses"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/discount.md",
+            "start_line": 151,
+            "level": "SHOULD",
+            "text_digest": "05ed0d297c"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/discount.md",
+            "start_line": 151,
+            "level": "SHOULD",
+            "text_digest": "05ed0d297c"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 167,
+            "level": "SHOULD",
+            "text_digest": "05ed0d297c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 167,
+            "level": "SHOULD",
+            "text_digest": "05ed0d297c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0006",
+      "text_digest": "9e72b57cbb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When the discount extension is active, Businesses that choose to accept eligibility claims **MUST** surface their effect on pricing as provisional discounts in the `applied` array.",
+      "normalized": "when the discount extension is active, businesses that choose to accept eligibility claims must surface their effect on pricing as provisional discounts in the applied array",
+      "condition": "When the discount extension is active",
+      "referenced_fields": [
+        "applied"
+      ],
+      "compound_parent": null,
+      "document_order": 76,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 198,
+        "end_line": 203,
+        "section": "Discount Extension > Eligibility Claims",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "eligibility-claims"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-ELIGIBILITY-CLAIMS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 196,
+            "level": "MUST",
+            "text_digest": "9e72b57cbb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 196,
+            "level": "MUST",
+            "text_digest": "9e72b57cbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0007",
+      "text_digest": "d72ee70a9e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MUST** display provisional discounts to the buyer.",
+      "normalized": "platforms must display provisional discounts to the buyer",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 77,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 198,
+        "end_line": 203,
+        "section": "Discount Extension > Eligibility Claims",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "eligibility-claims"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-ELIGIBILITY-CLAIMS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 196,
+            "level": "MUST",
+            "text_digest": "d72ee70a9e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 196,
+            "level": "MUST",
+            "text_digest": "d72ee70a9e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0008",
+      "text_digest": "77b348abb6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When a Business recognizes a claim and it affects pricing, it **MUST** surface a corresponding provisional discount in the `discounts.applied` array.",
+      "normalized": "when a business recognizes a claim and it affects pricing, it must surface a corresponding provisional discount in the discounts.applied array",
+      "condition": "When a Business recognizes a claim and it affects pricing",
+      "referenced_fields": [
+        "discounts.applied"
+      ],
+      "compound_parent": null,
+      "document_order": 79,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 207,
+        "end_line": 211,
+        "section": "Discount Extension > Eligibility Claims > Discount Behavior",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "discount-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-DISCOUNT-BEHAVIOR-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 205,
+            "level": "MUST",
+            "text_digest": "77b348abb6"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 205,
+            "level": "MUST",
+            "text_digest": "77b348abb6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-DISCOUNT-0009",
+      "text_digest": "b7f23c4704",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.discount"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.5,
+      "clause": "At checkout completion, all remaining provisional claims **MUST** be resolved (see [Eligibility Verification at Completion](../checkout/index.md#eligibility-verification-at-completion)).",
+      "normalized": "at checkout completion, all remaining provisional claims must be resolved (see eligibility verification at completion)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 97,
+      "source": {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "start_line": 227,
+        "end_line": 231,
+        "section": "Discount Extension > Eligibility Claims > Verification at Checkout",
+        "block_type": "paragraph",
+        "page": "specification/shopping/extensions/discount/",
+        "anchor": "verification-at-checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-DISCOUNT-DISCOUNT-VERIFICATION-AT-CHECKOUT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: completion behavior",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "completion behavior",
+          "note": "restates REQ-SHOPPING-CHECKOUT-0047"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/discount.md",
+            "start_line": 225,
+            "level": "MUST",
+            "text_digest": "b7f23c4704"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/extensions/discount.md",
+            "start_line": 225,
+            "level": "MUST",
+            "text_digest": "b7f23c4704"
+          }
+        ]
+      }
+    }
+  ]
+}

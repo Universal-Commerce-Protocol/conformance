@@ -1,0 +1,351 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/catalog/rest.md",
+  "summary": {
+    "total": 5,
+    "must_count": 2,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 0,
+    "should_not_count": 0,
+    "may_count": 3,
+    "by_level": {
+      "MAY": 3,
+      "MUST": 2
+    },
+    "by_actor": {
+      "BUSINESS": 1,
+      "IMPLEMENTATION": 1,
+      "UNRESOLVED": 3
+    },
+    "by_file": {
+      "docs/specification/shopping/catalog/rest.md": 5
+    },
+    "with_condition": 1,
+    "with_referenced_fields": 1,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 1,
+      "actor_unresolved": 3,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CATALOG-0042",
+      "text_digest": "440c8529d2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The response MAY include informational messages indicating which identifiers were not found.",
+      "normalized": "the response may include informational messages indicating which identifiers were not found",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 26,
+      "source": {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "start_line": 293,
+        "end_line": 295,
+        "section": "Catalog - REST Binding > Endpoints > `POST /catalog/lookup` > Example: Partial Success (Some Identifiers Not Found)",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/rest/",
+        "anchor": "example-partial-success-some-identifiers-not-found"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-REST-EXAMPLE-PARTIAL-SUCCESS-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: permission on REST response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on REST response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/rest.md",
+            "start_line": 286,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/rest.md",
+            "start_line": 293,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0043",
+      "text_digest": "440c8529d2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "The response MAY include informational messages indicating which identifiers were not found.",
+      "normalized": "the response may include informational messages indicating which identifiers were not found",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 55,
+      "source": {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "start_line": 633,
+        "end_line": 634,
+        "section": "Catalog - REST Binding > Error Handling > Business Outcomes > Example: All Products Not Found",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/rest/",
+        "anchor": "example-all-products-not-found"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-REST-EXAMPLE-ALL-PRODUCTS-NOT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: permission on REST response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on REST response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/rest.md",
+            "start_line": 606,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/rest.md",
+            "start_line": 636,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0044",
+      "text_digest": "350f72606a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "A conforming REST transport implementation **MUST**:",
+      "normalized": "a conforming rest transport implementation must",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 61,
+      "source": {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "start_line": 685,
+        "end_line": 685,
+        "section": "Catalog - REST Binding > Conformance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-REST-CONFORMANCE-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "not a rule (reviewed): lead-in to a list; the obligations are the list items",
+        "review": {
+          "verdict": "not a rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "lead-in to a list; the obligations are the list items"
+        },
+        "excluded": true,
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/rest.md",
+            "start_line": 657,
+            "level": "MUST",
+            "text_digest": "350f72606a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/rest.md",
+            "start_line": 688,
+            "level": "MUST",
+            "text_digest": "350f72606a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0045",
+      "text_digest": "35a3e3f4dd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When the Lookup capability is advertised, both `/catalog/lookup` and `/catalog/product` MUST be available.",
+      "normalized": "when the lookup capability is advertised, both /catalog/lookup and /catalog/product must be available",
+      "condition": "When the Lookup capability is advertised",
+      "referenced_fields": [],
+      "compound_parent": "A conforming REST transport implementation **MUST**:",
+      "document_order": 64,
+      "source": {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "start_line": 687,
+        "end_line": 687,
+        "section": "Catalog - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/catalog/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-REST-CONFORMANCE-02",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: both endpoints respond",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: both endpoints respond"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/rest.md",
+            "start_line": 659,
+            "level": "MUST",
+            "text_digest": "35a3e3f4dd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/rest.md",
+            "start_line": 690,
+            "level": "MUST",
+            "text_digest": "35a3e3f4dd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0046",
+      "text_digest": "f52390f942",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned (MAY include informational `not_found` messages).",
+      "normalized": "return http 200 for lookup requests; unknown identifiers result in fewer products returned (may include informational not_found messages)",
+      "condition": null,
+      "referenced_fields": [
+        "not_found"
+      ],
+      "compound_parent": "A conforming REST transport implementation **MUST**:",
+      "document_order": 67,
+      "source": {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "start_line": 691,
+        "end_line": 691,
+        "section": "Catalog - REST Binding > Conformance",
+        "block_type": "list_item",
+        "page": "specification/shopping/catalog/rest/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-REST-CONFORMANCE-03",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: HTTP 200 with fewer products",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: HTTP 200 with fewer products",
+          "level": "MUST",
+          "note": "the list's lead-in makes this a MUST; extracted as MAY"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/rest.md",
+            "start_line": 662,
+            "level": "MUST",
+            "text_digest": "f52390f942"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/rest.md",
+            "start_line": 694,
+            "level": "MUST",
+            "text_digest": "f52390f942"
+          }
+        ]
+      }
+    }
+  ]
+}

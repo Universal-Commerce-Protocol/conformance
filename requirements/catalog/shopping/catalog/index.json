@@ -1,0 +1,1914 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/catalog/index.md",
+  "summary": {
+    "total": 35,
+    "must_count": 9,
+    "must_not_count": 5,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 8,
+    "should_not_count": 1,
+    "may_count": 12,
+    "by_level": {
+      "MAY": 12,
+      "MUST": 9,
+      "MUST NOT": 5,
+      "SHOULD": 8,
+      "SHOULD NOT": 1
+    },
+    "by_actor": {
+      "AGENT": 1,
+      "BUSINESS": 19,
+      "PLATFORM": 7,
+      "UNRESOLVED": 8
+    },
+    "by_file": {
+      "docs/specification/shopping/catalog/index.md": 35
+    },
+    "with_condition": 6,
+    "with_referenced_fields": 19,
+    "from_compound_split": 4,
+    "diagnostics": {
+      "actor_after_keyword_only": 2,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 8,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 5,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 2,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CATALOG-0001",
+      "text_digest": "40b521f2a3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Responses can be session-specific and **SHOULD NOT** be reused across sessions without re-validation.",
+      "normalized": "responses can be session-specific and should not be reused across sessions without re-validation",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 23,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 54,
+        "end_line": 57,
+        "section": "Catalog Capability > Key Concepts > Relationship to Checkout",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "relationship-to-checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-RELATIONSHIP-TO-CHECKOUT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: about consumers reusing responses",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "about consumers reusing responses"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 51,
+            "level": "SHOULD NOT",
+            "text_digest": "40b521f2a3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 54,
+            "level": "SHOULD NOT",
+            "text_digest": "40b521f2a3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0002",
+      "text_digest": "1db3a3f0bd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MAY** provide `quantity_unit`, `unit_price`, both, or neither on a variant.",
+      "normalized": "the business may provide quantity_unit, unit_price, both, or neither on a variant",
+      "condition": null,
+      "referenced_fields": [
+        "quantity_unit",
+        "unit_price"
+      ],
+      "compound_parent": null,
+      "document_order": 40,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 97,
+        "end_line": 102,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 97,
+            "level": "MAY",
+            "text_digest": "1db3a3f0bd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0003",
+      "text_digest": "ee324c49fb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "To keep the display comparator defined, the Business **MUST** use a positive integer for both `unit_price.measure.value` and `unit_price.reference.value`.",
+      "normalized": "to keep the display comparator defined, the business must use a positive integer for both unit_price.measure.value and unit_price.reference.value",
+      "condition": null,
+      "referenced_fields": [
+        "unit_price.measure.value",
+        "unit_price.reference.value"
+      ],
+      "compound_parent": null,
+      "document_order": 41,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MUST",
+            "text_digest": "ee324c49fb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0004",
+      "text_digest": "fb6e4f7181",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST** set `unit_price.currency` equal to `price.currency`.",
+      "normalized": "the business must set unit_price.currency equal to price.currency",
+      "condition": null,
+      "referenced_fields": [
+        "price.currency",
+        "unit_price.currency"
+      ],
+      "compound_parent": null,
+      "document_order": 42,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-03",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MUST",
+            "text_digest": "fb6e4f7181"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0005",
+      "text_digest": "5593fc2913",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Within `unit_price`, the Business **MUST** use identical values for `measure.unit` and `reference.unit`.",
+      "normalized": "within unit_price, the business must use identical values for measure.unit and reference.unit",
+      "condition": null,
+      "referenced_fields": [
+        "measure.unit",
+        "reference.unit",
+        "unit_price"
+      ],
+      "compound_parent": null,
+      "document_order": 43,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-04",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MUST",
+            "text_digest": "5593fc2913"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0006",
+      "text_digest": "20cb8c2a29",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MAY** use different `scale` values for those measures.",
+      "normalized": "the business may use different scale values for those measures",
+      "condition": null,
+      "referenced_fields": [
+        "scale"
+      ],
+      "compound_parent": null,
+      "document_order": 44,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-05",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MAY",
+            "text_digest": "20cb8c2a29"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0007",
+      "text_digest": "41a9ebc50c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST NOT** perform cross-unit or currency conversion as part of the unit-price calculation.",
+      "normalized": "the business must not perform cross-unit or currency conversion as part of the unit-price calculation",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 45,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-06",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MUST NOT",
+            "text_digest": "41a9ebc50c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0008",
+      "text_digest": "e6da3fa860",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST** compute the comparator from `price.amount` and those scaled values:",
+      "normalized": "the business must compute the comparator from price.amount and those scaled values",
+      "condition": null,
+      "referenced_fields": [
+        "price.amount"
+      ],
+      "compound_parent": null,
+      "document_order": 47,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 104,
+        "end_line": 112,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-07",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 104,
+            "level": "MUST",
+            "text_digest": "e6da3fa860"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0009",
+      "text_digest": "685546d140",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST** round the result once to the currency's minor units according to its pricing rules and return it as `unit_price.amount`.",
+      "normalized": "the business must round the result once to the currency's minor units according to its pricing rules and return it as unit_price.amount",
+      "condition": null,
+      "referenced_fields": [
+        "unit_price.amount"
+      ],
+      "compound_parent": null,
+      "document_order": 48,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 118,
+        "end_line": 121,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-08",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 118,
+            "level": "MUST",
+            "text_digest": "685546d140"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0010",
+      "text_digest": "979cf19ab7",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MUST NOT** recompute it or substitute its own result.",
+      "normalized": "the platform must not recompute it or substitute its own result",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 50,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 118,
+        "end_line": 121,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-09",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 118,
+            "level": "MUST NOT",
+            "text_digest": "979cf19ab7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0011",
+      "text_digest": "b566d9087f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "On transaction lines, presence marks the role: the Business **MUST** echo `unit_price` on any line whose pricing basis differs from its sale basis (see [Checkout — pricing basis](../checkout/index.md#quantity-and-sale-basis)).",
+      "normalized": "on transaction lines, presence marks the role: the business must echo unit_price on any line whose pricing basis differs from its sale basis (see checkout - pricing basis)",
+      "condition": null,
+      "referenced_fields": [
+        "unit_price"
+      ],
+      "compound_parent": null,
+      "document_order": 56,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 134,
+        "end_line": 138,
+        "section": "Catalog Capability > Sale basis and quantity units > Distinction from unit price",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "distinction-from-unit-price"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-10",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 134,
+            "level": "MUST",
+            "text_digest": "b566d9087f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0012",
+      "text_digest": "96e978ebd7",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms MAY geo-detect context from request headers.",
+      "normalized": "platforms may geo-detect context from request headers",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 62,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 177,
+        "end_line": 179,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 60,
+            "level": "MAY",
+            "text_digest": "96e978ebd7"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 177,
+            "level": "MAY",
+            "text_digest": "96e978ebd7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0013",
+      "text_digest": "35b444ee45",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses SHOULD use these values when verified inputs (e.g., shipping address) are absent",
+      "normalized": "businesses should use these values when verified inputs (e.g., shipping address) are absent",
+      "condition": "when verified inputs (e.g., shipping address) are absent",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 64,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 181,
+        "end_line": 186,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-02",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible in results when no address is given (weakly)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in results when no address is given (weakly)"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 64,
+            "level": "SHOULD",
+            "text_digest": "35b444ee45"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 181,
+            "level": "SHOULD",
+            "text_digest": "35b444ee45"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0014",
+      "text_digest": "e137bb0b98",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses MAY ignore or down-rank them if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls).",
+      "normalized": "businesses may ignore or down-rank them if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls)",
+      "condition": "if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls)",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 64,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 181,
+        "end_line": 186,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-03",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: an internal ranking decision; nothing visible to check",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "an internal ranking decision; nothing visible to check"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 64,
+            "level": "MAY",
+            "text_digest": "e137bb0b98"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 181,
+            "level": "MAY",
+            "text_digest": "e137bb0b98"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0015",
+      "text_digest": "d647a85835",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.",
+      "normalized": "eligibility and policy enforcement must occur at checkout time using binding transaction data",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 65,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 181,
+        "end_line": 186,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-04",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: about where the business enforces policy; no specific response to check",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "about where the business enforces policy; no specific response to check"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 64,
+            "level": "MUST",
+            "text_digest": "d647a85835"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 181,
+            "level": "MUST",
+            "text_digest": "d647a85835"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0016",
+      "text_digest": "d33d7257de",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Price filter values are denominated in `context.currency`; when the presentment currency differs, businesses SHOULD convert before applying (see [Price Filter](search.md#price-filter)).",
+      "normalized": "price filter values are denominated in context.currency; when the presentment currency differs, businesses should convert before applying (see price filter)",
+      "condition": "when the presentment currency differs",
+      "referenced_fields": [
+        "context.currency"
+      ],
+      "compound_parent": null,
+      "document_order": 67,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 188,
+        "end_line": 192,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-05",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: price filters in another currency",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: price filters in another currency"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 71,
+            "level": "SHOULD",
+            "text_digest": "d33d7257de"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 188,
+            "level": "SHOULD",
+            "text_digest": "d33d7257de"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0017",
+      "text_digest": "f49fb6dcf9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When `context.eligibility` claims are present, Businesses that accept them **MAY** adjust `price` / `list_price` directly for strikethrough display",
+      "normalized": "when context.eligibility claims are present, businesses that accept them may adjust price / list_price directly for strikethrough display",
+      "condition": "When `context.eligibility` claims are present",
+      "referenced_fields": [
+        "context.eligibility",
+        "list_price",
+        "price"
+      ],
+      "compound_parent": null,
+      "document_order": 69,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 194,
+        "end_line": 197,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-06",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 77,
+            "level": "MAY",
+            "text_digest": "f49fb6dcf9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 194,
+            "level": "MAY",
+            "text_digest": "f49fb6dcf9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0018",
+      "text_digest": "7e656cdd76",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When `context.eligibility` claims are present, Businesses that accept them **MAY** use `messages` with `code: \"eligibility_benefit\"` to attribute the adjustment to a specific claim.",
+      "normalized": "when context.eligibility claims are present, businesses that accept them may use messages with code: \"eligibility_benefit\" to attribute the adjustment to a specific claim",
+      "condition": "When `context.eligibility` claims are present",
+      "referenced_fields": [
+        "code",
+        "context.eligibility",
+        "messages"
+      ],
+      "compound_parent": null,
+      "document_order": 69,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 194,
+        "end_line": 197,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-07",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 77,
+            "level": "MAY",
+            "text_digest": "7e656cdd76"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 194,
+            "level": "MAY",
+            "text_digest": "7e656cdd76"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0019",
+      "text_digest": "d17ebc6153",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Signal values MUST NOT be buyer-asserted claims.",
+      "normalized": "signal values must not be buyer-asserted claims",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 72,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 203,
+        "end_line": 205,
+        "section": "Catalog Capability > Shared Entities > Signals",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "signals"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SIGNALS-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: signals are supplied by the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "signals are supplied by the platform"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 86,
+            "level": "MUST NOT",
+            "text_digest": "d17ebc6153"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 203,
+            "level": "MUST NOT",
+            "text_digest": "d17ebc6153"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0020",
+      "text_digest": "31e5f5455d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **SHOULD** return the most relevant variant and media item first — default for lookups, best match based on query and context for search.",
+      "normalized": "businesses should return the most relevant variant and media item first - default for lookups, best match based on query and context for search",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 80,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 222,
+        "end_line": 225,
+        "section": "Catalog Capability > Shared Entities > Product",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "product"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-PRODUCT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 105,
+            "level": "SHOULD",
+            "text_digest": "31e5f5455d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 222,
+            "level": "SHOULD",
+            "text_digest": "31e5f5455d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0021",
+      "text_digest": "def47e598c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** treat the first media item they present as featured.",
+      "normalized": "platforms should treat the first media item they present as featured",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 81,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 222,
+        "end_line": 225,
+        "section": "Catalog Capability > Shared Entities > Product",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "product"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-PRODUCT-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 105,
+            "level": "SHOULD",
+            "text_digest": "def47e598c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 222,
+            "level": "SHOULD",
+            "text_digest": "def47e598c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0022",
+      "text_digest": "f0f49c3eac",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **SHOULD** return the featured variant media item as the first element.",
+      "normalized": "businesses should return the featured variant media item as the first element",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 87,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 238,
+        "end_line": 240,
+        "section": "Catalog Capability > Shared Entities > Variant",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "variant"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-VARIANT-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 121,
+            "level": "SHOULD",
+            "text_digest": "f0f49c3eac"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 238,
+            "level": "SHOULD",
+            "text_digest": "f0f49c3eac"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0023",
+      "text_digest": "def47e598c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** treat the first media item they present as featured.",
+      "normalized": "platforms should treat the first media item they present as featured",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 88,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 238,
+        "end_line": 240,
+        "section": "Catalog Capability > Shared Entities > Variant",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "variant"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-VARIANT-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 121,
+            "level": "SHOULD",
+            "text_digest": "def47e598c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 238,
+            "level": "SHOULD",
+            "text_digest": "def47e598c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0024",
+      "text_digest": "47d4d69eb8",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "A Platform **MUST NOT** reject a product or response because it does not recognize a media item's `type`.",
+      "normalized": "a platform must not reject a product or response because it does not recognize a media item's type",
+      "condition": null,
+      "referenced_fields": [
+        "type"
+      ],
+      "compound_parent": null,
+      "document_order": 98,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 261,
+        "end_line": 265,
+        "section": "Catalog Capability > Shared Entities > Media",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "media"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 144,
+            "level": "MUST NOT",
+            "text_digest": "47d4d69eb8"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 261,
+            "level": "MUST NOT",
+            "text_digest": "47d4d69eb8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0025",
+      "text_digest": "50fd9f9ad5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "It **MAY** present such an item from `preview` and `name`, or omit it.",
+      "normalized": "it may present such an item from preview and name, or omit it",
+      "condition": null,
+      "referenced_fields": [
+        "name",
+        "preview"
+      ],
+      "compound_parent": null,
+      "document_order": 99,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 261,
+        "end_line": 265,
+        "section": "Catalog Capability > Shared Entities > Media",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "media"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: 'it' is the platform presenting media",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "'it' is the platform presenting media"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 144,
+            "level": "MAY",
+            "text_digest": "50fd9f9ad5"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 261,
+            "level": "MAY",
+            "text_digest": "50fd9f9ad5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0026",
+      "text_digest": "e03f1b1b3e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "A Platform **MAY** refuse to load or embed a media URL that does not use the `https` scheme.",
+      "normalized": "a platform may refuse to load or embed a media url that does not use the https scheme",
+      "condition": null,
+      "referenced_fields": [
+        "https"
+      ],
+      "compound_parent": null,
+      "document_order": 101,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 267,
+        "end_line": 268,
+        "section": "Catalog Capability > Shared Entities > Media",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "media"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-03",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 150,
+            "level": "MAY",
+            "text_digest": "e03f1b1b3e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 267,
+            "level": "MAY",
+            "text_digest": "e03f1b1b3e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0027",
+      "text_digest": "2272b4257d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A Business that provides `sources` **SHOULD** include the rendition at `url`.",
+      "normalized": "a business that provides sources should include the rendition at url",
+      "condition": null,
+      "referenced_fields": [
+        "sources",
+        "url"
+      ],
+      "compound_parent": null,
+      "document_order": 103,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 270,
+        "end_line": 271,
+        "section": "Catalog Capability > Shared Entities > Media",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "media"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-04",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 153,
+            "level": "SHOULD",
+            "text_digest": "2272b4257d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 270,
+            "level": "SHOULD",
+            "text_digest": "2272b4257d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0028",
+      "text_digest": "f04858a60f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **SHOULD** make `url` the most broadly decodable rendition, because a Platform that does not select from `sources` loads `url` directly.",
+      "normalized": "the business should make url the most broadly decodable rendition, because a platform that does not select from sources loads url directly",
+      "condition": null,
+      "referenced_fields": [
+        "sources",
+        "url"
+      ],
+      "compound_parent": null,
+      "document_order": 107,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 277,
+        "end_line": 281,
+        "section": "Catalog Capability > Shared Entities > Media > Image",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "image"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-IMAGE-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 160,
+            "level": "SHOULD",
+            "text_digest": "f04858a60f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 277,
+            "level": "SHOULD",
+            "text_digest": "f04858a60f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0029",
+      "text_digest": "6610f50a78",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "A Platform that embeds the player **MUST** isolate it from the Platform's authority: no Platform credentials, no access to Platform APIs or agent tools, no protocol messaging privileges, and no navigation of the host application.",
+      "normalized": "a platform that embeds the player must isolate it from the platform's authority: no platform credentials, no access to platform apis or agent tools, no protocol messaging privileges, and no navigation of the host application",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 115,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 300,
+        "end_line": 306,
+        "section": "Catalog Capability > Shared Entities > Media > External Video",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "external-video"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-EXTERNAL-VIDEO-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 183,
+            "level": "MUST",
+            "text_digest": "6610f50a78"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 300,
+            "level": "MUST",
+            "text_digest": "6610f50a78"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0030",
+      "text_digest": "972c1b040c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Before embedding, it **MUST** decline the item unless `url` is an absolute `https` URL without userinfo that is not same-site with the Platform.",
+      "normalized": "before embedding, it must decline the item unless url is an absolute https url without userinfo that is not same-site with the platform",
+      "condition": "unless `url` is an absolute `https` URL without userinfo that is not same-site with the Platform",
+      "referenced_fields": [
+        "https",
+        "url"
+      ],
+      "compound_parent": null,
+      "document_order": 116,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 300,
+        "end_line": 306,
+        "section": "Catalog Capability > Shared Entities > Media > External Video",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "external-video"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-EXTERNAL-VIDEO-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: 'it' is the platform embedding a video",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "'it' is the platform embedding a video"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 183,
+            "level": "MUST",
+            "text_digest": "972c1b040c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 300,
+            "level": "MUST",
+            "text_digest": "972c1b040c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0031",
+      "text_digest": "b272585568",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MAY** use the same Action `id` in separate responses; that equality does not identify the same work.",
+      "normalized": "the business may use the same action id in separate responses; that equality does not identify the same work",
+      "condition": null,
+      "referenced_fields": [
+        "id"
+      ],
+      "compound_parent": null,
+      "document_order": 134,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 357,
+        "end_line": 361,
+        "section": "Catalog Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-01",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 357,
+            "level": "MAY",
+            "text_digest": "b272585568"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0032",
+      "text_digest": "9525c6155e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "A concrete Action-type contract **MAY** define stronger correlation for its instances.",
+      "normalized": "a concrete action-type contract may define stronger correlation for its instances",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 135,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 357,
+        "end_line": 361,
+        "section": "Catalog Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-02",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at authors of Action-type contracts",
+        "review": {
+          "verdict": "rule",
+          "actor": "SPEC_AUTHORS",
+          "testable": false,
+          "reason": "aimed at authors of Action-type contracts"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 357,
+            "level": "MAY",
+            "text_digest": "9525c6155e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0033",
+      "text_digest": "1532082837",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Catalog defines no Action lifecycle, polling, or resume behavior; a concrete Action-type contract **MAY** define those behaviors for processing its instances.",
+      "normalized": "catalog defines no action lifecycle, polling, or resume behavior; a concrete action-type contract may define those behaviors for processing its instances",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 140,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 368,
+        "end_line": 372,
+        "section": "Catalog Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-03",
+        "capability_source": "path (family)",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at authors of Action-type contracts",
+        "review": {
+          "verdict": "rule",
+          "actor": "SPEC_AUTHORS",
+          "testable": false,
+          "reason": "aimed at authors of Action-type contracts"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 368,
+            "level": "MAY",
+            "text_digest": "1532082837"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0034",
+      "text_digest": "950a55324b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "AGENT",
+      "actor_confidence": 0.9,
+      "clause": "`get_product` returns `severity: \"unrecoverable\"` when an identifier doesn't resolve; agents MUST NOT retry the same `id` (see the [REST](rest.md#product-not-found) and [MCP](mcp.md#product-not-found) examples).",
+      "normalized": "get_product returns severity: \"unrecoverable\" when an identifier doesn't resolve; agents must not retry the same id (see the rest and mcp examples)",
+      "condition": null,
+      "referenced_fields": [
+        "get_product",
+        "id",
+        "severity"
+      ],
+      "compound_parent": null,
+      "document_order": 161,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 424,
+        "end_line": 429,
+        "section": "Catalog Capability > Messages and Error Handling > Message Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "message-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-MESSAGE-TYPES-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at agents",
+        "review": {
+          "verdict": "rule",
+          "actor": "AGENT",
+          "testable": false,
+          "reason": "aimed at agents"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 424,
+            "level": "MUST NOT",
+            "text_digest": "950a55324b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-0035",
+      "text_digest": "440c8529d2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The response MAY include informational messages indicating which identifiers were not found.",
+      "normalized": "the response may include informational messages indicating which identifiers were not found",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 172,
+      "source": {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "start_line": 504,
+        "end_line": 506,
+        "section": "Catalog Capability > Messages and Error Handling > Common Scenarios > Identifiers Not Found",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/",
+        "anchor": "identifiers-not-found"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-IDENTIFIERS-NOT-FOUND-01",
+        "capability_source": "path (family)",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on response content",
+          "note": "the same sentence appears 4 more times on catalog rest.md and mcp.md"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/index.md",
+            "start_line": 317,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/index.md",
+            "start_line": 504,
+            "level": "MAY",
+            "text_digest": "440c8529d2"
+          }
+        ]
+      }
+    }
+  ]
+}

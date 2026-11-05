@@ -1,0 +1,1821 @@
+{
+  "about": "Which releases state each rule. A rule in the catalog lists them in demo.releases, from demo.since on. A rule that only older releases state is under removed, with demo.until, the first version that doesn't state it. See requirements/README.md.",
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08",
+    "2026-08-25",
+    "draft"
+  ],
+  "releases": [
+    {
+      "version": "2026-01-11",
+      "ref": "release/2026-01-11",
+      "commit": "56bad560fbf7d42cc28a8156152f5da94f2505b9",
+      "rules": 140,
+      "matched": {
+        "same wording": 73,
+        "same wording, other page": 0,
+        "same wording, other list stem": 32,
+        "reworded": 2,
+        "reworded, other page": 0,
+        "not stated after this release": 4,
+        "moved out of the shopping pages": 29
+      }
+    },
+    {
+      "version": "2026-01-23",
+      "ref": "release/2026-01-23",
+      "commit": "e783ffa2eaeaac9938642a3ddae0f2439b6aa488",
+      "rules": 150,
+      "matched": {
+        "same wording": 110,
+        "same wording, other page": 0,
+        "same wording, other list stem": 0,
+        "reworded": 1,
+        "reworded, other page": 0,
+        "not stated after this release": 9,
+        "moved out of the shopping pages": 30
+      }
+    },
+    {
+      "version": "2026-04-08",
+      "ref": "release/2026-04-08",
+      "commit": "9c9d6fce39ffa8bf7cb66309c378b79fb75b5382",
+      "rules": 379,
+      "matched": {
+        "same wording": 364,
+        "same wording, other page": 0,
+        "same wording, other list stem": 0,
+        "reworded": 0,
+        "reworded, other page": 0,
+        "not stated after this release": 9,
+        "moved out of the shopping pages": 6
+      }
+    },
+    {
+      "version": "2026-08-25",
+      "ref": "release/2026-08-25",
+      "commit": "87dd4b1fcff9105d68173120897237fa784c74ef",
+      "rules": 512,
+      "matched": {
+        "same wording": 503,
+        "same wording, other page": 0,
+        "same wording, other list stem": 0,
+        "reworded": 2,
+        "reworded, other page": 0,
+        "not stated after this release": 0,
+        "moved out of the shopping pages": 7
+      }
+    }
+  ],
+  "removed": [
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0011",
+      "text_digest": "34e52599f3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Cursors are opaque strings that implementations MAY encode as stateless keyset tokens.",
+      "normalized": "cursors are opaque strings that implementations may encode as stateless keyset tokens",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 18,
+      "source": {
+        "file": "docs/specification/catalog/search.md",
+        "start_line": 66,
+        "end_line": 67,
+        "section": "Catalog Search Capability > Pagination",
+        "block_type": "paragraph",
+        "page": "specification/catalog/search/",
+        "anchor": "pagination"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGINATION-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "implementation guidance",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 66,
+            "level": "MAY",
+            "text_digest": "34e52599f3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0012",
+      "text_digest": "e2548c97cc",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations SHOULD accept a page size of at least 10.",
+      "normalized": "implementations should accept a page size of at least 10",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 20,
+      "source": {
+        "file": "docs/specification/catalog/search.md",
+        "start_line": 71,
+        "end_line": 75,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "implementation guidance",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 71,
+            "level": "SHOULD",
+            "text_digest": "e2548c97cc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0013",
+      "text_digest": "f908ab09df",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "When the requested limit exceeds the implementation's maximum, implementations MAY clamp to their maximum silently — returning fewer results without error.",
+      "normalized": "when the requested limit exceeds the implementation's maximum, implementations may clamp to their maximum silently - returning fewer results without error",
+      "condition": "When the requested limit exceeds the implementation's maximum",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 21,
+      "source": {
+        "file": "docs/specification/catalog/search.md",
+        "start_line": 71,
+        "end_line": 75,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "implementation guidance",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 71,
+            "level": "MAY",
+            "text_digest": "f908ab09df"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0014",
+      "text_digest": "095d4127a1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Clients MUST NOT assume the response size equals the requested limit.",
+      "normalized": "clients must not assume the response size equals the requested limit",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 22,
+      "source": {
+        "file": "docs/specification/catalog/search.md",
+        "start_line": 71,
+        "end_line": 75,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-03",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 71,
+            "level": "MUST NOT",
+            "text_digest": "095d4127a1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0253",
+      "text_digest": "97c37dbeb6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MUST** include at least one message with `severity: escalation` when returning `status` = `requires_escalation`.",
+      "normalized": "must include at least one message with severity: escalation when returning status = requires_escalation",
+      "condition": "when returning `status` = `requires_escalation`",
+      "referenced_fields": [
+        "requires_escalation",
+        "severity",
+        "status"
+      ],
+      "compound_parent": null,
+      "document_order": 79,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 269,
+        "end_line": 270,
+        "section": "Checkout Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/checkout/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-BUSINESS-05",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout.md",
+            "start_line": 263,
+            "level": "MUST",
+            "text_digest": "97c37dbeb6"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout.md",
+            "start_line": 269,
+            "level": "MUST",
+            "text_digest": "97c37dbeb6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0254",
+      "text_digest": "c90c72488b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Verification failure **MUST** only affect the `messages` array.",
+      "normalized": "verification failure must only affect the messages array",
+      "condition": null,
+      "referenced_fields": [
+        "messages"
+      ],
+      "compound_parent": null,
+      "document_order": 100,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 293,
+        "end_line": 299,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "block_type": "paragraph",
+        "page": "specification/checkout/",
+        "anchor": "eligibility-verification-at-completion"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-08",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "c90c72488b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0255",
+      "text_digest": "9be5fa6ad5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Messages **SHOULD** use the `path` field to identify which specific claim(s) could not be verified.",
+      "normalized": "messages should use the path field to identify which specific claim(s) could not be verified",
+      "condition": null,
+      "referenced_fields": [
+        "path"
+      ],
+      "compound_parent": null,
+      "document_order": 102,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 293,
+        "end_line": 299,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "block_type": "paragraph",
+        "page": "specification/checkout/",
+        "anchor": "eligibility-verification-at-completion"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-10",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout.md",
+            "start_line": 293,
+            "level": "SHOULD",
+            "text_digest": "9be5fa6ad5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0256",
+      "text_digest": "787575634f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MAY** then provide valid proof and resubmit, restructure the checkout (e.g., remove ineligible items, update claims), or abandon the attempt.",
+      "normalized": "the platform may then provide valid proof and resubmit, restructure the checkout (e.g., remove ineligible items, update claims), or abandon the attempt",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 103,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 293,
+        "end_line": 299,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "block_type": "paragraph",
+        "page": "specification/checkout/",
+        "anchor": "eligibility-verification-at-completion"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-11",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout.md",
+            "start_line": 293,
+            "level": "MAY",
+            "text_digest": "787575634f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0257",
+      "text_digest": "df29ac59fe",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses SHOULD use these values when authoritative data (e.g. address) is absent",
+      "normalized": "businesses should use these values when authoritative data (e.g. address) is absent",
+      "condition": "when authoritative data (e.g. address) is absent",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 130,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 368,
+        "end_line": 371,
+        "section": "Checkout Capability > Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/checkout/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-CONTEXT-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-23",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout.md",
+            "start_line": 368,
+            "level": "SHOULD",
+            "text_digest": "df29ac59fe"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0258",
+      "text_digest": "e3dad067b0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses MAY ignore unsupported values without returning errors.",
+      "normalized": "businesses may ignore unsupported values without returning errors",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 130,
+      "source": {
+        "file": "docs/specification/checkout.md",
+        "start_line": 368,
+        "end_line": 371,
+        "section": "Checkout Capability > Entities > Context",
+        "block_type": "paragraph",
+        "page": "specification/checkout/",
+        "anchor": "context"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-CONTEXT-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-23",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout.md",
+            "start_line": 368,
+            "level": "MAY",
+            "text_digest": "e3dad067b0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0259",
+      "text_digest": "ae029d1342",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When a host receives a checkout response with a `continue_url` from a business that advertises ECP support, it **MAY** initiate an ECP session by loading the URL in an embedded context.",
+      "normalized": "when a host receives a checkout response with a continue_url from a business that advertises ecp support, it may initiate an ecp session by loading the url in an embedded context",
+      "condition": "When a host receives a checkout response with a `continue_url` from a business that advertises ECP support",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 48,
+      "source": {
+        "file": "docs/specification/embedded-checkout.md",
+        "start_line": 118,
+        "end_line": 120,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "paragraph",
+        "page": "specification/embedded-checkout/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "until": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 118,
+            "level": "MAY",
+            "text_digest": "ae029d1342"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0260",
+      "text_digest": "ab577222b9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** create at least one of the following globals:",
+      "normalized": "the host must create at least one of the following globals",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 175,
+      "source": {
+        "file": "docs/specification/embedded-checkout.md",
+        "start_line": 419,
+        "end_line": 422,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging > Communication Channels > Communication Channel for Native Hosts",
+        "block_type": "paragraph",
+        "page": "specification/embedded-checkout/",
+        "anchor": "communication-channel-for-native-hosts"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-COMMUNICATION-CHANNEL-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 341,
+            "level": "MUST",
+            "text_digest": "ab577222b9"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 419,
+            "level": "MUST",
+            "text_digest": "ab577222b9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0261",
+      "text_digest": "e265cfa568",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.5,
+      "clause": "To ensure security, both parties **MUST** implement appropriate",
+      "normalized": "to ensure security, both parties must implement appropriate",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 338,
+      "source": {
+        "file": "docs/specification/embedded-checkout.md",
+        "start_line": 1177,
+        "end_line": 1177,
+        "section": "Checkout Capability - EP Binding > Security & Error Handling > Security for Web-Based Hosts > Content Security Policy (CSP)",
+        "block_type": "paragraph",
+        "page": "specification/embedded-checkout/",
+        "anchor": "content-security-policy-csp"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-CONTENT-SECURITY-POLICY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "until": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1177,
+            "level": "MUST",
+            "text_digest": "e265cfa568"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0262",
+      "text_digest": "d1b39a8397",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The message responder **SHOULD** use error codes mapped to **[W3C DOMException](https://webidl.spec.whatwg.org/#idl-DOMException)** names where possible.",
+      "normalized": "the message responder should use error codes mapped to w3c domexception names where possible",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 383,
+      "source": {
+        "file": "docs/specification/embedded-checkout.md",
+        "start_line": 1236,
+        "end_line": 1240,
+        "section": "Checkout Capability - EP Binding > Security & Error Handling > Error Codes",
+        "block_type": "paragraph",
+        "page": "specification/embedded-checkout/",
+        "anchor": "error-codes"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-ERROR-CODES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1160,
+            "level": "SHOULD",
+            "text_digest": "d1b39a8397"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1236,
+            "level": "SHOULD",
+            "text_digest": "d1b39a8397"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0263",
+      "text_digest": "be3be2c530",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "MCP clients **MUST** include the UCP platform profile URI with every request.",
+      "normalized": "mcp clients must include the ucp platform profile uri with every request",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 3,
+      "source": {
+        "file": "docs/specification/checkout-mcp.md",
+        "start_line": 64,
+        "end_line": 66,
+        "section": "Checkout Capability - MCP Binding > Protocol Fundamentals > Platform Profile Advertisement",
+        "block_type": "paragraph",
+        "page": "specification/checkout-mcp/",
+        "anchor": "platform-profile-advertisement"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-PLATFORM-PROFILE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-11",
+        "until": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 64,
+            "level": "MUST",
+            "text_digest": "be3be2c530"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0264",
+      "text_digest": "50d66b978b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "The `_meta.ucp.profile` field **MUST** be present in every MCP tool invocation to enable version compatibility checking and capability negotiation.",
+      "normalized": "the _meta.ucp.profile field must be present in every mcp tool invocation to enable version compatibility checking and capability negotiation",
+      "condition": null,
+      "referenced_fields": [
+        "_meta.ucp.profile"
+      ],
+      "compound_parent": null,
+      "document_order": 5,
+      "source": {
+        "file": "docs/specification/checkout-mcp.md",
+        "start_line": 84,
+        "end_line": 85,
+        "section": "Checkout Capability - MCP Binding > Protocol Fundamentals > Platform Profile Advertisement",
+        "block_type": "paragraph",
+        "page": "specification/checkout-mcp/",
+        "anchor": "platform-profile-advertisement"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-PLATFORM-PROFILE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-11",
+        "until": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 84,
+            "level": "MUST",
+            "text_digest": "50d66b978b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0056",
+      "text_digest": "adb26a1879",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** render options in the provided order",
+      "normalized": "platforms should render options in the provided order",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**For ordering:**",
+      "document_order": 67,
+      "source": {
+        "file": "docs/specification/fulfillment.md",
+        "start_line": 198,
+        "end_line": 198,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "block_type": "list_item",
+        "page": "specification/fulfillment/",
+        "anchor": "business-responsibilities"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-11",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-01-11",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 200,
+            "level": "SHOULD",
+            "text_digest": "08886e0103",
+            "clause": "Platforms **SHOULD** render options in the provided order"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 198,
+            "level": "SHOULD",
+            "text_digest": "adb26a1879"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 198,
+            "level": "SHOULD",
+            "text_digest": "adb26a1879"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-FULFILLMENT-0057",
+      "text_digest": "7ea8962c4d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.9,
+      "clause": "Extensions that extend fulfillment with new method types (e.g., `local_delivery`) **MUST** add an extension schema that:",
+      "normalized": "extensions that extend fulfillment with new method types (e.g., local_delivery) must add an extension schema that",
+      "condition": null,
+      "referenced_fields": [
+        "local_delivery"
+      ],
+      "compound_parent": null,
+      "document_order": 103,
+      "source": {
+        "file": "docs/specification/fulfillment.md",
+        "start_line": 337,
+        "end_line": 338,
+        "section": "Fulfillment Extension > Configuration > Adding New Methods",
+        "block_type": "paragraph",
+        "page": "specification/fulfillment/",
+        "anchor": "adding-new-methods"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-ADDING-NEW-METHODS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "attributed to the extension",
+        "since": "2026-01-11",
+        "until": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 339,
+            "level": "MUST",
+            "text_digest": "7ea8962c4d"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 337,
+            "level": "MUST",
+            "text_digest": "7ea8962c4d"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/fulfillment.md",
+            "start_line": 337,
+            "level": "MUST",
+            "text_digest": "7ea8962c4d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0041",
+      "text_digest": "92ea191b2b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** respond quickly with a 2xx HTTP status code to acknowledge receipt",
+      "normalized": "must respond quickly with a 2xx http status code to acknowledge receipt",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Platform:**",
+      "document_order": 87,
+      "source": {
+        "file": "docs/specification/order.md",
+        "start_line": 329,
+        "end_line": 329,
+        "section": "Order Capability > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/order/",
+        "anchor": "guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 339,
+            "level": "MUST",
+            "text_digest": "de55178249",
+            "clause": "**MUST** respond quickly with a 2xx HTTP status code to acknowledge receipt"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 329,
+            "level": "MUST",
+            "text_digest": "92ea191b2b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0042",
+      "text_digest": "0531f624a3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** sign all webhook payloads using a key from their `signing_keys` array (published in `/.well-known/ucp`).",
+      "normalized": "must sign all webhook payloads using a key from their signing_keys array (published in /.well-known/ucp)",
+      "condition": null,
+      "referenced_fields": [
+        "signing_keys"
+      ],
+      "compound_parent": "**Business:**",
+      "document_order": 90,
+      "source": {
+        "file": "docs/specification/order.md",
+        "start_line": 334,
+        "end_line": 336,
+        "section": "Order Capability > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/order/",
+        "anchor": "guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 344,
+            "level": "MUST",
+            "text_digest": "618f425437",
+            "clause": "**MUST** sign all webhook payloads using a key from their `signing_keys` array (published in `/.well-known/ucp`)."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 334,
+            "level": "MUST",
+            "text_digest": "0531f624a3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0043",
+      "text_digest": "f4c2f03458",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The signature **MUST** be included in the `Request-Signature` header as a detached JWT (RFC 7797).",
+      "normalized": "the signature must be included in the request-signature header as a detached jwt (rfc 7797)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 91,
+      "source": {
+        "file": "docs/specification/order.md",
+        "start_line": 334,
+        "end_line": 336,
+        "section": "Order Capability > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/order/",
+        "anchor": "guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 344,
+            "level": "MUST",
+            "text_digest": "e0936ede0f",
+            "clause": "The signature **MUST** be included in the `Request-Signature` header as a detached JWT (RFC 7797)."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 334,
+            "level": "MUST",
+            "text_digest": "f4c2f03458"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-ORDER-0044",
+      "text_digest": "e27fc7ad69",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.order"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** include business identifier in webhook path or headers",
+      "normalized": "must include business identifier in webhook path or headers",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Business:**",
+      "document_order": 95,
+      "source": {
+        "file": "docs/specification/order.md",
+        "start_line": 340,
+        "end_line": 340,
+        "section": "Order Capability > Guidelines",
+        "block_type": "list_item",
+        "page": "specification/order/",
+        "anchor": "guidelines"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-07",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "no actor detected",
+        "since": "2026-01-11",
+        "until": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/order.md",
+            "start_line": 350,
+            "level": "MUST",
+            "text_digest": "f1fc3a26a6",
+            "clause": "**MUST** include business identifier in webhook path or headers"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/order.md",
+            "start_line": 340,
+            "level": "MUST",
+            "text_digest": "e27fc7ad69"
+          }
+        ]
+      }
+    }
+  ],
+  "moved_out": [
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1288,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1292,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1292,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 281,
+      "clause": "All ECP messages **MUST** use JSON-RPC 2.0 format ([RFC 7159](https://datatracker.ietf.org/doc/html/rfc7159)).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 281,
+      "clause": "Each message **MUST** contain:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 285,
+      "clause": "**MUST** be `\"2.0\"`",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 295,
+      "clause": "**MUST** include a unique `id` field",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 296,
+      "clause": "Receiver **MUST** respond with matching `id`",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 297,
+      "clause": "Response **MUST** be either a `result` or `error` object",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 303,
+      "clause": "**MUST NOT** include an `id` field",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 304,
+      "clause": "Receiver **MUST NOT** send a response",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 309,
+      "clause": "For requests (messages with `id`), receivers **MUST** respond with either:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 327,
+      "clause": "The host **MUST** listen for `postMessage` calls from the embedded window",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 327,
+      "clause": "when a message is received, they **MUST** validate the origin matches the `checkout_url` used to start the checkout.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 333,
+      "clause": "Upon validation, the host **MAY** create a `MessageChannel`, and transfer one of its ports in the result of the [`ec.ready` response](#ecready).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 333,
+      "clause": "When a host responds with a `MessagePort`, all subsequent messages **MUST** be sent over that channel.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 333,
+      "clause": "Otherwise, the host and business **MUST** continue using `postMessage()` between their `window` objects, including origin validation.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 341,
+      "clause": "When the host is a native application, they MUST inject globals into the Embedded Checkout that allows `postMessage` communication between the web and native environments.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 349,
+      "clause": "This object **MUST** implement the following interface:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 357,
+      "clause": "The host **MUST** parse the JSON string before processing.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 360,
+      "clause": "For messages traveling from the host to the Embedded Checkout, the host **MUST** inject JavaScript in the webview that will call `window.EmbeddedCheckoutProtocol.postMessage()` with the JSON RPC message.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 360,
+      "clause": "The Embedded Checkout **MUST** initialize this global object — and start listening for `postMessage()` calls — before the `ec.ready` message is sent.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1183,
+      "clause": "**Business:** **MUST** set `frame-ancestors <host_origin>;` to ensure it's only embedded by trusted hosts.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1193,
+      "clause": "**Intermediate Iframe:** The host **MAY** use an intermediate iframe (e.g., on a host-controlled subdomain) to embed the business's page.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1199,
+      "clause": "The intermediate iframe **MUST** implement a strict `frame-src` policy, dynamically set to allow *only* the specific `<merchant_origin>` for the current embedded session (e.g., `frame-src <merchant_origin>;`).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1207,
+      "clause": "All business iframes **MUST** be sandboxed to restrict their capabilities.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1207,
+      "clause": "The following sandbox attributes **SHOULD** be applied, but a host",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1207,
+      "clause": "business **MAY** negotiate additional capabilities",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-11",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1217,
+      "clause": "Hosts **SHOULD** use the `credentialless` attribute on the iframe to load it in a new, ephemeral context.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1202,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1206,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1206,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 360,
+      "clause": "All ECP messages **MUST** use JSON-RPC 2.0 format ([RFC 7159](https://datatracker.ietf.org/doc/html/rfc7159)).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 360,
+      "clause": "Each message **MUST** contain:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 363,
+      "clause": "**MUST** be `\"2.0\"`",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 373,
+      "clause": "**MUST** include a unique `id` field",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 374,
+      "clause": "Receiver **MUST** respond with matching `id`",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 375,
+      "clause": "Response **MUST** be either a `result` or `error` object",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 381,
+      "clause": "**MUST NOT** include an `id` field",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 382,
+      "clause": "Receiver **MUST NOT** send a response",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 387,
+      "clause": "For requests (messages with `id`), receivers **MUST** respond with either:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 405,
+      "clause": "The host **MUST** listen for `postMessage` calls from the embedded window",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 405,
+      "clause": "when a message is received, they **MUST** validate the origin matches the `checkout_url` used to start the checkout.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 411,
+      "clause": "Upon validation, the host **MAY** create a `MessageChannel`, and transfer one of its ports in the result of the [`ec.ready` response](#ecready).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 411,
+      "clause": "When a host responds with a `MessagePort`, all subsequent messages **MUST** be sent over that channel.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 411,
+      "clause": "Otherwise, the host and business **MUST** continue using `postMessage()` between their `window` objects, including origin validation.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 419,
+      "clause": "When the host is a native application, they MUST inject globals into the Embedded Checkout that allows `postMessage` communication between the web and native environments.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 427,
+      "clause": "This object **MUST** implement the following interface:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 435,
+      "clause": "The host **MUST** parse the JSON string before processing.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 438,
+      "clause": "For messages traveling from the host to the Embedded Checkout, the host **MUST** inject JavaScript in the webview that will call `window.EmbeddedCheckoutProtocol.postMessage()` with the JSON RPC message.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 438,
+      "clause": "The Embedded Checkout **MUST** initialize this global object — and start listening for `postMessage()` calls — before the `ec.ready` message is sent.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1254,
+      "clause": "To ensure security, both parties **MUST** implement appropriate **[Content Security Policy (CSP)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)** directives:",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1258,
+      "clause": "**Business:** **MUST** set `frame-ancestors <host_origin>;` to ensure it's only embedded by trusted hosts.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1268,
+      "clause": "**Intermediate Iframe:** The host **MAY** use an intermediate iframe (e.g., on a host-controlled subdomain) to embed the business's page.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1274,
+      "clause": "The intermediate iframe **MUST** implement a strict `frame-src` policy, dynamically set to allow *only* the specific `<merchant_origin>` for the current embedded session (e.g., `frame-src <merchant_origin>;`).",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1282,
+      "clause": "All business iframes **MUST** be sandboxed to restrict their capabilities.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1282,
+      "clause": "The following sandbox attributes **SHOULD** be applied, but a host",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1282,
+      "clause": "business **MAY** negotiate additional capabilities",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-01-23",
+      "file": "docs/specification/embedded-checkout.md",
+      "start_line": 1292,
+      "clause": "Hosts **SHOULD** use the `credentialless` attribute on the iframe to load it in a new, ephemeral context.",
+      "now_on": [
+        "docs/specification/embedded-protocol.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/cart-rest.md",
+      "start_line": 468,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/cart-rest.md",
+      "start_line": 472,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/cart-rest.md",
+      "start_line": 472,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1237,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1241,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/checkout-rest.md",
+      "start_line": 1241,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/rest.md",
+      "start_line": 478,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/rest.md",
+      "start_line": 482,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/rest.md",
+      "start_line": 482,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/catalog/rest.md",
+      "start_line": 608,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "start_line": 1304,
+      "clause": "All requests **MUST** include the `UCP-Agent` header containing the platform profile URI using Dictionary Structured Field syntax ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "start_line": 1308,
+      "clause": "Operations that modify state **SHOULD** support idempotency.",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "start_line": 1308,
+      "clause": "When provided, the server **MUST**:",
+      "now_on": [
+        "docs/specification/lodging/booking/rest.md"
+      ]
+    }
+  ]
+}
