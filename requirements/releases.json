@@ -1,0 +1,63 @@
+{
+  "about": "The specification releases the catalog's history is read from, oldest first. Each is read at the commit given, the head of its release branch when it was pinned. Releases without a shopping folder keep its pages at the top of docs/specification: flat_pages gives each one's path today, and other_pages lists, as patterns, the pages that aren't shopping pages. Paths are relative to docs/specification.",
+  "releases": [
+    {
+      "version": "2026-01-11",
+      "ref": "release/2026-01-11",
+      "commit": "56bad560fbf7d42cc28a8156152f5da94f2505b9"
+    },
+    {
+      "version": "2026-01-23",
+      "ref": "release/2026-01-23",
+      "commit": "e783ffa2eaeaac9938642a3ddae0f2439b6aa488"
+    },
+    {
+      "version": "2026-04-08",
+      "ref": "release/2026-04-08",
+      "commit": "9c9d6fce39ffa8bf7cb66309c378b79fb75b5382"
+    },
+    {
+      "version": "2026-08-25",
+      "ref": "release/2026-08-25",
+      "commit": "87dd4b1fcff9105d68173120897237fa784c74ef"
+    }
+  ],
+  "flat_pages": {
+    "buyer-consent.md": "shopping/extensions/buyer-consent.md",
+    "cart-mcp.md": "shopping/cart/mcp.md",
+    "cart-rest.md": "shopping/cart/rest.md",
+    "cart.md": "shopping/cart/index.md",
+    "catalog/index.md": "shopping/catalog/index.md",
+    "catalog/lookup.md": "shopping/catalog/lookup.md",
+    "catalog/mcp.md": "shopping/catalog/mcp.md",
+    "catalog/rest.md": "shopping/catalog/rest.md",
+    "catalog/search.md": "shopping/catalog/search.md",
+    "checkout-a2a.md": "shopping/checkout/a2a.md",
+    "checkout-mcp.md": "shopping/checkout/mcp.md",
+    "checkout-rest.md": "shopping/checkout/rest.md",
+    "checkout.md": "shopping/checkout/index.md",
+    "discount.md": "shopping/extensions/discount.md",
+    "embedded-cart.md": "shopping/cart/embedded.md",
+    "embedded-checkout.md": "shopping/checkout/embedded.md",
+    "fulfillment.md": "shopping/extensions/fulfillment.md",
+    "order-mcp.md": "shopping/order/mcp.md",
+    "order-rest.md": "shopping/order/rest.md",
+    "order.md": "shopping/order/index.md",
+    "playground.md": "shopping/playground.md"
+  },
+  "other_pages": [
+    "ap2-mandates.md",
+    "embedded-protocol.md",
+    "examples/*.md",
+    "glossary.md",
+    "identity-linking.md",
+    "loyalty.md",
+    "overview.md",
+    "payment-handler-guide.md",
+    "payment-handler-template.md",
+    "permalink.md",
+    "reference.md",
+    "signatures.md",
+    "tokenization-guide.md"
+  ]
+}

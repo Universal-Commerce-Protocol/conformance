@@ -1,0 +1,570 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/catalog/search.md",
+  "summary": {
+    "total": 10,
+    "must_count": 3,
+    "must_not_count": 1,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 1,
+    "should_not_count": 0,
+    "may_count": 5,
+    "by_level": {
+      "MAY": 5,
+      "MUST": 3,
+      "MUST NOT": 1,
+      "SHOULD": 1
+    },
+    "by_actor": {
+      "BUSINESS": 5,
+      "EXTENSION": 1,
+      "IMPLEMENTATION": 2,
+      "PLATFORM": 1,
+      "UNRESOLVED": 1
+    },
+    "by_file": {
+      "docs/specification/shopping/catalog/search.md": 10
+    },
+    "with_condition": 2,
+    "with_referenced_fields": 2,
+    "from_compound_split": 2,
+    "diagnostics": {
+      "actor_after_keyword_only": 1,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 1,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 1,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0001",
+      "text_digest": "40c24b8fcb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "A valid search request MUST include at least one of: a `query` string, one or more `filters`, or an extension-defined input.",
+      "normalized": "a valid search request must include at least one of: a query string, one or more filters, or an extension-defined input",
+      "condition": null,
+      "referenced_fields": [
+        "filters",
+        "query"
+      ],
+      "compound_parent": null,
+      "document_order": 8,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 40,
+        "end_line": 45,
+        "section": "Catalog Search Capability > Search Inputs",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "search-inputs"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: constrains the request",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "constrains the request"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 40,
+            "level": "MUST",
+            "text_digest": "40c24b8fcb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 40,
+            "level": "MUST",
+            "text_digest": "40c24b8fcb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0002",
+      "text_digest": "00372ac58e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.9,
+      "clause": "Extensions MAY define additional inputs (e.g., visual similarity, product references).",
+      "normalized": "extensions may define additional inputs (e.g., visual similarity, product references)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 10,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 40,
+        "end_line": 45,
+        "section": "Catalog Search Capability > Search Inputs",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "search-inputs"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at extension authors",
+        "review": {
+          "verdict": "rule",
+          "actor": "SPEC_AUTHORS",
+          "testable": false,
+          "reason": "aimed at extension authors"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 40,
+            "level": "MAY",
+            "text_digest": "00372ac58e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 40,
+            "level": "MAY",
+            "text_digest": "00372ac58e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0003",
+      "text_digest": "eb6fa97298",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations MUST validate that incoming requests contain at least one recognized input",
+      "normalized": "implementations must validate that incoming requests contain at least one recognized input",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 11,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 47,
+        "end_line": 51,
+        "section": "Catalog Search Capability > Search Inputs",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "search-inputs"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-03",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: an empty request is rejected",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: an empty request is rejected"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 47,
+            "level": "MUST",
+            "text_digest": "eb6fa97298"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 47,
+            "level": "MUST",
+            "text_digest": "eb6fa97298"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0004",
+      "text_digest": "b25650806a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations SHOULD reject empty or invalid requests with an appropriate error.",
+      "normalized": "implementations should reject empty or invalid requests with an appropriate error",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 11,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 47,
+        "end_line": 51,
+        "section": "Catalog Search Capability > Search Inputs",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "search-inputs"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-04",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: an error for an empty or invalid request",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: an error for an empty or invalid request"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 47,
+            "level": "SHOULD",
+            "text_digest": "b25650806a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 47,
+            "level": "SHOULD",
+            "text_digest": "b25650806a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0005",
+      "text_digest": "a4f12b4af8",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Standard filters are defined below; merchants MAY support additional custom filters via `additionalProperties`.",
+      "normalized": "standard filters are defined below; merchants may support additional custom filters via additionalproperties",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 14,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 55,
+        "end_line": 56,
+        "section": "Catalog Search Capability > Search Filters",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "search-filters"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-FILTERS-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/search.md",
+            "start_line": 55,
+            "level": "MAY",
+            "text_digest": "a4f12b4af8"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 55,
+            "level": "MAY",
+            "text_digest": "a4f12b4af8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0006",
+      "text_digest": "723735e908",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A Business **MAY** encode them as stateless keyset tokens.",
+      "normalized": "a business may encode them as stateless keyset tokens",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 19,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 66,
+        "end_line": 67,
+        "section": "Catalog Search Capability > Pagination",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "pagination"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGINATION-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 66,
+            "level": "MAY",
+            "text_digest": "723735e908"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0007",
+      "text_digest": "df9ab2c9da",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When `limit` is omitted, the Business **MUST** apply a default page size.",
+      "normalized": "when limit is omitted, the business must apply a default page size",
+      "condition": "When `limit` is omitted",
+      "referenced_fields": [
+        "limit"
+      ],
+      "compound_parent": null,
+      "document_order": 21,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 71,
+        "end_line": 74,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 71,
+            "level": "MUST",
+            "text_digest": "df9ab2c9da"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0008",
+      "text_digest": "92b975f598",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "A default of 10 is **RECOMMENDED**, but the Business **MAY** choose another value.",
+      "normalized": "a default of 10 is recommended, but the business may choose another value",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 22,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 71,
+        "end_line": 74,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 71,
+            "level": "MAY",
+            "text_digest": "92b975f598"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0009",
+      "text_digest": "048b735954",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MAY** return fewer results than the requested or default page size, including when enforcing its maximum page size.",
+      "normalized": "the business may return fewer results than the requested or default page size, including when enforcing its maximum page size",
+      "condition": "when enforcing its maximum page size",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 23,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 76,
+        "end_line": 78,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 76,
+            "level": "MAY",
+            "text_digest": "048b735954"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-SEARCH-0010",
+      "text_digest": "5eb21c8c87",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.search"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "A Platform **MUST NOT** assume that the response count equals either value.",
+      "normalized": "a platform must not assume that the response count equals either value",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 24,
+      "source": {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "start_line": 76,
+        "end_line": 78,
+        "section": "Catalog Search Capability > Pagination > Page Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/search/",
+        "anchor": "page-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-04",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/search.md",
+            "start_line": 76,
+            "level": "MUST NOT",
+            "text_digest": "5eb21c8c87"
+          }
+        ]
+      }
+    }
+  ]
+}
