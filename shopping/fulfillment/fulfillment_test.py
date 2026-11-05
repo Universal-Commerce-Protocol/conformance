@@ -17,18 +17,31 @@
 import uuid
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import CustomerFixture
+from shopping.base import shopping_test_data
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
-from ucp_sdk.models.schemas.shopping.types import postal_address
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
+try:
+  from ucp_sdk.models.schemas.shopping.types import postal_address
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import postal_address
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class FulfillmentTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.fulfillment")
+class FulfillmentTest(ShoppingIntegrationTestBase):
   """Tests for fulfillment logic.
 
   Validated Paths:
@@ -36,9 +49,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
   - PUT /checkout-sessions/{id}
   """
 
-  def _build_buyer_payload(
-    self, customer: integration_test_utils.CustomerFixture
-  ) -> dict[str, str]:
+  def _build_buyer_payload(self, customer: CustomerFixture) -> dict[str, str]:
     """Build a create-checkout buyer payload from a customer fixture."""
     return {
       "fullName": customer.get("full_name", "Known Customer"),
@@ -93,7 +104,7 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     ctx = getattr(self, "fixture_ctx", None)
     dest_data = ctx.get_test_destination() if ctx else None
     if not dest_data:
-      addr_csv = integration_test_utils.test_data.addresses[0]
+      addr_csv = shopping_test_data.addresses[0]
       dest_data = {
         "street": addr_csv["street_address"],
         "city": addr_csv["city"],

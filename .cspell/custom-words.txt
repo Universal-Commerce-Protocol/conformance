@@ -28,6 +28,7 @@ dpan
 Etsy
 ewallet
 EWALLET
+flagsaver
 Flipkart
 fontawesome
 fpan
