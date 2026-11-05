@@ -24,6 +24,7 @@ from pathlib import Path
 import sys
 import unittest
 from absl import flags
+from framework import marker_check
 from framework.base_test import BaseIntegrationTest, is_local_url
 from framework.discovery import (
   UcpProfile,
@@ -409,6 +410,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     action="store_true",
     help="List selected test cases without contacting the server.",
   )
+  parser.add_argument(
+    "--requirements_check",
+    choices=marker_check.MODES,
+    default="strict",
+    help="Check the shopping tests' spec markers against the requirements "
+    "catalog before running: strict stops on problems, warn only reports "
+    "them, off skips the check (default: strict).",
+  )
   args = parser.parse_args(argv)
   target = {}
   if args.target_dir:
@@ -481,6 +490,20 @@ def main(argv: list[str] | None = None) -> int:
   sys.stdout.write(
     f"Resolved {total_tests} test cases across suite '{args.suite}'\n"
   )
+
+  loaded = [
+    marker_check.from_unittest(test) for test in _iter_tests(test_suite)
+  ]
+  report, stop = marker_check.evaluate(loaded, args.requirements_check)
+  if report:
+    sys.stdout.write("\n" + report)
+  if stop:
+    sys.stdout.flush()
+    sys.stderr.write(
+      "\nRequirements check failed: fix the problems above, or pass "
+      "--requirements_check=warn to run anyway.\n"
+    )
+    return 1
 
   if args.dry_run:
     sys.stdout.write("\nDry Run - Selected Tests:\n")

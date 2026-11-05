@@ -16,7 +16,14 @@
 
 from framework.agent_profile_server import AgentProfileServer
 from framework.base_test import BaseIntegrationTest
-from framework.decorators import requires_capability, spec_assert
+from framework.decorators import (
+  no_rule,
+  older_version,
+  outside_catalog,
+  requires_capability,
+  scenario,
+  spec_assert,
+)
 from framework.discovery import Capability, UcpProfile, fetch_server_profile
 from framework.mock_webhook_server import MockWebhookServer
 from framework.platform import PlatformProfile, PlatformRequirement
@@ -30,6 +37,10 @@ __all__ = [
   "PlatformRequirement",
   "UcpProfile",
   "fetch_server_profile",
+  "no_rule",
+  "older_version",
+  "outside_catalog",
   "requires_capability",
+  "scenario",
   "spec_assert",
 ]
