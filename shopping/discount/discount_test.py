@@ -15,7 +15,10 @@
 """Discount application tests for the UCP Shopping vertical."""
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  requires_capability,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import discount as discount
@@ -51,6 +54,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
   - PUT /checkout-sessions/{id}
   """
 
+  @no_rule(
+    "discount.md, Operations: active discounts appear in discounts.applied "
+    "and their amounts in totals[], with no keyword"
+  )
   def test_discount_flow(self):
     """Test that valid discount codes decrease the total amount.
 
@@ -123,6 +130,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
       "Applied discounts field incorrect",
     )
 
+  @no_rule(
+    "discount.md: one or more codes can be submitted and stack by priority; "
+    "both then appear in discounts.applied, with no keyword"
+  )
   def test_multiple_discounts_accepted(self):
     """Test that multiple valid discount codes are both applied.
 
@@ -182,6 +193,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
     self.assertIn(valid_code_1, applied_codes)
     self.assertIn(valid_code_2, applied_codes)
 
+  @no_rule(
+    "discount.md, Rejected Codes: a code that cannot be applied is reported "
+    "in messages[], and applied lists only active discounts; no keyword"
+  )
   def test_multiple_discounts_one_rejected(self):
     """Test requesting multiple discounts where one is valid and one is not.
 
@@ -221,6 +236,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
     self.assertIn(valid_code, applied_codes)
     self.assertNotIn("INVALID_CODE", applied_codes)
 
+  @no_rule(
+    "discount.md, Allocation Details: applied[].amount is the discount's "
+    "magnitude and totals[] its signed effect, with no keyword"
+  )
   def test_fixed_amount_discount(self):
     """Test that a fixed-amount discount code decreases the total correctly.
 
@@ -268,6 +287,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
       "applied discount amount must match the configured fixed reduction",
     )
 
+  @no_rule(
+    "discount.md, Rejected Codes: a code that cannot be applied is reported "
+    "in messages[]; no keyword says it must not produce a discount"
+  )
   def test_unknown_discount_code(self):
     """Test that unknown discount codes are ignored."""
     response_json = self.create_checkout_session()

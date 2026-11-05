@@ -50,7 +50,13 @@ from typing import Any
 
 from absl.testing import absltest
 from framework.base_test import FLAGS
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  older_version,
+  partly,
+  requires_capability,
+  spec_assert,
+)
 from framework.mock_webhook_server import MockWebhookServer
 from shopping.base import ShoppingIntegrationTestBase
 
@@ -174,6 +180,10 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
     )
 
   # ── order.md "Order Event Webhook": Standard Webhooks headers ───────────
+  @no_rule(
+    "order/index.md, Order Event Webhook: a 'Required Headers' table lists "
+    "Webhook-Id and Webhook-Timestamp (unix), with no keyword"
+  )
   def test_delivery_carries_standard_webhook_headers(self) -> None:
     """Every delivery carries Webhook-Id and a unix Webhook-Timestamp."""
     _, _, event = self._place_order()
@@ -196,6 +206,11 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
       f"Webhook-Timestamp {timestamp} does not parse as unix seconds",
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-ORDER-0018",  # retries keep Webhook-Id and Webhook-Timestamp
+    "REQ-SHOPPING-ORDER-0025",  # MUST retry failed webhook deliveries
+    "REQ-SHOPPING-ORDER-0026",  # same rule as 0018, in Business guidelines
+  )
   def test_transient_failure_retries_preserve_event_identity(self) -> None:
     """A failed delivery is retried as the same webhook event."""
     self.webhook_server.failures_before_success = 1
@@ -247,11 +262,19 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
     )
 
   # ── order.md "Events": fully populated order entity ─────────────────────
+  @spec_assert(
+    "REQ-SHOPPING-ORDER-0008",  # full entity on every response, delivery too
+    "REQ-SHOPPING-ORDER-0023",  # MUST send "Order created" with full entity
+  )
   def test_order_created_event_is_full_order_entity(self) -> None:
     """The 'Order created' delivery body is the full order entity."""
     checkout_id, order_id, event = self._place_order()
     self._assert_full_order_entity(event["payload"], checkout_id, order_id)
 
+  @spec_assert(
+    "REQ-SHOPPING-ORDER-0008",  # full entity on every response, delivery too
+    "REQ-SHOPPING-ORDER-0024",  # full order entity on updates, not deltas
+  )
   def test_update_event_is_full_order_entity(self) -> None:
     """An update delivery is the full current-state snapshot, not a delta."""
     checkout_id, order_id, _ = self._place_order()
@@ -310,6 +333,15 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
       )
     return event
 
+  @spec_assert(
+    "REQ-SHOPPING-ORDER-0021",  # UCP-Agent header with the profile URL
+    partly(
+      "REQ-SHOPPING-ORDER-0022",  # sign payloads with RFC 9421 headers
+      "the RFC 9421 headers, their shape and the Content-Digest; "
+      "test_delivery_signature_verifies_against_business_keys verifies the "
+      "value",
+    ),
+  )
   def test_signed_delivery_carries_required_headers_and_digest(self) -> None:
     """A signed delivery carries all four headers; the digest matches."""
     event = self._signed_event()
@@ -347,6 +379,12 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
       "Content-Digest does not match the SHA-256 of the raw delivery body",
     )
 
+  @older_version(
+    "2026-04-08",
+    "ucp#659 made webhook signatures also cover webhook-id and "
+    "webhook-timestamp, and fixed the order example that the ucp-agent skip "
+    "waits on; the rule is in signatures.md, outside the catalog",
+  )
   def test_signature_covers_ucp_agent(self) -> None:
     """The signed components include ucp-agent (binds signer identity).
 
