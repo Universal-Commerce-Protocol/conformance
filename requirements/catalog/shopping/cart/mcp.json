@@ -1,0 +1,266 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/cart/mcp.md",
+  "summary": {
+    "total": 4,
+    "must_count": 2,
+    "must_not_count": 1,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 0,
+    "should_not_count": 0,
+    "may_count": 1,
+    "by_level": {
+      "MAY": 1,
+      "MUST": 2,
+      "MUST NOT": 1
+    },
+    "by_actor": {
+      "IMPLEMENTATION": 1,
+      "PLATFORM": 2,
+      "UNRESOLVED": 1
+    },
+    "by_file": {
+      "docs/specification/shopping/cart/mcp.md": 4
+    },
+    "with_condition": 0,
+    "with_referenced_fields": 2,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 1,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 3,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CART-0058",
+      "text_digest": "7d9d798bfd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "MCP clients **MUST** include a `meta` object in every request containing protocol metadata:",
+      "normalized": "mcp clients must include a meta object in every request containing protocol metadata",
+      "condition": null,
+      "referenced_fields": [
+        "meta"
+      ],
+      "compound_parent": null,
+      "document_order": 3,
+      "source": {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "start_line": 68,
+        "end_line": 69,
+        "section": "Cart Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-MCP-REQUEST-METADATA-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-mcp.md",
+            "start_line": 66,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/mcp.md",
+            "start_line": 68,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0059",
+      "text_digest": "160daf898a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** include additional metadata fields.",
+      "normalized": "platforms may include additional metadata fields",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 5,
+      "source": {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "start_line": 91,
+        "end_line": 93,
+        "section": "Cart Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-MCP-REQUEST-METADATA-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-mcp.md",
+            "start_line": 88,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/mcp.md",
+            "start_line": 91,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0060",
+      "text_digest": "27773aeefb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `cart` object in the request payload **MUST NOT** contain an `id` field.",
+      "normalized": "the cart object in the request payload must not contain an id field",
+      "condition": null,
+      "referenced_fields": [
+        "cart",
+        "id"
+      ],
+      "compound_parent": "MCP tools separate resource identification from payload data:",
+      "document_order": 9,
+      "source": {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "start_line": 103,
+        "end_line": 105,
+        "section": "Cart Capability - MCP Binding > Tools > Identifier Pattern",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/mcp/",
+        "anchor": "identifier-pattern"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-MCP-IDENTIFIER-PATTERN-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-mcp.md",
+            "start_line": 100,
+            "level": "MUST NOT",
+            "text_digest": "27773aeefb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/mcp.md",
+            "start_line": 103,
+            "level": "MUST NOT",
+            "text_digest": "27773aeefb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0061",
+      "text_digest": "748fc7ead3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "A conforming MCP transport implementation **MUST**:",
+      "normalized": "a conforming mcp transport implementation must",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 58,
+      "source": {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "start_line": 651,
+        "end_line": 651,
+        "section": "Cart Capability - MCP Binding > Conformance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-MCP-CONFORMANCE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-mcp.md",
+            "start_line": 635,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/mcp.md",
+            "start_line": 651,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ Amex
 Ant
 Anytown
 atok
+autojunk
 backorder
 Backordered
 Braintree

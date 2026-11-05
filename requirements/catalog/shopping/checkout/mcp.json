@@ -1,0 +1,729 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/checkout/mcp.md",
+  "summary": {
+    "total": 12,
+    "must_count": 5,
+    "must_not_count": 2,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 3,
+    "should_not_count": 0,
+    "may_count": 2,
+    "by_level": {
+      "MAY": 2,
+      "MUST": 5,
+      "MUST NOT": 2,
+      "SHOULD": 3
+    },
+    "by_actor": {
+      "BUSINESS": 1,
+      "IMPLEMENTATION": 4,
+      "PLATFORM": 4,
+      "UNRESOLVED": 3
+    },
+    "by_file": {
+      "docs/specification/shopping/checkout/mcp.md": 12
+    },
+    "with_condition": 3,
+    "with_referenced_fields": 4,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 2,
+      "actor_unresolved": 3,
+      "annotation_as_obligation": 2,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 2,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0229",
+      "text_digest": "7d9d798bfd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "MCP clients **MUST** include a `meta` object in every request containing protocol metadata:",
+      "normalized": "mcp clients must include a meta object in every request containing protocol metadata",
+      "condition": null,
+      "referenced_fields": [
+        "meta"
+      ],
+      "compound_parent": null,
+      "document_order": 3,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 82,
+        "end_line": 83,
+        "section": "Checkout Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-REQUEST-METADATA-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 78,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 81,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 82,
+            "level": "MUST",
+            "text_digest": "7d9d798bfd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0230",
+      "text_digest": "160daf898a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** include additional metadata fields.",
+      "normalized": "platforms may include additional metadata fields",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 6,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 106,
+        "end_line": 110,
+        "section": "Checkout Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "request-metadata"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-REQUEST-METADATA-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 101,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 104,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 106,
+            "level": "MAY",
+            "text_digest": "160daf898a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0231",
+      "text_digest": "bd19e02460",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `checkout` object in the request payload **MUST NOT** contain an `id` field.",
+      "normalized": "the checkout object in the request payload must not contain an id field",
+      "condition": null,
+      "referenced_fields": [
+        "checkout",
+        "id"
+      ],
+      "compound_parent": "MCP tools separate resource identification from payload data:",
+      "document_order": 10,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 120,
+        "end_line": 123,
+        "section": "Checkout Capability - MCP Binding > Tools > Identifier Pattern",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "identifier-pattern"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-IDENTIFIER-PATTERN-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 95,
+            "level": "MUST NOT",
+            "text_digest": "bd19e02460"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 115,
+            "level": "MUST NOT",
+            "text_digest": "bd19e02460"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 118,
+            "level": "MUST NOT",
+            "text_digest": "bd19e02460"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 120,
+            "level": "MUST NOT",
+            "text_digest": "bd19e02460"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0232",
+      "text_digest": "b640f75fbf",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MUST NOT** start a new `update_checkout` operation while the Checkout is `complete_in_progress`.",
+      "normalized": "the platform must not start a new update_checkout operation while the checkout is complete_in_progress",
+      "condition": "while the Checkout is `complete_in_progress`",
+      "referenced_fields": [
+        "complete_in_progress",
+        "update_checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 51,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 392,
+        "end_line": 396,
+        "section": "Checkout Capability - MCP Binding > Tools > `update_checkout`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "update_checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-UPDATE-CHECKOUT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 392,
+            "level": "MUST NOT",
+            "text_digest": "b640f75fbf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0233",
+      "text_digest": "35bccf4f4a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "If the Business receives a new `update_checkout` request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.",
+      "normalized": "if the business receives a new update_checkout request in that state, it must leave the checkout unchanged and return the current checkout with a recoverable error message",
+      "condition": "If the Business receives a new `update_checkout` request in that state",
+      "referenced_fields": [
+        "update_checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 53,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 392,
+        "end_line": 396,
+        "section": "Checkout Capability - MCP Binding > Tools > `update_checkout`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "update_checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-UPDATE-CHECKOUT-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "reviewed: MCP binding; the REST page states the same rule",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "MCP binding; the REST page states the same rule"
+        },
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 392,
+            "level": "MUST",
+            "text_digest": "35bccf4f4a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0234",
+      "text_digest": "9f730a1543",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **SHOULD** authenticate agents when using MCP transport.",
+      "normalized": "platforms should authenticate agents when using mcp transport",
+      "condition": "when using MCP transport",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 118,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 740,
+        "end_line": 742,
+        "section": "Checkout Capability - MCP Binding > Message Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "message-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-MESSAGE-SIGNING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 716,
+            "level": "SHOULD",
+            "text_digest": "9f730a1543"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 737,
+            "level": "SHOULD",
+            "text_digest": "9f730a1543"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0235",
+      "text_digest": "833d001a11",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Response signatures are **RECOMMENDED** for:",
+      "normalized": "response signatures are recommended for",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 142,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 782,
+        "end_line": 782,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "response-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-RESPONSE-SIGNING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 758,
+            "level": "SHOULD",
+            "text_digest": "833d001a11"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 779,
+            "level": "SHOULD",
+            "text_digest": "833d001a11"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0236",
+      "text_digest": "eb1ea646bd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Response signatures are **OPTIONAL** for:",
+      "normalized": "response signatures are optional for",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 144,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 786,
+        "end_line": 786,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "response-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-RESPONSE-SIGNING-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 762,
+            "level": "MAY",
+            "text_digest": "eb1ea646bd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 783,
+            "level": "MAY",
+            "text_digest": "eb1ea646bd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0237",
+      "text_digest": "748fc7ead3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "A conforming MCP transport implementation **MUST**:",
+      "normalized": "a conforming mcp transport implementation must",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 148,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 807,
+        "end_line": 807,
+        "section": "Checkout Capability - MCP Binding > Conformance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-CONFORMANCE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 600,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 601,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 783,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 804,
+            "level": "MUST",
+            "text_digest": "748fc7ead3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0238",
+      "text_digest": "89481e6bfe",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "A conforming implementation **SHOULD**:",
+      "normalized": "a conforming implementation should",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 155,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 817,
+        "end_line": 817,
+        "section": "Checkout Capability - MCP Binding > Conformance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "conformance"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-CONFORMANCE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 793,
+            "level": "SHOULD",
+            "text_digest": "89481e6bfe"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 814,
+            "level": "SHOULD",
+            "text_digest": "89481e6bfe"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0239",
+      "text_digest": "66b14d426c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.5,
+      "clause": "Implementers **MUST** apply this transformation:",
+      "normalized": "implementers must apply this transformation",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 160,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 825,
+        "end_line": 829,
+        "section": "Checkout Capability - MCP Binding > Implementation",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "implementation"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-IMPLEMENTATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 612,
+            "level": "MUST",
+            "text_digest": "66b14d426c"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 801,
+            "level": "MUST",
+            "text_digest": "66b14d426c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 822,
+            "level": "MUST",
+            "text_digest": "66b14d426c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0240",
+      "text_digest": "dc67c9c070",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.5,
+      "clause": "Implementers **MUST** expose this as an MCP `tools/call` endpoint:",
+      "normalized": "implementers must expose this as an mcp tools/call endpoint",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 170,
+      "source": {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "start_line": 859,
+        "end_line": 859,
+        "section": "Checkout Capability - MCP Binding > Implementation",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/mcp/",
+        "anchor": "implementation"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-MCP-IMPLEMENTATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "mcp",
+        "testable": false,
+        "testable_reason": "MCP binding page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 645,
+            "level": "MUST",
+            "text_digest": "dc67c9c070"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-mcp.md",
+            "start_line": 834,
+            "level": "MUST",
+            "text_digest": "dc67c9c070"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/mcp.md",
+            "start_line": 856,
+            "level": "MUST",
+            "text_digest": "dc67c9c070"
+          }
+        ]
+      }
+    }
+  ]
+}

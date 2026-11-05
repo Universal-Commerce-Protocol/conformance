@@ -1,0 +1,1590 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/cart/index.md",
+  "summary": {
+    "total": 29,
+    "must_count": 6,
+    "must_not_count": 2,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 12,
+    "should_not_count": 0,
+    "may_count": 9,
+    "by_level": {
+      "MAY": 9,
+      "MUST": 6,
+      "MUST NOT": 2,
+      "SHOULD": 12
+    },
+    "by_actor": {
+      "BUSINESS": 14,
+      "PLATFORM": 11,
+      "UNRESOLVED": 4
+    },
+    "by_file": {
+      "docs/specification/shopping/cart/index.md": 29
+    },
+    "with_condition": 9,
+    "with_referenced_fields": 11,
+    "from_compound_split": 4,
+    "diagnostics": {
+      "actor_after_keyword_only": 1,
+      "actor_low_confidence": 10,
+      "actor_unresolved": 4,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 1,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 2,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CART-0001",
+      "text_digest": "94c63ccb74",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Because the cart checkout extension composes onto the base Checkout schema, `line_items` remains a required request field; the platform MUST include line_items",
+      "normalized": "because the cart checkout extension composes onto the base checkout schema, line_items remains a required request field; the platform must include line_items",
+      "condition": null,
+      "referenced_fields": [
+        "line_items"
+      ],
+      "compound_parent": null,
+      "document_order": 38,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 67,
+        "end_line": 71,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "draft",
+        "releases": []
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0002",
+      "text_digest": "f2b0ac0e44",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Because the cart checkout extension composes onto the base Checkout schema, `line_items` remains a required request field; the platform SHOULD set it to an empty array (`\"line_items\": []`). array (`\"line_items\": []`).",
+      "normalized": "because the cart checkout extension composes onto the base checkout schema, line_items remains a required request field; the platform should set it to an empty array (\"line_items\": []). array (\"line_items\": [])",
+      "condition": null,
+      "referenced_fields": [
+        "line_items"
+      ],
+      "compound_parent": null,
+      "document_order": 38,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 67,
+        "end_line": 71,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform",
+          "note": "spec typo: cart/index.md repeats 'array (`\"line_items\": []`).' across lines 68-69"
+        },
+        "since": "draft",
+        "releases": []
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0003",
+      "text_digest": "cbf1d2e8f8",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The business MUST use the cart contents",
+      "normalized": "the business must use the cart contents",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 39,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 67,
+        "end_line": 71,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-03",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: a checkout created from a cart reflects the cart's contents",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "a checkout created from a cart reflects the cart's contents"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 66,
+            "level": "MUST",
+            "text_digest": "f7ee20ccd2",
+            "clause": "Business MUST use cart contents"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 67,
+            "level": "MUST",
+            "text_digest": "f7ee20ccd2",
+            "clause": "Business MUST use cart contents"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0004",
+      "text_digest": "224effb21d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The business MUST ignore overlapping fields in the checkout payload.",
+      "normalized": "the business must ignore overlapping fields in the checkout payload",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 39,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 67,
+        "end_line": 71,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-04",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: conflicting checkout fields are ignored",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: conflicting checkout fields are ignored"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 66,
+            "level": "MUST",
+            "text_digest": "f653a5827f",
+            "clause": "Business MUST ignore overlapping fields in checkout payload."
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 67,
+            "level": "MUST",
+            "text_digest": "f653a5827f",
+            "clause": "Business MUST ignore overlapping fields in checkout payload."
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0005",
+      "text_digest": "806cb9a689",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "If an incomplete checkout already exists for the given `cart_id`, the business MUST return the existing checkout session rather than creating a new one.",
+      "normalized": "if an incomplete checkout already exists for the given cart_id, the business must return the existing checkout session rather than creating a new one",
+      "condition": "If an incomplete checkout already exists for the given `cart_id`",
+      "referenced_fields": [
+        "cart_id"
+      ],
+      "compound_parent": null,
+      "document_order": 42,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 75,
+        "end_line": 77,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-05",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the same checkout ID comes back",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the same checkout ID comes back"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 72,
+            "level": "MUST",
+            "text_digest": "806cb9a689"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 73,
+            "level": "MUST",
+            "text_digest": "806cb9a689"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0006",
+      "text_digest": "7bceaecc6b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When checkout is initialized via `cart_id`, the cart and checkout sessions SHOULD be linked for the duration of the checkout.",
+      "normalized": "when checkout is initialized via cart_id, the cart and checkout sessions should be linked for the duration of the checkout",
+      "condition": "When checkout is initialized via `cart_id`",
+      "referenced_fields": [
+        "cart_id"
+      ],
+      "compound_parent": null,
+      "document_order": 45,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 81,
+        "end_line": 82,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-06",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: business behavior, but 'linked' is only visible indirectly (through the next rule)",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "business behavior, but 'linked' is only visible indirectly (through the next rule)"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 78,
+            "level": "SHOULD",
+            "text_digest": "7bceaecc6b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 79,
+            "level": "SHOULD",
+            "text_digest": "7bceaecc6b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0007",
+      "text_digest": "c0e93a9c7b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**During active checkout** — Business SHOULD maintain the cart and reflect relevant checkout modifications (quantity changes, item removals) back to the cart.",
+      "normalized": "during active checkout - business should maintain the cart and reflect relevant checkout modifications (quantity changes, item removals) back to the cart",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 46,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 84,
+        "end_line": 87,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-07",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the cart reflects checkout changes",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the cart reflects checkout changes"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 81,
+            "level": "SHOULD",
+            "text_digest": "c0e93a9c7b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 82,
+            "level": "SHOULD",
+            "text_digest": "c0e93a9c7b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0008",
+      "text_digest": "eb1bb7f6a1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "**After checkout completion** — Business MAY clear the cart based on TTL, completion of the checkout, or other business logic.",
+      "normalized": "after checkout completion - business may clear the cart based on ttl, completion of the checkout, or other business logic",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 48,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 89,
+        "end_line": 92,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "cart-to-checkout-conversion"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CART-TO-CHECKOUT-08",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 86,
+            "level": "MAY",
+            "text_digest": "eb1bb7f6a1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 87,
+            "level": "MAY",
+            "text_digest": "eb1bb7f6a1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0009",
+      "text_digest": "270ff2319a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MAY** include `item.quantity_unit` to assert the sale-basis identity.",
+      "normalized": "the platform may include item.quantity_unit to assert the sale-basis identity",
+      "condition": null,
+      "referenced_fields": [
+        "item.quantity_unit"
+      ],
+      "compound_parent": null,
+      "document_order": 55,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 103,
+        "end_line": 107,
+        "section": "Cart Capability > Quantity and sale basis",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "quantity-and-sale-basis"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-QUANTITY-AND-SALE-BASIS-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 101,
+            "level": "MAY",
+            "text_digest": "270ff2319a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0010",
+      "text_digest": "b06903616a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The Business **MUST NOT** treat an outstanding Action as a reason to reject an unrelated cart operation.",
+      "normalized": "the business must not treat an outstanding action as a reason to reject an unrelated cart operation",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 62,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 121,
+        "end_line": 124,
+        "section": "Cart Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-ACTIONS-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 119,
+            "level": "MUST NOT",
+            "text_digest": "b06903616a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0011",
+      "text_digest": "8aadc86b6f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MAY** continue to add, remove, and update items while an Action is outstanding.",
+      "normalized": "the platform may continue to add, remove, and update items while an action is outstanding",
+      "condition": "while an Action is outstanding",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 63,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 121,
+        "end_line": 124,
+        "section": "Cart Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-ACTIONS-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 119,
+            "level": "MAY",
+            "text_digest": "8aadc86b6f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0012",
+      "text_digest": "43243fdbc1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "After processing an Action, the Platform **SHOULD** use [Get Cart](#get-cart) or a subsequent update response to obtain the latest Cart.",
+      "normalized": "after processing an action, the platform should use get cart or a subsequent update response to obtain the latest cart",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 64,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 126,
+        "end_line": 127,
+        "section": "Cart Capability > Actions",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "actions"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-ACTIONS-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 124,
+            "level": "SHOULD",
+            "text_digest": "43243fdbc1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0013",
+      "text_digest": "ee96ea27c0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "**MAY** use carts for pre-purchase exploration and session persistence.",
+      "normalized": "may use carts for pre-purchase exploration and session persistence",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 69,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 145,
+        "end_line": 145,
+        "section": "Cart Capability > Guidelines > Platform",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "platform"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-PLATFORM-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 107,
+            "level": "MAY",
+            "text_digest": "ee96ea27c0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 143,
+            "level": "MAY",
+            "text_digest": "ee96ea27c0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0014",
+      "text_digest": "e9a222cc67",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** convert cart to checkout when user expresses purchase intent.",
+      "normalized": "should convert cart to checkout when user expresses purchase intent",
+      "condition": "when user expresses purchase intent",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 70,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 146,
+        "end_line": 146,
+        "section": "Cart Capability > Guidelines > Platform",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "platform"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-PLATFORM-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 108,
+            "level": "SHOULD",
+            "text_digest": "e9a222cc67"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 144,
+            "level": "SHOULD",
+            "text_digest": "e9a222cc67"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0015",
+      "text_digest": "a44182f239",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "**MAY** display `continue_url` for handoff to business UI.",
+      "normalized": "may display continue_url for handoff to business ui",
+      "condition": null,
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 71,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 147,
+        "end_line": 147,
+        "section": "Cart Capability > Guidelines > Platform",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "platform"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-PLATFORM-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 109,
+            "level": "MAY",
+            "text_digest": "a44182f239"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 145,
+            "level": "MAY",
+            "text_digest": "a44182f239"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0016",
+      "text_digest": "fd4476d57f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** handle `not_found` gracefully when cart expires or is canceled.",
+      "normalized": "should handle not_found gracefully when cart expires or is canceled",
+      "condition": "when cart expires or is canceled",
+      "referenced_fields": [
+        "not_found"
+      ],
+      "compound_parent": null,
+      "document_order": 72,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 148,
+        "end_line": 148,
+        "section": "Cart Capability > Guidelines > Platform",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "platform"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-PLATFORM-04",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 110,
+            "level": "SHOULD",
+            "text_digest": "fd4476d57f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 146,
+            "level": "SHOULD",
+            "text_digest": "fd4476d57f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0017",
+      "text_digest": "a865390d42",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** provide `continue_url` for cart handoff and session recovery.",
+      "normalized": "should provide continue_url for cart handoff and session recovery",
+      "condition": null,
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 73,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 152,
+        "end_line": 152,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 114,
+            "level": "SHOULD",
+            "text_digest": "a865390d42"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 150,
+            "level": "SHOULD",
+            "text_digest": "a865390d42"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0018",
+      "text_digest": "58b0c041a9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** provide estimated totals when calculable.",
+      "normalized": "should provide estimated totals when calculable",
+      "condition": "when calculable",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 75,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 154,
+        "end_line": 154,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-02",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 116,
+            "level": "SHOULD",
+            "text_digest": "58b0c041a9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 152,
+            "level": "SHOULD",
+            "text_digest": "58b0c041a9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0019",
+      "text_digest": "917c61cb95",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MAY** omit fulfillment totals until checkout when address is unknown.",
+      "normalized": "may omit fulfillment totals until checkout when address is unknown",
+      "condition": "when address is unknown",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 76,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 155,
+        "end_line": 155,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-03",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 117,
+            "level": "MAY",
+            "text_digest": "917c61cb95"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 153,
+            "level": "MAY",
+            "text_digest": "917c61cb95"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0020",
+      "text_digest": "02d0f50b5c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** return informational messages for validation warnings.",
+      "normalized": "should return informational messages for validation warnings",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 77,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 156,
+        "end_line": 156,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-04",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 118,
+            "level": "SHOULD",
+            "text_digest": "02d0f50b5c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 154,
+            "level": "SHOULD",
+            "text_digest": "02d0f50b5c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0021",
+      "text_digest": "f7f262706c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**MAY** set cart expiry via `expires_at`.",
+      "normalized": "may set cart expiry via expires_at",
+      "condition": null,
+      "referenced_fields": [
+        "expires_at"
+      ],
+      "compound_parent": null,
+      "document_order": 78,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 157,
+        "end_line": 157,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-05",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 119,
+            "level": "MAY",
+            "text_digest": "f7f262706c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 155,
+            "level": "MAY",
+            "text_digest": "f7f262706c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0022",
+      "text_digest": "ffbb6a7174",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** follow [cart lifecycle requirements](#cart-to-checkout-conversion) when checkout is initialized via `cart_id`.",
+      "normalized": "should follow cart lifecycle requirements when checkout is initialized via cart_id",
+      "condition": "when checkout is initialized via `cart_id`",
+      "referenced_fields": [
+        "cart_id"
+      ],
+      "compound_parent": null,
+      "document_order": 79,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 158,
+        "end_line": 159,
+        "section": "Cart Capability > Guidelines > Business",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/",
+        "anchor": "business"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-BUSINESS-06",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 120,
+            "level": "SHOULD",
+            "text_digest": "ffbb6a7174"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 156,
+            "level": "SHOULD",
+            "text_digest": "ffbb6a7174"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0023",
+      "text_digest": "1376be1e26",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When **all** requested items are unavailable, the business MAY return an error response instead of creating a cart resource.",
+      "normalized": "when all requested items are unavailable, the business may return an error response instead of creating a cart resource",
+      "condition": "When all requested items are unavailable",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 91,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 181,
+        "end_line": 184,
+        "section": "Cart Capability > Operations > Create Cart",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "create-cart"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CREATE-CART-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 143,
+            "level": "MAY",
+            "text_digest": "1376be1e26"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 179,
+            "level": "MAY",
+            "text_digest": "1376be1e26"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0024",
+      "text_digest": "911557d18f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The platform **MUST** send the entire cart resource.",
+      "normalized": "the platform must send the entire cart resource",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 100,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 215,
+        "end_line": 217,
+        "section": "Cart Capability > Operations > Update Cart",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "update-cart"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-UPDATE-CART-01",
+        "capability_source": "bullet",
+        "keyword_style": "bold",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 176,
+            "level": "MUST",
+            "text_digest": "911557d18f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 213,
+            "level": "MUST",
+            "text_digest": "911557d18f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0025",
+      "text_digest": "6e0bf927e2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Business MUST return the cart state before deletion.",
+      "normalized": "business must return the cart state before deletion",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 105,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 224,
+        "end_line": 225,
+        "section": "Cart Capability > Operations > Cancel Cart",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cancel-cart"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CANCEL-CART-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible in the cancel response",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in the cancel response"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 185,
+            "level": "MUST",
+            "text_digest": "6e0bf927e2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 222,
+            "level": "MUST",
+            "text_digest": "6e0bf927e2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0026",
+      "text_digest": "0fbda2ac13",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Subsequent operations for this cart ID SHOULD return `not_found`.",
+      "normalized": "subsequent operations for this cart id should return not_found",
+      "condition": null,
+      "referenced_fields": [
+        "not_found"
+      ],
+      "compound_parent": null,
+      "document_order": 106,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 224,
+        "end_line": 225,
+        "section": "Cart Capability > Operations > Cancel Cart",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "cancel-cart"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-CANCEL-CART-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: later calls return not_found",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: later calls return not_found"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 185,
+            "level": "SHOULD",
+            "text_digest": "0fbda2ac13"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 222,
+            "level": "SHOULD",
+            "text_digest": "0fbda2ac13"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0027",
+      "text_digest": "d17ebc6153",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Signal values MUST NOT be buyer-asserted claims.",
+      "normalized": "signal values must not be buyer-asserted claims",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 119,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 267,
+        "end_line": 270,
+        "section": "Cart Capability > Entities > Signals",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "signals"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-SIGNALS-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: signals are supplied by the platform ('platforms provide signals', checkout page)",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "signals are supplied by the platform ('platforms provide signals', checkout page)"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 228,
+            "level": "MUST NOT",
+            "text_digest": "d17ebc6153"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 265,
+            "level": "MUST NOT",
+            "text_digest": "d17ebc6153"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0028",
+      "text_digest": "e0b70c9533",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Taxes MAY be included where calculable.",
+      "normalized": "taxes may be included where calculable",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 128,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 291,
+        "end_line": 292,
+        "section": "Cart Capability > Entities > Total",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "total"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-TOTAL-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on the totals the business returns",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on the totals the business returns"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 252,
+            "level": "MAY",
+            "text_digest": "e0b70c9533"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 289,
+            "level": "MAY",
+            "text_digest": "e0b70c9533"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0029",
+      "text_digest": "c4f79c54ee",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms SHOULD assume cart totals are estimates; accurate taxes are computed at checkout.",
+      "normalized": "platforms should assume cart totals are estimates; accurate taxes are computed at checkout",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 129,
+      "source": {
+        "file": "docs/specification/shopping/cart/index.md",
+        "start_line": 291,
+        "end_line": 292,
+        "section": "Cart Capability > Entities > Total",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/",
+        "anchor": "total"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-TOTAL-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the platform",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "aimed at the platform"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart.md",
+            "start_line": 252,
+            "level": "SHOULD",
+            "text_digest": "c4f79c54ee"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/index.md",
+            "start_line": 289,
+            "level": "SHOULD",
+            "text_digest": "c4f79c54ee"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/checkout/a2a.md",
+  "summary": {
+    "total": 1,
+    "must_count": 1,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 0,
+    "should_not_count": 0,
+    "may_count": 0,
+    "by_level": {
+      "MUST": 1
+    },
+    "by_actor": {
+      "UNRESOLVED": 1
+    },
+    "by_file": {
+      "docs/specification/shopping/checkout/a2a.md": 1
+    },
+    "with_condition": 0,
+    "with_referenced_fields": 1,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 1,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0151",
+      "text_digest": "3fd4c0c210",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The checkout object **MUST** be returned as part of a `DataPart` object with key `a2a.ucp.checkout`.",
+      "normalized": "the checkout object must be returned as part of a datapart object with key a2a.ucp.checkout",
+      "condition": null,
+      "referenced_fields": [
+        "a2a.ucp.checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 31,
+      "source": {
+        "file": "docs/specification/shopping/checkout/a2a.md",
+        "start_line": 141,
+        "end_line": 147,
+        "section": "Checkout Capability - A2A Binding > Checkout Functionality",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/a2a/",
+        "anchor": "checkout-functionality"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-A2A-CHECKOUT-FUNCTIONALITY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "a2a",
+        "testable": false,
+        "testable_reason": "A2A binding page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-a2a.md",
+            "start_line": 138,
+            "level": "MUST",
+            "text_digest": "3fd4c0c210"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-a2a.md",
+            "start_line": 139,
+            "level": "MUST",
+            "text_digest": "3fd4c0c210"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-a2a.md",
+            "start_line": 139,
+            "level": "MUST",
+            "text_digest": "3fd4c0c210"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/a2a.md",
+            "start_line": 141,
+            "level": "MUST",
+            "text_digest": "3fd4c0c210"
+          }
+        ]
+      }
+    }
+  ]
+}

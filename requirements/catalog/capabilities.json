@@ -1,0 +1,241 @@
+{
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "extends_from": "each extension schema's $defs keys that name another capability",
+  "capabilities": [
+    {
+      "name": "dev.ucp.shopping.buyer_consent",
+      "kind": "extension",
+      "extends": [
+        "dev.ucp.shopping.cart",
+        "dev.ucp.shopping.checkout"
+      ],
+      "extended_by": [],
+      "schema": "source/schemas/shopping/buyer_consent.json",
+      "rules": 17,
+      "testable_rules": 4,
+      "testable_must": 3,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/extensions/buyer-consent.md",
+          "rules": 17
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.cart",
+      "kind": "capability",
+      "extends": [],
+      "extended_by": [
+        "dev.ucp.shopping.buyer_consent",
+        "dev.ucp.shopping.discount"
+      ],
+      "schema": "source/schemas/shopping/cart.json",
+      "rules": 65,
+      "testable_rules": 21,
+      "testable_must": 8,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/cart/embedded.md",
+          "rules": 28
+        },
+        {
+          "file": "docs/specification/shopping/cart/index.md",
+          "rules": 29
+        },
+        {
+          "file": "docs/specification/shopping/cart/mcp.md",
+          "rules": 4
+        },
+        {
+          "file": "docs/specification/shopping/cart/rest.md",
+          "rules": 4
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.catalog.lookup",
+      "kind": "capability",
+      "extends": [],
+      "extended_by": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "schema": "source/schemas/shopping/catalog_lookup.json",
+      "rules": 61,
+      "testable_rules": 38,
+      "testable_must": 16,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/catalog/index.md",
+          "rules": 35,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.search"
+          ]
+        },
+        {
+          "file": "docs/specification/shopping/catalog/lookup.md",
+          "rules": 16
+        },
+        {
+          "file": "docs/specification/shopping/catalog/mcp.md",
+          "rules": 6,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.search"
+          ]
+        },
+        {
+          "file": "docs/specification/shopping/catalog/rest.md",
+          "rules": 4,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.search"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.catalog.search",
+      "kind": "capability",
+      "extends": [],
+      "extended_by": [
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "schema": "source/schemas/shopping/catalog_search.json",
+      "rules": 55,
+      "testable_rules": 30,
+      "testable_must": 11,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/catalog/index.md",
+          "rules": 35,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.lookup"
+          ]
+        },
+        {
+          "file": "docs/specification/shopping/catalog/mcp.md",
+          "rules": 6,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.lookup"
+          ]
+        },
+        {
+          "file": "docs/specification/shopping/catalog/rest.md",
+          "rules": 4,
+          "shared_with": [
+            "dev.ucp.shopping.catalog.lookup"
+          ]
+        },
+        {
+          "file": "docs/specification/shopping/catalog/search.md",
+          "rules": 10
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.checkout",
+      "kind": "capability",
+      "extends": [],
+      "extended_by": [
+        "dev.ucp.shopping.buyer_consent",
+        "dev.ucp.shopping.discount",
+        "dev.ucp.shopping.fulfillment"
+      ],
+      "schema": "source/schemas/shopping/checkout.json",
+      "rules": 250,
+      "testable_rules": 76,
+      "testable_must": 35,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/checkout/a2a.md",
+          "rules": 1
+        },
+        {
+          "file": "docs/specification/shopping/checkout/embedded.md",
+          "rules": 77
+        },
+        {
+          "file": "docs/specification/shopping/checkout/index.md",
+          "rules": 148
+        },
+        {
+          "file": "docs/specification/shopping/checkout/mcp.md",
+          "rules": 12
+        },
+        {
+          "file": "docs/specification/shopping/checkout/rest.md",
+          "rules": 12
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.discount",
+      "kind": "extension",
+      "extends": [
+        "dev.ucp.shopping.cart",
+        "dev.ucp.shopping.checkout"
+      ],
+      "extended_by": [],
+      "schema": "source/schemas/shopping/discount.json",
+      "rules": 9,
+      "testable_rules": 7,
+      "testable_must": 4,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/extensions/discount.md",
+          "rules": 9
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.fulfillment",
+      "kind": "extension",
+      "extends": [
+        "dev.ucp.shopping.catalog.lookup",
+        "dev.ucp.shopping.catalog.search",
+        "dev.ucp.shopping.checkout"
+      ],
+      "extended_by": [],
+      "schema": "source/schemas/shopping/fulfillment.json",
+      "rules": 55,
+      "testable_rules": 34,
+      "testable_must": 13,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/extensions/fulfillment.md",
+          "rules": 55
+        }
+      ]
+    },
+    {
+      "name": "dev.ucp.shopping.order",
+      "kind": "capability",
+      "extends": [],
+      "extended_by": [],
+      "schema": "source/schemas/shopping/order.json",
+      "rules": 40,
+      "testable_rules": 24,
+      "testable_must": 17,
+      "pages": [
+        {
+          "file": "docs/specification/shopping/order/index.md",
+          "rules": 26
+        },
+        {
+          "file": "docs/specification/shopping/order/mcp.md",
+          "rules": 7
+        },
+        {
+          "file": "docs/specification/shopping/order/rest.md",
+          "rules": 7
+        }
+      ]
+    }
+  ]
+}
