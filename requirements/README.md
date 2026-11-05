@@ -128,6 +128,50 @@ the checkout, cart, catalog and order REST pages, and the history counts the
 older releases' copies as moved out, because the lodging pages still state
 them in full.
 
+## Linking tests to rules
+
+Each shopping test says which rules it checks, with one marker from
+`framework/decorators.py`:
+
+- `@spec_assert("REQ-SHOPPING-CHECKOUT-0133", ...)`: the rules its assertions
+  check, by stable ID, each with a comment giving the rule's wording. A rule
+  they check only in part is wrapped in `partly(id, gap)`, where the gap says
+  what the test leaves unchecked;
+- `@no_rule("...")`: the spec describes the behavior without an RFC 2119
+  keyword, so there is no rule to cite;
+- `@scenario("...")`: the test checks a store's own data, such as a
+  free-shipping threshold, rather than a rule;
+- `@outside_catalog("...")`: the test checks a rule on a specification page
+  this catalog doesn't cover, such as the core overview page;
+- `@older_version("2026-04-08", "...")`: the test checks behavior from an
+  older release that this specification has changed, so it needs updating.
+
+For example, a totals test that checks one rule fully and another in part:
+
+```python
+@spec_assert(
+  partly(
+    "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
+    "a quantity of 1 only, so scale and rounding aren't checked",
+  ),
+  "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
+)
+```
+
+`framework/requirements.py` looks rules up in the catalog. Before any test
+runs, the runner checks every shopping test's marker against it, and so does
+pytest:
+
+- **Problems** stop the run: a test with no marker, or an ID that isn't in the
+  catalog, was retired, or the review found isn't a rule.
+- **Warnings** don't: a rule this suite can't test, or one outside the
+  capabilities the test requires.
+
+`--dry-run` runs the check without a server. `--requirements_check=warn`
+(`--requirements-check=warn` with pytest) reports problems without stopping,
+and `off` skips the check. Unit tests for the markers, the loader and the
+check are in `tests/`: run `python -m pytest tests`.
+
 ## Numbers at `f2626c28`
 
 - 510 rules extracted: 395 bold and 115 found through capitals. The review
