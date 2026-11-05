@@ -16,7 +16,11 @@
 
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urljoin
 import httpx
+
+# Where servers publish their discovery profile (overview/index.md).
+DISCOVERY_PATH = "/.well-known/ucp"
 
 
 @dataclass(frozen=True)
@@ -27,6 +31,16 @@ class Capability:
   version: str
   spec: str | None = None
   schema_url: str | None = None
+
+
+# Capabilities the specification renamed, keyed by their current name. A
+# server that advertises a former name supports the capability all the same,
+# so tests can cite the current name and still run against older releases.
+FORMER_NAMES: dict[str, tuple[str, ...]] = {
+  # Moved from the shopping vertical to the common payment specification in
+  # the 2026-08-25 release.
+  "dev.ucp.common.payment.ap2_mandate": ("dev.ucp.shopping.ap2_mandate",),
+}
 
 
 class UcpProfile:
@@ -119,22 +133,51 @@ class UcpProfile:
   ) -> bool:
     """Check if the server advertises a capability.
 
-    Optionally checks version requirement.
+    A capability counts as advertised under its current name or any former
+    name listed in FORMER_NAMES. Optionally checks a minimum version.
     """
-    if capability_name not in self.capabilities:
-      return False
-    return not (
-      min_version and self.capabilities[capability_name].version < min_version
-    )
+    names = (capability_name, *FORMER_NAMES.get(capability_name, ()))
+    for name in names:
+      capability = self.capabilities.get(name)
+      if capability is None:
+        continue
+      return not (min_version and capability.version < min_version)
+    return False
 
   def supports_payment_handler(self, handler_id: str) -> bool:
     """Check if the server supports a payment handler by ID or name."""
     return handler_id in self.payment_handlers
 
 
-def fetch_server_profile(base_url: str, timeout: float = 10.0) -> UcpProfile:
-  """Fetch and parse the discovery profile from the target server."""
-  endpoint = f"{base_url.rstrip('/')}/.well-known/ucp"
+def resolve_discovery_url(
+  base_url: str, discovery_url: str | None = None
+) -> str:
+  """Return the URL of the server's discovery profile.
+
+  Servers publish their profile at /.well-known/ucp. A server that serves a
+  different profile there, such as one for an older release, can be tested
+  with the profile at discovery_url instead: a full URL, or a path on
+  base_url.
+  """
+  base = base_url.rstrip("/")
+  if not discovery_url:
+    return base + DISCOVERY_PATH
+  return urljoin(base + "/", discovery_url)
+
+
+def fetch_server_profile(
+  base_url: str, timeout: float = 10.0, discovery_url: str | None = None
+) -> UcpProfile:
+  """Fetch and parse the discovery profile from the target server.
+
+  Args:
+    base_url: The server's base URL.
+    timeout: Seconds to wait for the response.
+    discovery_url: Where the profile is, if not at base_url/.well-known/ucp.
+      See resolve_discovery_url.
+
+  """
+  endpoint = resolve_discovery_url(base_url, discovery_url)
   with httpx.Client(timeout=timeout) as client:
     response = client.get(endpoint)
     response.raise_for_status()

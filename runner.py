@@ -17,37 +17,48 @@
 import argparse
 from collections.abc import Iterator
 import importlib
+import json
 import logging
 import os
 from pathlib import Path
 import sys
 import unittest
 from absl import flags
-from framework.base_test import BaseIntegrationTest
-from framework.discovery import UcpProfile, fetch_server_profile
+from framework import marker_check
+from framework.base_test import BaseIntegrationTest, is_local_url
+from framework.discovery import (
+  UcpProfile,
+  fetch_server_profile,
+  resolve_discovery_url,
+)
 from framework.platform import PlatformProfile
 
-# Suites map to test modules. Every module exercises a shopping server for
-# now; the tiered layout (core/, common/, shopping/) follows in later changes.
 SUITE_REGISTRY: dict[str, list[str]] = {
+  "core": [
+    "core.protocol_test",
+    "core.binding_test",
+  ],
+  "common": [
+    "common.payments.card_credential_test",
+    "common.payments.ap2_test",
+    "common.payments.token_binding_test",
+  ],
   "shopping": [
-    "protocol_test",
-    "binding_test",
-    "idempotency_test",
-    "checkout_lifecycle_test",
-    "business_logic_test",
-    "totals_test",
-    "discount_test",
-    "fulfillment_test",
-    "fulfillment_structure_test",
-    "order_test",
-    "webhook_test",
-    "webhook_structure_test",
-    "simulation_url_security_test",
-    "validation_test",
-    "invalid_input_test",
-    "card_credential_test",
-    "ap2_test",
+    "shopping.checkout.protocol_test",
+    "shopping.checkout.lifecycle_test",
+    "shopping.checkout.business_logic_test",
+    "shopping.checkout.idempotency_test",
+    "shopping.checkout.totals_test",
+    "shopping.discount.discount_test",
+    "shopping.discount.semantics_test",
+    "shopping.fulfillment.fulfillment_test",
+    "shopping.fulfillment.structure_test",
+    "shopping.order.order_test",
+    "shopping.order.webhook_test",
+    "shopping.order.webhook_structure_test",
+    "shopping.order.simulation_url_security_test",
+    "shopping.validation.validation_test",
+    "shopping.validation.invalid_input_test",
   ],
 }
 
@@ -144,6 +155,55 @@ def _load_tests(
   return suite, unresolved
 
 
+# Optional runner options that reach the tests as absl flags of the same
+# name (see framework.base_test.flag_value).
+_TEST_OPTIONS = (
+  "agent_profile_url",
+  "conformance_input",
+  "fixture_config",
+  "test_data_dir",
+  "discovery_url",
+  "webhook_base_url",
+)
+
+# Options that name a file, and one that names a folder. The tests use
+# their defaults for a path that does not exist, so the runner checks them.
+_FILE_OPTIONS = ("conformance_input", "fixture_config")
+_DIR_OPTIONS = ("test_data_dir",)
+
+
+def _missing_paths(args: argparse.Namespace) -> list[str]:
+  """Return a message for each path option that names nothing usable."""
+  problems = []
+  for name in _FILE_OPTIONS:
+    value = getattr(args, name)
+    if value and not Path(value).is_file():
+      problems.append(f"--{name}: no such file: {value}")
+  for name in _DIR_OPTIONS:
+    value = getattr(args, name)
+    if value and not Path(value).is_dir():
+      problems.append(f"--{name}: no such directory: {value}")
+  return problems
+
+
+def _remote_notes(args: argparse.Namespace) -> list[str]:
+  """Say what a server elsewhere can't reach on this machine's localhost."""
+  if is_local_url(args.server_url):
+    return []
+  notes = []
+  if not args.agent_profile_url:
+    notes.append(
+      "the server is not on this machine, but the UCP-Agent header names a "
+      "localhost profile; a server that fetches it needs --agent_profile_url"
+    )
+  if not args.webhook_base_url:
+    notes.append(
+      "webhook tests will skip: the server is not on this machine and no "
+      "--webhook_base_url was given"
+    )
+  return notes
+
+
 def _sync_absl_flags(args: argparse.Namespace) -> None:
   """Pass the parsed CLI arguments on to the absl flags the suites read.
 
@@ -158,7 +218,7 @@ def _sync_absl_flags(args: argparse.Namespace) -> None:
   ]
   if args.simulation_secret:
     flag_args.append(f"--simulation_secret={args.simulation_secret}")
-  for name in ("conformance_input", "fixture_config", "test_data_dir"):
+  for name in _TEST_OPTIONS:
     value = getattr(args, name)
     if value:
       flag_args.append(f"--{name}={value}")
@@ -168,6 +228,77 @@ def _sync_absl_flags(args: argparse.Namespace) -> None:
   flags.FLAGS(flag_args, known_only=True)
 
 
+# A target folder describes one server under test in this file.
+TARGET_FILE = "target.json"
+# The options a target file may give; other keys are ignored.
+TARGET_KEYS = (
+  "server_url",
+  "discovery_url",
+  "conformance_input",
+  "fixture_config",
+  "test_data_dir",
+  "agent_profile_url",
+  "webhook_base_url",
+)
+# The options that are paths, resolved against the target folder.
+_TARGET_PATH_KEYS = ("conformance_input", "fixture_config", "test_data_dir")
+DEFAULT_SERVER_URL = "http://localhost:8182"
+
+
+class TargetError(Exception):
+  """The target folder's file is missing or is not usable."""
+
+
+def load_target(target_dir: str) -> dict[str, str]:
+  """Read the options a target folder's file gives.
+
+  Paths are made relative to the folder, unless absolute. Keys other than
+  TARGET_KEYS, and empty values, are left out.
+
+  Raises:
+    TargetError: The file is missing, is not JSON, or is not an object, or
+      a known option is not a string.
+
+  """
+  path = Path(target_dir) / TARGET_FILE
+  try:
+    data = json.loads(path.read_text(encoding="utf-8"))
+  except FileNotFoundError as error:
+    raise TargetError(f"no {TARGET_FILE} in {target_dir}") from error
+  except (OSError, ValueError) as error:
+    raise TargetError(f"cannot read {path}: {error}") from error
+  if not isinstance(data, dict):
+    raise TargetError(f"{path} is not a JSON object")
+  options = {}
+  for key in TARGET_KEYS:
+    value = data.get(key)
+    if value in (None, ""):
+      continue
+    if not isinstance(value, str):
+      raise TargetError(f"{path}: {key} is not a string")
+    if key in _TARGET_PATH_KEYS:
+      value = str(Path(target_dir) / value)
+    options[key] = value
+  return options
+
+
+def apply_target(args: argparse.Namespace, target: dict[str, str]) -> None:
+  """Fill in the options not given on the command line from a target.
+
+  Then give --server_url its remaining defaults: $SERVER_URL, then
+  $UCP_SERVER_URL, then DEFAULT_SERVER_URL.
+  """
+  for key, value in target.items():
+    if getattr(args, key) is None:
+      setattr(args, key, value)
+  if args.server_url is None:
+    args.server_url = (
+      os.environ.get("SERVER_URL")
+      or os.environ.get("UCP_SERVER_URL")
+      or DEFAULT_SERVER_URL
+    )
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   """Parse command line arguments for the conformance runner."""
   parser = argparse.ArgumentParser(
@@ -175,12 +306,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     description="Universal Commerce Protocol Conformance Test Runner",
   )
   parser.add_argument(
+    "--target_dir",
+    metavar="DIR",
+    default=None,
+    help=f"Folder with a {TARGET_FILE} that gives the target server's "
+    f"options ({', '.join(TARGET_KEYS)}); paths in it are relative to the "
+    "folder, and options given on the command line win.",
+  )
+  parser.add_argument(
     "--server_url",
-    default=os.environ.get("SERVER_URL")
-    or os.environ.get("UCP_SERVER_URL")
-    or "http://localhost:8182",
-    help="Target UCP server base URL (default: $SERVER_URL or "
-    "http://localhost:8182).",
+    default=None,
+    help="Target UCP server base URL (default: the target file's, else "
+    "$SERVER_URL, else $UCP_SERVER_URL, else http://localhost:8182).",
+  )
+  parser.add_argument(
+    "--discovery_url",
+    default=None,
+    help="URL of the server's discovery profile, if it is not at "
+    "SERVER_URL/.well-known/ucp: a full URL, or a path on --server_url. The "
+    "core tests still check /.well-known/ucp.",
   )
   parser.add_argument(
     "--platform",
@@ -190,7 +334,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   parser.add_argument(
     "--suite",
     default="all",
-    help="Test suite(s) to run, or a module/class path (default: all).",
+    help="Test suite(s) to run: all, core, common, shopping (default: all).",
   )
   parser.add_argument(
     "--simulation_secret",
@@ -228,6 +372,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     help="Port for local mock agent profile server (default: 8285).",
   )
   parser.add_argument(
+    "--agent_profile_url",
+    default=None,
+    help="Public URL of the test agent's profile, sent in the UCP-Agent "
+    "header, for a server that cannot reach this machine's localhost: for "
+    "example a tunnel to the mock agent port, ending in /profiles/agent.json.",
+  )
+  parser.add_argument(
+    "--webhook_base_url",
+    default=None,
+    help="Public URL that reaches the mock webhook port, such as a tunnel, "
+    "for a server that cannot reach this machine's localhost. Without it, "
+    "webhook tests skip when the server is not on this machine.",
+  )
+  parser.add_argument(
     "-k",
     "--filter",
     default=None,
@@ -249,7 +407,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     action="store_true",
     help="List selected test cases without contacting the server.",
   )
-  return parser.parse_args(argv)
+  parser.add_argument(
+    "--requirements_check",
+    choices=marker_check.MODES,
+    default="strict",
+    help="Check the shopping tests' spec markers against the requirements "
+    "catalog before running: strict stops on problems, warn only reports "
+    "them, off skips the check (default: strict).",
+  )
+  args = parser.parse_args(argv)
+  target = {}
+  if args.target_dir:
+    try:
+      target = load_target(args.target_dir)
+    except TargetError as error:
+      parser.error(f"--target_dir: {error}")
+  apply_target(args, target)
+  return args
 
 
 def _platform_file(name_or_path: str) -> Path | None:
@@ -268,6 +442,11 @@ def main(argv: list[str] | None = None) -> int:
   """Execute the UCP conformance test orchestrator."""
   args = parse_args(argv)
 
+  problems = _missing_paths(args)
+  if problems:
+    sys.stderr.write("Error: " + "\n       ".join(problems) + "\n")
+    return 1
+
   logging_level = logging.DEBUG if args.verbose else logging.INFO
   logging.basicConfig(level=logging_level, format="%(levelname)s: %(message)s")
 
@@ -277,11 +456,18 @@ def main(argv: list[str] | None = None) -> int:
   test_suite, unresolved = _load_tests(test_specs, filter_pattern=args.filter)
   total_tests = test_suite.countTestCases()
   _sync_absl_flags(args)
+  discovery_url = resolve_discovery_url(args.server_url, args.discovery_url)
 
   sys.stdout.write("=" * 70 + "\n")
   sys.stdout.write("UCP CONFORMANCE TEST RUNNER\n")
   sys.stdout.write(f"Target Server: {args.server_url}\n")
+  if args.target_dir:
+    sys.stdout.write(f"Target Folder: {args.target_dir}\n")
+  if args.discovery_url:
+    sys.stdout.write(f"Discovery Profile: {discovery_url}\n")
   sys.stdout.write("=" * 70 + "\n")
+  for note in _remote_notes(args):
+    sys.stdout.write(f"Note: {note}\n")
 
   # An empty suite would "pass", so a selection that loads nothing is an
   # error rather than a successful run of zero tests.
@@ -302,6 +488,20 @@ def main(argv: list[str] | None = None) -> int:
     f"Resolved {total_tests} test cases across suite '{args.suite}'\n"
   )
 
+  loaded = [
+    marker_check.from_unittest(test) for test in _iter_tests(test_suite)
+  ]
+  report, stop = marker_check.evaluate(loaded, args.requirements_check)
+  if report:
+    sys.stdout.write("\n" + report)
+  if stop:
+    sys.stdout.flush()
+    sys.stderr.write(
+      "\nRequirements check failed: fix the problems above, or pass "
+      "--requirements_check=warn to run anyway.\n"
+    )
+    return 1
+
   if args.dry_run:
     sys.stdout.write("\nDry Run - Selected Tests:\n")
     for test in _iter_tests(test_suite):
@@ -310,7 +510,9 @@ def main(argv: list[str] | None = None) -> int:
 
   server_profile: UcpProfile | None = None
   try:
-    server_profile = fetch_server_profile(args.server_url)
+    server_profile = fetch_server_profile(
+      args.server_url, discovery_url=discovery_url
+    )
     BaseIntegrationTest.server_profile = server_profile
     sys.stdout.write("\nDiscovered Server Capabilities:\n")
     for cap in server_profile.capabilities.values():
@@ -319,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
       handlers_str = ", ".join(sorted(server_profile.payment_handlers))
       sys.stdout.write(f"Payment Handlers: {handlers_str}\n")
   except Exception as exc:  # pylint: disable=broad-exception-caught
-    sys.stdout.write(f"Warning: Failed to fetch /.well-known/ucp: {exc}\n")
+    sys.stdout.write(f"Warning: Failed to fetch {discovery_url}: {exc}\n")
 
   if args.platform:
     platform_path = _platform_file(args.platform)
