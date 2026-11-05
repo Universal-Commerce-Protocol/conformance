@@ -18,7 +18,11 @@ import datetime
 import uuid
 from absl import flags
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  requires_capability,
+  scenario,
+  spec_assert,
+)
 from pydantic import AnyUrl
 from shopping.base import get_valid_payment_payload
 from shopping.base import shopping_test_data
@@ -57,6 +61,9 @@ class OrderTest(ShoppingIntegrationTestBase):
   - PUT /orders/{id}
   """
 
+  @spec_assert(
+    "REQ-SHOPPING-ORDER-0008",  # full order entity on every response
+  )
   def test_order_retrieval(self) -> None:
     """Test successful order retrieval.
 
@@ -82,6 +89,10 @@ class OrderTest(ShoppingIntegrationTestBase):
       order_data.checkout_id, checkout_id, "Checkout ID mismatch"
     )
 
+  @scenario(
+    "the order's first expectation reuses the selected option's title as "
+    "its description, a sample server choice that no rule requires"
+  )
   def test_order_fulfillment_retrieval(self) -> None:
     """Test that fulfillment expectations are persisted in the order.
 
@@ -200,6 +211,10 @@ class OrderTest(ShoppingIntegrationTestBase):
       "Expectation description mismatch",
     )
 
+  @scenario(
+    "adds a shipped event through PUT /orders/{id}, the sample server's own "
+    "endpoint; the spec defines only GET /orders/{id}"
+  )
   def test_order_update(self) -> None:
     """Test updating an existing order.
 
@@ -334,6 +349,10 @@ class OrderTest(ShoppingIntegrationTestBase):
       msg="Order event not persisted",
     )
 
+  @scenario(
+    "adds a refund adjustment through PUT /orders/{id}, the sample server's "
+    "own endpoint; the spec defines only GET /orders/{id}"
+  )
   def test_order_adjustments(self) -> None:
     """Test that order adjustments are persisted.
 

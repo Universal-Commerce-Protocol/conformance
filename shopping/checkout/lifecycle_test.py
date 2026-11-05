@@ -15,7 +15,12 @@
 """Checkout Lifecycle tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  partly,
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import ShoppingIntegrationTestBase, get_valid_payment_payload
 from ucp_sdk.models.schemas.shopping import (
   checkout_update_request as checkout_update_req,
@@ -67,6 +72,11 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     "name": "Conformance Test Buyer",
   }
 
+  @no_rule(
+    "checkout/index.md, Operations: Create Checkout 'Initiates a new "
+    "checkout session'; the response's id is schema-required, with no "
+    "keyword"
+  )
   def test_create_checkout(self):
     """Test successful checkout creation.
 
@@ -78,6 +88,10 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     created_checkout = checkout.Checkout(**response_json)
     self.assertTrue(created_checkout.id, "Created checkout missing ID")
 
+  @no_rule(
+    "checkout/index.md, Get Checkout: 'It provides the latest state of "
+    "the checkout resource', with no keyword"
+  )
   def test_get_checkout(self):
     """Test successful checkout retrieval.
 
@@ -101,6 +115,11 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg="Get checkout returned wrong ID",
     )
 
+  @no_rule(
+    "checkout/index.md, Update Checkout: the request 'will replace the "
+    "existing checkout session state on the business side', with no "
+    "keyword"
+  )
   def test_update_checkout(self):
     """Test successful checkout update.
 
@@ -220,6 +239,9 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     self.assertEqual(selected_dest.get("postal_code"), "90210")
     self.assertEqual(selected_dest.get("street_address"), "456 Elm St")
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0120",  # non-terminal checkouts SHOULD be cancelable
+  )
   def test_cancel_checkout(self):
     """Test successful checkout cancellation.
 
@@ -244,6 +266,10 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg=f"Checkout status not 'canceled', got '{canceled_checkout.status}'",
     )
 
+  @no_rule(
+    "checkout/index.md, Complete Checkout: on completion, status is "
+    "completed and order carries id and permalink_url, with no keyword"
+  )
   def test_complete_checkout(self):
     """Test successful checkout completion.
 
@@ -296,6 +322,11 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     self.assert_response_status(response, 200)
     return response
 
+  @no_rule(
+    "accepts the error REQ-SHOPPING-CHECKOUT-0119 recommends or an "
+    "idempotent 200, so it cannot fail on that rule; it only rules out "
+    "server errors"
+  )
   def test_repeated_cancel(self):
     """Test repeated cancellation behavior.
 
@@ -342,6 +373,10 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg="Repeated cancellation must not produce a server error.",
     )
 
+  @no_rule(
+    "checkout/index.md, Status Values: a canceled session 'is invalid "
+    "or expired'; no keyword says updates to it must be refused"
+  )
   def test_cannot_update_canceled_checkout(self):
     """Test that a canceled checkout cannot be updated.
 
@@ -391,6 +426,11 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg="Should not be able to update a canceled checkout.",
     )
 
+  @no_rule(
+    "checkout/index.md: Complete Checkout places the order 'from "
+    "ready_for_complete'; no keyword says completing a canceled "
+    "session must fail"
+  )
   def test_cannot_complete_canceled_checkout(self):
     """Test that a canceled checkout cannot be completed.
 
@@ -425,6 +465,10 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     self.assert_response_status(response, 200)
     return response
 
+  @no_rule(
+    "checkout/index.md, Business guidelines: a completed session 'is "
+    "considered immutable', with no keyword"
+  )
   def test_complete_is_idempotent(self):
     """Tests that completing an already completed checkout behaves correctly.
 
@@ -450,6 +494,10 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg="Should not be able to complete an already completed checkout.",
     )
 
+  @no_rule(
+    "checkout/index.md, Business guidelines: a completed session 'is "
+    "considered immutable', with no keyword"
+  )
   def test_cannot_update_completed_checkout(self):
     """Test that a completed checkout cannot be updated.
 
@@ -499,6 +547,13 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       msg="Should not be able to update a completed checkout.",
     )
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0119",  # cancel after completion SHOULD fail
+      "only a status other than 200, so an in-band error fails and the "
+      "error's content isn't checked",
+    ),
+  )
   def test_cannot_cancel_completed_checkout(self):
     """Test that a completed checkout cannot be canceled.
 
