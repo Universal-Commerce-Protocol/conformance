@@ -96,9 +96,6 @@ class ProtocolTest(integration_test_utils.IntegrationTestBase):
 
     return sorted(urls, key=lambda x: x[0])
 
-  import unittest
-
-  @unittest.skip("Schemas not yet published on remote ucp.dev domain")
   def test_discovery_urls(self):
     """Verify all spec and schema URLs in discovery profile are valid.
 
