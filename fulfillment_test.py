@@ -175,9 +175,9 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
     )
     final_checkout = checkout.Checkout(**response_json)
 
-    expected_total = (
-      self.fixture_ctx.get_test_price() + option_cost
-    )  # base price + shipping
+    expected_total = sum(
+      total.amount for total in final_checkout.totals if total.type != "total"
+    )
     total_obj = next(
       (t for t in final_checkout.totals if t.type == "total"), None
     )
@@ -188,6 +188,20 @@ class FulfillmentTest(integration_test_utils.IntegrationTestBase):
       msg=(
         f"Total not updated correctly. Expected {expected_total}, got"
         f" {total_obj.amount}"
+      ),
+    )
+
+    fulfillment_total = sum(
+      total.amount
+      for total in final_checkout.totals
+      if total.type == "fulfillment"
+    )
+    self.assertEqual(
+      fulfillment_total,
+      option_cost,
+      msg=(
+        f"Fulfillment total not updated correctly. Expected {option_cost}, got"
+        f" {fulfillment_total}"
       ),
     )
 
