@@ -105,15 +105,9 @@ jobs:
         continue-on-error: ${{ github.event_name == 'pull_request' }}
         working-directory: conformance
         run: |
-          EXIT_CODE=0
-          for test_file in *_test.py; do
-            echo "::group::${test_file}"
-            if ! uv run "${test_file}" \
-              --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
-              --simulation_secret=${SIMULATION_SECRET} \
-              --conformance_input=test_data/flower_shop/conformance_input.json; then
-              EXIT_CODE=1
-            fi
-            echo "::endgroup::"
-          done
-          exit ${EXIT_CODE}
+          uv run ucp-conformance \
+            --server_url=http://localhost:${MERCHANT_SERVER_PORT} \
+            --simulation_secret=${SIMULATION_SECRET} \
+            --conformance_input=test_data/flower_shop/conformance_input.json \
+            --suite=all \
+            -v
