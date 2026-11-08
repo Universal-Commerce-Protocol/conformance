@@ -36,6 +36,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "common.payments.card_credential_test",
     "common.payments.ap2_test",
     "common.payments.token_binding_test",
+    "common.identity_linking.identity_linking_test",
   ],
   "shopping": [
     "shopping.checkout.protocol_test",
@@ -54,6 +55,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "shopping.order.simulation_url_security_test",
     "shopping.validation.validation_test",
     "shopping.validation.invalid_input_test",
+    "shopping.catalog.catalog_test",
   ],
 }
 
