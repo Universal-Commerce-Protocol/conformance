@@ -76,6 +76,10 @@ jobs:
         working-directory: conformance
         run: uv run pytest tests
 
+      - name: Verify the suite registry
+        working-directory: conformance
+        run: uv run ucp-conformance --verify-registry
+
       - name: Initialize test database
         run: |
           rm -rf ${DATABASE_PATH}
