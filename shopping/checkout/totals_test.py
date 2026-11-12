@@ -177,6 +177,7 @@ class TotalsTest(ShoppingIntegrationTestBase):
         f"Additive '{entry.get('type')}' entry must be >= 0: {entry}.",
       )
 
+  @requires_capability("dev.ucp.shopping.discount")
   def test_discount_entry_is_negative(self):
     """Test that a discount totals entry has a negative amount.
 

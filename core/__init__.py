@@ -14,5 +14,5 @@
 
 """Core UCP protocol conformance tests.
 
-Covers transport, discovery, idempotency, and security.
+Covers transport binding and discovery.
 """

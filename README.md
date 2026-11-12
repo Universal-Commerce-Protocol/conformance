@@ -210,7 +210,13 @@ uv run ucp-conformance \
 
 `--suite` accepts `core`, `common`, `shopping`, `all`, or a comma-separated
 combination. Running only `--suite=core` is useful for a server that does not
-implement the shopping vertical.
+implement the shopping vertical. A single module, class or file path also
+works, to run one test module on its own:
+
+```bash
+uv run ucp-conformance --suite=shopping/discount/discount_test.py
+uv run ucp-conformance --suite=shopping.checkout.lifecycle_test.CheckoutLifecycleTest
+```
 
 To validate against a platform's certification requirements, pass a profile
 from `platforms/`. The run then fails if the server does not advertise every

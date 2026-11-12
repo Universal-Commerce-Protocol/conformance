@@ -196,7 +196,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   parser.add_argument(
     "--suite",
     default="all",
-    help="Test suite(s) to run: all, core, common, shopping (default: all).",
+    help="Test suite(s) to run: all, core, common, shopping, or a "
+    "comma-separated combination; a test module, class or file path (e.g. "
+    "shopping/discount/discount_test.py) runs that alone (default: all).",
   )
   parser.add_argument(
     "--simulation_secret",

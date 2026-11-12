@@ -382,6 +382,7 @@ class ValidationTest(ShoppingIntegrationTestBase):
       error_4xx_substring="payment",
     )
 
+  @requires_capability("dev.ucp.shopping.fulfillment")
   def test_complete_without_fulfillment(self) -> None:
     """Test completion rejection when fulfillment is missing.
 
