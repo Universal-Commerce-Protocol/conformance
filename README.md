@@ -90,6 +90,11 @@ Example `conformance_input.json`:
 - `items`: List of items available on your server. The first item in this list will be used for standard checkout tests.
 - `out_of_stock_item`: An item ID that should trigger an out-of-stock error (status `409`) when trying to complete checkout.
 - `non_existent_item`: An item ID that does not exist in your catalog, used to test invalid input handling.
+- `catalog`: **Optional**. Used by `shopping/catalog/catalog_test.py`, whose tests run when your profile advertises `dev.ucp.shopping.catalog.search` or `dev.ucp.shopping.catalog.lookup`. The lookup tests that need a known product find it by search, so they also need the search capability. These tests send no user token, so a capability you gate with a scope in identity linking `config.scopes` is skipped.
+  - `search_query`: A query that returns at least one product. Tests that need a product skip without it.
+  - `max_lookup_ids`: Your lookup batch limit. When set, a lookup with one more identifier must answer `400` with `request_too_large`.
+- `identity_linking`: **Optional**. Used by `common/identity_linking/identity_linking_test.py`, whose tests run when your profile advertises `dev.ucp.common.identity_linking`. They read your protected-resource and authorization server metadata, and send one request with a made-up token to an operation you gate.
+  - `request`: An operation gated by a scope in your `config.scopes`, as `{"path": "/catalog/search", "body": {...}}` on your shopping REST endpoint. It must answer the made-up token with `401` and the full `identity_required` challenge. Without it, the test uses a catalog search for `catalog.search_query` when you gate catalog search, and skips otherwise.
 
 ### 3. Configure Test Fixtures (`test_fixtures.json`)
 
