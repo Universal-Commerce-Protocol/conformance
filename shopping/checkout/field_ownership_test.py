@@ -32,7 +32,8 @@ in the create response and when the session is read back afterward.
 """
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import Payment
 
@@ -40,7 +41,8 @@ from ucp_sdk.models.schemas.shopping.payment import Payment
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class CheckoutFieldOwnershipTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class CheckoutFieldOwnershipTest(ShoppingIntegrationTestBase):
   """Caller-supplied values for omit-only checkout members must not stick.
 
   Validated Paths:

@@ -27,10 +27,11 @@ from framework.base_test import BaseIntegrationTest
 from framework.discovery import UcpProfile, fetch_server_profile
 from framework.platform import PlatformProfile
 
-# Suites map to test modules. `common` tests exercise cross-vertical payment
-# types through the shopping checkout; a vertical-agnostic `core` suite
-# follows in a later change.
 SUITE_REGISTRY: dict[str, list[str]] = {
+  "core": [
+    "core.protocol_test",
+    "core.binding_test",
+  ],
   "common": [
     "common.payments.card_credential_test",
     "common.payments.ap2_test",
@@ -43,6 +44,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "shopping.checkout.idempotency_test",
     "shopping.checkout.totals_test",
     "shopping.checkout.field_ownership_test",
+    "shopping.discount.discount_test",
     "shopping.discount.semantics_test",
     "shopping.fulfillment.fulfillment_test",
     "shopping.fulfillment.structure_test",
@@ -194,7 +196,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   parser.add_argument(
     "--suite",
     default="all",
-    help="Test suite(s) to run, or a module/class path (default: all).",
+    help="Test suite(s) to run: all, core, common, shopping, or a "
+    "comma-separated combination; a test module, class or file path (e.g. "
+    "shopping/discount/discount_test.py) runs that alone (default: all).",
   )
   parser.add_argument(
     "--simulation_secret",
