@@ -1,6 +1,7 @@
 # cspell-specific custom words related to UCP
 absl
 absltest
+addoption
 adyen
 Adyen
 agentic
@@ -9,6 +10,7 @@ Amex
 Ant
 Anytown
 atok
+autojunk
 backorder
 Backordered
 Braintree
@@ -28,9 +30,11 @@ dpan
 Etsy
 ewallet
 EWALLET
+flagsaver
 Flipkart
 fontawesome
 fpan
+getoption
 fulfillable
 Gap
 GitHub
@@ -50,13 +54,16 @@ Malform
 mastercard
 Mastercard
 mkdocs
+modifyitems
 mtok
+nodeid
 openapi
 openrpc
 Paymentech
 paypal
 Paypal
 permissionless
+pluginmanager
 preorders
 Preorders
 proto
@@ -77,6 +84,8 @@ Smallville
 Stripe
 superfences
 Target
+terminalreporter
+testpaths
 UCP
 Ulta
 Villagetown

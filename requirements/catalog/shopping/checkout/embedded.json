@@ -1,0 +1,4773 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/checkout/embedded.md",
+  "summary": {
+    "total": 77,
+    "must_count": 44,
+    "must_not_count": 8,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 12,
+    "should_not_count": 1,
+    "may_count": 12,
+    "by_level": {
+      "MAY": 12,
+      "MUST": 44,
+      "MUST NOT": 8,
+      "SHOULD": 12,
+      "SHOULD NOT": 1
+    },
+    "by_actor": {
+      "BUSINESS": 8,
+      "EMBEDDED_CHECKOUT": 22,
+      "EXTENSION": 2,
+      "HOST": 32,
+      "IMPLEMENTATION": 1,
+      "UNRESOLVED": 12
+    },
+    "by_file": {
+      "docs/specification/shopping/checkout/embedded.md": 77
+    },
+    "with_condition": 22,
+    "with_referenced_fields": 38,
+    "from_compound_split": 6,
+    "diagnostics": {
+      "actor_after_keyword_only": 5,
+      "actor_low_confidence": 3,
+      "actor_unresolved": 12,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 18,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 3,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0152",
+      "text_digest": "d3a16bd983",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** include an embedded service binding with `config.delegate` in checkout responses to indicate ECP availability and allowed delegations for a specific session.",
+      "normalized": "businesses must include an embedded service binding with config.delegate in checkout responses to indicate ecp availability and allowed delegations for a specific session",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": null,
+      "document_order": 46,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 125,
+        "end_line": 128,
+        "section": "Checkout Capability - EP Binding > Requirements > Discovery > Per-Checkout Configuration",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "per-checkout-configuration"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-PER-CHECKOUT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": true,
+        "testable_reason": "reviewed: visible in REST checkout responses; applies only to businesses that offer embedded checkout",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in REST checkout responses; applies only to businesses that offer embedded checkout"
+        },
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 124,
+            "level": "MUST",
+            "text_digest": "d3a16bd983"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 124,
+            "level": "MUST",
+            "text_digest": "d3a16bd983"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 125,
+            "level": "MUST",
+            "text_digest": "d3a16bd983"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0153",
+      "text_digest": "b9d5e402e6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "When a host receives a checkout response with an embedded service binding, it **MAY** initiate an ECP session by loading the `continue_url` in an embedded context.",
+      "normalized": "when a host receives a checkout response with an embedded service binding, it may initiate an ecp session by loading the continue_url in an embedded context",
+      "condition": "When a host receives a checkout response with an embedded service binding",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 61,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 177,
+        "end_line": 179,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 175,
+            "level": "MAY",
+            "text_digest": "b9d5e402e6"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 175,
+            "level": "MAY",
+            "text_digest": "b9d5e402e6"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 177,
+            "level": "MAY",
+            "text_digest": "b9d5e402e6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0154",
+      "text_digest": "40901b2bee",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "Before loading the embedded context, the host **SHOULD**:",
+      "normalized": "before loading the embedded context, the host should",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 62,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 181,
+        "end_line": 181,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 122,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 179,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 179,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 181,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0155",
+      "text_digest": "3230757599",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "To initiate the session, the host **MUST** augment the `continue_url` with ECP query parameters using the `ec_` prefix.",
+      "normalized": "to initiate the session, the host must augment the continue_url with ecp query parameters using the ec_ prefix",
+      "condition": null,
+      "referenced_fields": [
+        "continue_url",
+        "ec_"
+      ],
+      "compound_parent": null,
+      "document_order": 66,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 187,
+        "end_line": 188,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 127,
+            "level": "MUST",
+            "text_digest": "3230757599"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 185,
+            "level": "MUST",
+            "text_digest": "3230757599"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 185,
+            "level": "MUST",
+            "text_digest": "3230757599"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 187,
+            "level": "MUST",
+            "text_digest": "3230757599"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0156",
+      "text_digest": "db1f71589a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.5,
+      "clause": "The version is negotiated at session initialization and **MUST** remain constant for the lifetime of the ECP session — neither party may change the version after the handshake.",
+      "normalized": "the version is negotiated at session initialization and must remain constant for the lifetime of the ecp session - neither party may change the version after the handshake",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "All ECP parameters are passed via URL query string, not HTTP headers, to ensure maximum compatibility across different embedding environments. Parameters use the `ec_` prefix to avoid namespace pollution and clearly distinguish ECP parameters from business-specific query parameters:",
+      "document_order": 73,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 195,
+        "end_line": 199,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 193,
+            "level": "MUST",
+            "text_digest": "db1f71589a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 195,
+            "level": "MUST",
+            "text_digest": "db1f71589a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0157",
+      "text_digest": "036cb43223",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.5,
+      "clause": "**SHOULD** be a subset of `config.delegate` from the embedded service binding.",
+      "normalized": "should be a subset of config.delegate from the embedded service binding",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": "All ECP parameters are passed via URL query string, not HTTP headers, to ensure maximum compatibility across different embedding environments. Parameters use the `ec_` prefix to avoid namespace pollution and clearly distinguish ECP parameters from business-specific query parameters:",
+      "document_order": 78,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 202,
+        "end_line": 204,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "loading-an-embedded-checkout-url"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 197,
+            "level": "SHOULD",
+            "text_digest": "036cb43223"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 200,
+            "level": "SHOULD",
+            "text_digest": "036cb43223"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 202,
+            "level": "SHOULD",
+            "text_digest": "036cb43223"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0158",
+      "text_digest": "81afb6fb27",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** document their expected token format and validation process",
+      "normalized": "businesses must document their expected token format and validation process",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Token Format:**",
+      "document_order": 87,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 215,
+        "end_line": 215,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Authentication",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-AUTHENTICATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: documentation; not visible through the API",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "documentation; not visible through the API"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 148,
+            "level": "MUST",
+            "text_digest": "839daaba3c",
+            "clause": "Businesses **MUST** document their expected token format and validation process"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 207,
+            "level": "MUST",
+            "text_digest": "81afb6fb27"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 213,
+            "level": "MUST",
+            "text_digest": "81afb6fb27"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 215,
+            "level": "MUST",
+            "text_digest": "81afb6fb27"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0159",
+      "text_digest": "e5b5268361",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** validate authentication according to their security requirements.",
+      "normalized": "businesses must validate authentication according to their security requirements",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 89,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 233,
+        "end_line": 234,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Authentication",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-AUTHENTICATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: internal policy in the embedded flow",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "internal policy in the embedded flow"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 167,
+            "level": "MUST",
+            "text_digest": "e5b5268361"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 225,
+            "level": "MUST",
+            "text_digest": "e5b5268361"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 231,
+            "level": "MUST",
+            "text_digest": "e5b5268361"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 233,
+            "level": "MUST",
+            "text_digest": "e5b5268361"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0160",
+      "text_digest": "33e3f0b0e5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "When `ec_color_scheme` is not provided, the Embedded Checkout can use the buyer's system preference via the [`prefers-color-scheme`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) media query or the [`Sec-CH-Prefers-Color-Scheme`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-CH-Prefers-Color-Scheme) HTTP client hint, and **SHOULD** listen for changes and update accordingly.",
+      "normalized": "when ec_color_scheme is not provided, the embedded checkout can use the buyer's system preference via the prefers-color-scheme media query or the sec-ch-prefers-color-scheme http client hint, and should listen for changes and update accordingly",
+      "condition": "When `ec_color_scheme` is not provided",
+      "referenced_fields": [
+        "ec_color_scheme"
+      ],
+      "compound_parent": null,
+      "document_order": 113,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 282,
+        "end_line": 287,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Color Scheme",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "color-scheme"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 280,
+            "level": "SHOULD",
+            "text_digest": "33e3f0b0e5"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 282,
+            "level": "SHOULD",
+            "text_digest": "33e3f0b0e5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0161",
+      "text_digest": "cbd466887a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "By default, the Embedded Checkout **SHOULD** respect the buyer's system color scheme preference and listen for changes to update accordingly",
+      "normalized": "by default, the embedded checkout should respect the buyer's system color scheme preference and listen for changes to update accordingly",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Implementation Notes:**",
+      "document_order": 115,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 291,
+        "end_line": 292,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Color Scheme",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "color-scheme"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 289,
+            "level": "SHOULD",
+            "text_digest": "cbd466887a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 291,
+            "level": "SHOULD",
+            "text_digest": "cbd466887a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0162",
+      "text_digest": "830bc43945",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.5,
+      "clause": "When `ec_color_scheme` is explicitly provided, it **MUST** override the system preference, be applied immediately upon load, and be enforced for the duration of the session.",
+      "normalized": "when ec_color_scheme is explicitly provided, it must override the system preference, be applied immediately upon load, and be enforced for the duration of the session",
+      "condition": "When `ec_color_scheme` is explicitly provided",
+      "referenced_fields": [
+        "ec_color_scheme"
+      ],
+      "compound_parent": "**Implementation Notes:**",
+      "document_order": 116,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 293,
+        "end_line": 295,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Color Scheme",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "color-scheme"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 291,
+            "level": "MUST",
+            "text_digest": "830bc43945"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "830bc43945"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0163",
+      "text_digest": "1e3b81573d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MAY** ignore unsupported values",
+      "normalized": "businesses may ignore unsupported values",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Implementation Notes:**",
+      "document_order": 117,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 296,
+        "end_line": 296,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Color Scheme",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "color-scheme"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: embedded checkout UI behavior",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "embedded checkout UI behavior"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 294,
+            "level": "MAY",
+            "text_digest": "1e3b81573d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 296,
+            "level": "MAY",
+            "text_digest": "1e3b81573d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0164",
+      "text_digest": "cf58d72baa",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **SHOULD** only request delegations present in `config.delegate`",
+      "normalized": "the host should only request delegations present in config.delegate",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": "Each stage is a subset of the previous:",
+      "document_order": 127,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 321,
+        "end_line": 321,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Delegation Negotiation",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-negotiation"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 275,
+            "level": "SHOULD",
+            "text_digest": "cf58d72baa"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 319,
+            "level": "SHOULD",
+            "text_digest": "cf58d72baa"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 321,
+            "level": "SHOULD",
+            "text_digest": "cf58d72baa"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0165",
+      "text_digest": "2c534b146e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD NOT",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The business **SHOULD NOT** accept delegations not present in `config.delegate`",
+      "normalized": "the business should not accept delegations not present in config.delegate",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": "Each stage is a subset of the previous:",
+      "document_order": 128,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 322,
+        "end_line": 323,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Delegation Negotiation",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-negotiation"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: embedded protocol negotiation, not REST",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "embedded protocol negotiation, not REST"
+        },
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 276,
+            "level": "SHOULD NOT",
+            "text_digest": "2c534b146e"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 320,
+            "level": "SHOULD NOT",
+            "text_digest": "2c534b146e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 322,
+            "level": "SHOULD NOT",
+            "text_digest": "2c534b146e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0166",
+      "text_digest": "bf3f2784f2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "The business **MUST** confirm accepted delegations in `ec.ready`",
+      "normalized": "the business must confirm accepted delegations in ec.ready",
+      "condition": null,
+      "referenced_fields": [
+        "ec.ready"
+      ],
+      "compound_parent": "Each stage is a subset of the previous:",
+      "document_order": 128,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 322,
+        "end_line": 323,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Delegation Negotiation",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-negotiation"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: embedded protocol message",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "embedded protocol message"
+        },
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 276,
+            "level": "MUST",
+            "text_digest": "bf3f2784f2"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 320,
+            "level": "MUST",
+            "text_digest": "bf3f2784f2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 322,
+            "level": "MUST",
+            "text_digest": "bf3f2784f2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0167",
+      "text_digest": "7c0f80c2dd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "However, the Embedded Checkout **MAY** restrict delegation to authenticated or approved hosts based on business policy.",
+      "normalized": "however, the embedded checkout may restrict delegation to authenticated or approved hosts based on business policy",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 130,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 327,
+        "end_line": 329,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-contract"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-CONTRACT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 202,
+            "level": "MAY",
+            "text_digest": "7c0f80c2dd"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 281,
+            "level": "MAY",
+            "text_digest": "7c0f80c2dd"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 325,
+            "level": "MAY",
+            "text_digest": "7c0f80c2dd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 327,
+            "level": "MAY",
+            "text_digest": "7c0f80c2dd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0168",
+      "text_digest": "a7063be24b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST** indicate accepted delegations in the `ec.ready` request via the `delegate` field (see [`ec.ready`](#ecready)).",
+      "normalized": "the embedded checkout must indicate accepted delegations in the ec.ready request via the delegate field (see ec.ready)",
+      "condition": null,
+      "referenced_fields": [
+        "delegate",
+        "ec.ready"
+      ],
+      "compound_parent": null,
+      "document_order": 135,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 339,
+        "end_line": 342,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Delegation Acceptance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-acceptance"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-ACCEPTANCE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 214,
+            "level": "MUST",
+            "text_digest": "a7063be24b"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "a7063be24b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 337,
+            "level": "MUST",
+            "text_digest": "a7063be24b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 339,
+            "level": "MUST",
+            "text_digest": "a7063be24b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0169",
+      "text_digest": "71b19fcb62",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "If a requested delegation is not accepted, the Embedded Checkout **MUST** handle that action using its own UI.",
+      "normalized": "if a requested delegation is not accepted, the embedded checkout must handle that action using its own ui",
+      "condition": "If a requested delegation is not accepted",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 136,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 339,
+        "end_line": 342,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Delegation Acceptance",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "delegation-acceptance"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-DELEGATION-ACCEPTANCE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 214,
+            "level": "MUST",
+            "text_digest": "bb20885011",
+            "clause": "If a requested delegation is not accepted, the Embedded Checkout **MUST** handle that capability using its own UI."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "bb20885011",
+            "clause": "If a requested delegation is not accepted, the Embedded Checkout **MUST** handle that capability using its own UI."
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 337,
+            "level": "MUST",
+            "text_digest": "71b19fcb62"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 339,
+            "level": "MUST",
+            "text_digest": "71b19fcb62"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0170",
+      "text_digest": "b24866bb8b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** fire the appropriate `{action}_request` message when that action is triggered",
+      "normalized": "must fire the appropriate {action}_request message when that action is triggered",
+      "condition": "when that action is triggered",
+      "referenced_fields": [],
+      "compound_parent": "**Embedded Checkout responsibilities:**",
+      "document_order": 139,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 350,
+        "end_line": 351,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 225,
+            "level": "MUST",
+            "text_digest": "a669b3acaa",
+            "clause": "**MUST** fire the appropriate `{action}_request` message when that action is triggered"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 304,
+            "level": "MUST",
+            "text_digest": "b24866bb8b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 348,
+            "level": "MUST",
+            "text_digest": "b24866bb8b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 350,
+            "level": "MUST",
+            "text_digest": "b24866bb8b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0171",
+      "text_digest": "b33f69b0a1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** wait for the host's response before proceeding",
+      "normalized": "must wait for the host's response before proceeding",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Embedded Checkout responsibilities:**",
+      "document_order": 140,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 352,
+        "end_line": 352,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 227,
+            "level": "MUST",
+            "text_digest": "2bb80500b4",
+            "clause": "**MUST** wait for the host's response before proceeding"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 306,
+            "level": "MUST",
+            "text_digest": "b33f69b0a1"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 350,
+            "level": "MUST",
+            "text_digest": "b33f69b0a1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 352,
+            "level": "MUST",
+            "text_digest": "b33f69b0a1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0172",
+      "text_digest": "12912430f0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.8,
+      "clause": "**MUST NOT** show its own UI for that delegated action",
+      "normalized": "must not show its own ui for that delegated action",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Embedded Checkout responsibilities:**",
+      "document_order": 141,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 353,
+        "end_line": 353,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 228,
+            "level": "MUST NOT",
+            "text_digest": "f835209480",
+            "clause": "**MUST NOT** show its own UI for that delegated action"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 307,
+            "level": "MUST NOT",
+            "text_digest": "12912430f0"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 351,
+            "level": "MUST NOT",
+            "text_digest": "12912430f0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 353,
+            "level": "MUST NOT",
+            "text_digest": "12912430f0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0173",
+      "text_digest": "623e486ff4",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** respond to every `{action}_request` message it receives",
+      "normalized": "must respond to every {action}_request message it receives",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities:**",
+      "document_order": 143,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 357,
+        "end_line": 357,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 232,
+            "level": "MUST",
+            "text_digest": "360fe2def1",
+            "clause": "**MUST** respond to every `{action}_request` message it receives"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 311,
+            "level": "MUST",
+            "text_digest": "623e486ff4"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 355,
+            "level": "MUST",
+            "text_digest": "623e486ff4"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 357,
+            "level": "MUST",
+            "text_digest": "623e486ff4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0174",
+      "text_digest": "ef9672232b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** respond with an appropriate error if the user cancels",
+      "normalized": "must respond with an appropriate error if the user cancels",
+      "condition": "if the user cancels",
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities:**",
+      "document_order": 144,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 358,
+        "end_line": 358,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 233,
+            "level": "MUST",
+            "text_digest": "bbf4019dfe",
+            "clause": "**MUST** respond with an appropriate error if the user cancels"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 312,
+            "level": "MUST",
+            "text_digest": "ef9672232b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 356,
+            "level": "MUST",
+            "text_digest": "ef9672232b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 358,
+            "level": "MUST",
+            "text_digest": "ef9672232b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0175",
+      "text_digest": "d709c5a4ac",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**SHOULD** show loading/processing states while handling delegation",
+      "normalized": "should show loading/processing states while handling delegation",
+      "condition": "while handling delegation",
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities:**",
+      "document_order": 145,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 359,
+        "end_line": 359,
+        "section": "Checkout Capability - EP Binding > Requirements > Delegation Contract > Binding Requirements",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "binding-requirements"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 234,
+            "level": "SHOULD",
+            "text_digest": "a5596dbc90",
+            "clause": "**SHOULD** show loading/processing states while handling delegation"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 313,
+            "level": "SHOULD",
+            "text_digest": "d709c5a4ac"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 357,
+            "level": "SHOULD",
+            "text_digest": "d709c5a4ac"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 359,
+            "level": "SHOULD",
+            "text_digest": "d709c5a4ac"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0176",
+      "text_digest": "9af2ffa86a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "When checkout is rendered in embedded mode, the implementation **SHOULD** prevent off-checkout navigation to maintain a focused checkout experience.",
+      "normalized": "when checkout is rendered in embedded mode, the implementation should prevent off-checkout navigation to maintain a focused checkout experience",
+      "condition": "When checkout is rendered in embedded mode",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 154,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 378,
+        "end_line": 381,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 252,
+            "level": "SHOULD",
+            "text_digest": "9af2ffa86a"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 331,
+            "level": "SHOULD",
+            "text_digest": "9af2ffa86a"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 376,
+            "level": "SHOULD",
+            "text_digest": "9af2ffa86a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 378,
+            "level": "SHOULD",
+            "text_digest": "9af2ffa86a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0177",
+      "text_digest": "064ee17546",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The embedded checkout **SHOULD** block or intercept navigation attempts to URLs outside the checkout flow",
+      "normalized": "the embedded checkout should block or intercept navigation attempts to urls outside the checkout flow",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Navigation Requirements:**",
+      "document_order": 157,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 385,
+        "end_line": 386,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 259,
+            "level": "SHOULD",
+            "text_digest": "524f2330ab",
+            "clause": "The embedded checkout **SHOULD** block or intercept navigation attempts to URLs outside the checkout flow"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 338,
+            "level": "SHOULD",
+            "text_digest": "064ee17546"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 383,
+            "level": "SHOULD",
+            "text_digest": "064ee17546"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 385,
+            "level": "SHOULD",
+            "text_digest": "064ee17546"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0178",
+      "text_digest": "eea24f25f2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The embedded checkout **SHOULD** remove or disable UI elements that would navigate away from checkout (e.g., external links, navigation bars)",
+      "normalized": "the embedded checkout should remove or disable ui elements that would navigate away from checkout (e.g., external links, navigation bars)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Navigation Requirements:**",
+      "document_order": 158,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 387,
+        "end_line": 388,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 261,
+            "level": "SHOULD",
+            "text_digest": "da73d17c08",
+            "clause": "The embedded checkout **SHOULD** remove or disable UI elements that would navigate away from checkout (e.g., external links, navigation bars)"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 340,
+            "level": "SHOULD",
+            "text_digest": "eea24f25f2"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 385,
+            "level": "SHOULD",
+            "text_digest": "eea24f25f2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 387,
+            "level": "SHOULD",
+            "text_digest": "eea24f25f2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0179",
+      "text_digest": "258443814e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The embedder **MAY** implement additional navigation restrictions at the container level",
+      "normalized": "the embedder may implement additional navigation restrictions at the container level",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Navigation Requirements:**",
+      "document_order": 159,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 389,
+        "end_line": 390,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 263,
+            "level": "MAY",
+            "text_digest": "63b0f768b1",
+            "clause": "The embedder **MAY** implement additional navigation restrictions at the container level"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 342,
+            "level": "MAY",
+            "text_digest": "258443814e"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 387,
+            "level": "MAY",
+            "text_digest": "258443814e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 389,
+            "level": "MAY",
+            "text_digest": "258443814e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0180",
+      "text_digest": "35d3489e9b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**Permitted Exceptions:** The following navigation scenarios **MAY** be allowed when required for checkout completion:",
+      "normalized": "permitted exceptions: the following navigation scenarios may be allowed when required for checkout completion",
+      "condition": "when required for checkout completion",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 160,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 392,
+        "end_line": 393,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 266,
+            "level": "MAY",
+            "text_digest": "35d3489e9b"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 345,
+            "level": "MAY",
+            "text_digest": "35d3489e9b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 390,
+            "level": "MAY",
+            "text_digest": "35d3489e9b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 392,
+            "level": "MAY",
+            "text_digest": "35d3489e9b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0181",
+      "text_digest": "1df2a4b4f1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "These exceptions **SHOULD** return the user to the checkout flow upon completion.",
+      "normalized": "these exceptions should return the user to the checkout flow upon completion",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 166,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 400,
+        "end_line": 401,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "navigation-constraints"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 274,
+            "level": "SHOULD",
+            "text_digest": "1df2a4b4f1"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 353,
+            "level": "SHOULD",
+            "text_digest": "1df2a4b4f1"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 398,
+            "level": "SHOULD",
+            "text_digest": "1df2a4b4f1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 400,
+            "level": "SHOULD",
+            "text_digest": "1df2a4b4f1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0182",
+      "text_digest": "d27d8e1378",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `ucp.version` in all responses **MUST** echo the `ec_version` negotiated during session initialization and confirmed by the host in the `ec.ready` response.",
+      "normalized": "the ucp.version in all responses must echo the ec_version negotiated during session initialization and confirmed by the host in the ec.ready response",
+      "condition": null,
+      "referenced_fields": [
+        "ec.ready",
+        "ec_version",
+        "ucp.version"
+      ],
+      "compound_parent": null,
+      "document_order": 169,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 409,
+        "end_line": 412,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "transport-messaging"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-TRANSPORT-MESSAGING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 407,
+            "level": "MUST",
+            "text_digest": "d27d8e1378"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 409,
+            "level": "MUST",
+            "text_digest": "d27d8e1378"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0183",
+      "text_digest": "e31c7d39c1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The version is session-bound — it **MUST NOT** change for the duration of the ECP session.",
+      "normalized": "the version is session-bound - it must not change for the duration of the ecp session",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 170,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 409,
+        "end_line": 412,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "transport-messaging"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-TRANSPORT-MESSAGING-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 407,
+            "level": "MUST NOT",
+            "text_digest": "e31c7d39c1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 409,
+            "level": "MUST NOT",
+            "text_digest": "e31c7d39c1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0184",
+      "text_digest": "629595ef1a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Core messages are defined by the ECP specification and **MUST** be supported by all implementations.",
+      "normalized": "core messages are defined by the ecp specification and must be supported by all implementations",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 177,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 432,
+        "end_line": 433,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "core-messages"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-CORE-MESSAGES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 372,
+            "level": "MUST",
+            "text_digest": "629595ef1a"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 450,
+            "level": "MUST",
+            "text_digest": "629595ef1a"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 430,
+            "level": "MUST",
+            "text_digest": "629595ef1a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 432,
+            "level": "MUST",
+            "text_digest": "629595ef1a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0185",
+      "text_digest": "49e984cded",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.9,
+      "clause": "Extensions **MAY** extend the Embedded protocol by defining additional messages.",
+      "normalized": "extensions may extend the embedded protocol by defining additional messages",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 199,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 445,
+        "end_line": 446,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Message Categories > Extension Messages",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "extension-messages"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EXTENSION-MESSAGES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 383,
+            "level": "MAY",
+            "text_digest": "49e984cded"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 461,
+            "level": "MAY",
+            "text_digest": "49e984cded"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 443,
+            "level": "MAY",
+            "text_digest": "49e984cded"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 445,
+            "level": "MAY",
+            "text_digest": "49e984cded"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0186",
+      "text_digest": "6610687fbf",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EXTENSION",
+      "actor_confidence": 0.9,
+      "clause": "Extension messages **MUST** follow the naming convention:",
+      "normalized": "extension messages must follow the naming convention",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 200,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 445,
+        "end_line": 446,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Message Categories > Extension Messages",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "extension-messages"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EXTENSION-MESSAGES-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 383,
+            "level": "MUST",
+            "text_digest": "6610687fbf"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 461,
+            "level": "MUST",
+            "text_digest": "6610687fbf"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 443,
+            "level": "MUST",
+            "text_digest": "6610687fbf"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 445,
+            "level": "MUST",
+            "text_digest": "6610687fbf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0187",
+      "text_digest": "a3d2f4d56f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "Upon rendering, the Embedded Checkout **MUST** broadcast readiness to the parent context using the `ec.ready` message.",
+      "normalized": "upon rendering, the embedded checkout must broadcast readiness to the parent context using the ec.ready message",
+      "condition": null,
+      "referenced_fields": [
+        "ec.ready"
+      ],
+      "compound_parent": null,
+      "document_order": 209,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 465,
+        "end_line": 470,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 402,
+            "level": "MUST",
+            "text_digest": "a3d2f4d56f"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 480,
+            "level": "MUST",
+            "text_digest": "a3d2f4d56f"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 463,
+            "level": "MUST",
+            "text_digest": "a3d2f4d56f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 465,
+            "level": "MUST",
+            "text_digest": "a3d2f4d56f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0188",
+      "text_digest": "5983dfa675",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** be a subset of both `ec_delegate` (what host requested) and `config.delegate` from the checkout response (what business allows).",
+      "normalized": "must be a subset of both ec_delegate (what host requested) and config.delegate from the checkout response (what business allows)",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate",
+        "ec_delegate"
+      ],
+      "compound_parent": "**Payload:**",
+      "document_order": 216,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 475,
+        "end_line": 479,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-23",
+        "releases": [
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 490,
+            "level": "MUST",
+            "text_digest": "5983dfa675"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 473,
+            "level": "MUST",
+            "text_digest": "5983dfa675"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 475,
+            "level": "MUST",
+            "text_digest": "5983dfa675"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0189",
+      "text_digest": "66c2becef2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The `ec.ready` message is a request, which means that the host **MUST** respond to complete the handshake.",
+      "normalized": "the ec.ready message is a request, which means that the host must respond to complete the handshake",
+      "condition": null,
+      "referenced_fields": [
+        "ec.ready"
+      ],
+      "compound_parent": null,
+      "document_order": 223,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 520,
+        "end_line": 521,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 443,
+            "level": "MUST",
+            "text_digest": "66c2becef2"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 522,
+            "level": "MUST",
+            "text_digest": "66c2becef2"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 516,
+            "level": "MUST",
+            "text_digest": "66c2becef2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 520,
+            "level": "MUST",
+            "text_digest": "66c2becef2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0190",
+      "text_digest": "2e7656caf9",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `version` confirms the negotiated `ec_version` and `status` **MUST** be `\"success\"`.",
+      "normalized": "the version confirms the negotiated ec_version and status must be \"success\"",
+      "condition": null,
+      "referenced_fields": [
+        "ec_version",
+        "status",
+        "version"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 229,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 526,
+        "end_line": 530,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 522,
+            "level": "MUST",
+            "text_digest": "2e7656caf9"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 526,
+            "level": "MUST",
+            "text_digest": "2e7656caf9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0191",
+      "text_digest": "d4a5ed6089",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "This version is session-bound — the host explicitly confirms the protocol version here, and it **MUST NOT** change for the duration of the session.",
+      "normalized": "this version is session-bound - the host explicitly confirms the protocol version here, and it must not change for the duration of the session",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 230,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 526,
+        "end_line": 530,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 522,
+            "level": "MUST NOT",
+            "text_digest": "d4a5ed6089"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 526,
+            "level": "MUST NOT",
+            "text_digest": "d4a5ed6089"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0192",
+      "text_digest": "5e3413cd0d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "When present, host **MUST NOT** include `credential` — the channel will be re-established and any credential sent here will be discarded.",
+      "normalized": "when present, host must not include credential - the channel will be re-established and any credential sent here will be discarded",
+      "condition": "When present",
+      "referenced_fields": [
+        "credential"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 233,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 531,
+        "end_line": 535,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 527,
+            "level": "MUST NOT",
+            "text_digest": "5e3413cd0d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 531,
+            "level": "MUST NOT",
+            "text_digest": "5e3413cd0d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0193",
+      "text_digest": "abdc68d4ce",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The requested authorization data, can be in the form of an OAuth token, JWT, API keys, etc. **MUST** be set if `auth` is present in the request.",
+      "normalized": "the requested authorization data, can be in the form of an oauth token, jwt, api keys, etc. must be set if auth is present in the request",
+      "condition": "if `auth` is present in the request",
+      "referenced_fields": [
+        "auth"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 235,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 536,
+        "end_line": 539,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 532,
+            "level": "MUST",
+            "text_digest": "abdc68d4ce"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 536,
+            "level": "MUST",
+            "text_digest": "abdc68d4ce"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0194",
+      "text_digest": "8c8a34c733",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST NOT** be set if `upgrade` is present.",
+      "normalized": "must not be set if upgrade is present",
+      "condition": "if `upgrade` is present",
+      "referenced_fields": [
+        "upgrade"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 236,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 536,
+        "end_line": 539,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-08",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 532,
+            "level": "MUST NOT",
+            "text_digest": "8c8a34c733"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 536,
+            "level": "MUST NOT",
+            "text_digest": "8c8a34c733"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0195",
+      "text_digest": "d761ce51d7",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "Hosts **MAY** respond with an `upgrade` field to update the communication channel between host and Embedded Checkout.",
+      "normalized": "hosts may respond with an upgrade field to update the communication channel between host and embedded checkout",
+      "condition": null,
+      "referenced_fields": [
+        "upgrade"
+      ],
+      "compound_parent": null,
+      "document_order": 242,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 561,
+        "end_line": 565,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-09",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 469,
+            "level": "MAY",
+            "text_digest": "d761ce51d7"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 548,
+            "level": "MAY",
+            "text_digest": "d761ce51d7"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 556,
+            "level": "MAY",
+            "text_digest": "d761ce51d7"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 561,
+            "level": "MAY",
+            "text_digest": "d761ce51d7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0196",
+      "text_digest": "eb3704265c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object",
+      "normalized": "currently, this object only supports a port field, which must be a messageport object",
+      "condition": null,
+      "referenced_fields": [
+        "port"
+      ],
+      "compound_parent": null,
+      "document_order": 243,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 561,
+        "end_line": 565,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-10",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 469,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 548,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 556,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 561,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0197",
+      "text_digest": "9dbc2de6b2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded checkout context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)",
+      "normalized": "currently, this object only supports a port field, which must be transferred to the embedded checkout context (e.g., with {transfer: [port2]} on the host's iframe.contentwindow.postmessage() call)",
+      "condition": null,
+      "referenced_fields": [
+        "port"
+      ],
+      "compound_parent": null,
+      "document_order": 243,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 561,
+        "end_line": 565,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-11",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 469,
+            "level": "MUST",
+            "text_digest": "9dbc2de6b2"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 548,
+            "level": "MUST",
+            "text_digest": "9dbc2de6b2"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 556,
+            "level": "MUST",
+            "text_digest": "9dbc2de6b2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 561,
+            "level": "MUST",
+            "text_digest": "9dbc2de6b2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0198",
+      "text_digest": "7604d830f0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "When the host responds with an `upgrade` object, the Embedded Checkout **MUST** discard any other information in the message, send a new `ec.ready` message over the upgraded communication channel, and wait for a new response.",
+      "normalized": "when the host responds with an upgrade object, the embedded checkout must discard any other information in the message, send a new ec.ready message over the upgraded communication channel, and wait for a new response",
+      "condition": "When the host responds with an `upgrade` object",
+      "referenced_fields": [
+        "ec.ready",
+        "upgrade"
+      ],
+      "compound_parent": null,
+      "document_order": 245,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 583,
+        "end_line": 587,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-12",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 489,
+            "level": "MUST",
+            "text_digest": "7604d830f0"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 568,
+            "level": "MUST",
+            "text_digest": "7604d830f0"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 577,
+            "level": "MUST",
+            "text_digest": "7604d830f0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 583,
+            "level": "MUST",
+            "text_digest": "7604d830f0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0199",
+      "text_digest": "a809664137",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All subsequent messages **MUST** be sent only over the upgraded communication channel.",
+      "normalized": "all subsequent messages must be sent only over the upgraded communication channel",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 246,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 583,
+        "end_line": 587,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-13",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 489,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 568,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 577,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 583,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0200",
+      "text_digest": "273736b04d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MAY** also respond with a `checkout` object, which will be used to populate the checkout UI according to the delegation contract between host and business.",
+      "normalized": "the host may also respond with a checkout object, which will be used to populate the checkout ui according to the delegation contract between host and business",
+      "condition": null,
+      "referenced_fields": [
+        "checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 247,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 589,
+        "end_line": 591,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-14",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 494,
+            "level": "MAY",
+            "text_digest": "273736b04d"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 574,
+            "level": "MAY",
+            "text_digest": "273736b04d"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 583,
+            "level": "MAY",
+            "text_digest": "273736b04d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 589,
+            "level": "MAY",
+            "text_digest": "273736b04d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0201",
+      "text_digest": "b4ddfaed6e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "If the host cannot complete the handshake (e.g., origin validation failure or protocol state violation), it **MUST** respond with an `error_response` result:",
+      "normalized": "if the host cannot complete the handshake (e.g., origin validation failure or protocol state violation), it must respond with an error_response result",
+      "condition": "If the host cannot complete the handshake (e.g., origin validation failure or protocol state violation)",
+      "referenced_fields": [
+        "error_response"
+      ],
+      "compound_parent": null,
+      "document_order": 251,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 630,
+        "end_line": 631,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-15",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 623,
+            "level": "MUST",
+            "text_digest": "b4ddfaed6e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 630,
+            "level": "MUST",
+            "text_digest": "b4ddfaed6e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0202",
+      "text_digest": "dfcef5c6f2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** tear down the embedded context",
+      "normalized": "the host must tear down the embedded context",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 253,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 652,
+        "end_line": 655,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-16",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 644,
+            "level": "MUST",
+            "text_digest": "dfcef5c6f2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 652,
+            "level": "MUST",
+            "text_digest": "dfcef5c6f2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0203",
+      "text_digest": "c45fb9f3f1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MAY** redirect the buyer to `continue_url` if present.",
+      "normalized": "the host may redirect the buyer to continue_url if present",
+      "condition": "if present",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 253,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 652,
+        "end_line": 655,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-17",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 644,
+            "level": "MAY",
+            "text_digest": "c45fb9f3f1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 652,
+            "level": "MAY",
+            "text_digest": "c45fb9f3f1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0204",
+      "text_digest": "0c350741c8",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST NOT** send further messages after receiving a handshake error.",
+      "normalized": "the embedded checkout must not send further messages after receiving a handshake error",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 254,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 652,
+        "end_line": 655,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecready"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-READY-18",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 644,
+            "level": "MUST NOT",
+            "text_digest": "0c350741c8"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 652,
+            "level": "MUST NOT",
+            "text_digest": "0c350741c8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0205",
+      "text_digest": "a49ddfe7c1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "When error escalation is required, Embedded Checkout **MUST** issue an `ec.error` notification per the [session error pattern](../../embedded-protocol.md#session-error).",
+      "normalized": "when error escalation is required, embedded checkout must issue an ec.error notification per the session error pattern",
+      "condition": "When error escalation is required",
+      "referenced_fields": [
+        "ec.error"
+      ],
+      "compound_parent": null,
+      "document_order": 259,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 668,
+        "end_line": 670,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Authentication > `ec.auth`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecauth"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-AUTH-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 660,
+            "level": "MUST",
+            "text_digest": "a49ddfe7c1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 668,
+            "level": "MUST",
+            "text_digest": "a49ddfe7c1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0206",
+      "text_digest": "99e001b8a5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** send this message whenever `checkout.totals` changes for any reason.",
+      "normalized": "businesses must send this message whenever checkout.totals changes for any reason",
+      "condition": "whenever `checkout.totals` changes for any reason",
+      "referenced_fields": [
+        "checkout.totals"
+      ],
+      "compound_parent": null,
+      "document_order": 303,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 852,
+        "end_line": 855,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.totals.change`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ectotalschange"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-TOTALS-CHANGE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: embedded protocol message",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "embedded protocol message"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 845,
+            "level": "MUST",
+            "text_digest": "99e001b8a5"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 852,
+            "level": "MUST",
+            "text_digest": "99e001b8a5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0207",
+      "text_digest": "5023f77e0f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When a change also triggers a domain-specific message (e.g., `ec.line_items.change`, `ec.buyer.change`, or `ec.payment.change`), the business **MUST** send the domain-specific message first, then follow it with `ec.totals.change`.",
+      "normalized": "when a change also triggers a domain-specific message (e.g., ec.line_items.change, ec.buyer.change, or ec.payment.change), the business must send the domain-specific message first, then follow it with ec.totals.change",
+      "condition": "When a change also triggers a domain-specific message (e.g., `ec.line_items.change`, `ec.buyer.change`, or `ec.payment.change`)",
+      "referenced_fields": [
+        "ec.buyer.change",
+        "ec.line_items.change",
+        "ec.payment.change",
+        "ec.totals.change"
+      ],
+      "compound_parent": null,
+      "document_order": 304,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 857,
+        "end_line": 860,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.totals.change`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ectotalschange"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-TOTALS-CHANGE-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: embedded protocol message",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "embedded protocol message"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 850,
+            "level": "MUST",
+            "text_digest": "5023f77e0f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 857,
+            "level": "MUST",
+            "text_digest": "5023f77e0f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0208",
+      "text_digest": "2f8c3a174a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** respond with either an error, or the newly-selected payment instruments.",
+      "normalized": "the host must respond with either an error, or the newly-selected payment instruments",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 349,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1026,
+        "end_line": 1031,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.instruments_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentinstruments_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 819,
+            "level": "MUST",
+            "text_digest": "2f8c3a174a"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 892,
+            "level": "MUST",
+            "text_digest": "2f8c3a174a"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1018,
+            "level": "MUST",
+            "text_digest": "2f8c3a174a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1026,
+            "level": "MUST",
+            "text_digest": "2f8c3a174a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0209",
+      "text_digest": "f8653b81c3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "In successful responses, the host **MUST** respond with a partial update to the `checkout` object, with only the `payment.instruments` field updated.",
+      "normalized": "in successful responses, the host must respond with a partial update to the checkout object, with only the payment.instruments field updated",
+      "condition": null,
+      "referenced_fields": [
+        "checkout",
+        "payment.instruments"
+      ],
+      "compound_parent": null,
+      "document_order": 350,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1026,
+        "end_line": 1031,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.instruments_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentinstruments_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 819,
+            "level": "MUST",
+            "text_digest": "749fc22145",
+            "clause": "In successful responses, the host **MUST** respond with a partial update to the `checkout` object, with only the `payment.instruments` and `payment.selected_instrument_id` fields updated."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 892,
+            "level": "MUST",
+            "text_digest": "f8653b81c3"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1018,
+            "level": "MUST",
+            "text_digest": "f8653b81c3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1026,
+            "level": "MUST",
+            "text_digest": "f8653b81c3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0210",
+      "text_digest": "e0c6543fed",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST** treat this update as a PUT-style change by entirely replacing the existing state for the provided fields, rather than attempting to merge the new data with existing state.",
+      "normalized": "the embedded checkout must treat this update as a put-style change by entirely replacing the existing state for the provided fields, rather than attempting to merge the new data with existing state",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 351,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1026,
+        "end_line": 1031,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.instruments_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentinstruments_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 819,
+            "level": "MUST",
+            "text_digest": "e0c6543fed"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 892,
+            "level": "MUST",
+            "text_digest": "e0c6543fed"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1018,
+            "level": "MUST",
+            "text_digest": "e0c6543fed"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1026,
+            "level": "MUST",
+            "text_digest": "e0c6543fed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0211",
+      "text_digest": "0d386b4856",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** respond with either an error, or the credential for the selected payment instrument.",
+      "normalized": "the host must respond with either an error, or the credential for the selected payment instrument",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 368,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1132,
+        "end_line": 1138,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.credential_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentcredential_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 912,
+            "level": "MUST",
+            "text_digest": "0d386b4856"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 986,
+            "level": "MUST",
+            "text_digest": "0d386b4856"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1121,
+            "level": "MUST",
+            "text_digest": "0d386b4856"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1132,
+            "level": "MUST",
+            "text_digest": "0d386b4856"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0212",
+      "text_digest": "22353ff600",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "In successful responses, the host **MUST** supply a partial update to the `checkout` object, updating the instrument with `selected: true` with the new `credentials` field.",
+      "normalized": "in successful responses, the host must supply a partial update to the checkout object, updating the instrument with selected: true with the new credentials field",
+      "condition": null,
+      "referenced_fields": [
+        "checkout",
+        "credentials",
+        "selected"
+      ],
+      "compound_parent": null,
+      "document_order": 369,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1132,
+        "end_line": 1138,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.credential_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentcredential_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 912,
+            "level": "MUST",
+            "text_digest": "aea822da3d",
+            "clause": "In successful responses, the host **MUST** supply a partial update to the `checkout` object, updating only the instrument indicated by `payment.selected_instrument_id` with the new `credentials` field."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 986,
+            "level": "MUST",
+            "text_digest": "22353ff600"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1121,
+            "level": "MUST",
+            "text_digest": "22353ff600"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1132,
+            "level": "MUST",
+            "text_digest": "22353ff600"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0213",
+      "text_digest": "03e22bb1c3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST** treat this update as a PUT-style change by entirely replacing the existing state for `payment.instruments`, rather than attempting to merge the new data with existing state.",
+      "normalized": "the embedded checkout must treat this update as a put-style change by entirely replacing the existing state for payment.instruments, rather than attempting to merge the new data with existing state",
+      "condition": null,
+      "referenced_fields": [
+        "payment.instruments"
+      ],
+      "compound_parent": null,
+      "document_order": 370,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1132,
+        "end_line": 1138,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.credential_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentcredential_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 912,
+            "level": "MUST",
+            "text_digest": "03e22bb1c3"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 986,
+            "level": "MUST",
+            "text_digest": "03e22bb1c3"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1121,
+            "level": "MUST",
+            "text_digest": "03e22bb1c3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1132,
+            "level": "MUST",
+            "text_digest": "03e22bb1c3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0214",
+      "text_digest": "a207de5e37",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST NOT** silently release a token based solely on the message.",
+      "normalized": "the host must not silently release a token based solely on the message",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities during payment token delegation:**",
+      "document_order": 382,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1207,
+        "end_line": 1209,
+        "section": "Checkout Capability - EP Binding > Payment Extension > Payment Message API Reference > `ec.payment.credential_request`",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecpaymentcredential_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 974,
+            "level": "MUST NOT",
+            "text_digest": "44a3475bda",
+            "clause": "The host **MUST NOT** silently release a token based solely on the message."
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1050,
+            "level": "MUST NOT",
+            "text_digest": "a207de5e37"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1194,
+            "level": "MUST NOT",
+            "text_digest": "a207de5e37"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1207,
+            "level": "MUST NOT",
+            "text_digest": "a207de5e37"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0215",
+      "text_digest": "3060692cd2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** respond with either an error, or the newly-selected address.",
+      "normalized": "the host must respond with either an error, or the newly-selected address",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 415,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1325,
+        "end_line": 1331,
+        "section": "Checkout Capability - EP Binding > Fulfillment Extension > Fulfillment Message API Reference > `ec.fulfillment.address_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecfulfillmentaddress_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1091,
+            "level": "MUST",
+            "text_digest": "3060692cd2"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1167,
+            "level": "MUST",
+            "text_digest": "3060692cd2"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1311,
+            "level": "MUST",
+            "text_digest": "3060692cd2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1324,
+            "level": "MUST",
+            "text_digest": "3060692cd2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0216",
+      "text_digest": "2f14a5d57a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "In successful responses, the host **MUST** respond with an updated `fulfillment.methods` object, updating the `selected_destination_id` and `destinations` fields for fulfillment methods, and otherwise preserving the existing state.",
+      "normalized": "in successful responses, the host must respond with an updated fulfillment.methods object, updating the selected_destination_id and destinations fields for fulfillment methods, and otherwise preserving the existing state",
+      "condition": null,
+      "referenced_fields": [
+        "destinations",
+        "fulfillment.methods",
+        "selected_destination_id"
+      ],
+      "compound_parent": null,
+      "document_order": 416,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1325,
+        "end_line": 1331,
+        "section": "Checkout Capability - EP Binding > Fulfillment Extension > Fulfillment Message API Reference > `ec.fulfillment.address_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecfulfillmentaddress_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1091,
+            "level": "MUST",
+            "text_digest": "2f14a5d57a"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1167,
+            "level": "MUST",
+            "text_digest": "2f14a5d57a"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1311,
+            "level": "MUST",
+            "text_digest": "2f14a5d57a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1324,
+            "level": "MUST",
+            "text_digest": "2f14a5d57a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0217",
+      "text_digest": "fd862f1fd7",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST** treat this update as a PUT-style change by entirely replacing the existing state for `fulfillment.methods`, rather than attempting to merge the new data with existing state.",
+      "normalized": "the embedded checkout must treat this update as a put-style change by entirely replacing the existing state for fulfillment.methods, rather than attempting to merge the new data with existing state",
+      "condition": null,
+      "referenced_fields": [
+        "fulfillment.methods"
+      ],
+      "compound_parent": null,
+      "document_order": 417,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1325,
+        "end_line": 1331,
+        "section": "Checkout Capability - EP Binding > Fulfillment Extension > Fulfillment Message API Reference > `ec.fulfillment.address_change_request`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "ecfulfillmentaddress_change_request"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1091,
+            "level": "MUST",
+            "text_digest": "fd862f1fd7"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1167,
+            "level": "MUST",
+            "text_digest": "fd862f1fd7"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1311,
+            "level": "MUST",
+            "text_digest": "fd862f1fd7"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1324,
+            "level": "MUST",
+            "text_digest": "fd862f1fd7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0218",
+      "text_digest": "f863ba3cef",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "When a checkout URL includes `ec_delegate=window.open`, the host **MUST** handle every `ec.window.open_request` and acknowledge the request.",
+      "normalized": "when a checkout url includes ec_delegate=window.open, the host must handle every ec.window.open_request and acknowledge the request",
+      "condition": "When a checkout URL includes `ec_delegate=window.open`",
+      "referenced_fields": [
+        "ec.window.open_request"
+      ],
+      "compound_parent": null,
+      "document_order": 430,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1404,
+        "end_line": 1407,
+        "section": "Checkout Capability - EP Binding > Window Extension",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-extension"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-EXTENSION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1387,
+            "level": "MUST",
+            "text_digest": "f863ba3cef"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1402,
+            "level": "MUST",
+            "text_digest": "f863ba3cef"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0219",
+      "text_digest": "be256dd9cb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** send `ec.window.open_request` when the buyer activates a link presented by the business",
+      "normalized": "must send ec.window.open_request when the buyer activates a link presented by the business",
+      "condition": "when the buyer activates a link presented by the business",
+      "referenced_fields": [
+        "ec.window.open_request"
+      ],
+      "compound_parent": "**Embedded Checkout responsibilities**:",
+      "document_order": 441,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1427,
+        "end_line": 1428,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1410,
+            "level": "MUST",
+            "text_digest": "be256dd9cb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1425,
+            "level": "MUST",
+            "text_digest": "be256dd9cb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0220",
+      "text_digest": "f74c8b5260",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** validate that the requested URL uses the `https` scheme",
+      "normalized": "must validate that the requested url uses the https scheme",
+      "condition": null,
+      "referenced_fields": [
+        "https"
+      ],
+      "compound_parent": "**Host responsibilities**:",
+      "document_order": 443,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1432,
+        "end_line": 1432,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1415,
+            "level": "MUST",
+            "text_digest": "f74c8b5260"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1430,
+            "level": "MUST",
+            "text_digest": "f74c8b5260"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0221",
+      "text_digest": "ac546d4675",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**SHOULD** apply additional host security policies (e.g., verifying origins)",
+      "normalized": "should apply additional host security policies (e.g., verifying origins)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities**:",
+      "document_order": 444,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1433,
+        "end_line": 1434,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1416,
+            "level": "SHOULD",
+            "text_digest": "ac546d4675"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1431,
+            "level": "SHOULD",
+            "text_digest": "ac546d4675"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0222",
+      "text_digest": "1e520ee6a8",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** present the content to the buyer for every approved request (e.g., in a modal, new tab, or similar)",
+      "normalized": "must present the content to the buyer for every approved request (e.g., in a modal, new tab, or similar)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities**:",
+      "document_order": 445,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1435,
+        "end_line": 1436,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1418,
+            "level": "MUST",
+            "text_digest": "1e520ee6a8"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1433,
+            "level": "MUST",
+            "text_digest": "1e520ee6a8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0223",
+      "text_digest": "df7a51899a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MUST** respond with a JSON-RPC success result when the request was processed, or a `window_open_rejected_error` error if host policy prevented the navigation",
+      "normalized": "must respond with a json-rpc success result when the request was processed, or a window_open_rejected_error error if host policy prevented the navigation",
+      "condition": "when the request was processed, or a `window_open_rejected_error` error if host policy prevented the navigation",
+      "referenced_fields": [
+        "window_open_rejected_error"
+      ],
+      "compound_parent": "**Host responsibilities**:",
+      "document_order": 446,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1437,
+        "end_line": 1439,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1420,
+            "level": "MUST",
+            "text_digest": "df7a51899a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1435,
+            "level": "MUST",
+            "text_digest": "df7a51899a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0224",
+      "text_digest": "55e3e568a0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.8,
+      "clause": "**MAY** notify the buyer if the request was rejected",
+      "normalized": "may notify the buyer if the request was rejected",
+      "condition": "if the request was rejected",
+      "referenced_fields": [],
+      "compound_parent": "**Host responsibilities**:",
+      "document_order": 447,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1440,
+        "end_line": 1440,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "list_item",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1423,
+            "level": "MAY",
+            "text_digest": "55e3e568a0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1438,
+            "level": "MAY",
+            "text_digest": "55e3e568a0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0225",
+      "text_digest": "cf9241666a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "EMBEDDED_CHECKOUT",
+      "actor_confidence": 0.9,
+      "clause": "The Embedded Checkout **MUST NOT** present its own UI for the link.",
+      "normalized": "the embedded checkout must not present its own ui for the link",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 449,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1442,
+        "end_line": 1444,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1425,
+            "level": "MUST NOT",
+            "text_digest": "cf9241666a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1440,
+            "level": "MUST NOT",
+            "text_digest": "cf9241666a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0226",
+      "text_digest": "1e42c2ea27",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "Hosts that need richer context (e.g., link type or label) **MAY** cross-reference the requested URL against the `checkout.links` array from the checkout session to obtain additional metadata.",
+      "normalized": "hosts that need richer context (e.g., link type or label) may cross-reference the requested url against the checkout.links array from the checkout session to obtain additional metadata",
+      "condition": null,
+      "referenced_fields": [
+        "checkout.links"
+      ],
+      "compound_parent": null,
+      "document_order": 451,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1446,
+        "end_line": 1449,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Overview & Host Choice",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "window-overview-host-choice"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-08",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1429,
+            "level": "MAY",
+            "text_digest": "1e42c2ea27"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1444,
+            "level": "MAY",
+            "text_digest": "1e42c2ea27"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0227",
+      "text_digest": "95b351b8f1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MAY** notify the buyer that their request was rejected.",
+      "normalized": "the host may notify the buyer that their request was rejected",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "`window_open_rejected_error` | Description",
+      "document_order": 474,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1526,
+        "end_line": 1526,
+        "section": "Checkout Capability - EP Binding > Security & Error Handling > Error Codes",
+        "block_type": "table_cell",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "error-codes"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-ERROR-CODES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1506,
+            "level": "MAY",
+            "text_digest": "95b351b8f1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1524,
+            "level": "MAY",
+            "text_digest": "95b351b8f1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0228",
+      "text_digest": "8f97f24d67",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host SHOULD display a User Confirmation UI before releasing the token.",
+      "normalized": "the host should display a user confirmation ui before releasing the token",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 480,
+      "source": {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "start_line": 1543,
+        "end_line": 1547,
+        "section": "Checkout Capability - EP Binding > Security & Error Handling > Prevention of Unsolicited Payment Requests",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/embedded/",
+        "anchor": "prevention-of-unsolicited-payment-requests"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-EP-PREVENTION-OF-01",
+        "capability_source": "path",
+        "keyword_style": "capitals",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: aimed at the host",
+        "review": {
+          "verdict": "rule",
+          "actor": "HOST",
+          "testable": false,
+          "reason": "aimed at the host"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1236,
+            "level": "SHOULD",
+            "text_digest": "8f97f24d67"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1311,
+            "level": "SHOULD",
+            "text_digest": "8f97f24d67"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-checkout.md",
+            "start_line": 1523,
+            "level": "SHOULD",
+            "text_digest": "8f97f24d67"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/embedded.md",
+            "start_line": 1541,
+            "level": "SHOULD",
+            "text_digest": "8f97f24d67"
+          }
+        ]
+      }
+    }
+  ]
+}

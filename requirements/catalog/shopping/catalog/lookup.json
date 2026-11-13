@@ -1,0 +1,983 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/catalog/lookup.md",
+  "summary": {
+    "total": 16,
+    "must_count": 7,
+    "must_not_count": 1,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 3,
+    "should_not_count": 0,
+    "may_count": 5,
+    "by_level": {
+      "MAY": 5,
+      "MUST": 7,
+      "MUST NOT": 1,
+      "SHOULD": 3
+    },
+    "by_actor": {
+      "IMPLEMENTATION": 6,
+      "UNRESOLVED": 10
+    },
+    "by_file": {
+      "docs/specification/shopping/catalog/lookup.md": 16
+    },
+    "with_condition": 4,
+    "with_referenced_fields": 6,
+    "from_compound_split": 2,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 10,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 1,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0001",
+      "text_digest": "05e08eb33c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "MAY support SKU, handle, URL, etc.",
+      "normalized": "may support sku, handle, url, etc",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "**Input** | `lookup_catalog`",
+      "document_order": 14,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 37,
+        "end_line": 37,
+        "section": "Catalog Lookup Capability > Operations",
+        "block_type": "table_cell",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "operations"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OPERATIONS-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; a table-cell restatement of the lookup identifier rules",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; a table-cell restatement of the lookup identifier rules"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 37,
+            "level": "MAY",
+            "text_digest": "05e08eb33c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 37,
+            "level": "MAY",
+            "text_digest": "05e08eb33c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0002",
+      "text_digest": "4d7409c0dd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations MUST support lookup by product ID and variant ID.",
+      "normalized": "implementations must support lookup by product id and variant id",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 25,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 51,
+        "end_line": 54,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "supported-identifiers"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: 'implementations' are the business's server",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "'implementations' are the business's server"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 51,
+            "level": "MUST",
+            "text_digest": "4d7409c0dd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 51,
+            "level": "MUST",
+            "text_digest": "4d7409c0dd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0003",
+      "text_digest": "bb0139a517",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MAY",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations MAY additionally support secondary identifiers such as SKU or handle, provided these are also fields on the returned product object.",
+      "normalized": "implementations may additionally support secondary identifiers such as sku or handle, provided these are also fields on the returned product object",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 26,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 51,
+        "end_line": 54,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "supported-identifiers"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 51,
+            "level": "MAY",
+            "text_digest": "bb0139a517"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 51,
+            "level": "MAY",
+            "text_digest": "bb0139a517"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0004",
+      "text_digest": "fddacf45d0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Duplicate identifiers in the request MUST be deduplicated.",
+      "normalized": "duplicate identifiers in the request must be deduplicated",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 27,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 56,
+        "end_line": 59,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "supported-identifiers"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-03",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: the server deduplicates; visible in the response",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "the server deduplicates; visible in the response"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MUST",
+            "text_digest": "fddacf45d0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MUST",
+            "text_digest": "fddacf45d0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0005",
+      "text_digest": "1976ef2539",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MAY",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "When an identifier matches multiple products (e.g., a SKU shared across variants), implementations return matching products and MAY limit the result set.",
+      "normalized": "when an identifier matches multiple products (e.g., a sku shared across variants), implementations return matching products and may limit the result set",
+      "condition": "When an identifier matches multiple products (e.g., a SKU shared across variants)",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 28,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 56,
+        "end_line": 59,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "supported-identifiers"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-04",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MAY",
+            "text_digest": "1976ef2539"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MAY",
+            "text_digest": "1976ef2539"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0006",
+      "text_digest": "25191003c1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When multiple identifiers resolve to the same product, it MUST be returned once.",
+      "normalized": "when multiple identifiers resolve to the same product, it must be returned once",
+      "condition": "When multiple identifiers resolve to the same product",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 29,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 56,
+        "end_line": 59,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "supported-identifiers"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-05",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible in the response",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in the response"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MUST",
+            "text_digest": "25191003c1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 56,
+            "level": "MUST",
+            "text_digest": "25191003c1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0007",
+      "text_digest": "67d7d28db3",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Variants without an `inputs` entry MUST NOT appear in lookup responses.",
+      "normalized": "variants without an inputs entry must not appear in lookup responses",
+      "condition": null,
+      "referenced_fields": [
+        "inputs"
+      ],
+      "compound_parent": null,
+      "document_order": 35,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 68,
+        "end_line": 72,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Client Correlation",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "client-correlation"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-CLIENT-CORRELATION-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible in the response",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in the response"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 68,
+            "level": "MUST NOT",
+            "text_digest": "67d7d28db3"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 68,
+            "level": "MUST NOT",
+            "text_digest": "67d7d28db3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0008",
+      "text_digest": "0bedb69a17",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "SHOULD",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations SHOULD accept at least 10 identifiers per request.",
+      "normalized": "implementations should accept at least 10 identifiers per request",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 36,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 76,
+        "end_line": 79,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Batch Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "batch-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: send 10 identifiers",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: send 10 identifiers"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 76,
+            "level": "SHOULD",
+            "text_digest": "0bedb69a17"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 76,
+            "level": "SHOULD",
+            "text_digest": "0bedb69a17"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0009",
+      "text_digest": "1531d8ed95",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MAY",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations MAY enforce a maximum batch size",
+      "normalized": "implementations may enforce a maximum batch size",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 37,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 76,
+        "end_line": 79,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Batch Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "batch-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible through the error",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible through the error"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 76,
+            "level": "MAY",
+            "text_digest": "1531d8ed95"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 76,
+            "level": "MAY",
+            "text_digest": "1531d8ed95"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0010",
+      "text_digest": "160c793a93",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": "IMPLEMENTATION",
+      "actor_confidence": 0.9,
+      "clause": "Implementations MUST reject requests exceeding their limit with an appropriate error (HTTP 400 `request_too_large` for REST, JSON-RPC `-32602` for MCP).",
+      "normalized": "implementations must reject requests exceeding their limit with an appropriate error (http 400 request_too_large for rest, json-rpc -32602 for mcp)",
+      "condition": null,
+      "referenced_fields": [
+        "request_too_large"
+      ],
+      "compound_parent": null,
+      "document_order": 37,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 76,
+        "end_line": 79,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Batch Size",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "batch-size"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-03",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: visible: HTTP 400 request_too_large",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: HTTP 400 request_too_large"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 76,
+            "level": "MUST",
+            "text_digest": "160c793a93"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 76,
+            "level": "MUST",
+            "text_digest": "160c793a93"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0011",
+      "text_digest": "2d2516174f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "`variants` SHOULD contain the featured variant and other variants matching `product.selected`.",
+      "normalized": "variants should contain the featured variant and other variants matching product.selected",
+      "condition": null,
+      "referenced_fields": [
+        "product.selected",
+        "variants"
+      ],
+      "compound_parent": "The response returns the product with complete context (title, description, media, options) and a **subset of variants matching [`product.selected`](#option-selection)**:",
+      "document_order": 54,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 128,
+        "end_line": 130,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Resolution Behavior",
+        "block_type": "list_item",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "resolution-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-RESOLUTION-BEHAVIOR-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 128,
+            "level": "SHOULD",
+            "text_digest": "2d2516174f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 128,
+            "level": "SHOULD",
+            "text_digest": "2d2516174f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0012",
+      "text_digest": "00e5f417b1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The requested variant MUST be the first element (featured).",
+      "normalized": "the requested variant must be the first element (featured)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": "The response returns the product with complete context (title, description, media, options) and a **subset of variants matching [`product.selected`](#option-selection)**:",
+      "document_order": 57,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 131,
+        "end_line": 136,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Resolution Behavior",
+        "block_type": "list_item",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "resolution-behavior"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-RESOLUTION-BEHAVIOR-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 131,
+            "level": "MUST",
+            "text_digest": "00e5f417b1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 131,
+            "level": "MUST",
+            "text_digest": "00e5f417b1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0013",
+      "text_digest": "50e0b6763f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Each option name MUST appear at most once.",
+      "normalized": "each option name must appear at most once",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 69,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 154,
+        "end_line": 156,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Input",
+        "block_type": "list_item",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "input"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-INPUT-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": false,
+        "testable_reason": "reviewed: constrains the `selected` input the client sends",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "constrains the `selected` input the client sends"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 154,
+            "level": "MUST",
+            "text_digest": "50e0b6763f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 154,
+            "level": "MUST",
+            "text_digest": "50e0b6763f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0014",
+      "text_digest": "f39f08283c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The response MUST include `product.selected` when the product has configurable options — reflecting the effective selections after any relaxation when the request includes `selected`, or the featured variant's default selections otherwise.",
+      "normalized": "the response must include product.selected when the product has configurable options - reflecting the effective selections after any relaxation when the request includes selected, or the featured variant's default selections otherwise",
+      "condition": "when the product has configurable options — reflecting the effective selections after any relaxation when the request includes `selected`, or the featured variant's default selections otherwise",
+      "referenced_fields": [
+        "product.selected",
+        "selected"
+      ],
+      "compound_parent": null,
+      "document_order": 74,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 164,
+        "end_line": 168,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Effective Selections",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "output-effective-selections"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-EFFECTIVE-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 164,
+            "level": "MUST",
+            "text_digest": "f39f08283c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 164,
+            "level": "MUST",
+            "text_digest": "f39f08283c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0015",
+      "text_digest": "cc0f65f541",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When the product has no configurable options, `selected` MAY be empty or omitted.",
+      "normalized": "when the product has no configurable options, selected may be empty or omitted",
+      "condition": "When the product has no configurable options",
+      "referenced_fields": [
+        "selected"
+      ],
+      "compound_parent": null,
+      "document_order": 75,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 164,
+        "end_line": 168,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Effective Selections",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "output-effective-selections"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-EFFECTIVE-02",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: permission on response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission on response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 164,
+            "level": "MAY",
+            "text_digest": "cc0f65f541"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 164,
+            "level": "MAY",
+            "text_digest": "cc0f65f541"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CATALOG-LOOKUP-0016",
+      "text_digest": "515545af2a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.catalog.lookup"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Option values in the response SHOULD include availability signals relative to `product.selected`:",
+      "normalized": "option values in the response should include availability signals relative to product.selected",
+      "condition": null,
+      "referenced_fields": [
+        "product.selected"
+      ],
+      "compound_parent": null,
+      "document_order": 81,
+      "source": {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "start_line": 181,
+        "end_line": 182,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Availability Signals",
+        "block_type": "paragraph",
+        "page": "specification/shopping/catalog/lookup/",
+        "anchor": "output-availability-signals"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-AVAILABILITY-01",
+        "capability_source": "bullet",
+        "keyword_style": "capitals",
+        "transport": "core",
+        "testable": true,
+        "testable_reason": "reviewed: response content",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "response content"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/catalog/lookup.md",
+            "start_line": 181,
+            "level": "SHOULD",
+            "text_digest": "515545af2a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/catalog/lookup.md",
+            "start_line": 181,
+            "level": "SHOULD",
+            "text_digest": "515545af2a"
+          }
+        ]
+      }
+    }
+  ]
+}

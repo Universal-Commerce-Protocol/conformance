@@ -1,0 +1,278 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/cart/rest.md",
+  "summary": {
+    "total": 4,
+    "must_count": 2,
+    "must_not_count": 0,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 0,
+    "should_not_count": 0,
+    "may_count": 2,
+    "by_level": {
+      "MAY": 2,
+      "MUST": 2
+    },
+    "by_actor": {
+      "BUSINESS": 1,
+      "UNRESOLVED": 3
+    },
+    "by_file": {
+      "docs/specification/shopping/cart/rest.md": 4
+    },
+    "with_condition": 2,
+    "with_referenced_fields": 0,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 3,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 3,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CART-0062",
+      "text_digest": "017f445b50",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All request and response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }.",
+      "normalized": "all request and response bodies must be valid json as specified in rfc 8259",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 9,
+      "source": {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "start_line": 76,
+        "end_line": 77,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/rest/",
+        "anchor": "content-types"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-REST-CONTENT-TYPES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: binds both sides; the response half is visible",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "binds both sides; the response half is visible"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-rest.md",
+            "start_line": 74,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/rest.md",
+            "start_line": 76,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0063",
+      "text_digest": "86f31bc40b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.",
+      "normalized": "all rest endpoints must be served over https with minimum tls version 1.3",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 10,
+      "source": {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "start_line": 81,
+        "end_line": 81,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/rest/",
+        "anchor": "transport-security"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-REST-TRANSPORT-SECURITY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the endpoint's TLS version",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the endpoint's TLS version",
+          "note": "the local sample server serves plain HTTP, so it fails this"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-rest.md",
+            "start_line": 79,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/rest.md",
+            "start_line": 81,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0064",
+      "text_digest": "9655f6d29f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When authentication is required, the REST transport **MAY** use:",
+      "normalized": "when authentication is required, the rest transport may use",
+      "condition": "When authentication is required",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 81,
+      "source": {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "start_line": 538,
+        "end_line": 539,
+        "section": "Cart Capability - REST Binding > Security Considerations > Authentication",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/rest/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-REST-AUTHENTICATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: a menu of allowed authentication methods; nothing a test can fail",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "a menu of allowed authentication methods; nothing a test can fail"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-rest.md",
+            "start_line": 537,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/rest.md",
+            "start_line": 548,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0065",
+      "text_digest": "b40d58d234",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MAY** require authentication for some operations while leaving others open (e.g., public cart without authentication).",
+      "normalized": "businesses may require authentication for some operations while leaving others open (e.g., public cart without authentication)",
+      "condition": "while leaving others open (e.g., public cart without authentication)",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 91,
+      "source": {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "start_line": 548,
+        "end_line": 549,
+        "section": "Cart Capability - REST Binding > Security Considerations > Authentication",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/rest/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-REST-AUTHENTICATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/cart-rest.md",
+            "start_line": 547,
+            "level": "MAY",
+            "text_digest": "b40d58d234"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/rest.md",
+            "start_line": 558,
+            "level": "MAY",
+            "text_digest": "b40d58d234"
+          }
+        ]
+      }
+    }
+  ]
+}

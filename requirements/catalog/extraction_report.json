@@ -1,0 +1,2506 @@
+{
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_spec": [
+    "docs/specification/shopping"
+  ],
+  "summary": {
+    "total": 510,
+    "must_count": 213,
+    "must_not_count": 53,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 111,
+    "should_not_count": 4,
+    "may_count": 129,
+    "by_level": {
+      "MAY": 129,
+      "MUST": 213,
+      "MUST NOT": 53,
+      "SHOULD": 111,
+      "SHOULD NOT": 4
+    },
+    "by_actor": {
+      "AGENT": 1,
+      "BUSINESS": 154,
+      "BUYER": 3,
+      "EMBEDDED_CHECKOUT": 22,
+      "EXTENSION": 15,
+      "HOST": 42,
+      "IMPLEMENTATION": 17,
+      "PLATFORM": 118,
+      "UNRESOLVED": 138
+    },
+    "by_file": {
+      "docs/specification/shopping/cart/embedded.md": 28,
+      "docs/specification/shopping/cart/index.md": 29,
+      "docs/specification/shopping/cart/mcp.md": 4,
+      "docs/specification/shopping/cart/rest.md": 4,
+      "docs/specification/shopping/catalog/index.md": 35,
+      "docs/specification/shopping/catalog/lookup.md": 16,
+      "docs/specification/shopping/catalog/mcp.md": 6,
+      "docs/specification/shopping/catalog/rest.md": 5,
+      "docs/specification/shopping/catalog/search.md": 10,
+      "docs/specification/shopping/checkout/a2a.md": 1,
+      "docs/specification/shopping/checkout/embedded.md": 77,
+      "docs/specification/shopping/checkout/index.md": 150,
+      "docs/specification/shopping/checkout/mcp.md": 12,
+      "docs/specification/shopping/checkout/rest.md": 12,
+      "docs/specification/shopping/extensions/buyer-consent.md": 17,
+      "docs/specification/shopping/extensions/discount.md": 9,
+      "docs/specification/shopping/extensions/fulfillment.md": 55,
+      "docs/specification/shopping/order/index.md": 26,
+      "docs/specification/shopping/order/mcp.md": 7,
+      "docs/specification/shopping/order/rest.md": 7
+    },
+    "with_condition": 131,
+    "with_referenced_fields": 244,
+    "from_compound_split": 63,
+    "diagnostics": {
+      "actor_after_keyword_only": 21,
+      "actor_low_confidence": 52,
+      "actor_unresolved": 138,
+      "annotation_as_obligation": 5,
+      "annotations_excluded": 32,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 2,
+      "duplicate_requirements": 23,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 31,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "diagnostics": {
+    "actor_after_keyword_only": [
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 140,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "Parameters **SHOULD** use either `ep` or `ep_cart` prefixes to avoid namespace pollution and clearly distinguish ECaP parameters from business-specific query parameters:",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 162,
+        "section": "Cart Capability - EP Binding > Transport & Messaging",
+        "text": "The `ucp.version` in all responses **MUST** echo the `ep_version` negotiated during session initialization and confirmed by the host in the `ep.cart.ready` response.",
+        "candidate": "host"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 185,
+        "section": "Cart Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "text": "Core messages are defined by the ECaP specification and **MUST** be supported by all implementations.",
+        "candidate": "implementation"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 209,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "**MUST** be a subset of both `ep_cart_delegate` (what host requested) and `config.delegate` from the cart response (what business allows).",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 270,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded cart context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)",
+        "candidate": "host"
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 267,
+        "section": "Cart Capability > Entities > Signals",
+        "text": "Signal values MUST NOT be buyer-asserted claims.",
+        "candidate": "buyer"
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 203,
+        "section": "Catalog Capability > Shared Entities > Signals",
+        "text": "Signal values MUST NOT be buyer-asserted claims.",
+        "candidate": "buyer"
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 300,
+        "section": "Catalog Capability > Shared Entities > Media > External Video",
+        "text": "Before embedding, it **MUST** decline the item unless `url` is an absolute `https` URL without userinfo that is not same-site with the Platform.",
+        "candidate": "platform"
+      },
+      {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "line": 40,
+        "section": "Catalog Search Capability > Search Inputs",
+        "text": "A valid search request MUST include at least one of: a `query` string, one or more `filters`, or an extension-defined input.",
+        "candidate": "extension"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 400,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "text": "These exceptions **SHOULD** return the user to the checkout flow upon completion.",
+        "candidate": "buyer"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 409,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging",
+        "text": "The `ucp.version` in all responses **MUST** echo the `ec_version` negotiated during session initialization and confirmed by the host in the `ec.ready` response.",
+        "candidate": "host"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 432,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "text": "Core messages are defined by the ECP specification and **MUST** be supported by all implementations.",
+        "candidate": "implementation"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 475,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "**MUST** be a subset of both `ec_delegate` (what host requested) and `config.delegate` from the checkout response (what business allows).",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 561,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded checkout context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)",
+        "candidate": "embedded_checkout"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "**Ordering increment.** The sale basis **MAY** declare an [`increment`](../../overview/index.md#ordering-increment) — the ordering granularity, in steps, the Business sells in.",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "such revisions **SHOULD** stay on the increment grid so subsequent Platform stepper edits from the revised value remain on-grid.",
+        "candidate": "platform"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 374,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "text": "its unit identity **MUST** match the pricing basis (no conversion), and a pure price settlement uses `quantity: 0` so the count is untouched. (A settled `measure` is Business-recorded fact",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 729,
+        "section": "Order Capability > Events > Webhook Signature Verification",
+        "text": "Webhook payloads **MUST** be signed by the business and verified by the platform to ensure authenticity and integrity.",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 839,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** send retries with the original `Webhook-Id` and `Webhook-Timestamp`; a retry redelivers the same event, and platforms deduplicate on `Webhook-Id` and order deliveries by `Webhook-Timestamp`",
+        "candidate": "platform"
+      },
+      {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "line": 293,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "text": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+        "candidate": "business"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 251,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations",
+        "candidate": "business"
+      }
+    ],
+    "actor_low_confidence": [
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 145,
+        "section": "Cart Capability > Guidelines > Platform",
+        "text": "**MAY** use carts for pre-purchase exploration and session persistence.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 146,
+        "section": "Cart Capability > Guidelines > Platform",
+        "text": "**SHOULD** convert cart to checkout when user expresses purchase intent.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 147,
+        "section": "Cart Capability > Guidelines > Platform",
+        "text": "**MAY** display `continue_url` for handoff to business UI.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 148,
+        "section": "Cart Capability > Guidelines > Platform",
+        "text": "**SHOULD** handle `not_found` gracefully when cart expires or is canceled.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 152,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**SHOULD** provide `continue_url` for cart handoff and session recovery.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 154,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**SHOULD** provide estimated totals when calculable.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 155,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**MAY** omit fulfillment totals until checkout when address is unknown.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 156,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**SHOULD** return informational messages for validation warnings.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 157,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**MAY** set cart expiry via `expires_at`.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 158,
+        "section": "Cart Capability > Guidelines > Business",
+        "text": "**SHOULD** follow [cart lifecycle requirements](#cart-to-checkout-conversion) when checkout is initialized via `cart_id`.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/catalog/mcp.md",
+        "line": 740,
+        "section": "Catalog - MCP Binding > Error Handling > Business Outcomes > Example: All Products Not Found",
+        "text": "The response MAY include informational messages indicating which identifiers were not found.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "line": 633,
+        "section": "Catalog - REST Binding > Error Handling > Business Outcomes > Example: All Products Not Found",
+        "text": "The response MAY include informational messages indicating which identifiers were not found.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 195,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "The version is negotiated at session initialization and **MUST** remain constant for the lifetime of the ECP session — neither party may change the version after the handshake.",
+        "actor": "embedded_checkout",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 202,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "**SHOULD** be a subset of `config.delegate` from the embedded service binding.",
+        "actor": "embedded_checkout",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 293,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Color Scheme",
+        "text": "When `ec_color_scheme` is explicitly provided, it **MUST** override the system preference, be applied immediately upon load, and be enforced for the duration of the session.",
+        "actor": "embedded_checkout",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1002,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "**MAY** engage an agent to facilitate the checkout session (e.g. add items to the checkout session, select fulfillment address).",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1007,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "**MAY** send the user from the trusted, deterministic UI back to the agent at any time.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1010,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "**MAY** provide agent context when the platform indicates that the request was done by an agent.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1012,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "**MUST** use `continue_url` when checkout status is `requires_escalation`.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1013,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "**MAY** use `continue_url` to hand off to business UI in other situations.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1014,
+        "section": "Checkout Capability > Guidelines > Platform",
+        "text": "When performing handoff, **SHOULD** prefer business-provided `continue_url` over platform-constructed checkout permalinks.",
+        "actor": "platform",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1019,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "**MUST** send a confirmation email after the checkout has been completed.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1020,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "**SHOULD** provide accurate error messages.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1021,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "Logic handling the checkout sessions **MUST** be deterministic.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1022,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "**MUST** provide `continue_url` when returning `status` = `requires_escalation`.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1024,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "**MUST** include at least one message with `severity` of `requires_buyer_input` or `requires_buyer_review` when returning `status` = `requires_escalation`.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1027,
+        "section": "Checkout Capability > Guidelines > Business",
+        "text": "**SHOULD** provide `continue_url` in all non-terminal checkout responses.",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 825,
+        "section": "Checkout Capability - MCP Binding > Implementation",
+        "text": "Implementers **MUST** apply this transformation:",
+        "actor": "implementation",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 859,
+        "section": "Checkout Capability - MCP Binding > Implementation",
+        "text": "Implementers **MUST** expose this as an MCP `tools/call` endpoint:",
+        "actor": "implementation",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "line": 354,
+        "section": "Buyer Consent Extension > Data dependencies",
+        "text": "Missing dependencies MUST be surfaced via the standard [Error Handling](../checkout/index.md#error-handling) flow.",
+        "actor": "buyer",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "line": 372,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "text": "Omitting an advertised key within a submitted `consent` map MUST NOT be used to signal any value.",
+        "actor": "buyer",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "line": 146,
+        "section": "Discount Extension > Operations",
+        "text": "Codes that are no longer valid at checkout time (e.g., expired, ineligible) SHOULD be communicated via `messages[]` using standard rejection codes.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/discount.md",
+        "line": 227,
+        "section": "Discount Extension > Eligibility Claims > Verification at Checkout",
+        "text": "At checkout completion, all remaining provisional claims **MUST** be resolved (see [Eligibility Verification at Completion](../checkout/index.md#eligibility-verification-at-completion)).",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 260,
+        "section": "Fulfillment Extension > Destinations",
+        "text": "A request that includes `destinations[]` MUST also include the method's `type`.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 353,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "text": "A non-null `selected_destination_id` **MAY** carry an ID the Platform obtained from a Catalog response, a Location search or lookup, an earlier Checkout, or any other source the Business recognizes for that method.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 360,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "text": "**MUST** carry that same `selected_destination_id` value on the method; and",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 361,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "text": "**MUST** include exactly one destination in that same method's `destinations[]` whose `id` equals it, typed as specified in [Destinations](#destinations) — so the response is self-describing whatever the ID's source.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 405,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**MUST** distinguish this option from its siblings",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 406,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**SHOULD** include method and speed (e.g., \"Express Shipping\", \"Curbside Pickup\")",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 407,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**MUST** be sufficient for buyer decision if `description` is absent",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 411,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**MUST NOT** repeat `title` or `total`—provides supplementary context only",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 412,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**SHOULD** include timing, carrier, or other decision-relevant details",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 413,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**SHOULD** be a complete phrase (e.g., \"Arrives Dec 12-15 via FedEx\")",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 414,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**MAY** be omitted if title is self-explanatory",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 418,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**MUST** be a standalone sentence explaining what, when, and where",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 419,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "**SHOULD** be usable verbatim in platform dialogue (e.g., \"Pants available for pickup at Downtown Store today at 2pm\")",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 426,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "they **MUST** preserve the method/option grouping",
+        "actor": "business",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 541,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "text": "Where a method states `availability`, consumers MUST use it for that method",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 541,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "text": "Where a method states `availability`, consumers MUST NOT infer per-method availability from the variant-level value.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 549,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "text": "A method MAY carry `options[]`, a representative subset of its fulfillment options — not an exhaustive list.",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 555,
+        "section": "Fulfillment Extension > Catalog Discovery > Options",
+        "text": "A method MAY also carry none, surfacing only `type`, `description`, and `availability`; options are nested directly under the method, with no group layer (unlike checkout `methods[].groups[].options[]`).",
+        "actor": "extension",
+        "confidence": 0.5
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 724,
+        "section": "Fulfillment Extension > Configuration > Platform Profile",
+        "text": "A party that does not expose catalog discovery MAY narrow `extends` to `\"dev.ucp.shopping.checkout\"` (string form) or to a single-element array.",
+        "actor": "platform",
+        "confidence": 0.5
+      }
+    ],
+    "actor_unresolved": [
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 140,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "Parameters **SHOULD** use either `ep` or `ep_cart` prefixes to avoid namespace pollution and clearly distinguish ECaP parameters from business-specific query parameters:"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 152,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "**MAY** be empty if no delegations are needed."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 152,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "**SHOULD** be a subset of `config.delegate` from the embedded service binding."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 162,
+        "section": "Cart Capability - EP Binding > Transport & Messaging",
+        "text": "The `ucp.version` in all responses **MUST** echo the `ep_version` negotiated during session initialization and confirmed by the host in the `ep.cart.ready` response."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 162,
+        "section": "Cart Capability - EP Binding > Transport & Messaging",
+        "text": "The version is session-bound — it **MUST NOT** change for the duration of the ECaP session."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 185,
+        "section": "Cart Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "text": "Core messages are defined by the ECaP specification and **MUST** be supported by all implementations."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 200,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Upon rendering, the Embedded Cart **MUST** broadcast readiness to the parent context using the `ep.cart.ready` message."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 209,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "**MUST** be a subset of both `ep_cart_delegate` (what host requested) and `config.delegate` from the cart response (what business allows)."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 243,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The `version` confirms the negotiated `ep_version` and `status` **MUST** be `\"success\"`."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 251,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The requested authorization data, can be in the form of an OAuth token, JWT, API keys, etc. **MUST** be set if `auth` is present in the request."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 251,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "**MUST NOT** be set if `upgrade` is present."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 270,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 270,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded cart context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 292,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "All subsequent messages **MUST** be sent only over the upgraded communication channel."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 298,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The Embedded Cart **MUST NOT** send further messages after receiving a handshake error."
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 316,
+        "section": "Cart Capability - EP Binding > Message API Reference > Authentication > `ep.cart.auth`",
+        "text": "When error escalation is required, Embedded Cart **MUST** issue an `ep.cart.error` notification per the [session error pattern](../../embedded-protocol.md#session-error)."
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 81,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "text": "When checkout is initialized via `cart_id`, the cart and checkout sessions SHOULD be linked for the duration of the checkout."
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 224,
+        "section": "Cart Capability > Operations > Cancel Cart",
+        "text": "Subsequent operations for this cart ID SHOULD return `not_found`."
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 267,
+        "section": "Cart Capability > Entities > Signals",
+        "text": "Signal values MUST NOT be buyer-asserted claims."
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 291,
+        "section": "Cart Capability > Entities > Total",
+        "text": "Taxes MAY be included where calculable."
+      },
+      {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "line": 103,
+        "section": "Cart Capability - MCP Binding > Tools > Identifier Pattern",
+        "text": "The `cart` object in the request payload **MUST NOT** contain an `id` field."
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 76,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "text": "All request and response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }."
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 81,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "text": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3."
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 538,
+        "section": "Cart Capability - REST Binding > Security Considerations > Authentication",
+        "text": "When authentication is required, the REST transport **MAY** use:"
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 54,
+        "section": "Catalog Capability > Key Concepts > Relationship to Checkout",
+        "text": "Responses can be session-specific and **SHOULD NOT** be reused across sessions without re-validation."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 181,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 203,
+        "section": "Catalog Capability > Shared Entities > Signals",
+        "text": "Signal values MUST NOT be buyer-asserted claims."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 261,
+        "section": "Catalog Capability > Shared Entities > Media",
+        "text": "It **MAY** present such an item from `preview` and `name`, or omit it."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 300,
+        "section": "Catalog Capability > Shared Entities > Media > External Video",
+        "text": "Before embedding, it **MUST** decline the item unless `url` is an absolute `https` URL without userinfo that is not same-site with the Platform."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 357,
+        "section": "Catalog Capability > Actions",
+        "text": "A concrete Action-type contract **MAY** define stronger correlation for its instances."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 368,
+        "section": "Catalog Capability > Actions",
+        "text": "Catalog defines no Action lifecycle, polling, or resume behavior; a concrete Action-type contract **MAY** define those behaviors for processing its instances."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 504,
+        "section": "Catalog Capability > Messages and Error Handling > Common Scenarios > Identifiers Not Found",
+        "text": "The response MAY include informational messages indicating which identifiers were not found."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 37,
+        "section": "Catalog Lookup Capability > Operations",
+        "text": "MAY support SKU, handle, URL, etc."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 56,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "text": "Duplicate identifiers in the request MUST be deduplicated."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 56,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Supported Identifiers",
+        "text": "When multiple identifiers resolve to the same product, it MUST be returned once."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 68,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Client Correlation",
+        "text": "Variants without an `inputs` entry MUST NOT appear in lookup responses."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 128,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Resolution Behavior",
+        "text": "`variants` SHOULD contain the featured variant and other variants matching `product.selected`."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 131,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Resolution Behavior",
+        "text": "The requested variant MUST be the first element (featured)."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 154,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Input",
+        "text": "Each option name MUST appear at most once."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 164,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Effective Selections",
+        "text": "The response MUST include `product.selected` when the product has configurable options — reflecting the effective selections after any relaxation when the request includes `selected`, or the featured variant's default selections otherwise."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 164,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Effective Selections",
+        "text": "When the product has no configurable options, `selected` MAY be empty or omitted."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 181,
+        "section": "Catalog Lookup Capability > Get Product (`get_product`) > Option Selection > Output: Availability Signals",
+        "text": "Option values in the response SHOULD include availability signals relative to `product.selected`:"
+      },
+      {
+        "file": "docs/specification/shopping/catalog/mcp.md",
+        "line": 404,
+        "section": "Catalog - MCP Binding > Tools > Lookup Response > Partial Success",
+        "text": "The response MAY include informational messages indicating which identifiers were not found."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/mcp.md",
+        "line": 795,
+        "section": "Catalog - MCP Binding > Conformance",
+        "text": "When the Lookup capability is advertised, both `lookup_catalog` and `get_product` tools MUST be available."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/mcp.md",
+        "line": 797,
+        "section": "Catalog - MCP Binding > Conformance",
+        "text": "Return successful result for lookup requests; unknown identifiers result in fewer products returned (MAY include informational `not_found` messages)."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "line": 293,
+        "section": "Catalog - REST Binding > Endpoints > `POST /catalog/lookup` > Example: Partial Success (Some Identifiers Not Found)",
+        "text": "The response MAY include informational messages indicating which identifiers were not found."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "line": 687,
+        "section": "Catalog - REST Binding > Conformance",
+        "text": "When the Lookup capability is advertised, both `/catalog/lookup` and `/catalog/product` MUST be available."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/rest.md",
+        "line": 691,
+        "section": "Catalog - REST Binding > Conformance",
+        "text": "Return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned (MAY include informational `not_found` messages)."
+      },
+      {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "line": 40,
+        "section": "Catalog Search Capability > Search Inputs",
+        "text": "A valid search request MUST include at least one of: a `query` string, one or more `filters`, or an extension-defined input."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/a2a.md",
+        "line": 141,
+        "section": "Checkout Capability - A2A Binding > Checkout Functionality",
+        "text": "The checkout object **MUST** be returned as part of a `DataPart` object with key `a2a.ucp.checkout`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 392,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "text": "**Permitted Exceptions:** The following navigation scenarios **MAY** be allowed when required for checkout completion:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 400,
+        "section": "Checkout Capability - EP Binding > Requirements > Navigation Constraints",
+        "text": "These exceptions **SHOULD** return the user to the checkout flow upon completion."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 409,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging",
+        "text": "The `ucp.version` in all responses **MUST** echo the `ec_version` negotiated during session initialization and confirmed by the host in the `ec.ready` response."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 409,
+        "section": "Checkout Capability - EP Binding > Transport & Messaging",
+        "text": "The version is session-bound — it **MUST NOT** change for the duration of the ECP session."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 432,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "text": "Core messages are defined by the ECP specification and **MUST** be supported by all implementations."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 475,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "**MUST** be a subset of both `ec_delegate` (what host requested) and `config.delegate` from the checkout response (what business allows)."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 526,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "The `version` confirms the negotiated `ec_version` and `status` **MUST** be `\"success\"`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 536,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "The requested authorization data, can be in the form of an OAuth token, JWT, API keys, etc. **MUST** be set if `auth` is present in the request."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 536,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "**MUST NOT** be set if `upgrade` is present."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 561,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 561,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded checkout context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 583,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "All subsequent messages **MUST** be sent only over the upgraded communication channel."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "**Ordering increment.** The sale basis **MAY** declare an [`increment`](../../overview/index.md#ordering-increment) — the ordering granularity, in steps, the Business sells in."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "A revision **MUST** be returned as a revised line `quantity` with an explanatory `messages[]` entry"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "such revisions **SHOULD** stay on the increment grid so subsequent Platform stepper edits from the revised value remain on-grid."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 291,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "When the pricing basis is the sale basis, `unit_price` remains a catalog display comparator and MAY be omitted from lines."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 397,
+        "section": "Checkout Capability > Overview > Status Values",
+        "text": "The response **MUST NOT** contain `order`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 515,
+        "section": "Checkout Capability > Overview > Error Handling",
+        "text": "When no resource exists to act on, messages SHOULD use `severity: \"unrecoverable\"`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 643,
+        "section": "Checkout Capability > Overview > Error Handling > The `path` Field",
+        "text": "`path` **MUST** be an [RFC 9535](https://www.rfc-editor.org/rfc/rfc9535) JSONPath expression relative to the root of the UCP response object."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 670,
+        "section": "Checkout Capability > Overview > Error Handling > The `path` Field",
+        "text": "When multiple errors apply to the same field, each message **SHOULD** carry the most specific path applicable."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 677,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "text": "all accepted claims **MUST** be resolved before the transaction can complete."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 684,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "text": "Unrecognized or inapplicable claims **MUST NOT** block the checkout."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 684,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "text": "At completion, accepted claims that remain unverified **MUST** result in `type: \"error\"` with `code: \"eligibility_invalid\"` (see below)."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 793,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion > Example: resolving a claim with a verification Action",
+        "text": "With the claim resolved, the checkout **MAY** advance to `ready_for_complete`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 816,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 816,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 817,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MAY**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 817,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 818,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MAY**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 818,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST NOT**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 819,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MAY**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 819,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 820,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MAY**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 820,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**SHOULD**"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 821,
+        "section": "Checkout Capability > Overview > Warning Presentation",
+        "text": "**MUST** via `continue_url`"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 831,
+        "section": "Checkout Capability > Overview > Warning Presentation > `disclosure`",
+        "text": "Warnings with `presentation: \"disclosure\"` carry notices — safety warnings, allergen declarations, compliance content, etc. — that **MUST** follow the prescribed rendering contract below."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 847,
+        "section": "Checkout Capability > Overview > Warning Presentation > `disclosure`",
+        "text": "Warnings with `presentation: \"disclosure\"` **SHOULD** be given rendering priority over notices."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 949,
+        "section": "Checkout Capability > Continue URL > Availability",
+        "text": "For terminal states (`completed`, `canceled`), `continue_url` **SHOULD** be omitted."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 957,
+        "section": "Checkout Capability > Continue URL > Format",
+        "text": "The `continue_url` **MUST** be an absolute HTTPS URL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 957,
+        "section": "Checkout Capability > Continue URL > Format",
+        "text": "The `continue_url` **SHOULD** preserve checkout state for seamless handoff."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1109,
+        "section": "Checkout Capability > Operations > Complete Checkout",
+        "text": "A genuinely new Complete Checkout operation after the Checkout returns to `ready_for_complete` **MUST** use a fresh idempotency key, even if the payload is unchanged."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1120,
+        "section": "Checkout Capability > Operations > Complete Checkout",
+        "text": "At the time of order persistence, fields from `Checkout` **MAY** be used to construct the order representation (i.e. information like `line_items`, `fulfillment` will be used to create the initial order representation)."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1131,
+        "section": "Checkout Capability > Operations > Cancel Checkout",
+        "text": "Any checkout session with a status that is not equal to `completed` or `canceled` **SHOULD** be cancelable."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1157,
+        "section": "Checkout Capability > Entities > Context",
+        "text": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1318,
+        "section": "Checkout Capability > Entities > Total > Rendering Contract",
+        "text": "Well-known types have default display labels as fallback (see table below); unknown types MUST include `display_text`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1323,
+        "section": "Checkout Capability > Entities > Total > Rendering Contract",
+        "text": "Exactly one `type: \"subtotal\"` MUST be present."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1324,
+        "section": "Checkout Capability > Entities > Total > Rendering Contract",
+        "text": "Exactly one `type: \"total\"` MUST be present."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1353,
+        "section": "Checkout Capability > Entities > Total > Well-Known Types",
+        "text": "The sign convention for well-known types is schema-enforced: subtractive types (discount, items_discount) MUST have negative amounts"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1353,
+        "section": "Checkout Capability > Entities > Total > Well-Known Types",
+        "text": "additive types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1359,
+        "section": "Checkout Capability > Entities > Total > Well-Known Types",
+        "text": "Unknown types MUST include `display_text` (schema-enforced) and the sign on the amount is self-describing."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1365,
+        "section": "Checkout Capability > Entities > Total > Repeating Types",
+        "text": "All types except `subtotal` and `total` MAY appear multiple times — for example, multi-jurisdiction tax lines or itemized fees."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1370,
+        "section": "Checkout Capability > Entities > Total > Sub-Lines (`lines`)",
+        "text": "Each top-level entry MAY include a `lines` array."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1374,
+        "section": "Checkout Capability > Entities > Total > Sub-Lines (`lines`)",
+        "text": "**Invariant:** `sum(lines[].amount)` MUST equal the parent entry's `amount`."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 120,
+        "section": "Checkout Capability - MCP Binding > Tools > Identifier Pattern",
+        "text": "The `checkout` object in the request payload **MUST NOT** contain an `id` field."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 782,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **RECOMMENDED** for:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 786,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **OPTIONAL** for:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 71,
+        "section": "Checkout Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "text": "All request and response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 76,
+        "section": "Checkout Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "text": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3."
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1410,
+        "section": "Checkout Capability - REST Binding > Message Signing > Request Signing",
+        "text": "When HTTP Message Signatures are used, requests **MUST** include valid `Signature-Input` and `Signature` headers (and `Content-Digest` when a body is present) per RFC 9421:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1442,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **RECOMMENDED** for:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1446,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **OPTIONAL** for:"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1469,
+        "section": "Checkout Capability - REST Binding > Security Considerations > Authentication",
+        "text": "When authentication is required, the REST transport **MAY** use:"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 34,
+        "section": "Order Capability > Overview > Key Concepts",
+        "text": "**MUST** include all line items that ever existed on the order regardless of edits or alterations"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 374,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "text": "When the price settles against an actual measurement, the adjustment **MUST** carry the settled `measure`"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 374,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "text": "its unit identity **MUST** match the pricing basis (no conversion), and a pure price settlement uses `quantity: 0` so the count is untouched. (A settled `measure` is Business-recorded fact"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 662,
+        "section": "Order Capability > Operations > Guidelines",
+        "text": "**MUST** include `UCP-Agent` header with profile URL on all requests"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 663,
+        "section": "Order Capability > Operations > Guidelines",
+        "text": "**SHOULD** rely on webhooks (see [Events](#events)) as the primary order update channel and use Get Order for reconciliation or on-demand retrieval"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 665,
+        "section": "Order Capability > Operations > Guidelines",
+        "text": "**SHOULD** treat order data as ephemeral and discard it when no longer needed for active commerce flows"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 670,
+        "section": "Order Capability > Operations > Guidelines",
+        "text": "**MUST** authenticate requests to order data before returning a response (see [Authorization](#authorization))"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 729,
+        "section": "Order Capability > Events > Webhook Signature Verification",
+        "text": "Webhook payloads **MUST** be signed by the business and verified by the platform to ensure authenticity and integrity."
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 827,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** respond quickly with a 2xx HTTP status code to acknowledge webhook receipt; process events asynchronously after responding"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 832,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** include `UCP-Agent` header with profile URL for signer identification"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 833,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** sign all webhook payloads per the [Message Signatures](../../signatures.md) specification using RFC 9421 headers (`Signature`, `Signature-Input`, `Content-Digest`)"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 836,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** send \"Order created\" event with fully populated order entity"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 837,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** send full order entity on updates (not incremental deltas)"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 838,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** retry failed webhook deliveries"
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 839,
+        "section": "Order Capability > Events > Guidelines",
+        "text": "**MUST** send retries with the original `Webhook-Id` and `Webhook-Timestamp`; a retry redelivers the same event, and platforms deduplicate on `Webhook-Id` and order deliveries by `Webhook-Timestamp`"
+      },
+      {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "line": 291,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "text": "**MUST** include `meta.ucp-agent.profile` on all requests"
+      },
+      {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "line": 292,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "text": "**MUST** check the `messages` array in responses before accessing order data"
+      },
+      {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "line": 293,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "text": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations"
+      },
+      {
+        "file": "docs/specification/shopping/order/mcp.md",
+        "line": 299,
+        "section": "Order Capability - MCP Binding > Conformance",
+        "text": "**MUST** implement the `get_order` tool per the [OpenRPC schema](site:services/shopping/mcp.openrpc.json)"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 68,
+        "section": "Order Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "text": "All response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }."
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 73,
+        "section": "Order Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "text": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3."
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 249,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**MUST** include `UCP-Agent` header with profile URL on all requests"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 250,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**MUST** check the `messages` array in responses before accessing order data"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 251,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**SHOULD** delegate to the business via `permalink_url` for the authoritative order experience - the business site is the source of truth for order details and post-purchase operations"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 257,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**MUST** serve all endpoints over HTTPS with TLS 1.3+"
+      },
+      {
+        "file": "docs/specification/shopping/order/rest.md",
+        "line": 258,
+        "section": "Order Capability - REST Binding > Conformance",
+        "text": "**SHOULD** sign responses per the [Message Signatures](../../signatures.md) specification"
+      }
+    ],
+    "annotation_as_obligation": [
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1078,
+        "section": "Checkout Capability > Operations > Update Checkout",
+        "text": "The platform is **REQUIRED** to send the entire checkout resource containing any data updates to write-only data fields.",
+        "annotation": "REQUIRED",
+        "level": "MUST"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 782,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **RECOMMENDED** for:",
+        "annotation": "RECOMMENDED",
+        "level": "SHOULD"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 786,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **OPTIONAL** for:",
+        "annotation": "OPTIONAL",
+        "level": "MAY"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1442,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **RECOMMENDED** for:",
+        "annotation": "RECOMMENDED",
+        "level": "SHOULD"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "line": 1446,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **OPTIONAL** for:",
+        "annotation": "OPTIONAL",
+        "level": "MAY"
+      }
+    ],
+    "annotations_excluded": [
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 145,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "`ep_version` (string, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 147,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "`ep_auth` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 149,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "`ep_color_scheme` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 152,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "`ep_cart_delegate` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 209,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "`delegate` (array of strings, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 214,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "`auth` (object, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 243,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "`ucp` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 246,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "`upgrade` (object, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 251,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "`credential` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 334,
+        "section": "Cart Capability - EP Binding > Message API Reference > Lifecycle Messages > `ep.cart.start`",
+        "text": "`cart` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 369,
+        "section": "Cart Capability - EP Binding > Message API Reference > Lifecycle Messages > `ep.cart.complete`",
+        "text": "`cart` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 405,
+        "section": "Cart Capability - EP Binding > Message API Reference > State Change Messages > `ep.cart.line_items.change`",
+        "text": "`cart` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 433,
+        "section": "Cart Capability - EP Binding > Message API Reference > State Change Messages > `ep.cart.buyer.change`",
+        "text": "`cart` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 461,
+        "section": "Cart Capability - EP Binding > Message API Reference > State Change Messages > `ep.cart.messages.change`",
+        "text": "`cart` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 195,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "`ec_version` (string, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 200,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "`ec_auth` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 202,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "`ec_delegate` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 205,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL",
+        "text": "`ec_color_scheme` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 475,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`delegate` (array of strings, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 480,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`auth` (object, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 526,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`ucp` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 531,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`upgrade` (object, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 536,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`credential` (string, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 540,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "`checkout` (object, **OPTIONAL**):",
+        "annotation": "OPTIONAL"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 686,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Lifecycle Messages > `ec.start`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 725,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Lifecycle Messages > `ec.complete`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 762,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.line_items.change`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 790,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.buyer.change`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 818,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.messages.change`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 865,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.totals.change`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 914,
+        "section": "Checkout Capability - EP Binding > Message API Reference > State Change Messages > `ec.payment.change`",
+        "text": "`checkout` (object, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 1460,
+        "section": "Checkout Capability - EP Binding > Window Extension > Window Message API Reference > `ec.window.open_request`",
+        "text": "`url` (string, uri, **REQUIRED**):",
+        "annotation": "REQUIRED"
+      }
+    ],
+    "candidates_without_emphasis": [],
+    "compounds_not_split": [
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1376,
+        "section": "Checkout Capability > Entities > Total > Sub-Lines (`lines`)",
+        "text": "The business controls what MUST be rendered (top-level entries) versus what MAY be optionally surfaced (sub-lines).",
+        "levels": [
+          "MUST",
+          "MAY"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 366,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "text": "The Business **MUST NOT** silently substitute another destination: it **MUST NOT** return a different `selected_destination_id`, and **MUST NOT** keep the submitted ID while returning a destination that describes another location.",
+        "levels": [
+          "MUST NOT",
+          "MUST NOT",
+          "MUST NOT"
+        ]
+      }
+    ],
+    "duplicate_requirements": [
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 131,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "text": "Before loading the embedded context, the host **SHOULD**:",
+        "text_digest": "40901b2bee",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0032",
+          "REQ-SHOPPING-CHECKOUT-0154"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:131",
+          "docs/specification/shopping/checkout/embedded.md:181"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 246,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "When present, host **MUST NOT** include `credential` — the channel will be re-established and any credential sent here will be discarded.",
+        "text_digest": "5e3413cd0d",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0044",
+          "REQ-SHOPPING-CHECKOUT-0192"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:246",
+          "docs/specification/shopping/checkout/embedded.md:531"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 251,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The requested authorization data, can be in the form of an OAuth token, JWT, API keys, etc. **MUST** be set if `auth` is present in the request.",
+        "text_digest": "abdc68d4ce",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0045",
+          "REQ-SHOPPING-CHECKOUT-0193"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:251",
+          "docs/specification/shopping/checkout/embedded.md:536"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 251,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "**MUST NOT** be set if `upgrade` is present.",
+        "text_digest": "8c8a34c733",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0046",
+          "REQ-SHOPPING-CHECKOUT-0194"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:251",
+          "docs/specification/shopping/checkout/embedded.md:536"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 270,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object",
+        "text_digest": "eb3704265c",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0048",
+          "REQ-SHOPPING-CHECKOUT-0196"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:270",
+          "docs/specification/shopping/checkout/embedded.md:561"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 292,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "All subsequent messages **MUST** be sent only over the upgraded communication channel.",
+        "text_digest": "a809664137",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0051",
+          "REQ-SHOPPING-CHECKOUT-0199"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:292",
+          "docs/specification/shopping/checkout/embedded.md:583"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 298,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "If the host cannot complete the handshake (e.g., origin validation failure or protocol state violation), it **MUST** respond with an `error_response` result.",
+        "text_digest": "b4ddfaed6e",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0052",
+          "REQ-SHOPPING-CHECKOUT-0201"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:298",
+          "docs/specification/shopping/checkout/embedded.md:630"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 298,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The host **MUST** tear down the embedded context",
+        "text_digest": "dfcef5c6f2",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0053",
+          "REQ-SHOPPING-CHECKOUT-0202"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:298",
+          "docs/specification/shopping/checkout/embedded.md:652"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 298,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The host **MAY** redirect the buyer to `continue_url` if present.",
+        "text_digest": "c45fb9f3f1",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0054",
+          "REQ-SHOPPING-CHECKOUT-0203"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/embedded.md:298",
+          "docs/specification/shopping/checkout/embedded.md:652"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 267,
+        "section": "Cart Capability > Entities > Signals",
+        "text": "Signal values MUST NOT be buyer-asserted claims.",
+        "text_digest": "d17ebc6153",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0027",
+          "REQ-SHOPPING-CATALOG-0019"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/index.md:267",
+          "docs/specification/shopping/catalog/index.md:203"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "line": 68,
+        "section": "Cart Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "text": "MCP clients **MUST** include a `meta` object in every request containing protocol metadata:",
+        "text_digest": "7d9d798bfd",
+        "copies": 4,
+        "ids": [
+          "REQ-SHOPPING-CART-0058",
+          "REQ-SHOPPING-CATALOG-0036",
+          "REQ-SHOPPING-CHECKOUT-0229",
+          "REQ-SHOPPING-ORDER-0027"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/mcp.md:68",
+          "docs/specification/shopping/catalog/mcp.md:64",
+          "docs/specification/shopping/checkout/mcp.md:82",
+          "docs/specification/shopping/order/mcp.md:61"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "line": 91,
+        "section": "Cart Capability - MCP Binding > Protocol Fundamentals > Request Metadata",
+        "text": "Platforms **MAY** include additional metadata fields.",
+        "text_digest": "160daf898a",
+        "copies": 3,
+        "ids": [
+          "REQ-SHOPPING-CART-0059",
+          "REQ-SHOPPING-CHECKOUT-0230",
+          "REQ-SHOPPING-ORDER-0028"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/mcp.md:91",
+          "docs/specification/shopping/checkout/mcp.md:106",
+          "docs/specification/shopping/order/mcp.md:84"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/mcp.md",
+        "line": 651,
+        "section": "Cart Capability - MCP Binding > Conformance",
+        "text": "A conforming MCP transport implementation **MUST**:",
+        "text_digest": "748fc7ead3",
+        "copies": 3,
+        "ids": [
+          "REQ-SHOPPING-CART-0061",
+          "REQ-SHOPPING-CATALOG-0039",
+          "REQ-SHOPPING-CHECKOUT-0237"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/mcp.md:651",
+          "docs/specification/shopping/catalog/mcp.md:792",
+          "docs/specification/shopping/checkout/mcp.md:807"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 76,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "text": "All request and response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }.",
+        "text_digest": "017f445b50",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0062",
+          "REQ-SHOPPING-CHECKOUT-0241"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/rest.md:76",
+          "docs/specification/shopping/checkout/rest.md:71"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 81,
+        "section": "Cart Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "text": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.",
+        "text_digest": "86f31bc40b",
+        "copies": 3,
+        "ids": [
+          "REQ-SHOPPING-CART-0063",
+          "REQ-SHOPPING-CHECKOUT-0242",
+          "REQ-SHOPPING-ORDER-0035"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/rest.md:81",
+          "docs/specification/shopping/checkout/rest.md:76",
+          "docs/specification/shopping/order/rest.md:73"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/cart/rest.md",
+        "line": 538,
+        "section": "Cart Capability - REST Binding > Security Considerations > Authentication",
+        "text": "When authentication is required, the REST transport **MAY** use:",
+        "text_digest": "9655f6d29f",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CART-0064",
+          "REQ-SHOPPING-CHECKOUT-0251"
+        ],
+        "locations": [
+          "docs/specification/shopping/cart/rest.md:538",
+          "docs/specification/shopping/checkout/rest.md:1469"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 181,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "Businesses SHOULD use these values when verified inputs (e.g., shipping address) are absent",
+        "text_digest": "35b444ee45",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CATALOG-0013",
+          "REQ-SHOPPING-CHECKOUT-0121"
+        ],
+        "locations": [
+          "docs/specification/shopping/catalog/index.md:181",
+          "docs/specification/shopping/checkout/index.md:1157"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 181,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "Businesses MAY ignore or down-rank them if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls).",
+        "text_digest": "e137bb0b98",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CATALOG-0014",
+          "REQ-SHOPPING-CHECKOUT-0122"
+        ],
+        "locations": [
+          "docs/specification/shopping/catalog/index.md:181",
+          "docs/specification/shopping/checkout/index.md:1157"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 181,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.",
+        "text_digest": "d647a85835",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CATALOG-0015",
+          "REQ-SHOPPING-CHECKOUT-0123"
+        ],
+        "locations": [
+          "docs/specification/shopping/catalog/index.md:181",
+          "docs/specification/shopping/checkout/index.md:1157"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 222,
+        "section": "Catalog Capability > Shared Entities > Product",
+        "text": "Platforms **SHOULD** treat the first media item they present as featured.",
+        "text_digest": "def47e598c",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CATALOG-0021",
+          "REQ-SHOPPING-CATALOG-0023"
+        ],
+        "locations": [
+          "docs/specification/shopping/catalog/index.md:222",
+          "docs/specification/shopping/catalog/index.md:238"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 504,
+        "section": "Catalog Capability > Messages and Error Handling > Common Scenarios > Identifiers Not Found",
+        "text": "The response MAY include informational messages indicating which identifiers were not found.",
+        "text_digest": "440c8529d2",
+        "copies": 5,
+        "ids": [
+          "REQ-SHOPPING-CATALOG-0035",
+          "REQ-SHOPPING-CATALOG-0037",
+          "REQ-SHOPPING-CATALOG-0038",
+          "REQ-SHOPPING-CATALOG-0042",
+          "REQ-SHOPPING-CATALOG-0043"
+        ],
+        "locations": [
+          "docs/specification/shopping/catalog/index.md:504",
+          "docs/specification/shopping/catalog/mcp.md:404",
+          "docs/specification/shopping/catalog/mcp.md:740",
+          "docs/specification/shopping/catalog/rest.md:293",
+          "docs/specification/shopping/catalog/rest.md:633"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 782,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **RECOMMENDED** for:",
+        "text_digest": "833d001a11",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CHECKOUT-0235",
+          "REQ-SHOPPING-CHECKOUT-0249"
+        ],
+        "locations": [
+          "docs/specification/shopping/checkout/mcp.md:782",
+          "docs/specification/shopping/checkout/rest.md:1442"
+        ]
+      },
+      {
+        "file": "docs/specification/shopping/checkout/mcp.md",
+        "line": 786,
+        "section": "Checkout Capability - MCP Binding > Message Signing > Response Signing",
+        "text": "Response signatures are **OPTIONAL** for:",
+        "text_digest": "eb1ea646bd",
+        "copies": 2,
+        "ids": [
+          "REQ-SHOPPING-CHECKOUT-0236",
+          "REQ-SHOPPING-CHECKOUT-0250"
+        ],
+        "locations": [
+          "docs/specification/shopping/checkout/mcp.md:786",
+          "docs/specification/shopping/checkout/rest.md:1446"
+        ]
+      }
+    ],
+    "empty_after_split": [],
+    "multi_obligation_sentences": [
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 270,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object, and **MUST** be transferred to the embedded cart context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call):",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "line": 298,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "text": "The host **MUST** tear down the embedded context and **MAY** redirect the buyer to `continue_url` if present.",
+        "levels": [
+          "MUST",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 67,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "text": "Because the cart checkout extension composes onto the base Checkout schema, `line_items` remains a required request field; the platform MUST include line_items and SHOULD set it to an empty array (`\"line_items\": []`). array (`\"line_items\": []`).",
+        "levels": [
+          "MUST",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/cart/index.md",
+        "line": 67,
+        "section": "Cart Capability > Cart-to-Checkout Conversion",
+        "text": "The business MUST use the cart contents and MUST ignore overlapping fields in the checkout payload.",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 181,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "Businesses SHOULD use these values when verified inputs (e.g., shipping address) are absent, and MAY ignore or down-rank them if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls).",
+        "levels": [
+          "SHOULD",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/catalog/index.md",
+        "line": 194,
+        "section": "Catalog Capability > Shared Entities > Context",
+        "text": "When `context.eligibility` claims are present, Businesses that accept them **MAY** adjust `price` / `list_price` directly for strikethrough display and **MAY** use `messages` with `code: \"eligibility_benefit\"` to attribute the adjustment to a specific claim.",
+        "levels": [
+          "MAY",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/catalog/lookup.md",
+        "line": 76,
+        "section": "Catalog Lookup Capability > Batch Lookup (`lookup_catalog`) > Batch Size",
+        "text": "Implementations MAY enforce a maximum batch size and MUST reject requests exceeding their limit with an appropriate error (HTTP 400 `request_too_large` for REST, JSON-RPC `-32602` for MCP).",
+        "levels": [
+          "MAY",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/catalog/search.md",
+        "line": 47,
+        "section": "Catalog Search Capability > Search Inputs",
+        "text": "Implementations MUST validate that incoming requests contain at least one recognized input and SHOULD reject empty or invalid requests with an appropriate error.",
+        "levels": [
+          "MUST",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 322,
+        "section": "Checkout Capability - EP Binding > Requirements > Loading an Embedded Checkout URL > Delegation Negotiation",
+        "text": "The business **SHOULD NOT** accept delegations not present in `config.delegate` and **MUST** confirm accepted delegations in `ec.ready`",
+        "levels": [
+          "SHOULD NOT",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 561,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object, and **MUST** be transferred to the embedded checkout context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call):",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/embedded.md",
+        "line": 652,
+        "section": "Checkout Capability - EP Binding > Message API Reference > Handshake Messages > `ec.ready`",
+        "text": "The host **MUST** tear down the embedded context and **MAY** redirect the buyer to `continue_url` if present.",
+        "levels": [
+          "MUST",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "A revision **MUST** be returned as a revised line `quantity` with an explanatory `messages[]` entry; the Business **MUST NOT** silently reinterpret the requested quantity.",
+        "levels": [
+          "MUST",
+          "MUST NOT"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 242,
+        "section": "Checkout Capability > Overview > Quantity and sale basis",
+        "text": "The Business **MAY** also revise a quantity for its own reasons (for example, limited stock); such revisions **SHOULD** stay on the increment grid so subsequent Platform stepper edits from the revised value remain on-grid.",
+        "levels": [
+          "MAY",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 450,
+        "section": "Checkout Capability > Overview > Actions > Accepted completion",
+        "text": "The Platform **MAY** repeat Get Checkout with bounded backoff set by the Action contract or Platform policy, and **MUST** stop repeated requests at `expires_at`.",
+        "levels": [
+          "MAY",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 544,
+        "section": "Checkout Capability > Overview > Error Handling > Error Processing Algorithm",
+        "text": "Businesses **SHOULD** surface such messages as early as possible, and platforms **SHOULD** prioritize resolving recoverable errors before initiating handoff.",
+        "levels": [
+          "SHOULD",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 677,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "text": "Businesses **MAY** act on recognized claims during the session (adjusting pricing, granting product access, applying provisional discounts), but all accepted claims **MUST** be resolved before the transaction can complete.",
+        "levels": [
+          "MAY",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 684,
+        "section": "Checkout Capability > Overview > Error Handling > Eligibility Verification at Completion",
+        "text": "Businesses **SHOULD** notify the buyer via `messages` with `type: \"warning\"` when a claim is not accepted, and **MAY** use `type: \"info\"` to explain the effects of accepted claims.",
+        "levels": [
+          "SHOULD",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 825,
+        "section": "Checkout Capability > Overview > Warning Presentation > `notice` (default)",
+        "text": "Platforms **MAY** render notices in a banner, tray, or toast, and **MAY** allow the buyer to dismiss them.",
+        "levels": [
+          "MAY",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 957,
+        "section": "Checkout Capability > Continue URL > Format",
+        "text": "The `continue_url` **MUST** be an absolute HTTPS URL and **SHOULD** preserve checkout state for seamless handoff.",
+        "levels": [
+          "MUST",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1109,
+        "section": "Checkout Capability > Operations > Complete Checkout",
+        "text": "If the Platform does not receive a response to Complete Checkout, it **SHOULD** use Get Checkout with bounded backoff to obtain the current state and **MUST** stop at `expires_at`.",
+        "levels": [
+          "SHOULD",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1157,
+        "section": "Checkout Capability > Entities > Context",
+        "text": "Businesses SHOULD use these values when verified inputs (e.g., shipping address) are absent, and MAY ignore or down-rank them if inconsistent with higher-confidence signals (authenticated account, risk detection) or regulatory constraints (export controls).",
+        "levels": [
+          "SHOULD",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/checkout/index.md",
+        "line": 1353,
+        "section": "Checkout Capability > Entities > Total > Well-Known Types",
+        "text": "The sign convention for well-known types is schema-enforced: subtractive types (discount, items_discount) MUST have negative amounts; additive types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts.",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/buyer-consent.md",
+        "line": 401,
+        "section": "Buyer Consent Extension > Normative requirements",
+        "text": "**Persistence and reversibility.** Platforms MAY persist a buyer's prior preferences (`source: \"platform\"`) across interactions with the same business and MAY suppress re-presentation of unchanged values.",
+        "levels": [
+          "MAY",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 308,
+        "section": "Fulfillment Extension > Destinations > Business Location Destination",
+        "text": "The Business **MUST** return `type: \"business_location\"`, `id`, and its Buyer-facing `name`, and **MAY** return its Postal Address in `address`.",
+        "levels": [
+          "MUST",
+          "MAY"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 374,
+        "section": "Fulfillment Extension > Destinations > Selection and Location Identity",
+        "text": "When the Business cannot accept a `selected_destination_id` submitted on [Update Checkout](../checkout/index.md#update-checkout) — the ID is not recognized for that method, or revalidation fails — it follows the general behavior for a rejected Update: it **MUST** leave the current Checkout unchanged and **MUST** return that Checkout with an error Message with `severity: \"recoverable\"` whose `path` selects the attempted method's `selected_destination_id` (for example `$.fulfillment.methods[0].selected_destination_id`).",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 426,
+        "section": "Fulfillment Extension > Rendering > Business Responsibilities",
+        "text": "Platforms **SHOULD** preserve that order, but **MAY** re-order it (e.g. to match known buyer preferences or surface-specific ranking); they **MUST** preserve the method/option grouping",
+        "levels": [
+          "SHOULD",
+          "MAY",
+          "MUST"
+        ],
+        "parts": 3
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 541,
+        "section": "Fulfillment Extension > Catalog Discovery > Methods",
+        "text": "Where a method states `availability`, consumers MUST use it for that method and MUST NOT infer per-method availability from the variant-level value.",
+        "levels": [
+          "MUST",
+          "MUST NOT"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 600,
+        "section": "Fulfillment Extension > Catalog Discovery > Location and method: `context` and `filters`",
+        "text": "Platforms **SHOULD** provide one or the other, not both; if both are present, a business **SHOULD** use the more specific — typically `location`.",
+        "levels": [
+          "SHOULD",
+          "SHOULD"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 800,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "text": "Presentation is method-agnostic: platforms **SHOULD** present every method, rendering `description` and `availability` regardless of its `type` (see [Rendering](#rendering)), and **SHOULD NOT** omit a method solely because they do not recognize its `type`.",
+        "levels": [
+          "SHOULD",
+          "SHOULD NOT"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/extensions/fulfillment.md",
+        "line": 807,
+        "section": "Fulfillment Extension > Configuration > Method Types",
+        "text": "A business **SHOULD** model same-scope variation (e.g. Standard vs Express) as `options`, and **SHOULD NOT** emit multiple methods that differ only in option-level detail.",
+        "levels": [
+          "SHOULD",
+          "SHOULD NOT"
+        ],
+        "parts": 2
+      },
+      {
+        "file": "docs/specification/shopping/order/index.md",
+        "line": 374,
+        "section": "Order Capability > Example: count-sold, measure-priced settlement",
+        "text": "When the price settles against an actual measurement, the adjustment **MUST** carry the settled `measure`; its unit identity **MUST** match the pricing basis (no conversion), and a pure price settlement uses `quantity: 0` so the count is untouched. (A settled `measure` is Business-recorded fact;",
+        "levels": [
+          "MUST",
+          "MUST"
+        ],
+        "parts": 2
+      }
+    ],
+    "rfc2119_boilerplate": []
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  }
+}

@@ -16,7 +16,11 @@
 
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urljoin
 import httpx
+
+# Where servers publish their discovery profile (overview/index.md).
+DISCOVERY_PATH = "/.well-known/ucp"
 
 
 @dataclass(frozen=True)
@@ -145,9 +149,35 @@ class UcpProfile:
     return handler_id in self.payment_handlers
 
 
-def fetch_server_profile(base_url: str, timeout: float = 10.0) -> UcpProfile:
-  """Fetch and parse the discovery profile from the target server."""
-  endpoint = f"{base_url.rstrip('/')}/.well-known/ucp"
+def resolve_discovery_url(
+  base_url: str, discovery_url: str | None = None
+) -> str:
+  """Return the URL of the server's discovery profile.
+
+  Servers publish their profile at /.well-known/ucp. A server that serves a
+  different profile there, such as one for an older release, can be tested
+  with the profile at discovery_url instead: a full URL, or a path on
+  base_url.
+  """
+  base = base_url.rstrip("/")
+  if not discovery_url:
+    return base + DISCOVERY_PATH
+  return urljoin(base + "/", discovery_url)
+
+
+def fetch_server_profile(
+  base_url: str, timeout: float = 10.0, discovery_url: str | None = None
+) -> UcpProfile:
+  """Fetch and parse the discovery profile from the target server.
+
+  Args:
+    base_url: The server's base URL.
+    timeout: Seconds to wait for the response.
+    discovery_url: Where the profile is, if not at base_url/.well-known/ucp.
+      See resolve_discovery_url.
+
+  """
+  endpoint = resolve_discovery_url(base_url, discovery_url)
   with httpx.Client(timeout=timeout) as client:
     response = client.get(endpoint)
     response.raise_for_status()

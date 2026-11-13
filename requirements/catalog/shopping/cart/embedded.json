@@ -1,0 +1,1547 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/cart/embedded.md",
+  "summary": {
+    "total": 28,
+    "must_count": 16,
+    "must_not_count": 4,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 3,
+    "should_not_count": 0,
+    "may_count": 5,
+    "by_level": {
+      "MAY": 5,
+      "MUST": 16,
+      "MUST NOT": 4,
+      "SHOULD": 3
+    },
+    "by_actor": {
+      "BUSINESS": 2,
+      "HOST": 10,
+      "UNRESOLVED": 16
+    },
+    "by_file": {
+      "docs/specification/shopping/cart/embedded.md": 28
+    },
+    "with_condition": 10,
+    "with_referenced_fields": 21,
+    "from_compound_split": 4,
+    "diagnostics": {
+      "actor_after_keyword_only": 5,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 16,
+      "annotation_as_obligation": 0,
+      "annotations_excluded": 14,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 9,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 2,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CART-0030",
+      "text_digest": "6d177cbebb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MUST** include an embedded service binding with `config.delegate` in cart responses to indicate ECaP availability and allowed delegations for a specific session.",
+      "normalized": "businesses must include an embedded service binding with config.delegate in cart responses to indicate ecap availability and allowed delegations for a specific session",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": null,
+      "document_order": 14,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 85,
+        "end_line": 88,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Discovery > Per-Cart Configuration",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "per-cart-configuration"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-PER-CART-CONFIGURATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": true,
+        "testable_reason": "reviewed: visible in REST cart responses; applies only to businesses that offer embedded cart",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible in REST cart responses; applies only to businesses that offer embedded cart"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 84,
+            "level": "MUST",
+            "text_digest": "6d177cbebb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 85,
+            "level": "MUST",
+            "text_digest": "6d177cbebb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0031",
+      "text_digest": "3bfce93152",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "When a host receives a cart response with a `continue_url` from a business that advertises ECaP support, it **MAY** initiate an ECaP session by loading the URL in an embedded context.",
+      "normalized": "when a host receives a cart response with a continue_url from a business that advertises ecap support, it may initiate an ecap session by loading the url in an embedded context",
+      "condition": "When a host receives a cart response with a `continue_url` from a business that advertises ECaP support",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 16,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 119,
+        "end_line": 121,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "reviewed: permission for the host, the sentence's subject",
+        "review": {
+          "verdict": "rule",
+          "actor": "HOST",
+          "testable": false,
+          "reason": "permission for the host, the sentence's subject"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 117,
+            "level": "MAY",
+            "text_digest": "3bfce93152"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 119,
+            "level": "MAY",
+            "text_digest": "3bfce93152"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0032",
+      "text_digest": "40901b2bee",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "Before loading the embedded context, the host **SHOULD**:",
+      "normalized": "before loading the embedded context, the host should",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 20,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 131,
+        "end_line": 131,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 129,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 131,
+            "level": "SHOULD",
+            "text_digest": "40901b2bee"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0033",
+      "text_digest": "1eb6a4ff57",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "To initiate the session, the host **MUST** augment the `continue_url` with supported ECaP query parameters.",
+      "normalized": "to initiate the session, the host must augment the continue_url with supported ecap query parameters",
+      "condition": null,
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 23,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 137,
+        "end_line": 138,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 135,
+            "level": "MUST",
+            "text_digest": "1eb6a4ff57"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 137,
+            "level": "MUST",
+            "text_digest": "1eb6a4ff57"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0034",
+      "text_digest": "99fb03a018",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Parameters **SHOULD** use either `ep` or `ep_cart` prefixes to avoid namespace pollution and clearly distinguish ECaP parameters from business-specific query parameters:",
+      "normalized": "parameters should use either ep or ep_cart prefixes to avoid namespace pollution and clearly distinguish ecap parameters from business-specific query parameters",
+      "condition": null,
+      "referenced_fields": [
+        "ep",
+        "ep_cart"
+      ],
+      "compound_parent": null,
+      "document_order": 25,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 140,
+        "end_line": 143,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 138,
+            "level": "SHOULD",
+            "text_digest": "99fb03a018"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 140,
+            "level": "SHOULD",
+            "text_digest": "99fb03a018"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0035",
+      "text_digest": "3ef6139abf",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MAY** be empty if no delegations are needed.",
+      "normalized": "may be empty if no delegations are needed",
+      "condition": "if no delegations are needed",
+      "referenced_fields": [],
+      "compound_parent": "All ECaP parameters are passed via URL query string, not HTTP headers, to ensure maximum compatibility across different embedding environments. Parameters **SHOULD** use either `ep` or `ep_cart` prefixes to avoid namespace pollution and clearly distinguish ECaP parameters from business-specific query parameters:",
+      "document_order": 39,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 152,
+        "end_line": 154,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 150,
+            "level": "MAY",
+            "text_digest": "3ef6139abf"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 152,
+            "level": "MAY",
+            "text_digest": "3ef6139abf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0036",
+      "text_digest": "dde250e17d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**SHOULD** be a subset of `config.delegate` from the embedded service binding.",
+      "normalized": "should be a subset of config.delegate from the embedded service binding",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate"
+      ],
+      "compound_parent": "All ECaP parameters are passed via URL query string, not HTTP headers, to ensure maximum compatibility across different embedding environments. Parameters **SHOULD** use either `ep` or `ep_cart` prefixes to avoid namespace pollution and clearly distinguish ECaP parameters from business-specific query parameters:",
+      "document_order": 40,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 152,
+        "end_line": 154,
+        "section": "Cart Capability - EP Binding > Terminology & Actors > Loading an Embedded Cart URL",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "loading-an-embedded-cart-url"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 150,
+            "level": "SHOULD",
+            "text_digest": "dde250e17d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 152,
+            "level": "SHOULD",
+            "text_digest": "dde250e17d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0037",
+      "text_digest": "9854f1f8d0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `ucp.version` in all responses **MUST** echo the `ep_version` negotiated during session initialization and confirmed by the host in the `ep.cart.ready` response.",
+      "normalized": "the ucp.version in all responses must echo the ep_version negotiated during session initialization and confirmed by the host in the ep.cart.ready response",
+      "condition": null,
+      "referenced_fields": [
+        "ep.cart.ready",
+        "ep_version",
+        "ucp.version"
+      ],
+      "compound_parent": null,
+      "document_order": 43,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 162,
+        "end_line": 165,
+        "section": "Cart Capability - EP Binding > Transport & Messaging",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "transport-messaging"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-TRANSPORT-MESSAGING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 160,
+            "level": "MUST",
+            "text_digest": "9854f1f8d0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 162,
+            "level": "MUST",
+            "text_digest": "9854f1f8d0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0038",
+      "text_digest": "22d5406f7a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The version is session-bound — it **MUST NOT** change for the duration of the ECaP session.",
+      "normalized": "the version is session-bound - it must not change for the duration of the ecap session",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 44,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 162,
+        "end_line": 165,
+        "section": "Cart Capability - EP Binding > Transport & Messaging",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "transport-messaging"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-TRANSPORT-MESSAGING-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 160,
+            "level": "MUST NOT",
+            "text_digest": "22d5406f7a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 162,
+            "level": "MUST NOT",
+            "text_digest": "22d5406f7a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0039",
+      "text_digest": "236108e3a6",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Core messages are defined by the ECaP specification and **MUST** be supported by all implementations.",
+      "normalized": "core messages are defined by the ecap specification and must be supported by all implementations",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 51,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 185,
+        "end_line": 186,
+        "section": "Cart Capability - EP Binding > Message API Reference > Message Categories > Core Messages",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "core-messages"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-CORE-MESSAGES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 183,
+            "level": "MUST",
+            "text_digest": "236108e3a6"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 185,
+            "level": "MUST",
+            "text_digest": "236108e3a6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0040",
+      "text_digest": "12e38410dc",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Upon rendering, the Embedded Cart **MUST** broadcast readiness to the parent context using the `ep.cart.ready` message.",
+      "normalized": "upon rendering, the embedded cart must broadcast readiness to the parent context using the ep.cart.ready message",
+      "condition": null,
+      "referenced_fields": [
+        "ep.cart.ready"
+      ],
+      "compound_parent": null,
+      "document_order": 72,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 200,
+        "end_line": 204,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 198,
+            "level": "MUST",
+            "text_digest": "12e38410dc"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 200,
+            "level": "MUST",
+            "text_digest": "12e38410dc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0041",
+      "text_digest": "d081ee92cc",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST** be a subset of both `ep_cart_delegate` (what host requested) and `config.delegate` from the cart response (what business allows).",
+      "normalized": "must be a subset of both ep_cart_delegate (what host requested) and config.delegate from the cart response (what business allows)",
+      "condition": null,
+      "referenced_fields": [
+        "config.delegate",
+        "ep_cart_delegate"
+      ],
+      "compound_parent": "**Payload:**",
+      "document_order": 79,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 209,
+        "end_line": 213,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 207,
+            "level": "MUST",
+            "text_digest": "d081ee92cc"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 209,
+            "level": "MUST",
+            "text_digest": "d081ee92cc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0042",
+      "text_digest": "9f75f5e48f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The `ep.cart.ready` message is a request, which means that the host **MUST** respond to complete the handshake.",
+      "normalized": "the ep.cart.ready message is a request, which means that the host must respond to complete the handshake",
+      "condition": null,
+      "referenced_fields": [
+        "ep.cart.ready"
+      ],
+      "compound_parent": null,
+      "document_order": 85,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 237,
+        "end_line": 238,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 234,
+            "level": "MUST",
+            "text_digest": "9f75f5e48f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 237,
+            "level": "MUST",
+            "text_digest": "9f75f5e48f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0043",
+      "text_digest": "2732dd948e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The `version` confirms the negotiated `ep_version` and `status` **MUST** be `\"success\"`.",
+      "normalized": "the version confirms the negotiated ep_version and status must be \"success\"",
+      "condition": null,
+      "referenced_fields": [
+        "ep_version",
+        "status",
+        "version"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 91,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 243,
+        "end_line": 245,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-04",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 240,
+            "level": "MUST",
+            "text_digest": "2732dd948e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 243,
+            "level": "MUST",
+            "text_digest": "2732dd948e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0044",
+      "text_digest": "5e3413cd0d",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "When present, host **MUST NOT** include `credential` — the channel will be re-established and any credential sent here will be discarded.",
+      "normalized": "when present, host must not include credential - the channel will be re-established and any credential sent here will be discarded",
+      "condition": "When present",
+      "referenced_fields": [
+        "credential"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 94,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 246,
+        "end_line": 250,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-05",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 243,
+            "level": "MUST NOT",
+            "text_digest": "5e3413cd0d"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 246,
+            "level": "MUST NOT",
+            "text_digest": "5e3413cd0d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0045",
+      "text_digest": "abdc68d4ce",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The requested authorization data, can be in the form of an OAuth token, JWT, API keys, etc. **MUST** be set if `auth` is present in the request.",
+      "normalized": "the requested authorization data, can be in the form of an oauth token, jwt, api keys, etc. must be set if auth is present in the request",
+      "condition": "if `auth` is present in the request",
+      "referenced_fields": [
+        "auth"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 96,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 251,
+        "end_line": 254,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-06",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 248,
+            "level": "MUST",
+            "text_digest": "abdc68d4ce"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 251,
+            "level": "MUST",
+            "text_digest": "abdc68d4ce"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0046",
+      "text_digest": "8c8a34c733",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "**MUST NOT** be set if `upgrade` is present.",
+      "normalized": "must not be set if upgrade is present",
+      "condition": "if `upgrade` is present",
+      "referenced_fields": [
+        "upgrade"
+      ],
+      "compound_parent": "**Result Payload:**",
+      "document_order": 97,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 251,
+        "end_line": 254,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "list_item",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-07",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 248,
+            "level": "MUST NOT",
+            "text_digest": "8c8a34c733"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 251,
+            "level": "MUST NOT",
+            "text_digest": "8c8a34c733"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0047",
+      "text_digest": "93c5cfff95",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "Hosts **MAY** respond with an `upgrade` field to update the communication channel between host and Embedded Cart.",
+      "normalized": "hosts may respond with an upgrade field to update the communication channel between host and embedded cart",
+      "condition": null,
+      "referenced_fields": [
+        "upgrade"
+      ],
+      "compound_parent": null,
+      "document_order": 99,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 270,
+        "end_line": 274,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-08",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 266,
+            "level": "MAY",
+            "text_digest": "93c5cfff95"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 270,
+            "level": "MAY",
+            "text_digest": "93c5cfff95"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0048",
+      "text_digest": "eb3704265c",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Currently, this object only supports a `port` field, which **MUST** be a `MessagePort` object",
+      "normalized": "currently, this object only supports a port field, which must be a messageport object",
+      "condition": null,
+      "referenced_fields": [
+        "port"
+      ],
+      "compound_parent": null,
+      "document_order": 100,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 270,
+        "end_line": 274,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-09",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 266,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 270,
+            "level": "MUST",
+            "text_digest": "eb3704265c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0049",
+      "text_digest": "ad6f991ef5",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Currently, this object only supports a `port` field, which **MUST** be transferred to the embedded cart context (e.g., with `{transfer: [port2]}` on the host's `iframe.contentWindow.postMessage()` call)",
+      "normalized": "currently, this object only supports a port field, which must be transferred to the embedded cart context (e.g., with {transfer: [port2]} on the host's iframe.contentwindow.postmessage() call)",
+      "condition": null,
+      "referenced_fields": [
+        "port"
+      ],
+      "compound_parent": null,
+      "document_order": 100,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 270,
+        "end_line": 274,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-10",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 266,
+            "level": "MUST",
+            "text_digest": "ad6f991ef5"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 270,
+            "level": "MUST",
+            "text_digest": "ad6f991ef5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0050",
+      "text_digest": "8c0d70a15b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "When the host responds with an `upgrade` object, the Embedded Cart **MUST** discard any other information in the message, send a new `ep.cart.ready` message over the upgraded communication channel, and wait for a new response.",
+      "normalized": "when the host responds with an upgrade object, the embedded cart must discard any other information in the message, send a new ep.cart.ready message over the upgraded communication channel, and wait for a new response",
+      "condition": "When the host responds with an `upgrade` object",
+      "referenced_fields": [
+        "ep.cart.ready",
+        "upgrade"
+      ],
+      "compound_parent": null,
+      "document_order": 102,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 292,
+        "end_line": 296,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-11",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 287,
+            "level": "MUST",
+            "text_digest": "8c0d70a15b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 292,
+            "level": "MUST",
+            "text_digest": "8c0d70a15b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0051",
+      "text_digest": "a809664137",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All subsequent messages **MUST** be sent only over the upgraded communication channel.",
+      "normalized": "all subsequent messages must be sent only over the upgraded communication channel",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 103,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 292,
+        "end_line": 296,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-12",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 287,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 292,
+            "level": "MUST",
+            "text_digest": "a809664137"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0052",
+      "text_digest": "b4ddfaed6e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "If the host cannot complete the handshake (e.g., origin validation failure or protocol state violation), it **MUST** respond with an `error_response` result.",
+      "normalized": "if the host cannot complete the handshake (e.g., origin validation failure or protocol state violation), it must respond with an error_response result",
+      "condition": "If the host cannot complete the handshake (e.g., origin validation failure or protocol state violation)",
+      "referenced_fields": [
+        "error_response"
+      ],
+      "compound_parent": null,
+      "document_order": 104,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 298,
+        "end_line": 303,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-13",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "b4ddfaed6e"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 298,
+            "level": "MUST",
+            "text_digest": "b4ddfaed6e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0053",
+      "text_digest": "dfcef5c6f2",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MUST** tear down the embedded context",
+      "normalized": "the host must tear down the embedded context",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 106,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 298,
+        "end_line": 303,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-14",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 293,
+            "level": "MUST",
+            "text_digest": "dfcef5c6f2"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 298,
+            "level": "MUST",
+            "text_digest": "dfcef5c6f2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0054",
+      "text_digest": "c45fb9f3f1",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "The host **MAY** redirect the buyer to `continue_url` if present.",
+      "normalized": "the host may redirect the buyer to continue_url if present",
+      "condition": "if present",
+      "referenced_fields": [
+        "continue_url"
+      ],
+      "compound_parent": null,
+      "document_order": 106,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 298,
+        "end_line": 303,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-15",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 293,
+            "level": "MAY",
+            "text_digest": "c45fb9f3f1"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 298,
+            "level": "MAY",
+            "text_digest": "c45fb9f3f1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0055",
+      "text_digest": "55ae656dbf",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST NOT",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "The Embedded Cart **MUST NOT** send further messages after receiving a handshake error.",
+      "normalized": "the embedded cart must not send further messages after receiving a handshake error",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 107,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 298,
+        "end_line": 303,
+        "section": "Cart Capability - EP Binding > Message API Reference > Handshake Messages > `ep.cart.ready`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartready"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-16",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 293,
+            "level": "MUST NOT",
+            "text_digest": "55ae656dbf"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 298,
+            "level": "MUST NOT",
+            "text_digest": "55ae656dbf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0056",
+      "text_digest": "2f6da07657",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When error escalation is required, Embedded Cart **MUST** issue an `ep.cart.error` notification per the [session error pattern](../../embedded-protocol.md#session-error).",
+      "normalized": "when error escalation is required, embedded cart must issue an ep.cart.error notification per the session error pattern",
+      "condition": "When error escalation is required",
+      "referenced_fields": [
+        "ep.cart.error"
+      ],
+      "compound_parent": null,
+      "document_order": 112,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 316,
+        "end_line": 318,
+        "section": "Cart Capability - EP Binding > Message API Reference > Authentication > `ep.cart.auth`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartauth"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-AUTH-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 311,
+            "level": "MUST",
+            "text_digest": "2f6da07657"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 316,
+            "level": "MUST",
+            "text_digest": "2f6da07657"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CART-0057",
+      "text_digest": "431af45a47",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.cart"
+      ],
+      "level": "MAY",
+      "target_actor": "HOST",
+      "actor_confidence": 0.9,
+      "clause": "If `dev.ucp.shopping.checkout` is part of the negotiated capabilities during service discovery, host **MAY** proceed to initiate a checkout session based on the completed cart by issuing a [create checkout](../checkout/index.md#create-checkout) operation.",
+      "normalized": "if dev.ucp.shopping.checkout is part of the negotiated capabilities during service discovery, host may proceed to initiate a checkout session based on the completed cart by issuing a create checkout operation",
+      "condition": "If `dev.ucp.shopping.checkout` is part of the negotiated capabilities during service discovery",
+      "referenced_fields": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "compound_parent": null,
+      "document_order": 125,
+      "source": {
+        "file": "docs/specification/shopping/cart/embedded.md",
+        "start_line": 361,
+        "end_line": 364,
+        "section": "Cart Capability - EP Binding > Message API Reference > Lifecycle Messages > `ep.cart.complete`",
+        "block_type": "paragraph",
+        "page": "specification/shopping/cart/embedded/",
+        "anchor": "epcartcomplete"
+      },
+      "demo": {
+        "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-COMPLETE-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "embedded",
+        "testable": false,
+        "testable_reason": "embedded protocol page",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/embedded-cart.md",
+            "start_line": 355,
+            "level": "MAY",
+            "text_digest": "431af45a47"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/cart/embedded.md",
+            "start_line": 361,
+            "level": "MAY",
+            "text_digest": "431af45a47"
+          }
+        ]
+      }
+    }
+  ]
+}

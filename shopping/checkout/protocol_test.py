@@ -21,8 +21,11 @@ to a server advertising the shopping vertical.
 
 from absl.testing import absltest
 from framework.base_test import DEFAULT_UCP_VERSION
-from framework.decorators import requires_capability
-from shopping.base import ShoppingIntegrationTestBase
+from framework.decorators import (
+  outside_catalog,
+  requires_capability,
+)
+from shopping.base import ShoppingIntegrationTestBase, rest_entry
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
 try:
@@ -43,29 +46,38 @@ class ShoppingProtocolTest(ShoppingIntegrationTestBase):
   """Shopping service advertisement and version negotiation.
 
   Validated Paths:
-  - GET /.well-known/ucp
+  - GET /.well-known/ucp, or the profile at --discovery_url
   - POST /checkout-sessions
   """
 
   def _discovery_profile(self) -> dict:
     """Fetch and unwrap the discovery profile."""
-    response = self.client.get("/.well-known/ucp")
+    response = self.client.get(self.discovery_url)
     self.assert_response_status(response, 200)
     profile = response.json()
     return profile.get("ucp", profile)
 
   def _shopping_service(self, ucp_data: dict) -> dict:
-    """Return the advertised shopping service entry."""
+    """Return the advertised shopping service entry.
+
+    That is the REST entry if there is one, else the first entry, so that
+    the transport checks report a profile with no REST entry.
+    """
     shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping")
-    self.assertIsNotNone(
+    self.assertTrue(
       shopping_services, "Shopping service not found in discovery"
     )
-    return (
-      shopping_services[0]
+    entries = (
+      shopping_services
       if isinstance(shopping_services, list)
-      else shopping_services
+      else [shopping_services]
     )
+    return rest_entry(entries) or entries[0]
 
+  @outside_catalog(
+    "overview/index.md: the advertised shopping service, with its "
+    "version, REST transport and endpoint (core discovery rules)"
+  )
   def test_shopping_service_advertisement(self):
     """Test that the shopping service is advertised correctly.
 
@@ -103,6 +115,10 @@ class ShoppingProtocolTest(ShoppingIntegrationTestBase):
     )
     self.assertIsNotNone(shopping_service.get("endpoint"))
 
+  @outside_catalog(
+    "overview/index.md, Request-Time Validation: a request with an "
+    "unsupported version MUST get a version_unsupported error"
+  )
   def test_version_negotiation(self):
     """Test protocol version negotiation via headers.
 

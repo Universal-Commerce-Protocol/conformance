@@ -15,7 +15,12 @@
 """Business logic and totals tests for the UCP Shopping vertical."""
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  older_version,
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import (
@@ -53,6 +58,10 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
   - GET /checkout-sessions/{id}
   """
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
+    "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
+  )
   def test_totals_calculation_on_create(self):
     """Test that totals are calculated correctly upon checkout creation.
 
@@ -92,6 +101,10 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     # Verify Totals Breakdown
     self.assert_totals_consistent(checkout_obj, expected_price)
 
+  @spec_assert(
+    "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
+    "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
+  )
   def test_totals_recalculation_on_update(self):
     """Test that totals are recalculated correctly upon checkout update.
 
@@ -139,6 +152,12 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     expected_total = expected_price * 2
     self.assert_totals_consistent(updated_checkout, expected_total)
 
+  @older_version(
+    "2026-04-08",
+    "sends boolean consent flags (marketing, analytics); the draft keys "
+    "purposes by reverse-DNS ID and businesses MUST ignore unadvertised "
+    "ones (REQ-SHOPPING-BUYER-CONSENT-0010)",
+  )
   @requires_capability("dev.ucp.shopping.buyer_consent")
   def test_buyer_consent(self):
     """Test that buyer consent preferences are persisted on creation.
@@ -212,6 +231,11 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
         f"Analytics consent not persisted. Resp: {consent_data}",
       )
 
+  @no_rule(
+    "checkout/index.md, Update Checkout: the request 'will replace the "
+    "existing checkout session state on the business side', with no "
+    "keyword"
+  )
   def test_buyer_info_persistence(self):
     """Test that buyer information is persisted on update.
 

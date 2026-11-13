@@ -17,7 +17,10 @@
 import datetime
 import uuid
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  requires_capability,
+  scenario,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import order
@@ -44,6 +47,10 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
   - PUT /orders/{id}
   """
 
+  @scenario(
+    "sends an invalid adjustment status through PUT /orders/{id}, the sample "
+    "server's own endpoint; the spec defines only GET /orders/{id}"
+  )
   def test_invalid_adjustment_status(self):
     """Test that an invalid adjustment status is rejected.
 
@@ -85,6 +92,10 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
     # Pydantic validation error should result in 422
     self.assert_response_status(resp, 422)
 
+  @scenario(
+    "sends adjustments as an object through PUT /orders/{id}, the sample "
+    "server's own endpoint; the spec defines only GET /orders/{id}"
+  )
   def test_malformed_adjustment_payload(self):
     """Test that malformed adjustment payloads are rejected.
 

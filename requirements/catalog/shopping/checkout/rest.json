@@ -1,0 +1,739 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Universal-Commerce-Protocol/.github/main/org-tools/requirements-extractor/schema/requirements-catalog-1.0.0.json",
+  "schema_version": "1.0.0",
+  "extractor_version": "0.4.0",
+  "spec_version": "draft",
+  "source_file": "docs/specification/shopping/checkout/rest.md",
+  "summary": {
+    "total": 12,
+    "must_count": 6,
+    "must_not_count": 1,
+    "shall_count": 0,
+    "shall_not_count": 0,
+    "should_count": 1,
+    "should_not_count": 0,
+    "may_count": 4,
+    "by_level": {
+      "MAY": 4,
+      "MUST": 6,
+      "MUST NOT": 1,
+      "SHOULD": 1
+    },
+    "by_actor": {
+      "BUSINESS": 2,
+      "PLATFORM": 4,
+      "UNRESOLVED": 6
+    },
+    "by_file": {
+      "docs/specification/shopping/checkout/rest.md": 12
+    },
+    "with_condition": 5,
+    "with_referenced_fields": 2,
+    "from_compound_split": 0,
+    "diagnostics": {
+      "actor_after_keyword_only": 0,
+      "actor_low_confidence": 0,
+      "actor_unresolved": 6,
+      "annotation_as_obligation": 2,
+      "annotations_excluded": 0,
+      "candidates_without_emphasis": 0,
+      "compounds_not_split": 0,
+      "duplicate_requirements": 0,
+      "empty_after_split": 0,
+      "multi_obligation_sentences": 0,
+      "rfc2119_boilerplate": 0
+    }
+  },
+  "demo": {
+    "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
+    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "options": [
+      "capability-from-bullet-or-path",
+      "count-capitals"
+    ],
+    "ids": "stable, from requirements.lock.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0241",
+      "text_digest": "017f445b50",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All request and response bodies **MUST** be valid JSON as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259){ target=\"_blank\" }.",
+      "normalized": "all request and response bodies must be valid json as specified in rfc 8259",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 9,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 71,
+        "end_line": 72,
+        "section": "Checkout Capability - REST Binding > Protocol Fundamentals > Content Types",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "content-types"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-CONTENT-TYPES-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: binds both sides; the response half is visible",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "binds both sides; the response half is visible"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 36,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 36,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 36,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 71,
+            "level": "MUST",
+            "text_digest": "017f445b50"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0242",
+      "text_digest": "86f31bc40b",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.",
+      "normalized": "all rest endpoints must be served over https with minimum tls version 1.3",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 10,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 76,
+        "end_line": 77,
+        "section": "Checkout Capability - REST Binding > Protocol Fundamentals > Transport Security",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "transport-security"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-TRANSPORT-SECURITY-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: the endpoint's TLS version",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: the endpoint's TLS version",
+          "note": "the local sample server serves plain HTTP, so it fails this"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 41,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 41,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 41,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 76,
+            "level": "MUST",
+            "text_digest": "86f31bc40b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0243",
+      "text_digest": "4bb048462f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MUST** send the entire Checkout resource, including any data updates to write-only fields; the supplied resource replaces the existing Checkout session state.",
+      "normalized": "the platform must send the entire checkout resource, including any data updates to write-only fields; the supplied resource replaces the existing checkout session state",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 35,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 231,
+        "end_line": 238,
+        "section": "Checkout Capability - REST Binding > Examples > Update Checkout",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "update-checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 231,
+            "level": "MUST",
+            "text_digest": "4bb048462f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0244",
+      "text_digest": "abb33abf65",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST NOT",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "The Platform **MUST NOT** start a new Update Checkout operation while the Checkout is `complete_in_progress`.",
+      "normalized": "the platform must not start a new update checkout operation while the checkout is complete_in_progress",
+      "condition": "while the Checkout is `complete_in_progress`",
+      "referenced_fields": [
+        "complete_in_progress"
+      ],
+      "compound_parent": null,
+      "document_order": 36,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 231,
+        "end_line": 238,
+        "section": "Checkout Capability - REST Binding > Examples > Update Checkout",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "update-checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 231,
+            "level": "MUST NOT",
+            "text_digest": "abb33abf65"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0245",
+      "text_digest": "171c8ac33e",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "If the Business receives a new Update Checkout request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.",
+      "normalized": "if the business receives a new update checkout request in that state, it must leave the checkout unchanged and return the current checkout with a recoverable error message",
+      "condition": "If the Business receives a new Update Checkout request in that state",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 38,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 231,
+        "end_line": 238,
+        "section": "Checkout Capability - REST Binding > Examples > Update Checkout",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "update-checkout"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-03",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 231,
+            "level": "MUST",
+            "text_digest": "171c8ac33e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0246",
+      "text_digest": "036655993f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Outside `complete_in_progress`, each Update Checkout replaces the entire Checkout session, so the Platform **MUST** include all previously set fields it intends to retain.",
+      "normalized": "outside complete_in_progress, each update checkout replaces the entire checkout session, so the platform must include all previously set fields it intends to retain",
+      "condition": null,
+      "referenced_fields": [
+        "complete_in_progress"
+      ],
+      "compound_parent": null,
+      "document_order": 40,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 242,
+        "end_line": 245,
+        "section": "Checkout Capability - REST Binding > Examples > Update Checkout > Update Buyer Info",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "update-buyer-info"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-UPDATE-BUYER-INFO-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-08-25",
+        "releases": [
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 242,
+            "level": "MUST",
+            "text_digest": "036655993f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0247",
+      "text_digest": "d1ab83442a",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "PLATFORM",
+      "actor_confidence": 0.9,
+      "clause": "Platforms **MAY** choose among authentication mechanisms (API keys, OAuth, mTLS, HTTP Message Signatures).",
+      "normalized": "platforms may choose among authentication mechanisms (api keys, oauth, mtls, http message signatures)",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 92,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1403,
+        "end_line": 1406,
+        "section": "Checkout Capability - REST Binding > Message Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "message-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-MESSAGE-SIGNING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "aimed at the platform",
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1339,
+            "level": "MAY",
+            "text_digest": "d1ab83442a"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1412,
+            "level": "MAY",
+            "text_digest": "d1ab83442a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0248",
+      "text_digest": "2b1505e5e0",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MUST",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When HTTP Message Signatures are used, requests **MUST** include valid `Signature-Input` and `Signature` headers (and `Content-Digest` when a body is present) per RFC 9421:",
+      "normalized": "when http message signatures are used, requests must include valid signature-input and signature headers (and content-digest when a body is present) per rfc 9421",
+      "condition": "When HTTP Message Signatures are used",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 94,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1410,
+        "end_line": 1412,
+        "section": "Checkout Capability - REST Binding > Message Signing > Request Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "request-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-REQUEST-SIGNING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: about the requests the platform signs",
+        "review": {
+          "verdict": "rule",
+          "actor": "PLATFORM",
+          "testable": false,
+          "reason": "about the requests the platform signs"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1346,
+            "level": "MUST",
+            "text_digest": "2b1505e5e0"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1419,
+            "level": "MUST",
+            "text_digest": "2b1505e5e0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0249",
+      "text_digest": "833d001a11",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "SHOULD",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Response signatures are **RECOMMENDED** for:",
+      "normalized": "response signatures are recommended for",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 107,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1442,
+        "end_line": 1442,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "response-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-RESPONSE-SIGNING-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: visible: response signature headers",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "visible: response signature headers"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1378,
+            "level": "SHOULD",
+            "text_digest": "833d001a11"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1451,
+            "level": "SHOULD",
+            "text_digest": "833d001a11"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0250",
+      "text_digest": "eb1ea646bd",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "Response signatures are **OPTIONAL** for:",
+      "normalized": "response signatures are optional for",
+      "condition": null,
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 109,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1446,
+        "end_line": 1446,
+        "section": "Checkout Capability - REST Binding > Message Signing > Response Signing",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "response-signing"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-RESPONSE-SIGNING-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "reviewed: permission; visible when used",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": true,
+          "reason": "permission; visible when used"
+        },
+        "since": "2026-04-08",
+        "releases": [
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1382,
+            "level": "MAY",
+            "text_digest": "eb1ea646bd"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1455,
+            "level": "MAY",
+            "text_digest": "eb1ea646bd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0251",
+      "text_digest": "9655f6d29f",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": null,
+      "actor_confidence": 0.0,
+      "clause": "When authentication is required, the REST transport **MAY** use:",
+      "normalized": "when authentication is required, the rest transport may use",
+      "condition": "When authentication is required",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 114,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1469,
+        "end_line": 1470,
+        "section": "Checkout Capability - REST Binding > Security Considerations > Authentication",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-AUTHENTICATION-01",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": false,
+        "testable_reason": "reviewed: a menu of allowed authentication methods; nothing a test can fail",
+        "review": {
+          "verdict": "rule",
+          "actor": "BUSINESS",
+          "testable": false,
+          "reason": "a menu of allowed authentication methods; nothing a test can fail"
+        },
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1340,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1254,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1405,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1478,
+            "level": "MAY",
+            "text_digest": "9655f6d29f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REQ-SHOPPING-CHECKOUT-0252",
+      "text_digest": "629a6e09eb",
+      "scope": "capability",
+      "capabilities": [
+        "dev.ucp.shopping.checkout"
+      ],
+      "level": "MAY",
+      "target_actor": "BUSINESS",
+      "actor_confidence": 0.9,
+      "clause": "Businesses **MAY** require authentication for some operations while leaving others open (e.g., public checkout without authentication).",
+      "normalized": "businesses may require authentication for some operations while leaving others open (e.g., public checkout without authentication)",
+      "condition": "while leaving others open (e.g., public checkout without authentication)",
+      "referenced_fields": [],
+      "compound_parent": null,
+      "document_order": 126,
+      "source": {
+        "file": "docs/specification/shopping/checkout/rest.md",
+        "start_line": 1481,
+        "end_line": 1482,
+        "section": "Checkout Capability - REST Binding > Security Considerations > Authentication",
+        "block_type": "paragraph",
+        "page": "specification/shopping/checkout/rest/",
+        "anchor": "authentication"
+      },
+      "demo": {
+        "positional_id": "REQ-CHECKOUT-REST-AUTHENTICATION-02",
+        "capability_source": "path",
+        "keyword_style": "bold",
+        "transport": "rest",
+        "testable": true,
+        "testable_reason": "aimed at the business",
+        "since": "2026-01-11",
+        "releases": [
+          {
+            "version": "2026-01-11",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1349,
+            "level": "MAY",
+            "text_digest": "629a6e09eb"
+          },
+          {
+            "version": "2026-01-23",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1263,
+            "level": "MAY",
+            "text_digest": "629a6e09eb"
+          },
+          {
+            "version": "2026-04-08",
+            "file": "docs/specification/checkout-rest.md",
+            "start_line": 1417,
+            "level": "MAY",
+            "text_digest": "629a6e09eb"
+          },
+          {
+            "version": "2026-08-25",
+            "file": "docs/specification/shopping/checkout/rest.md",
+            "start_line": 1490,
+            "level": "MAY",
+            "text_digest": "629a6e09eb"
+          }
+        ]
+      }
+    }
+  ]
+}
