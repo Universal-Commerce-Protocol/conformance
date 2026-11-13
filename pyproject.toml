@@ -50,6 +50,11 @@ only-include = [
 # The relative path is stored here
 ucp-sdk = { path = "../python-sdk/", editable = true }
 
+[tool.pytest.ini_options]
+# A bare `pytest` runs the conformance suites against SERVER_URL. The unit
+# tests of the framework itself need no server: run them with `pytest tests`.
+testpaths = ["core", "common", "shopping"]
+
 [tool.ruff]
 line-length = 80
 indent-width = 2

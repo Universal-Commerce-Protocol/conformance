@@ -78,6 +78,7 @@ Smallville
 Stripe
 superfences
 Target
+testpaths
 UCP
 Ulta
 Villagetown

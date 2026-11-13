@@ -35,13 +35,6 @@ from shopping.base import (
 )
 
 
-class _Probe(unittest.TestCase):
-  """A test that needs no server, so the runner has something to run."""
-
-  def test_nothing(self):
-    """Pass."""
-
-
 def run_main(
   *argv: str, names: tuple[str, ...] = (), dry_run: bool = True
 ) -> dict:
@@ -56,9 +49,20 @@ def run_main(
     fetch, and what the tests would read for each of the named flags.
 
   """
+
+  class Probe(unittest.TestCase):
+    """A test that needs no server, so the runner has something to run.
+
+    Defined here, not at module level, so that pytest does not collect it
+    as a test of its own.
+    """
+
+    def test_nothing(self):
+      """Pass."""
+
   out = io.StringIO()
   fetch = mock.Mock(side_effect=OSError("offline"))
-  suite = unittest.TestSuite([_Probe("test_nothing")])
+  suite = unittest.TestSuite([Probe("test_nothing")])
   with (
     flagsaver.flagsaver(),
     mock.patch.dict(os.environ),
@@ -266,12 +270,17 @@ class TargetDirTest(unittest.TestCase):
   def test_server_url_defaults(self):
     """Test the server URL's fallbacks when no target gives one."""
     with mock.patch.dict(os.environ):
+      os.environ.pop("SERVER_URL", None)
       os.environ.pop("UCP_SERVER_URL", None)
       self.assertEqual(
         runner.parse_args([]).server_url, runner.DEFAULT_SERVER_URL
       )
       os.environ["UCP_SERVER_URL"] = "https://env.example"
       self.assertEqual(runner.parse_args([]).server_url, "https://env.example")
+      os.environ["SERVER_URL"] = "https://primary-env.example"
+      self.assertEqual(
+        runner.parse_args([]).server_url, "https://primary-env.example"
+      )
       with tempfile.TemporaryDirectory() as directory:
         write_target(directory, {"server_url": "https://shop.example"})
         args = runner.parse_args([f"--target_dir={directory}"])
