@@ -72,6 +72,12 @@ jobs:
           uv sync --directory samples/rest/python/server/
           uv sync --directory conformance/
 
+      - name: Verify the suite registry
+        working-directory: conformance
+        run: |
+          uv run python -m unittest test_suite_registry
+          uv run ucp-conformance --verify-registry
+
       - name: Initialize test database
         run: |
           rm -rf ${DATABASE_PATH}

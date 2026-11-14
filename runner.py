@@ -75,6 +75,33 @@ def _resolve_suites(suite_arg: str) -> list[str]:
   return sorted(selected)
 
 
+def unregistered_modules(
+  root: Path | None = None, registered: set[str] | None = None
+) -> list[str]:
+  """Return test modules present in the tree but unreachable from `--suite=all`.
+
+  A module the registry does not name contributes no cases to `--suite=all`,
+  which is the command CI runs, so it merges and never executes. Discovery is
+  by dotted path relative to `root`, so a tiered layout reports
+  `shopping.checkout.protocol_test` rather than a bare file name.
+  """
+  root = Path(__file__).resolve().parent if root is None else Path(root)
+  if registered is None:
+    registered = {
+      module for tests in SUITE_REGISTRY.values() for module in tests
+    }
+  # `framework` is the harness package: base_test.py is the shared base class,
+  # not a suite module, so the registry does not name it.
+  skip = {"framework", "node_modules", "test_data"}
+  found = set()
+  for path in root.rglob("*_test.py"):
+    parts = path.relative_to(root).parts
+    if any(part in skip or part.startswith(".") for part in parts):
+      continue
+    found.add(".".join(path.relative_to(root).with_suffix("").parts))
+  return sorted(found - set(registered))
+
+
 def _iter_tests(suite: unittest.TestSuite) -> Iterator[unittest.TestCase]:
   """Iterate through all test cases in a nested TestSuite."""
   for item in suite:
@@ -257,6 +284,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     action="store_true",
     help="List selected test cases without contacting the server.",
   )
+  parser.add_argument(
+    "--verify-registry",
+    action="store_true",
+    help=(
+      "Check that every test module in the tree is named by SUITE_REGISTRY "
+      "and exit non-zero listing any that are not."
+    ),
+  )
   return parser.parse_args(argv)
 
 
@@ -275,6 +310,24 @@ def _platform_file(name_or_path: str) -> Path | None:
 def main(argv: list[str] | None = None) -> int:
   """Execute the UCP conformance test orchestrator."""
   args = parse_args(argv)
+
+  if args.verify_registry:
+    missing = unregistered_modules()
+    if missing:
+      sys.stderr.write(
+        "ERROR: test module(s) present in the tree but not named by "
+        "SUITE_REGISTRY, so --suite=all would not run them:\n"
+      )
+      for module in missing:
+        sys.stderr.write(f"  - {module}\n")
+      sys.stderr.write(
+        "Add each module to the matching SUITE_REGISTRY entry in runner.py.\n"
+      )
+      return 1
+    sys.stdout.write(
+      "suite registry: OK, every test module is reachable from --suite=all\n"
+    )
+    return 0
 
   logging_level = logging.DEBUG if args.verbose else logging.INFO
   logging.basicConfig(level=logging_level, format="%(levelname)s: %(message)s")
