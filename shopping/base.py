@@ -574,9 +574,24 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     return self.get_shopping_url(f"/orders/{order_id}")
 
   def assert_totals_consistent(
-    self, checkout_obj, expected_subtotal, expected_discount=0
+    self,
+    checkout_obj,
+    expected_subtotal,
+    expected_discount=0,
+    discount_tolerance=0,
   ):
     """Assert that the checkout totals are consistent and correct.
+
+    ``expected_discount`` is one amount or a collection of acceptable
+    amounts. With ``discount_tolerance`` of 0 the discount must match
+    exactly. With a positive tolerance, ``expected_discount`` may hold
+    exact (fractional) values, and the discount passes when it is strictly
+    less than ``discount_tolerance`` minor units away from one of them.
+    Neither discount.md nor total.json defines how a percentage discount
+    becomes an integer amount, so a test that applies ``n`` percentage
+    codes passes ``discount_tolerance=n``: every rounding mode (round,
+    truncate, floor, ceil) then passes, while an amount that is off by a
+    whole unit on an exact value still fails.
 
     The grand total is verified with the spec's own formula (checkout.md
     "Verification"): sum of the signed amounts of every non-``total``
@@ -611,20 +626,31 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
       f"Subtotal mismatch: expected {expected_subtotal}, got {subtotal}",
     )
     if expected_discount:
-      if isinstance(expected_discount, (list, set, tuple)):
+      candidates = (
+        list(expected_discount)
+        if isinstance(expected_discount, (list, set, tuple))
+        else [expected_discount]
+      )
+      if discount_tolerance:
+        self.assertTrue(
+          any(abs(abs(discount) - c) < discount_tolerance for c in candidates),
+          (
+            "Discount mismatch: expected within"
+            f" {discount_tolerance} minor unit(s) of one of"
+            f" {[float(c) for c in candidates]}, got {discount}"
+          ),
+        )
+      elif len(candidates) > 1:
         self.assertIn(
           abs(discount),
-          expected_discount,
-          (
-            f"Discount mismatch: expected one of {expected_discount}, got"
-            f" {discount}"
-          ),
+          candidates,
+          f"Discount mismatch: expected one of {candidates}, got {discount}",
         )
       else:
         self.assertEqual(
           abs(discount),
-          expected_discount,
-          f"Discount mismatch: expected {expected_discount}, got {discount}",
+          candidates[0],
+          f"Discount mismatch: expected {candidates[0]}, got {discount}",
         )
     # checkout.md "Verification":
     #   assert sum(e.amount for e in totals if e.type != "total") \
