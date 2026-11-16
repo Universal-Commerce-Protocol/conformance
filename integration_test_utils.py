@@ -97,7 +97,6 @@ def get_headers(
   profile_url = f"http://localhost:{port}{AgentProfileServer.PROFILE_PATH}"
   return {
     "UCP-Agent": f'profile="{profile_url}"',
-    "request-signature": "test",
     "idempotency-key": idempotency_key or str(uuid.uuid4()),
     "request-id": request_id or str(uuid.uuid4()),
     "Content-Type": "application/json",

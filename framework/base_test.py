@@ -14,7 +14,9 @@
 
 """Base integration test class decoupled from specific business verticals."""
 
+import base64
 import contextlib
+import hashlib
 import json
 import logging
 import os
@@ -37,6 +39,23 @@ __all__ = [
 ]
 
 FLAGS = flags.FLAGS
+
+
+def add_content_digest(request: httpx.Request) -> None:
+  """Set an RFC 9530 `Content-Digest` header on requests that carry a body.
+
+  signatures.md binds a request body to its signature with `Content-Digest`,
+  and the header is required whenever a request has a body. Sending it on
+  every such request lets the suite run against businesses that verify the
+  digest, and it is harmless for businesses that ignore it. Registered as an
+  httpx request event hook, so it covers every request made through
+  `self.client`, including bodies the tests build by hand.
+  """
+  body = request.content
+  if not body:
+    return
+  digest = base64.b64encode(hashlib.sha256(body).digest()).decode("ascii")
+  request.headers["Content-Digest"] = f"sha-256=:{digest}:"
 
 
 def _define_flag(definer, *args, **kwargs) -> None:
@@ -157,7 +176,11 @@ class BaseIntegrationTest(absltest.TestCase):
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
 
-    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
+    self.client = httpx.Client(
+      base_url=self.base_url,
+      timeout=15.0,
+      event_hooks={"request": [add_content_digest]},
+    )
     self.addCleanup(self.client.close)
 
     self._start_agent_server()
@@ -223,7 +246,6 @@ class BaseIntegrationTest(absltest.TestCase):
     )
     return {
       "UCP-Agent": f'profile="{profile_url}"',
-      "request-signature": "test",
       "idempotency-key": idempotency_key or str(uuid.uuid4()),
       "request-id": request_id or str(uuid.uuid4()),
       "Content-Type": "application/json",
