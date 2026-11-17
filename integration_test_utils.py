@@ -96,7 +96,6 @@ def get_headers(
   """Generate headers for UCP requests (same set as the base class)."""
   return {
     "UCP-Agent": f'profile="{agent_profile_url()}"',
-    "request-signature": "test",
     "idempotency-key": idempotency_key or str(uuid.uuid4()),
     "request-id": request_id or str(uuid.uuid4()),
     "Content-Type": "application/json",
