@@ -55,7 +55,9 @@ def ap2_release(ucp_version: str) -> dict[str, str] | None:
 
 def _capability_entries(profile: dict[str, Any]) -> dict[str, list[dict]]:
   """Return capability name to entries from a profile document."""
-  ucp = profile.get("ucp", profile)
+  ucp = profile.get("ucp")
+  if not isinstance(ucp, dict):
+    ucp = profile
   capabilities = ucp.get("capabilities", {})
   if isinstance(capabilities, dict):
     return {
@@ -70,6 +72,20 @@ def _capability_entries(profile: dict[str, Any]) -> dict[str, list[dict]]:
   return result
 
 
+def _entry_version(entry: dict) -> str | None:
+  """Return a capability entry's version as a non-empty string, else None.
+
+  Accepts a plain string or the `{"root": ...}` wrapper that
+  framework.discovery also unwraps.
+  """
+  version = entry.get("version")
+  if isinstance(version, dict):
+    version = version.get("root")
+  if isinstance(version, str) and version:
+    return version
+  return None
+
+
 def capability_intersection(
   business_profile: dict[str, Any], platform_profile: dict[str, Any]
 ) -> set[str]:
@@ -77,34 +93,36 @@ def capability_intersection(
 
   Keeps business capabilities the platform also declares with at least one
   mutual version, then repeatedly prunes extensions none of whose parents
-  remain.
+  remain. An entry without `extends` is a root capability. An entry with an
+  explicit empty `extends` names no parent, so it is pruned.
   """
   business = _capability_entries(business_profile)
   platform = _capability_entries(platform_profile)
-  parents: dict[str, list[str]] = {}
+  parents: dict[str, list[str] | None] = {}
   for name, entries in business.items():
     if name not in platform:
       continue
-    mutual = {e.get("version") for e in entries} & {
-      e.get("version") for e in platform[name]
+    mutual = {_entry_version(e) for e in entries} & {
+      _entry_version(e) for e in platform[name]
     }
     mutual.discard(None)
     if not mutual:
       continue
     selected = max(mutual)
-    entry = next(e for e in entries if e.get("version") == selected)
+    entry = next(e for e in entries if _entry_version(e) == selected)
     extends = entry.get("extends")
     if isinstance(extends, str):
       parents[name] = [extends]
     elif isinstance(extends, list):
       parents[name] = [p for p in extends if isinstance(p, str)]
     else:
-      parents[name] = []
+      parents[name] = None
   changed = True
   while changed:
     changed = False
     for name in list(parents):
-      if parents[name] and not any(p in parents for p in parents[name]):
+      declared = parents[name]
+      if declared is not None and not any(p in parents for p in declared):
         del parents[name]
         changed = True
   return set(parents)
@@ -113,8 +131,8 @@ def capability_intersection(
 class Ap2AgentProfileServer(AgentProfileServer):
   """The framework agent profile server plus an AP2 Mandates profile.
 
-  AP2 Mandates is a shopping extension, so its profile route lives in the
-  shopping layer rather than in the vertical-agnostic framework server.
+  AP2 Mandates is a payment extension, so its profile route lives in
+  common/payments rather than in the vertical-agnostic framework server.
   """
 
   # Same profile plus the AP2 Mandates extension. Served on its own path so
@@ -155,17 +173,17 @@ class Ap2AgentProfileServer(AgentProfileServer):
       ap2 = ap2_release(self.ucp_version)
       if ap2 is None:
         return JSONResponse(content=content_dict)
-      capabilities = content_dict["ucp"]["capabilities"]
-      capabilities.setdefault(
-        "dev.ucp.shopping.checkout",
-        [
-          {
-            "version": self.ucp_version,
-            "spec": ap2["checkout_spec"],
-            "schema": ap2["checkout_schema"],
-          }
-        ],
-      )
+      capabilities = content_dict["ucp"].setdefault("capabilities", {})
+      # Assigned, not defaulted: the profile template already declares
+      # checkout with one release's spec path.
+      capabilities["dev.ucp.shopping.checkout"] = [
+        {
+          "name": "dev.ucp.shopping.checkout",
+          "version": self.ucp_version,
+          "spec": ap2["checkout_spec"],
+          "schema": ap2["checkout_schema"],
+        }
+      ]
       capabilities[ap2["capability"]] = [
         {
           "version": self.ucp_version,

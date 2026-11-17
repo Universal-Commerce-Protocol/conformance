@@ -14,6 +14,8 @@
 
 """Tests for AP2 Mandate in UCP SDK Server."""
 
+import unittest
+
 from absl.testing import absltest
 from common.payments.ap2_support import (
   ap2_release,
@@ -23,6 +25,7 @@ from common.payments.ap2_support import (
 from framework.base_test import FLAGS
 from framework.decorators import requires_capability
 import httpx
+from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -54,6 +57,11 @@ class Ap2MandateTest(ShoppingIntegrationTestBase):
   Validated Paths:
   - POST /checkout-sessions/{id}/complete
   """
+
+  DEFAULT_BUYER = {
+    "email": "conformance-test-buyer@example.com",
+    "name": "Conformance Test Buyer",
+  }
 
   def setUp(self) -> None:
     """Skip unless AP2 is in the negotiated capability intersection."""
@@ -103,18 +111,11 @@ class Ap2MandateTest(ShoppingIntegrationTestBase):
       custom_profile_url=custom_profile_url or self._ap2_profile_url(),
     )
 
-  def _payment_instrument(self) -> dict:
-    return {
-      "id": "instr_1",
-      "handler_id": "mock_payment_handler",
-      "type": "card",
-      "display": {
-        "brand": "visa",
-        "last_digits": "4242",
-      },
-      "credential": {"type": "token", "token": "success_token"},
-    }
-
+  @unittest.skip(
+    "Needs a signed SD-JWT+kb checkout mandate fixture. With AP2 "
+    "negotiated, a Business that verifies the mandate must reject the "
+    "placeholder mandate this test used to send."
+  )
   def test_ap2_mandate_completion(self) -> None:
     """Test successful checkout completion with a valid AP2 mandate.
 
@@ -122,11 +123,6 @@ class Ap2MandateTest(ShoppingIntegrationTestBase):
     not have yet. With AP2 negotiated, a Business that verifies the mandate
     must reject the placeholder mandate this test used to send.
     """
-    self.skipTest(
-      "Needs a signed SD-JWT+kb checkout mandate fixture. With AP2 "
-      "negotiated, a Business that verifies the mandate must reject the "
-      "placeholder mandate this test used to send."
-    )
 
   def test_complete_without_mandate_is_rejected(self) -> None:
     """Test that completion without a checkout mandate is refused.
@@ -141,19 +137,22 @@ class Ap2MandateTest(ShoppingIntegrationTestBase):
     must carry a UCP error envelope. Completion must be neither accepted
     for processing nor completed.
     """
-    response_json = self.create_checkout_session()
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json={
-        "payment": {"instruments": [self._payment_instrument()]},
-        "risk_signals": {},
-      },
+      json=get_valid_payment_payload(),
       headers=self.get_headers(),
     )
 
-    body = response.json() if response.content else {}
+    try:
+      body = response.json() if response.content else {}
+    except ValueError:
+      self.fail(
+        "Expected a JSON body for a missing mandate, got HTTP "
+        f"{response.status_code}. Resp: {response.text}"
+      )
     self.assertIsInstance(
       body, dict, msg=f"Expected a JSON object. Resp: {response.text}"
     )
@@ -202,6 +201,10 @@ class Ap2MandateTest(ShoppingIntegrationTestBase):
             "canceled",
           ),
           msg=f"Expected a non-completing status. Resp: {response.text}",
+        )
+        self.assertIsNone(
+          body.get("order"),
+          msg=f"An order was created without a mandate. Resp: {response.text}",
         )
       else:
         ucp = body.get("ucp")
