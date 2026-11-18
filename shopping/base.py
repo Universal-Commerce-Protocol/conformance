@@ -183,6 +183,20 @@ def get_valid_payment_payload(
   }
 
 
+def first_non_none(mapping: dict[str, Any], *keys: str) -> Any:
+  """Return the first value under keys that is neither null nor empty.
+
+  Address fixtures spell the same field with the canonical UCP name
+  (`address_locality`), the legacy `locality`, or a plain `city`. A key that
+  is explicitly null must not shadow a later populated key.
+  """
+  for key in keys:
+    value = mapping.get(key)
+    if value is not None and value != "":
+      return value
+  return None
+
+
 class AddressFixture(TypedDict, total=False):
   """A stored address fixture, keyed with response-schema field names."""
 
@@ -322,8 +336,12 @@ class DynamicFixtureContext:
       }
     dest.setdefault("address_country", dest.get("country", "US"))
     dest.setdefault("postal_code", dest.get("postal_code", "94105"))
-    dest.setdefault("locality", dest.get("city", "San Francisco"))
-    dest.setdefault("region", dest.get("state", "CA"))
+    locality = first_non_none(dest, "address_locality", "locality", "city")
+    region = first_non_none(dest, "address_region", "region", "state")
+    dest["address_locality"] = (
+      locality if locality is not None else "San Francisco"
+    )
+    dest["address_region"] = region if region is not None else "CA"
     dest.setdefault("street_address", dest.get("street", "123 Market St"))
     return dest
 
@@ -695,8 +713,12 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
             "address_country", dest_data.get("country", "US")
           ),
           postal_code=dest_data.get("postal_code", "94105"),
-          locality=dest_data.get("locality", dest_data.get("city")),
-          region=dest_data.get("region", dest_data.get("state")),
+          address_locality=first_non_none(
+            dest_data, "address_locality", "locality", "city"
+          ),
+          address_region=first_non_none(
+            dest_data, "address_region", "region", "state"
+          ),
           street_address=dest_data.get(
             "street_address", dest_data.get("street")
           ),

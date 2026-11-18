@@ -19,6 +19,7 @@ import uuid
 from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import CustomerFixture
+from shopping.base import first_non_none
 from shopping.base import shopping_test_data
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
@@ -117,10 +118,12 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
       street_address=dest_data.get(
         "street_address", dest_data.get("street", "123 Market St")
       ),
-      address_locality=dest_data.get(
-        "locality", dest_data.get("city", "San Francisco")
+      address_locality=first_non_none(
+        dest_data, "address_locality", "locality", "city"
       ),
-      address_region=dest_data.get("region", dest_data.get("state", "CA")),
+      address_region=first_non_none(
+        dest_data, "address_region", "region", "state"
+      ),
       postal_code=dest_data.get("postal_code", "94105"),
       address_country=dest_data.get(
         "address_country", dest_data.get("country", "US")
