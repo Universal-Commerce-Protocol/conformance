@@ -24,14 +24,6 @@ from framework.decorators import (
 )
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping import (
-  checkout_update_request as checkout_update_req,
-)
-
-try:
-  from ucp_sdk.models.schemas.shopping import payment_update_request
-except ImportError:
-  from ucp_sdk.models.schemas.common.types import payment_update_request
 
 try:
   from ucp_sdk.models.schemas.shopping.payment import (
@@ -41,7 +33,6 @@ except ImportError:
   from ucp_sdk.models.schemas.common.types.payment import (
     Payment,
   )
-from ucp_sdk.models.schemas.shopping.types import buyer_update_request
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 
@@ -132,22 +123,13 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-    )
-
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
@@ -252,36 +234,21 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
 
-    # Update with buyer info
-    item_update = item_update_request.ItemUpdateRequest(
-      id=checkout_obj.line_items[0].item.id,
-    )
-    line_item_update = line_item_update_request.LineItemUpdateRequest(
-      id=checkout_obj.line_items[0].id,
-      item=item_update,
-      quantity=1,
-    )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-    )
-
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
-      buyer=buyer_update_request.BuyerUpdateRequest(
-        email="test@example.com",
-        first_name="Test",
-        last_name="User",
-      ),
+    # Update with buyer info. The shared payload helper carries the rest of
+    # the checkout over, and copes with a checkout that has no `payment`
+    # member, which the schema leaves optional.
+    update_payload = self.checkout_update_payload(
+      checkout_obj,
+      buyer={
+        "email": "test@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+      },
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)

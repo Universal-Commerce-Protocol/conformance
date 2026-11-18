@@ -67,11 +67,6 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
   - POST /checkout-sessions/{id}/cancel
   """
 
-  DEFAULT_BUYER = {
-    "email": "conformance-test-buyer@example.com",
-    "name": "Conformance Test Buyer",
-  }
-
   @no_rule(
     "checkout/index.md, Operations: Create Checkout 'Initiates a new "
     "checkout session'; the response's id is schema-required, with no "
@@ -142,13 +137,15 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       quantity=2,
     )
 
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
+    payment_update = None
+    if checkout_obj.payment is not None:
+      payment_update = payment_update_request.PaymentUpdateRequest(
+        instruments=checkout_obj.payment.instruments,
+        handlers=[
+          h.model_dump(mode="json", exclude_none=True)
+          for h in checkout_obj.payment.instruments
+        ],
+      )
 
     buyer_update = buyer_update_request.BuyerUpdateRequest(
       email="update-checkout-buyer@example.com",
@@ -465,25 +462,13 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assertGreaterEqual(
@@ -601,25 +586,13 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assertGreaterEqual(
