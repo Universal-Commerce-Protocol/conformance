@@ -186,20 +186,25 @@ class FulfillmentTest(ShoppingIntegrationTestBase):
     )
     final_checkout = checkout.Checkout(**response_json)
 
-    expected_total = (
-      self.fixture_ctx.get_test_price() + option_cost
-    )  # base price + shipping
-    total_obj = next(
-      (t for t in final_checkout.totals if t.type == "total"), None
+    # The selected option's cost appears as the checkout's `fulfillment`
+    # total(s), and the grand total obeys the spec's own check
+    # (checkout/index.md, Verification): the sum of every non-`total` entry
+    # equals the `total` entry. Tax, fees and discounts are the business's
+    # own, so the total is not assumed to be price + shipping.
+    entries = [(t.type, t.amount) for t in final_checkout.totals]
+    fulfillment_total = sum(
+      t.amount for t in final_checkout.totals if t.type == "fulfillment"
     )
-    self.assertIsNotNone(total_obj, "Total object missing")
     self.assertEqual(
-      total_obj.amount,
-      expected_total,
+      fulfillment_total,
+      option_cost,
       msg=(
-        f"Total not updated correctly. Expected {expected_total}, got"
-        f" {total_obj.amount}"
+        f"The fulfillment totals should add up to the selected option's cost"
+        f" {option_cost}; the totals are {entries}"
       ),
+    )
+    self.assert_totals_consistent(
+      final_checkout, self.fixture_ctx.get_test_price()
     )
 
   def test_dynamic_fulfillment(self) -> None:
