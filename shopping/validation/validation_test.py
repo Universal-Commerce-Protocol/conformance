@@ -18,15 +18,8 @@ from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
-from ucp_sdk.models.schemas.shopping import (
-  checkout_update_request as checkout_update_req,
-)
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
-try:
-  from ucp_sdk.models.schemas.shopping import payment_update_request
-except ImportError:
-  from ucp_sdk.models.schemas.common.types import payment_update_request
 try:
   from ucp_sdk.models.schemas.shopping.payment import (
     Payment,
@@ -267,26 +260,13 @@ class ValidationTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=10001,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
 
@@ -363,7 +343,11 @@ class ValidationTest(ShoppingIntegrationTestBase):
     error_code.json; checkout-rest.md "Error Responses": business
     outcomes return HTTP 200 with the UCP envelope and messages[]).
     """
-    response_json = self.create_checkout_session(handlers=[])
+    # With a buyer, so that a business which needs one to place an order
+    # gets as far as the payment and reports that, not the missing buyer.
+    response_json = self.create_checkout_session(
+      handlers=[], buyer=self.DEFAULT_BUYER
+    )
     checkout_id = checkout.Checkout(**response_json).id
 
     # Use the helper to get valid structure, but request the failing instrument

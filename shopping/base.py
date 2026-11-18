@@ -24,13 +24,14 @@ import csv
 import json
 import logging
 from pathlib import Path
+import time
 from typing import Any, TypedDict
-import uuid
 from framework.base_test import (
   BaseIntegrationTest,
   flag_value,
 )
 from framework.decorators import requires_capability
+import httpx
 from ucp_sdk.models.schemas import payment_handler
 from ucp_sdk.models.schemas.shopping import checkout as f_models
 from ucp_sdk.models.schemas.shopping import checkout_create_request
@@ -38,7 +39,6 @@ from ucp_sdk.models.schemas.shopping.checkout_update_request import (
   CheckoutUpdateRequest,
 )
 from ucp_sdk.models.schemas.shopping.types import (
-  fulfillment_group_create_request,
   fulfillment_method_create_request,
   item_create_request,
   item_update_request,
@@ -570,6 +570,75 @@ def shopping_rest_endpoint(profile: dict[str, Any]) -> str:
   return str(endpoint)
 
 
+def error_messages(body: Any) -> list[dict[str, Any]]:
+  """Return the `type: "error"` messages of a checkout or error response."""
+  if not isinstance(body, dict):
+    return []
+  messages = body.get("messages")
+  if not isinstance(messages, list):
+    return []
+  return [
+    m for m in messages if isinstance(m, dict) and m.get("type") == "error"
+  ]
+
+
+def describe_messages(messages: list[dict[str, Any]]) -> str:
+  """Render messages as `code at path: content`, one per line."""
+  lines = []
+  for m in messages:
+    where = f" at {m['path']}" if m.get("path") else ""
+    content = m.get("content")
+    if isinstance(content, dict):
+      content = content.get("plain") or content
+    lines.append(f"  - {m.get('code', 'error')}{where}: {content}")
+  return "\n".join(lines) or "  (no messages)"
+
+
+def placed_order(body: Any) -> dict[str, Any] | None:
+  """Return the order a completed checkout carries, else None.
+
+  Complete Checkout places the order when `status` is `completed` and `order`
+  is present (checkout/index.md, Complete Checkout); anything else, from
+  `complete_in_progress` to an `incomplete` checkout with a recoverable
+  error, has placed nothing yet.
+  """
+  if not isinstance(body, dict) or body.get("status") != "completed":
+    return None
+  order = body.get("order")
+  if isinstance(order, dict) and order.get("id"):
+    return order
+  return None
+
+
+def completion_problem(body: Any) -> str | None:
+  """Say why a Complete Checkout response placed no order, or return None.
+
+  The sentence quotes what the business reported — its `status` and its
+  error messages — so that a test which needed an order fails with the
+  business's own words instead of a KeyError on `order` further down.
+  """
+  if placed_order(body) is not None:
+    return None
+  if not isinstance(body, dict):
+    return f"Complete Checkout returned no JSON object: {body!r}"
+  ucp_status = (body.get("ucp") or {}).get("status")
+  status = body.get("status")
+  errors = error_messages(body)
+  if ucp_status == "error" and status is None:
+    head = "Complete Checkout returned an Error Response (ucp.status 'error')"
+  elif status == "complete_in_progress":
+    head = (
+      "Complete Checkout was accepted for asynchronous processing"
+      " (status 'complete_in_progress') and the checkout did not reach"
+      " 'completed' while the test waited"
+    )
+  elif status == "completed":
+    head = "Complete Checkout returned status 'completed' without an order"
+  else:
+    head = f"Complete Checkout returned status {status!r} without an order"
+  return f"{head}; the business reported:\n{describe_messages(errors)}"
+
+
 # Every shopping test needs the checkout capability; declaring it here makes
 # BaseIntegrationTest skip before it starts the agent profile server.
 @requires_capability("dev.ucp.shopping.checkout")
@@ -577,6 +646,17 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
   """Base integration test class for all UCP Retail Shopping tests."""
 
   default_conformance_input = DEFAULT_CONFORMANCE_INPUT
+
+  # The buyer a checkout is completed with when a test names none. A business
+  # may need a buyer email to place an order (the spec's own Create Checkout
+  # example answers a create without one with a recoverable error at
+  # `$.buyer.email`), so the completion helpers put this buyer on the
+  # checkout first.
+  DEFAULT_BUYER: dict[str, Any] = {
+    "email": "conformance-test-buyer@example.com",
+    "first_name": "Conformance",
+    "last_name": "Test Buyer",
+  }
 
   def setUp(self) -> None:
     """Set up shopping fixtures, configs, and endpoints."""
@@ -707,16 +787,22 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     handlers=None,
     buyer: dict[str, Any] | None = None,
     include_fulfillment: bool = True,
+    context: dict[str, Any] | None = None,
   ) -> checkout_create_request.CheckoutCreateRequest:
-    """Create a valid checkout creation payload."""
+    """Create a valid checkout creation payload.
+
+    The body carries what Create Checkout takes as input: the line items,
+    the payment handlers, and optionally a buyer, a shipping destination and
+    a context. `currency` is accepted for compatibility and not sent; the
+    business sets the checkout's currency.
+    """
+    del currency  # Not a Create Checkout input; the business decides it.
     ctx = getattr(self, "fixture_ctx", None) or DynamicFixtureContext(
       getattr(self, "conformance_config", {})
     )
 
     if item_id is None:
       item_id = ctx.get_test_sku()
-    if currency is None:
-      currency = getattr(self, "conformance_config", {}).get("currency", "USD")
 
     if handlers is None:
       handlers = [
@@ -743,6 +829,10 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
 
     fulfillment = None
     if include_fulfillment:
+      # A destination with the spec's field names (fulfillment.md,
+      # Destinations). The business builds the method's groups and options
+      # from it; ensure_fulfillment_ready then selects the first option it
+      # offers, so no option id is guessed here.
       dest_data = ctx.get_test_destination()
       destination = (
         shipping_destination_create_request.ShippingDestinationCreateRequest(
@@ -763,18 +853,10 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
           ),
         )
       )
-      group = fulfillment_group_create_request.FulfillmentGroupCreateRequest(
-        id="group_1",
-        line_item_ids=["line_item_123"],
-        selected_option_id="std-ship",
-      )
       method = fulfillment_method_create_request.FulfillmentMethodCreateRequest(
-        id="method_1",
         type="shipping",
         destinations=[destination],
-        line_item_ids=["line_item_123"],
         selected_destination_id="dest_1",
-        groups=[group],
       )
       fulfillment = {
         "methods": [
@@ -782,24 +864,16 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
         ]
       }
 
-    item.price = ctx.get_test_price()
-    line_item.id = "line_item_123"
-    line_item.totals = []
-
-    checkout_req = checkout_create_request.CheckoutCreateRequest(
-      id=str(uuid.uuid4()),
-      currency=currency,
+    # Only what Create Checkout takes as input (checkout/index.md, Create
+    # Checkout): no id, status, currency, totals or links, which the business
+    # sets, and no line item id or price, which it assigns.
+    return checkout_create_request.CheckoutCreateRequest(
       line_items=[line_item],
       payment=payment,
       buyer=buyer,
       fulfillment=fulfillment,
+      context=context,
     )
-    checkout_req.status = "incomplete"
-    checkout_req.ucp = {"version": self.ucp_version}
-    checkout_req.totals = []
-    checkout_req.links = []
-
-    return checkout_req
 
   def create_checkout_session(
     self,
@@ -810,6 +884,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     buyer: dict[str, Any] | None = None,
     select_fulfillment: bool = True,
     headers: dict[str, str] | None = None,
+    context: dict[str, Any] | None = None,
   ) -> Any:
     """Create a checkout session and return the response JSON."""
     create_payload = self.create_checkout_payload(
@@ -819,6 +894,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
       handlers=handlers,
       buyer=buyer,
       include_fulfillment=select_fulfillment,
+      context=context,
     )
 
     request_headers = self.get_headers()
@@ -837,8 +913,26 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
 
     if select_fulfillment:
       checkout_data = self.ensure_fulfillment_ready(checkout_data["id"])
+    self.note_error_messages(checkout_data, "The new checkout")
 
     return checkout_data
+
+  def note_error_messages(self, body: Any, where: str) -> None:
+    """Log the error messages a response carries, so they are not lost.
+
+    The helpers that set a checkout up read the checkout back and go on; a
+    business that reports a problem in `messages` at that point would
+    otherwise be heard from only when completion fails. The log line shows
+    under -v, and a completion failure quotes the messages again.
+    """
+    errors = error_messages(body)
+    if errors:
+      logging.warning(
+        "%s carries %d error message(s):\n%s",
+        where,
+        len(errors),
+        describe_messages(errors),
+      )
 
   def ensure_fulfillment_ready(self, checkout_id: str) -> Any:
     """Ensure a fulfillment option is selected for the checkout."""
@@ -932,31 +1026,115 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
 
     return checkout_data
 
-  def complete_checkout_session(
-    self, checkout_id: str, payment_payload: dict[str, Any] | None = None
-  ) -> Any:
-    """Complete a checkout session."""
-    self.ensure_fulfillment_ready(checkout_id)
-
+  def attempt_complete_checkout(
+    self,
+    checkout_id: str,
+    payment_payload: dict[str, Any] | None = None,
+    buyer: dict[str, Any] | None = None,
+  ) -> httpx.Response:
+    """POST /checkout-sessions/{id}/complete and return the raw response."""
     if payment_payload is None:
       payment_payload = get_valid_payment_payload()
-
-    response = self.client.post(
+    if buyer is not None:
+      payment_payload = {**payment_payload, "buyer": buyer}
+    return self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
       headers=self.get_headers(),
     )
-    self.assert_response_status(response, 200)
-    return response.json()
 
-  def create_completed_order(self) -> str:
-    """Orchestrate checkout creation and completion."""
-    checkout_data = self.create_checkout_session()
-    checkout_id = checkout_data["id"]
-    complete_data = self.complete_checkout_session(checkout_id)
+  def ensure_buyer(
+    self, checkout_data: dict[str, Any], buyer: dict[str, Any] | None = None
+  ) -> dict[str, Any]:
+    """Put a buyer on the checkout when it has none; return the checkout.
+
+    A business may need a buyer email to place an order. The buyer goes on
+    the checkout through Update Checkout, which is where the spec puts it;
+    Complete Checkout takes payment, not buyer details.
+
+    Args:
+      checkout_data: The checkout as last read.
+      buyer: The buyer to set. None keeps a buyer the checkout already has
+        and otherwise sets `DEFAULT_BUYER`.
+
+    """
+    current = checkout_data.get("buyer") or {}
+    if buyer is None:
+      if current.get("email"):
+        return checkout_data
+      buyer = self.DEFAULT_BUYER
+    checkout_obj = f_models.Checkout(**checkout_data)
+    updated = self.update_checkout_session(checkout_obj, buyer=buyer)
+    self.note_error_messages(updated, "Update Checkout (buyer)")
+    return updated
+
+  # How long complete_checkout_session waits for an accepted completion to
+  # finish: Get Checkout every half second, for up to five seconds.
+  COMPLETION_POLLS = 10
+  COMPLETION_POLL_SECONDS = 0.5
+
+  def settle_completion(
+    self, checkout_id: str, body: dict[str, Any]
+  ) -> dict[str, Any]:
+    """Follow an accepted completion with Get Checkout until it settles.
+
+    `complete_in_progress` means the business accepted the request and is
+    still processing it; the platform polls Get Checkout, never Complete
+    Checkout again (checkout/index.md, Accepted completion). Any other
+    status is returned as is.
+    """
+    for _ in range(self.COMPLETION_POLLS):
+      if body.get("status") != "complete_in_progress":
+        break
+      time.sleep(self.COMPLETION_POLL_SECONDS)
+      response = self.client.get(
+        self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+        headers=self.get_headers(),
+      )
+      self.assert_response_status(response, 200)
+      body = response.json()
+    return body
+
+  def complete_checkout_session(
+    self,
+    checkout_id: str,
+    payment_payload: dict[str, Any] | None = None,
+    buyer: dict[str, Any] | None = None,
+  ) -> Any:
+    """Complete a checkout session and return the completed checkout.
+
+    Gets the checkout ready first (a selected destination and option, and a
+    buyer), completes it, and waits out an accepted completion. The result
+    is a checkout with `status: completed` and an `order`; when the
+    business returns anything else, the test fails with the business's
+    own `status` and error messages, so an implementer can act on them.
+
+    Tests that want to see what the business answers to a completion as
+    is, without this preparation, use `attempt_complete_checkout`.
+    """
+    checkout_data = self.ensure_fulfillment_ready(checkout_id)
+    checkout_data = self.ensure_buyer(checkout_data, buyer)
+    response = self.attempt_complete_checkout(checkout_id, payment_payload)
+    self.assert_response_status(response, 200)
+    body = self.settle_completion(checkout_id, response.json())
+    problem = completion_problem(body)
+    if problem is not None:
+      before = checkout_data.get("status")
+      self.fail(
+        f"{problem}\n(The checkout read back as status {before!r} just before"
+        " completion.)"
+      )
+    return body
+
+  def create_completed_order(self, buyer: dict[str, Any] | None = None) -> str:
+    """Create a checkout with a buyer, complete it, and return the order id."""
+    checkout_data = self.create_checkout_session(
+      buyer=buyer or self.DEFAULT_BUYER
+    )
+    complete_data = self.complete_checkout_session(checkout_data["id"])
     return complete_data["order"]["id"]
 
-  def update_checkout_session(
+  def checkout_update_payload(
     self,
     checkout_obj: Any,
     currency: str | None = None,
@@ -966,9 +1144,8 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     fulfillment: Any | None = None,
     discounts: Any | None = None,
     platform: Any | None = None,
-    headers: dict[str, str] | None = None,
-  ) -> Any:
-    """Update a checkout session.
+  ) -> dict[str, Any]:
+    """Build the body of an Update Checkout request, as JSON.
 
     PUT replaces the whole checkout, so every optional field that is not
     passed explicitly is carried over from `checkout_obj`; otherwise a partial
@@ -1006,13 +1183,15 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
           )
         )
 
-    if payment is None:
-      payment = (
-        payment_update_request.PaymentUpdateRequest(
-          instruments=getattr(checkout_obj.payment, "instruments", []),
-        )
-        if checkout_obj.payment
-        else None
+    if payment is None and checkout_obj.payment:
+      # As JSON, like the other carried-over fields: the response model's
+      # instrument objects are not instances of the request model's, so the
+      # request model's validator rejects them as they are.
+      payment = payment_update_request.PaymentUpdateRequest(
+        instruments=[
+          to_json(i)
+          for i in getattr(checkout_obj.payment, "instruments", None) or []
+        ],
       )
 
     if isinstance(fulfillment, dict) and "methods" in fulfillment:
@@ -1032,15 +1211,42 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
       discounts=discounts,
       platform=platform,
     )
+    return update_payload.model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
 
+  def update_checkout_session(
+    self,
+    checkout_obj: Any,
+    currency: str | None = None,
+    line_items: list[Any] | None = None,
+    payment: Any | None = None,
+    buyer: Any | None = None,
+    fulfillment: Any | None = None,
+    discounts: Any | None = None,
+    platform: Any | None = None,
+    headers: dict[str, str] | None = None,
+  ) -> Any:
+    """Update a checkout session; return the response JSON.
+
+    The body comes from `checkout_update_payload`, which carries over every
+    field not passed explicitly, since PUT replaces the whole checkout.
+    """
     request_headers = self.get_headers()
     if headers:
       request_headers.update(headers)
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
+      json=self.checkout_update_payload(
+        checkout_obj,
+        currency=currency,
+        line_items=line_items,
+        payment=payment,
+        buyer=buyer,
+        fulfillment=fulfillment,
+        discounts=discounts,
+        platform=platform,
       ),
       headers=request_headers,
     )
