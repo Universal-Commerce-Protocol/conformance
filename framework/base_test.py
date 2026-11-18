@@ -168,6 +168,77 @@ def agent_profile_url() -> str:
   )
 
 
+# How much of a body a log line or a failure report shows.
+BODY_LIMIT = 4096
+# Headers worth showing with a request; credentials are never shown.
+SHOWN_REQUEST_HEADERS = (
+  "ucp-agent",
+  "idempotency-key",
+  "request-id",
+  "content-type",
+)
+REDACTED_HEADERS = ("authorization", "signature", "signature-input")
+
+
+def _clip(text: str, limit: int = BODY_LIMIT) -> str:
+  """Return text cut to `limit` characters, saying how much was cut."""
+  if len(text) <= limit:
+    return text
+  return f"{text[:limit]}… ({len(text) - limit} more characters)"
+
+
+def _body_text(content: bytes | None) -> str:
+  """Return a body as text, pretty-printed when it is JSON."""
+  if not content:
+    return ""
+  text = content.decode("utf-8", errors="replace")
+  try:
+    return json.dumps(json.loads(text), indent=2)
+  except ValueError:
+    return text
+
+
+def describe_request(request: httpx.Request) -> str:
+  """Render a request for the log: line, shown headers, body."""
+  lines = [f"> {request.method} {request.url}"]
+  for name, value in request.headers.items():
+    lower = name.lower()
+    if lower in REDACTED_HEADERS:
+      lines.append(f"> {name}: <redacted>")
+    elif lower in SHOWN_REQUEST_HEADERS:
+      lines.append(f"> {name}: {value}")
+  body = _body_text(request.content)
+  if body:
+    lines.append(_clip(body))
+  return "\n".join(lines)
+
+
+def describe_response(response: httpx.Response) -> str:
+  """Render a response for the log: status, content type, body."""
+  request = response.request
+  lines = [f"< {response.status_code} for {request.method} {request.url}"]
+  content_type = response.headers.get("content-type")
+  if content_type:
+    lines.append(f"< Content-Type: {content_type}")
+  try:
+    body = _body_text(response.content)
+  except httpx.ResponseNotRead:
+    body = "(body not read)"
+  if body:
+    lines.append(_clip(body))
+  return "\n".join(lines)
+
+
+def describe_exchange(response: httpx.Response | None) -> str:
+  """Render a test's last request and response for its failure report.
+
+  Returns an empty string when no exchange was recorded.
+  """
+  if response is None:
+    return ""
+  return f"{describe_request(response.request)}\n{describe_response(response)}"
+
+
 class BaseIntegrationTest(absltest.TestCase):
   """Agnostic foundation for all UCP protocol and capability tests."""
 
@@ -198,10 +269,13 @@ class BaseIntegrationTest(absltest.TestCase):
       self.base_url, flag_value("discovery_url")
     )
 
+    self._verbose_http = bool(flag_value("verbose_http"))
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
-      logging.INFO if flag_value("verbose_http") else logging.WARNING
+      logging.INFO if self._verbose_http else logging.WARNING
     )
+    # The last response the test's client received, for its failure report.
+    self._last_response: httpx.Response | None = None
 
     # Merchant-declared conformance input.
     self.conformance_config = self._load_conformance_config()
@@ -218,10 +292,42 @@ class BaseIntegrationTest(absltest.TestCase):
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
 
-    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
+    self.client = httpx.Client(
+      base_url=self.base_url,
+      timeout=15.0,
+      event_hooks={
+        "request": [self._note_request],
+        "response": [self._note_response],
+      },
+    )
     self.addCleanup(self.client.close)
 
     self._start_agent_server()
+
+  def _note_request(self, request: httpx.Request) -> None:
+    """Log a request with its body under --verbose_http."""
+    if self._verbose_http:
+      logging.info("HTTP request\n%s", describe_request(request))
+
+  def _note_response(self, response: httpx.Response) -> None:
+    """Keep the response for the failure report; log it under --verbose_http.
+
+    The body is read here so that it is available to both; every test
+    reads it anyway.
+    """
+    response.read()
+    self._last_response = response
+    if self._verbose_http:
+      logging.info("HTTP response\n%s", describe_response(response))
+
+  def describe_last_exchange(self) -> str:
+    """Return the test's last request and response, for its failure report.
+
+    `RecordingResult` appends this to a failure or error, so that an
+    in-band refusal answered with HTTP 200 and a KeyError further down
+    shows the response that caused it.
+    """
+    return describe_exchange(getattr(self, "_last_response", None))
 
   @property
   def ucp_version(self) -> str:
