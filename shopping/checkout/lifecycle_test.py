@@ -15,31 +15,43 @@
 """Checkout Lifecycle tests for the UCP SDK Server."""
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase, get_valid_payment_payload
 from ucp_sdk.models.schemas.shopping import (
   checkout_update_request as checkout_update_req,
 )
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-from ucp_sdk.models.schemas.shopping import payment_update_request
-from ucp_sdk.models.schemas.shopping.payment import (
-  Payment,
-)
+
+try:
+  from ucp_sdk.models.schemas.shopping import payment_update_request
+except ImportError:
+  from ucp_sdk.models.schemas.common.types import payment_update_request
+
+try:
+  from ucp_sdk.models.schemas.shopping.payment import (
+    Payment,
+  )
+except ImportError:
+  from ucp_sdk.models.schemas.common.types.payment import (
+    Payment,
+  )
 from ucp_sdk.models.schemas.shopping.types import buyer_update_request
 from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_group_update_request,
 )
 from ucp_sdk.models.schemas.shopping.types import (
   fulfillment_method_update_request,
+  item_update_request,
+  line_item_update_request,
+  shipping_destination_update_request,
 )
-from ucp_sdk.models.schemas.shopping.types import item_update_request
-from ucp_sdk.models.schemas.shopping.types import line_item_update_request
-from ucp_sdk.models.schemas.shopping.types import shipping_destination
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
-class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
+@requires_capability("dev.ucp.shopping.checkout")
+class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
   """Tests for the lifecycle of a checkout session.
 
   Validated Paths:
@@ -78,7 +90,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     response = self.client.get(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
@@ -126,13 +138,15 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       phone_number="+15555555556",
     )
 
-    new_destination = shipping_destination.ShippingDestination(
-      id="dest_2",
-      address_country="US",
-      postal_code="90210",
-      locality="Beverly Hills",
-      region="CA",
-      street_address="456 Elm St",
+    new_destination = (
+      shipping_destination_update_request.ShippingDestinationUpdateRequest(
+        id="dest_2",
+        address_country="US",
+        postal_code="90210",
+        locality="Beverly Hills",
+        region="CA",
+        street_address="456 Elm St",
+      )
     )
 
     existing_method = checkout_obj.fulfillment["methods"][0]
@@ -177,7 +191,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     self.assert_response_status(response, 200)
@@ -219,7 +233,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
 
@@ -244,12 +258,9 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=integration_test_utils.get_valid_payment_payload(),
-      headers=integration_test_utils.get_headers(),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
     )
-
-    if response.status_code == 409 and "stock" in response.text.lower():
-      return  # Expected behavior if low inventory
 
     self.assert_response_status(response, 200)
 
@@ -273,11 +284,73 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       "order.permalink_url missing",
     )
 
+  def test_ready_for_complete_when_nothing_is_outstanding(self):
+    """Test that a checkout with nothing outstanding reports readiness.
+
+    Given a checkout session with a buyer, a selected fulfillment destination
+    and a selected fulfillment option, carrying no error message and no Action,
+    When the session is read with GET /checkout-sessions/{id} and then
+    completed with POST /checkout-sessions/{id}/complete,
+    Then the completion should succeed, which shows nothing was outstanding,
+    and the status read before it should have been 'ready_for_complete'.
+    """
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
+    checkout_id = response_json["id"]
+
+    response = self.client.get(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    before = response.json()
+
+    method = before["fulfillment"]["methods"][0]
+    self.assertTrue(
+      method.get("selected_destination_id"),
+      "Fixture did not reach a selected fulfillment destination",
+    )
+    self.assertTrue(
+      method["groups"][0].get("selected_option_id"),
+      "Fixture did not reach a selected fulfillment option",
+    )
+    errors = [
+      m for m in before.get("messages") or [] if m.get("type") == "error"
+    ]
+    self.assertFalse(errors, f"Checkout carries error messages: {errors}")
+    self.assertFalse(
+      before.get("actions"),
+      f"Checkout carries outstanding Actions: {before.get('actions')}",
+    )
+
+    # The business accepts Complete Checkout from this state without any
+    # further input, so nothing was outstanding when the status was read.
+    response = self.client.post(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    self.assertEqual(
+      response.json().get("status"),
+      "completed",
+      msg="Complete Checkout did not place the order",
+    )
+
+    self.assertEqual(
+      before.get("status"),
+      "ready_for_complete",
+      msg=(
+        "The business completed this checkout programmatically with nothing"
+        f" outstanding, but reported status '{before.get('status')}' before"
+        " completion, expected 'ready_for_complete'."
+      ),
+    )
+
   def _cancel_checkout(self, checkout_id):
     """Cancel a checkout."""
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
     return response
@@ -297,7 +370,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
     if response.status_code == 200:
@@ -333,7 +406,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     Given a canceled checkout session,
     When an update request is sent,
-    Then the server should reject it with a non-200 status (likely 409).
+    Then the server should refuse it with a client error, commonly 409.
     """
     response_json = self.create_checkout_session()
     checkout_obj = checkout.Checkout(**response_json)
@@ -369,12 +442,17 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
-    self.assertNotEqual(
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to update a canceled checkout.",
+      400,
+      msg="Updating a canceled checkout must be refused with a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Updating a canceled checkout must not produce a server error.",
     )
 
   def test_cannot_complete_canceled_checkout(self):
@@ -382,7 +460,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     Given a canceled checkout session,
     When a complete request is sent,
-    Then the server should reject it with a non-200 status.
+    Then the server should refuse it with a client error.
     """
     response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
@@ -392,21 +470,26 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # Try Complete
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=integration_test_utils.get_valid_payment_payload(),
-      headers=integration_test_utils.get_headers(),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
     )
-    self.assertNotEqual(
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to complete a canceled checkout.",
+      400,
+      msg="Completing a canceled checkout must be refused with a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Completing a canceled checkout must not produce a server error.",
     )
 
   def _complete_checkout(self, checkout_id):
     """Complete a checkout."""
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=integration_test_utils.get_valid_payment_payload(),
-      headers=integration_test_utils.get_headers(),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(response, 200)
     return response
@@ -427,13 +510,18 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # Try Complete again (new idempotency key)
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=integration_test_utils.get_valid_payment_payload(),
-      headers=integration_test_utils.get_headers(),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
     )
-    self.assertNotEqual(
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to complete an already completed checkout.",
+      400,
+      msg="Completing a completed checkout must be refused with a 4xx.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Completing a completed checkout must not be a server error.",
     )
 
   def test_cannot_update_completed_checkout(self):
@@ -441,7 +529,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     Given a completed checkout session,
     When an update request is sent,
-    Then the server should reject it with a non-200 status.
+    Then the server should refuse it with a client error.
     """
     response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_obj = checkout.Checkout(**response_json)
@@ -477,12 +565,17 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
       json=update_payload.model_dump(
         mode="json", by_alias=True, exclude_none=True
       ),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
-    self.assertNotEqual(
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to update a completed checkout.",
+      400,
+      msg="Updating a completed checkout must be refused with a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Updating a completed checkout must not produce a server error.",
     )
 
   def test_cannot_cancel_completed_checkout(self):
@@ -490,7 +583,7 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
 
     Given a completed checkout session,
     When a cancel request is sent,
-    Then the server should reject it with a non-200 status.
+    Then the server should refuse it with a client error.
     """
     response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
@@ -500,12 +593,17 @@ class CheckoutLifecycleTest(integration_test_utils.IntegrationTestBase):
     # Try Cancel
     response = self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/cancel"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
-    self.assertNotEqual(
+    self.assertGreaterEqual(
       response.status_code,
-      200,
-      msg="Should not be able to cancel a completed checkout.",
+      400,
+      msg="Canceling a completed checkout must be refused with a client error.",
+    )
+    self.assertLess(
+      response.status_code,
+      500,
+      msg="Canceling a completed checkout must not produce a server error.",
     )
 
 

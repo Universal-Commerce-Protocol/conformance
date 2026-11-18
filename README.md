@@ -18,6 +18,31 @@
 
 This suite contains language-agnostic integration tests that run against a running UCP Merchant Server instance. It verifies the server's adherence to the [Universal Commerce Protocol (UCP) specification](https://github.com/Universal-Commerce-Protocol/ucp).
 
+## Architecture
+
+The test suite follows a 4-tier modular architecture per UCP RFC #520:
+
+- **`framework/`**: Shared testing harness decoupled from any business vertical.
+  Provides capability discovery, platform profile evaluation, mock webhook and
+  agent servers, base test cases, and capability decorators.
+- **`core/`**: Agnostic protocol tests (`protocol_test`, `binding_test`) that
+  only need the discovery document. Can be run against any UCP server
+  regardless of business vertical.
+- **`common/`**: Cross-cutting protocol capabilities such as payment
+  credentials and extensions (`common/payments/`). These currently use the
+  shopping checkout as their vehicle and are gated on the capabilities they
+  need.
+- **`shopping/`**: Retail shopping domain tests organized by functional domain:
+  `checkout/` (including idempotency), `discount/`, `fulfillment/`, `order/`
+  (including order-event webhooks), and `validation/`.
+- **`platforms/`**: Platform certification profiles (e.g. `google.yaml`) that
+  mandate required capabilities and payment handlers.
+
+Tests declare the capabilities they exercise with `@requires_capability`, and
+are skipped automatically when the server under test does not advertise them in
+its discovery profile. This is what allows the same suite to run against a
+server implementing any subset of UCP.
+
 ## Testing a Custom Server (Agnostic)
 
 The conformance tests are designed to be run against _any_ UCP server implementation. To run tests against your own server, follow these steps:
@@ -26,7 +51,7 @@ The conformance tests are designed to be run against _any_ UCP server implementa
 
 Your server must be populated with test data (products, inventory, shipping rates, discounts) that match the expectations defined in your test configuration.
 
-You can use the default [flower_shop test data](test_data/flower_shop) as a reference for what data is needed.
+You can use the default [flower_shop test data](shopping/fixtures/flower_shop) as a reference for what data is needed.
 
 ### 2. Configure Conformance Input (`conformance_input.json`)
 
@@ -173,15 +198,82 @@ for test_file in *_test.py; do
 done
 ```
 
-Alternatively, you can run individual test files and pass arguments:
+Alternatively, use the `ucp-conformance` runner, which understands the tiered
+layout and can select suites or apply a platform certification profile:
 
 ```bash
-uv run checkout_lifecycle_test.py \
+uv run ucp-conformance \
   --server_url=https://your-merchant-server.com \
   --simulation_secret=your-sim-secret \
   --conformance_input=path/to/your/conformance_input.json \
-  --fixture_config=path/to/your/test_fixtures.json
+  --fixture_config=path/to/your/test_fixtures.json \
+  --suite=all
 ```
+
+`--suite` accepts `core`, `common`, `shopping`, `all`, or a comma-separated
+combination. Running only `--suite=core` is useful for a server that does not
+implement the shopping vertical. A single module, class or file path also
+works, to run one test module on its own:
+
+```bash
+uv run ucp-conformance --suite=shopping/discount/discount_test.py
+uv run ucp-conformance --suite=shopping.checkout.lifecycle_test.CheckoutLifecycleTest
+```
+
+To validate against a platform's certification requirements, pass a profile
+from `platforms/`. The run then fails if the server does not advertise every
+mandated capability and payment handler:
+
+```bash
+uv run ucp-conformance \
+  --server_url=https://your-merchant-server.com \
+  --simulation_secret=your-sim-secret \
+  --platform=google \
+  --suite=all
+```
+
+Use `-k/--filter` to run a subset of tests by name, and `--dry-run` to list
+what would execute without contacting the server.
+
+### 5. Testing a Server on Another Machine
+
+A few more options help when the server is not on your machine.
+
+| Option                                                       | Use it when                                                                                                                                                                                                            |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--discovery_url`                                            | The profile under test is not at `/.well-known/ucp`, for example because that path serves an older release. Give a full URL or a path on `--server_url`. The core tests still check `/.well-known/ucp`.                |
+| `--conformance_input`, `--fixture_config`, `--test_data_dir` | The server has its own test data (see steps 1–3). `--test_data_dir` holds `payment_instruments.csv` and `addresses.csv`.                                                                                               |
+| `--agent_profile_url`                                        | The server fetches the agent profile named in the `UCP-Agent` header. The suite serves it on `--mock_agent_port` (default 8285) at `/profiles/agent.json`; give a public URL that reaches it.                          |
+| `--webhook_base_url`                                         | The server sends order webhooks. The suite receives them on `--mock_webhook_port` (default 8284); give a public URL that reaches that port. Without it, the webhook tests skip when the server is not on your machine. |
+
+A tunnel to each local port is one way to get the two public URLs. The
+runner notes, before the run, any of the two that a server elsewhere lacks.
+
+To keep these options together, put them in a `target.json` in a folder of
+their own and pass `--target_dir`. Paths in the file are relative to the
+folder, other keys are ignored, and options on the command line win:
+
+```json
+{
+  "server_url": "https://your-merchant-server.com",
+  "discovery_url": "/.well-known/ucp",
+  "conformance_input": "conformance_input.json",
+  "fixture_config": "test_fixtures.json",
+  "test_data_dir": ".",
+  "agent_profile_url": "https://your-agent-tunnel.example/profiles/agent.json",
+  "webhook_base_url": "https://your-webhook-tunnel.example"
+}
+```
+
+```bash
+uv run ucp-conformance \
+  --target_dir=path/to/your/target \
+  --simulation_secret=your-sim-secret \
+  --suite=shopping
+```
+
+Request signing is not covered: the tests send a placeholder
+`request-signature` header.
 
 ---
 
@@ -213,7 +305,7 @@ rm -rf ${DATABASE_PATH} && mkdir -p ${DATABASE_PATH}
 uv run --directory ../samples/rest/python/server import_csv.py \
     --products_db_path=${DATABASE_PATH}/products.db \
     --transactions_db_path=${DATABASE_PATH}/transactions.db \
-    --data_dir=../../../../conformance/test_data/flower_shop
+    --data_dir=../../../../conformance/shopping/fixtures/flower_shop
 ```
 
 ### 2. Start the Sample Server
