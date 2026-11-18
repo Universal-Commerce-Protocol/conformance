@@ -1,0 +1,196 @@
+{
+  "id": "v09_seller_refund_exceeds_captures",
+  "title": "A refund above one seller's captures gives a seller-total warning",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain.",
+    "Platform Verification 3: SHOULD, when `event.seller_id` is present, also check per seller that succeeded captures do not exceed that seller's attributed total and that refunds do not exceed that seller's captures."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "Chain totals pass (refunded 1000 <= captured 2000), but seller_b has no captures. Second half of the per-seller SHOULD.",
+  "inputs": {
+    "issuers": {
+      "https://marketplace.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "TaUGm9_vHgJoFIFsaKoHwP66ej_e1zhs63od2xv2V84",
+            "y": "1hBQgzroCLRPAITCUXAHhjnD2SpZS0sMgPrVwtvYyr4"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_v09_seller_refund_exceeds_captures",
+        "business": "https://marketplace.example/.well-known/ucp"
+      }
+    ],
+    "order": {
+      "id": "order_v09_seller_refund_exceeds_captures",
+      "checkout_id": "chk_v09_seller_refund_exceeds_captures",
+      "currency": "USD",
+      "sellers": {
+        "seller_a": {
+          "name": "Seller A"
+        },
+        "seller_b": {
+          "name": "Seller B"
+        }
+      },
+      "line_items": [
+        {
+          "id": "li_a",
+          "seller_id": "seller_a",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 2000
+            },
+            {
+              "type": "total",
+              "amount": 2000
+            }
+          ]
+        },
+        {
+          "id": "li_b",
+          "seller_id": "seller_b",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 3400
+            },
+            {
+              "type": "total",
+              "amount": 3400
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfc2VsbGVyX3JlZnVuZF9leGNlZWRzX2NhcHR1cmVzIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wOVQxNDo1MzoyMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiYXV0aG9yaXphdGlvbiJ9LCJpYXQiOjE3OTQyMzYwNjAsImlzcyI6Imh0dHBzOi8vbWFya2V0cGxhY2UuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6TEdKSzdpY1VsZ05Lc29ISF9YS3FVSzY0b0VBUEZfZDJVMkZPclFUdUotSSIsIm9yZGVyX2lkIjoib3JkZXJfdjA5X3NlbGxlcl9yZWZ1bmRfZXhjZWVkc19jYXB0dXJlcyIsInByZXYiOm51bGwsInNlcSI6MSwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjowLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.DLY710VDZ4ksLQx0E4CETSb1vO2elvqA6R5RO5I47wtax5-Ts6A0kwAX75PzNFiZV2Chb5AfJj3TuBehnccFZA",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfc2VsbGVyX3JlZnVuZF9leGNlZWRzX2NhcHR1cmVzIiwiZXZlbnQiOnsiYW1vdW50IjoyMDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMFQxODowNDowMFoiLCJzZWxsZXJfaWQiOiJzZWxsZXJfYSIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDMzMzkwMCwiaXNzIjoiaHR0cHM6Ly9tYXJrZXRwbGFjZS5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpMR0pLN2ljVWxnTktzb0hIX1hLcVVLNjRvRUFQRl9kMlUyRk9yUVR1Si1JIiwib3JkZXJfaWQiOiJvcmRlcl92MDlfc2VsbGVyX3JlZnVuZF9leGNlZWRzX2NhcHR1cmVzIiwicHJldiI6InNoYS0yNTY6YU16Nm5PQWxlVWxSNUZpYXMwbzRZTjhVN0h5c2pFQWhMallkaFZ3VS04VSIsInNlcSI6MiwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjoyMDAwLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.zjeK76WBrsgoSVDJZrWV-A0QJA4OuESQ-wuTy8oZCBdY6MXUtFLxIkG0Lhh3K9899XsXjUTE1L4FUO5eS04eAQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfc2VsbGVyX3JlZnVuZF9leGNlZWRzX2NhcHR1cmVzIiwiZXZlbnQiOnsiYW1vdW50IjoxMDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMlQwOTowMDowMFoiLCJzZWxsZXJfaWQiOiJzZWxsZXJfYiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0NDc0MDYwLCJpc3MiOiJodHRwczovL21hcmtldHBsYWNlLmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OkxHSks3aWNVbGdOS3NvSEhfWEtxVUs2NG9FQVBGX2QyVTJGT3JRVHVKLUkiLCJvcmRlcl9pZCI6Im9yZGVyX3YwOV9zZWxsZXJfcmVmdW5kX2V4Y2VlZHNfY2FwdHVyZXMiLCJwcmV2Ijoic2hhLTI1NjpvM1RwSmVYYk93bFlEdHVsVG42ZEJxWUg3UVFBaHA4ZFc0UC0xcUh3NDJNIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjIwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MTAwMH19.7Sgui0aV_UJDpk91kVzYBT-mCgKcBfHI2kkSDBr13np1CaYFFP5-oxwStP1XgB3BrHgT7nMlFEhU_syL2plb8Q"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_seller_refund_exceeds_captures",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LGJK7icUlgNKsoHH_XKqUK64oEAPF_d2U2FOrQTuJ-I",
+        "order_id": "order_v09_seller_refund_exceeds_captures",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_seller_refund_exceeds_captures",
+        "event": {
+          "amount": 2000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T18:04:00Z",
+          "seller_id": "seller_a",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794333900,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LGJK7icUlgNKsoHH_XKqUK64oEAPF_d2U2FOrQTuJ-I",
+        "order_id": "order_v09_seller_refund_exceeds_captures",
+        "prev": "sha-256:aMz6nOAleUlR5Fias0o4YN8U7HysjEAhLjYdhVwU-8U",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 2000,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_seller_refund_exceeds_captures",
+        "event": {
+          "amount": 1000,
+          "currency": "USD",
+          "occurred_at": "2026-11-12T09:00:00Z",
+          "seller_id": "seller_b",
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794474060,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LGJK7icUlgNKsoHH_XKqUK64oEAPF_d2U2FOrQTuJ-I",
+        "order_id": "order_v09_seller_refund_exceeds_captures",
+        "prev": "sha-256:o3TpJeXbOwlYDtulTn6dBqYH7QQAhp8dW4P-1qHw42M",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 2000,
+          "mandated": 5400,
+          "refunded": 1000
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [
+      {
+        "receipt_index": 2,
+        "code": "receipt_exceeds_seller_total"
+      }
+    ],
+    "reconciliation": []
+  }
+}

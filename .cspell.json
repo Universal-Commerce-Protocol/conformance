@@ -10,6 +10,7 @@
     ".vscode/**",
     ".cspell.json",
     "**/*.svg",
+    "common/payments/fixtures/ap2_order_receipts/**",
     ".gitignore",
     "package.json"
   ],

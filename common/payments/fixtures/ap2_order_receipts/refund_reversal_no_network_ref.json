@@ -1,0 +1,220 @@
+{
+  "id": "refund_reversal_no_network_ref",
+  "title": "Refund processed as a reversal: succeeded without network_ref",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain.",
+    "Edge Cases, Pending movements: a movement may first be receipted as `pending`. A later receipt in the same chain for the same movement carries `status: succeeded`. Totals change only on the `succeeded` receipt.",
+    "Edge Cases, Late network references: when a network reference (for example the Acquirer Reference Number of a refund) is assigned after the movement is receipted, it appears on a follow-up receipt for the same `event.ref`. `network_ref` is optional on every status: a refund processed as a reversal of the original authorization may never have one."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "The refund settles as a reversal of the authorization shortly after capture, so no network reference is ever assigned: the succeeded receipt for the same event.ref has no network_ref, and is valid.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_refund_reversal_no_network_ref",
+        "business": "https://merchant.example/.well-known/ucp"
+      }
+    ],
+    "order": {
+      "id": "order_refund_reversal_no_network_ref",
+      "checkout_id": "chk_refund_reversal_no_network_ref",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [
+        {
+          "id": "adj_refund_1",
+          "type": "refund",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "status": "completed",
+          "totals": [
+            {
+              "type": "total",
+              "amount": -5400
+            }
+          ]
+        }
+      ],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpMcEtIUEFSM3NWZ1VQdVZzTWV1MERnZ0o5X1g2bHBEdW13Wmt3WkxPenFnIiwib3JkZXJfaWQiOiJvcmRlcl9yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJwcmV2IjpudWxsLCJzZXEiOjEsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.3mSXh1KP6CWLfDfOCvZbWJqusrRJeC_jU87vaikiAm3BiM9JsriMZVqZn1ILNUtUc3F6Atz1SzQTQlTeCL-Y0g",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDI3NjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpMcEtIUEFSM3NWZ1VQdVZzTWV1MERnZ0o5X1g2bHBEdW13Wmt3WkxPenFnIiwib3JkZXJfaWQiOiJvcmRlcl9yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJwcmV2Ijoic2hhLTI1Njp5dFZHSXQ0Qy1jTDM2andEQ09GNlFtQmtWZldjNXluLThkdjBwLWRRSl9BIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.b3q6NA6ydl16oBEYnAcMsKe_LVsPkMbIuNoS9jVIl0ei6JDyL8w2udbFV3RtvUARmkwrRd-U1pUGVPq9iCXcOw",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDA0OjAwOjAwWiIsInJlZiI6eyJhZGp1c3RtZW50X2lkIjoiYWRqX3JlZnVuZF8xIn0sInN0YXR1cyI6InBlbmRpbmciLCJ0eXBlIjoicmVmdW5kIn0sImlhdCI6MTc5NDI4MzI2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpMcEtIUEFSM3NWZ1VQdVZzTWV1MERnZ0o5X1g2bHBEdW13Wmt3WkxPenFnIiwib3JkZXJfaWQiOiJvcmRlcl9yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJwcmV2Ijoic2hhLTI1NjpwRVhTMTZhYnRCUGVWUTI5cS01bGhXZUhvZjl2SzRkdDlRcXhHdGljUmJJIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.0qZdJvz5a6g4uk6Rc5iB7g9W_FafBbuEGw7HIHwTnXSiOuYhhBcQhAXCiB9bYersEHiLTLtLV4FyVp5wy0O8vQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfcmV2ZXJzYWxfbm9fbmV0d29ya19yZWYiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDA0OjAyOjAwWiIsInJlZiI6eyJhZGp1c3RtZW50X2lkIjoiYWRqX3JlZnVuZF8xIn0sInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0MjgzMzgwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OkxwS0hQQVIzc1ZnVVB1VnNNZXUwRGdnSjlfWDZscER1bXdaa3daTE96cWciLCJvcmRlcl9pZCI6Im9yZGVyX3JlZnVuZF9yZXZlcnNhbF9ub19uZXR3b3JrX3JlZiIsInByZXYiOiJzaGEtMjU2Ol9CT3JjXzVPaFVYdHB3OUM1Rmp1Z051XzF0UUJOU0NpRVRzR1EtUzNfUDgiLCJzZXEiOjQsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjo1NDAwfX0.JcgtqCWCaq5PvgncNvexnUBV5ObH9xzSg-fwQF6zLuFrSdbF9apKkbM_goH_YEBjhhJajsje0Yj7707kLDtBfw"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_reversal_no_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LpKHPAR3sVgUPuVsMeu0DggJ9_X6lpDumwZkwZLOzqg",
+        "order_id": "order_refund_reversal_no_network_ref",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_reversal_no_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LpKHPAR3sVgUPuVsMeu0DggJ9_X6lpDumwZkwZLOzqg",
+        "order_id": "order_refund_reversal_no_network_ref",
+        "prev": "sha-256:ytVGIt4C-cL36jwDCOF6QmBkVfWc5yn-8dv0p-dQJ_A",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_reversal_no_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1"
+          },
+          "status": "pending",
+          "type": "refund"
+        },
+        "iat": 1794283260,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LpKHPAR3sVgUPuVsMeu0DggJ9_X6lpDumwZkwZLOzqg",
+        "order_id": "order_refund_reversal_no_network_ref",
+        "prev": "sha-256:pEXS16abtBPeVQ29q-5lhWeHof9vK4dt9QqxGticRbI",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_reversal_no_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T04:02:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794283380,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:LpKHPAR3sVgUPuVsMeu0DggJ9_X6lpDumwZkwZLOzqg",
+        "order_id": "order_refund_reversal_no_network_ref",
+        "prev": "sha-256:_BOrc_5OhUXtpw9C5FjugNu_1tQBNSCiETsGQ-S3_P8",
+        "seq": 4,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 5400
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

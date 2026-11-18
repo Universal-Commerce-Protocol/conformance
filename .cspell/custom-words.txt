@@ -68,6 +68,7 @@ repudiable
 resourceless
 schemas
 sdjwt
+SECP
 Sephora
 shellcheck
 Shopee
@@ -79,6 +80,7 @@ superfences
 Target
 UCP
 Ulta
+unpadded
 Villagetown
 Visa
 vulnz

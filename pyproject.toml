@@ -9,6 +9,7 @@ authors = [
 ]
 dependencies = [
     "absl-py>=1.0.0",
+    "cryptography>=44.0.0",
     "httpx>=0.26.0",
     "pydantic>=2.12.0",
     "ucp-sdk==0.4.6",

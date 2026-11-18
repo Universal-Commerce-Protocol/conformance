@@ -35,6 +35,8 @@ SUITE_REGISTRY: dict[str, list[str]] = {
   "common": [
     "common.payments.card_credential_test",
     "common.payments.ap2_test",
+    "common.payments.ap2_receipt_vectors_test",
+    "common.payments.ap2_order_receipts_test",
     "common.payments.token_binding_test",
   ],
   "shopping": [
