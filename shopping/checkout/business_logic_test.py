@@ -18,6 +18,7 @@ from absl.testing import absltest
 from framework.decorators import (
   no_rule,
   older_version,
+  partly,
   requires_capability,
   spec_assert,
 )
@@ -59,7 +60,11 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
   """
 
   @spec_assert(
-    "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
+      "a quantity of 1 with integer prices only, so scale and rounding "
+      "aren't checked",
+    ),
     "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
   )
   def test_totals_calculation_on_create(self):
@@ -102,7 +107,6 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     self.assert_totals_consistent(checkout_obj, expected_price)
 
   @spec_assert(
-    "REQ-SHOPPING-CHECKOUT-0016",  # line total MUST be price x quantity
     "REQ-SHOPPING-CHECKOUT-0134",  # Exactly one "total" MUST be present
   )
   def test_totals_recalculation_on_update(self):

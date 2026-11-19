@@ -14,8 +14,8 @@
 
 """Check the specification markers of loaded tests against the catalog.
 
-Demo only. The check runs once tests are loaded and before any of them
-runs: from `runner.py`, including with `--dry-run`, and from pytest through
+The check runs once tests are loaded and before any of them runs: from
+`runner.py`, including with `--dry-run`, and from pytest through
 `conftest.py`. Only the shopping suite has a catalog, so only its tests are
 checked.
 

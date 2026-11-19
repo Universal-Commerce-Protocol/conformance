@@ -29,7 +29,7 @@ extractor doesn't have yet (see [How it was built](#how-it-was-built)).
 - **Specification:** `Universal-Commerce-Protocol/ucp` at `f2626c28`, every
   page under `docs/specification/shopping/`, including `extensions/`.
 - **Extractor:** `org-tools/requirements-extractor` from
-  `Universal-Commerce-Protocol/.github` PR #76, at `1687b56` (version 0.4.0).
+  `Universal-Commerce-Protocol/.github` (#76, `16f3afa`, version 0.4.0).
 - **Two preview options:**
   - every page gets a capability from its `Capability Name` bullet, or else
     from its file path (`extensions/<page>.md` belongs to
@@ -46,8 +46,8 @@ extractor doesn't have yet (see [How it was built](#how-it-was-built)).
   matches a rule fails the build.
 
 Each record keeps the extractor's fields, with `id` holding the stable ID;
-everything this repository adds is in its `demo` object, including the
-extractor's positional ID as `demo.positional_id`.
+everything this repository adds is in its `suite` object, including the
+extractor's positional ID as `suite.positional_id`.
 
 ## Stable IDs
 
@@ -107,10 +107,10 @@ A release's rule that matches nothing is one of two things:
   retired in the lock from the start, and `catalog/history.json` keeps its
   record: wording, level, capability and page.
 
-Each rule's `demo.since` is the first version that states it, and
-`demo.releases` says how each release states it: the page and line as the
+Each rule's `suite.since` is the first version that states it, and
+`suite.releases` says how each release states it: the page and line as the
 release names them, the level, the digest, and the wording when it differs.
-A removed rule also has `demo.until`, the first version that doesn't state
+A removed rule also has `suite.until`, the first version that doesn't state
 it. The build lists every match on a reworded wording for a person to check.
 If the review finds that the meaning changed, a split in `review.json` makes
 the older wording a removed rule of its own:
@@ -168,9 +168,9 @@ pytest:
   capabilities the test requires.
 
 `--dry-run` runs the check without a server. `--requirements_check=warn`
-(`--requirements-check=warn` with pytest) reports problems without stopping,
-and `off` skips the check. Unit tests for the markers, the loader and the
-check are in `tests/`: run `python -m pytest tests`.
+(or `--requirements-check=warn`, also accepted by pytest) reports problems
+without stopping, and `off` skips the check. Unit tests for the markers, the
+loader and the check are in `tests/`: run `python -m pytest tests`.
 
 ## Numbers at `f2626c28`
 
@@ -218,8 +218,8 @@ included.
 
 From the repository root, with a `ucp` checkout at `f2626c28`, a `ucp` clone
 that has the commits in `releases.json` (the `release/*` branches of the
-`Universal-Commerce-Protocol/ucp` repository), and a `.github` checkout at
-`1687b56`:
+`Universal-Commerce-Protocol/ucp` repository), and a `.github` checkout on
+`main` (`16f3afa` or later):
 
 ```bash
 uv run --no-project requirements/tools/build_catalog.py \

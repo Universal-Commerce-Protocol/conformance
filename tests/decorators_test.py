@@ -228,6 +228,13 @@ class LabellingTest(unittest.TestCase):
     self.assertEqual(markers["test_passes"].rule_ids, (RULE,))
     self.assertEqual(markers["test_fails"].kind, "no_rule")
 
+  def test_reexported_from_framework_package(self):
+    """Test that framework re-exports partly alongside the marker decorators."""
+    import framework
+
+    self.assertIs(framework.partly, partly)
+    self.assertIn("partly", framework.__all__)
+
 
 if __name__ == "__main__":
   unittest.main()

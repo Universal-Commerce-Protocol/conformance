@@ -46,7 +46,7 @@ VERSIONS = ["2026-01-11", "2026-04-08", "draft"]
 
 
 def record(
-  rule_id: str, level: str = "MUST", demo: dict[str, Any] | None = None
+  rule_id: str, level: str = "MUST", suite: dict[str, Any] | None = None
 ) -> dict[str, Any]:
   """Return a catalog record with the fields the loader reads."""
   return {
@@ -60,7 +60,7 @@ def record(
       "page": "specification/shopping/cart/",
       "anchor": "cart-lifecycle",
     },
-    "demo": TESTABLE if demo is None else demo,
+    "suite": TESTABLE if suite is None else suite,
   }
 
 
@@ -113,9 +113,9 @@ class SmallCatalogTest(unittest.TestCase):
 
   def test_level_follows_the_review(self):
     """Test that a level corrected by the review replaces the extracted one."""
-    demo = {**TESTABLE, "review": {"level": "MUST"}}
+    suite = {**TESTABLE, "review": {"level": "MUST"}}
     self.write(
-      [record("REQ-SHOPPING-CART-0001", level="MAY", demo=demo)],
+      [record("REQ-SHOPPING-CART-0001", level="MAY", suite=suite)],
       {"REQ-SHOPPING-CART-0001": "active"},
     )
     rule = load_catalog(self.catalog_dir).rules["REQ-SHOPPING-CART-0001"]
@@ -127,7 +127,7 @@ class SmallCatalogTest(unittest.TestCase):
     self.write(
       [
         record("REQ-SHOPPING-CART-0001"),
-        record("REQ-SHOPPING-CART-0002", demo=excluded),
+        record("REQ-SHOPPING-CART-0002", suite=excluded),
       ],
       {
         "REQ-SHOPPING-CART-0001": "active",
@@ -185,7 +185,7 @@ class SmallCatalogTest(unittest.TestCase):
     self.assertEqual(load_catalog(self.catalog_dir).spec_commit, "")
     requirements._load.cache_clear()
     index = {
-      "demo": {"spec_commit": "f2626c28"},
+      "suite": {"spec_commit": "f2626c28"},
       "capabilities": [
         {"name": "dev.ucp.shopping.cart", "kind": "capability"},
         {
@@ -282,7 +282,7 @@ class SmallCatalogTest(unittest.TestCase):
       ],
     }
     self.write(
-      [record("REQ-SHOPPING-CART-0001", demo=stated)],
+      [record("REQ-SHOPPING-CART-0001", suite=stated)],
       {"REQ-SHOPPING-CART-0001": "active", "REQ-SHOPPING-CART-0002": "retired"},
     )
     removed = {
@@ -299,7 +299,7 @@ class SmallCatalogTest(unittest.TestCase):
         }
       ],
     }
-    self.write_history([record("REQ-SHOPPING-CART-0002", demo=removed)])
+    self.write_history([record("REQ-SHOPPING-CART-0002", suite=removed)])
     catalog = load_catalog(self.catalog_dir)
     self.assertEqual(catalog.versions, tuple(VERSIONS))
     rule = catalog.rules["REQ-SHOPPING-CART-0001"]
@@ -337,6 +337,22 @@ class SmallCatalogTest(unittest.TestCase):
         self.write_history([record(rule_id)])
         with self.assertRaises(CatalogError):
           load_catalog(self.catalog_dir)
+
+  def test_default_catalog_dir_falls_back_to_wheel_copy(self):
+    """Test that _default_catalog_dir uses the wheel copy outside a repo."""
+    wheel = self.catalog_dir / "wheel_catalog"
+    wheel.mkdir()
+    missing_repo = self.catalog_dir / "missing_repo_catalog"
+    self.assertEqual(
+      requirements._default_catalog_dir(repo_dir=missing_repo, wheel_dir=wheel),
+      wheel,
+    )
+    self.assertEqual(
+      requirements._default_catalog_dir(
+        repo_dir=self.catalog_dir, wheel_dir=wheel
+      ),
+      self.catalog_dir,
+    )
 
 
 class RepositoryCatalogTest(unittest.TestCase):

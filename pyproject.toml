@@ -46,6 +46,11 @@ only-include = [
     "shopping-agent-test.json",
 ]
 
+[tool.hatch.build.targets.wheel.force-include]
+# Package the catalog inside `framework/` so wheel installs find it without
+# putting a top-level `requirements/` directory into `site-packages`.
+"requirements/catalog" = "framework/_catalog"
+
 [tool.uv.sources]
 # The relative path is stored here
 ucp-sdk = { path = "../python-sdk/", editable = true }

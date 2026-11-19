@@ -338,8 +338,8 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
     partly(
       "REQ-SHOPPING-ORDER-0022",  # sign payloads with RFC 9421 headers
       "the RFC 9421 headers, their shape and the Content-Digest; "
-      "test_delivery_signature_verifies_against_business_keys verifies the "
-      "value",
+      "cryptographic verification against the business's signing keys is not "
+      "checked",
     ),
   )
   def test_signed_delivery_carries_required_headers_and_digest(self) -> None:

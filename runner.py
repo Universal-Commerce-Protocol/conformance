@@ -412,6 +412,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   )
   parser.add_argument(
     "--requirements_check",
+    "--requirements-check",
+    dest="requirements_check",
     choices=marker_check.MODES,
     default="strict",
     help="Check the shopping tests' spec markers against the requirements "

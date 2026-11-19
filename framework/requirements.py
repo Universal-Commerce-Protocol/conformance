@@ -14,7 +14,7 @@
 
 """Look up specification rules in the shopping requirements catalog.
 
-Demo only. `requirements/tools/build_catalog.py` writes the catalog to
+`requirements/tools/build_catalog.py` writes the catalog to
 `requirements/catalog/`: one file of rules per specification page, under
 `shopping/`; `requirements.lock.json`, which records every rule ID ever
 issued; and `history.json`, which records the releases that state each rule
@@ -31,9 +31,20 @@ import re
 from types import MappingProxyType
 from typing import Any
 
-DEFAULT_CATALOG_DIR = (
+_REPO_CATALOG_DIR = (
   Path(__file__).resolve().parents[1] / "requirements" / "catalog"
 )
+_WHEEL_CATALOG_DIR = Path(__file__).resolve().parent / "_catalog"
+
+
+def _default_catalog_dir(
+  repo_dir: Path = _REPO_CATALOG_DIR, wheel_dir: Path = _WHEEL_CATALOG_DIR
+) -> Path:
+  """Return the repository catalog directory, or the wheel's bundled copy."""
+  return repo_dir if repo_dir.is_dir() else wheel_dir
+
+
+DEFAULT_CATALOG_DIR = _default_catalog_dir()
 PAGES_DIR = "shopping"
 LOCK_FILE = "requirements.lock.json"
 INDEX_FILE = "capabilities.json"
@@ -299,7 +310,7 @@ def _load(catalog_dir: Path) -> Catalog:
     retired=retired,
     extends=MappingProxyType({c.name: c.extends for c in capabilities}),
     capabilities=capabilities,
-    spec_commit=index.get("demo", {}).get("spec_commit", ""),
+    spec_commit=index.get("suite", {}).get("spec_commit", ""),
     removed=MappingProxyType(dict(sorted(removed.items()))),
     versions=tuple(history.get("versions", (DRAFT,))),
   )
@@ -325,23 +336,23 @@ def _checked_rule(path: Path, record: dict[str, Any]) -> Rule:
 
 
 def _rule(record: dict[str, Any]) -> Rule:
-  """Build a rule from a catalog record and the demo's additions to it."""
-  demo = record.get("demo", {})
+  """Build a rule from a catalog record and the suite's additions to it."""
+  suite = record.get("suite", {})
   source = record["source"]
   anchor = source.get("anchor")
   return Rule(
     id=record["id"],
-    level=demo.get("review", {}).get("level") or record["level"],
+    level=suite.get("review", {}).get("level") or record["level"],
     clause=record["clause"],
     capabilities=tuple(record["capabilities"]),
     source_file=source["file"],
     line=source["start_line"],
     link=f"{source['page']}#{anchor}" if anchor else source["page"],
-    testable=bool(demo.get("testable")),
-    testable_reason=demo.get("testable_reason", ""),
-    is_rule=not demo.get("excluded", False),
-    since=demo.get("since", DRAFT),
-    until=demo.get("until"),
+    testable=bool(suite.get("testable")),
+    testable_reason=suite.get("testable_reason", ""),
+    is_rule=not suite.get("excluded", False),
+    since=suite.get("since", DRAFT),
+    until=suite.get("until"),
     statements=tuple(
       Statement(
         version=entry["version"],
@@ -350,6 +361,6 @@ def _rule(record: dict[str, Any]) -> Rule:
         source_file=entry["file"],
         line=entry["start_line"],
       )
-      for entry in demo.get("releases", ())
+      for entry in suite.get("releases", ())
     ),
   )

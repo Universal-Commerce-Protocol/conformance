@@ -32,14 +32,14 @@ not have yet:
 - counting upper-case RFC 2119 keywords that are not bold (a preview of
   counting capitals).
 
-Every record gains a `demo` object, the fields this repository adds to the
+Every record gains a `suite` object, the fields this repository adds to the
 extractor's record: how its capability was found, whether its keyword was
 bold, and whether this suite can test it.
 
 IDs are stable. Each rule's ID comes from `requirements.lock.json`, beside
 the catalog, so it no longer changes when a rule is added above it; a
 reworded rule keeps its ID, and a removed rule's ID is retired, never
-reused. The extractor's positional ID is kept as `demo.positional_id`.
+reused. The extractor's positional ID is kept as `suite.positional_id`.
 
 It also writes `capabilities.json`, an index of the capabilities in the
 catalog: whether each is an extension, which capabilities it extends, its
@@ -54,9 +54,9 @@ It also records which releases state each rule. `requirements/releases.json`
 lists the releases, each at a pinned commit; their shopping pages are read
 from a clone of the specification repository and matched to the catalog's
 rules by wording, newest release first. Each rule records the releases that
-state it, from `demo.since` on. A rule only older releases state is a
+state it, from `suite.since` on. A rule only older releases state is a
 removed rule: it gets an ID of its own, retired in the lock, and is written
-to `history.json` with `demo.until`, the first version that doesn't state it.
+to `history.json` with `suite.until`, the first version that doesn't state it.
 
 Usage, from the repository root:
 
@@ -134,8 +134,8 @@ DEFAULT_RELEASES_FILE = REPO_ROOT / "requirements" / "releases.json"
 HISTORY_FILE = "history.json"
 HISTORY_ABOUT = (
   "Which releases state each rule. A rule in the catalog lists them in "
-  "demo.releases, from demo.since on. A rule that only older releases state "
-  "is under removed, with demo.until, the first version that doesn't state "
+  "suite.releases, from suite.since on. A rule that only older releases state "
+  "is under removed, with suite.until, the first version that doesn't state "
   "it. See requirements/README.md."
 )
 # The pinned specification's version: newer than every release.
@@ -285,12 +285,12 @@ def parents_of(name: str, schemas: dict[str, CapabilitySchema]) -> list[str]:
 
 def effective_level(record: dict[str, Any]) -> str | None:
   """Return a rule's level, as corrected by the review if it was."""
-  return record["demo"].get("review", {}).get("level") or record["level"]
+  return record["suite"].get("review", {}).get("level") or record["level"]
 
 
 def is_active(record: dict[str, Any]) -> bool:
   """Whether a rule counts: false when the review found it is not a rule."""
-  return not record["demo"].get("excluded")
+  return not record["suite"].get("excluded")
 
 
 def capability_index(
@@ -330,7 +330,7 @@ def capability_index(
         page["shared_with"] = shared
       pages.append(page)
     own = [r for r in records if name in r["capabilities"]]
-    testable = [r for r in own if r["demo"]["testable"]]
+    testable = [r for r in own if r["suite"]["testable"]]
     entries.append(
       {
         "name": name,
@@ -398,7 +398,7 @@ def path_label(rel_path: str, names: set[str]) -> PageLabel:
   return unresolved
 
 
-class DemoResolver:
+class SuiteResolver:
   """Resolve each page's capability once: the bullet first, then the path."""
 
   def __init__(
@@ -455,10 +455,16 @@ def keyword_style(clause: str) -> str:
   return "bold" if BOLD_KEYWORD_RE.search(clause) else "capitals"
 
 
+def extractor_tree(extractor_dir: Path) -> Path:
+  """Return the extractor root when `extractor_dir` points at `scripts/`."""
+  resolved = extractor_dir.resolve()
+  return resolved.parent if resolved.name == "scripts" else resolved
+
+
 def git_commit(path: Path) -> tuple[str, bool]:
-  """Return the commit a directory is at, and whether it has changes."""
+  """Return the last commit touching `path`, and whether `path` is dirty."""
   commit = subprocess.run(
-    ["git", "-C", str(path), "rev-parse", "HEAD"],
+    ["git", "-C", str(path), "log", "-1", "--format=%H", "--", "."],
     capture_output=True,
     text=True,
     check=True,
@@ -529,15 +535,15 @@ def apply_review(record: dict[str, Any], decision: dict[str, Any]) -> None:
   """
   review = {k: decision[k] for k in ("verdict", "actor", "testable", "reason")}
   review.update({k: decision[k] for k in REVIEW_OPTIONAL if k in decision})
-  demo = record["demo"]
-  demo["review"] = review
+  suite = record["suite"]
+  suite["review"] = review
   if decision["verdict"] == "not a rule":
-    demo["excluded"] = True
-    demo["testable"] = False
-    demo["testable_reason"] = "not a rule (reviewed): " + decision["reason"]
+    suite["excluded"] = True
+    suite["testable"] = False
+    suite["testable_reason"] = "not a rule (reviewed): " + decision["reason"]
   else:
-    demo["testable"] = decision["testable"]
-    demo["testable_reason"] = "reviewed: " + decision["reason"]
+    suite["testable"] = decision["testable"]
+    suite["testable_reason"] = "reviewed: " + decision["reason"]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -830,12 +836,12 @@ def lock_document(entries: list[dict[str, Any]]) -> dict[str, Any]:
   }
 
 
-def without_demo(document: dict[str, Any]) -> dict[str, Any]:
-  """Return a catalog document without the demo's additions."""
+def without_suite(document: dict[str, Any]) -> dict[str, Any]:
+  """Return a catalog document without the suite's additions."""
   return {
-    **{k: v for k, v in document.items() if k != "demo"},
+    **{k: v for k, v in document.items() if k != "suite"},
     "requirements": [
-      {k: v for k, v in record.items() if k != "demo"}
+      {k: v for k, v in record.items() if k != "suite"}
       for record in document["requirements"]
     ],
   }
@@ -855,7 +861,7 @@ class Extraction:
   """
 
   schemas: dict[str, CapabilitySchema]
-  resolver: DemoResolver
+  resolver: SuiteResolver
   documents: dict[Any, dict[str, Any]]
   report_document: dict[str, Any]
   bold_only: list[Any]
@@ -870,7 +876,7 @@ def extract(
 ) -> Extraction:
   """Run the extractor over one folder of a specification.
 
-  With the demo's two options: every page gets a capability from its bullet
+  With the suite's two options: every page gets a capability from its bullet
   or its file path, and upper-case keywords count whether bold or not.
 
   Args:
@@ -889,7 +895,7 @@ def extract(
     modules["config"],
   )
   schemas = schema_capabilities(spec_root)
-  resolver = DemoResolver(config.declared_capability, set(schemas))
+  resolver = SuiteResolver(config.declared_capability, set(schemas))
   original_find = classifier.find_keywords
 
   def find_all_keywords(text: str, keywords: tuple[str, ...]) -> list[Any]:
@@ -911,11 +917,11 @@ def extract(
 
 
 def annotate(record: dict[str, Any], label: PageLabel) -> None:
-  """Give a rule its page's capabilities and the demo's `demo` object."""
+  """Give a rule its page's capabilities and the suite's `suite` object."""
   if record["capabilities"]:
     record["capabilities"] = list(label.capabilities)
   transport, testable, reason = testability(record)
-  record["demo"] = {
+  record["suite"] = {
     "positional_id": record["id"],
     "capability_source": label.source,
     "keyword_style": keyword_style(record["clause"]),
@@ -1592,7 +1598,7 @@ def removed_record(
   """Return the record of a rule that only older releases state.
 
   It is the newest release's record, at that release's page, with the
-  rule's stable ID and its history in `demo`.
+  rule's stable ID and its history in `suite`.
   """
   newest = stated[-1]
   record = copy.deepcopy(newest.record)
@@ -1600,9 +1606,9 @@ def removed_record(
   record["source"]["file"] = newest.file
   record["source"]["page"] = published_page(newest.file)
   since, until = lifespan([statement.version for statement in stated], versions)
-  record["demo"]["since"] = since
-  record["demo"]["until"] = until
-  record["demo"]["releases"] = statements(stated, record["text_digest"])
+  record["suite"]["since"] = since
+  record["suite"]["until"] = until
+  record["suite"]["releases"] = statements(stated, record["text_digest"])
   return record
 
 
@@ -1637,7 +1643,9 @@ def main(argv: list[str] | None = None) -> int:
     modules["config"],
     modules["identity"],
   )
-  extractor_commit, extractor_dirty = git_commit(args.extractor_dir)
+  extractor_commit, extractor_dirty = git_commit(
+    extractor_tree(args.extractor_dir)
+  )
   pinned = extract(modules, spec_root, SHOPPING_DIR, bold_only=True)
   schemas, resolver = pinned.schemas, pinned.resolver
   names = set(schemas)
@@ -1645,7 +1653,7 @@ def main(argv: list[str] | None = None) -> int:
   report_document = pinned.report_document
   bold_only = pinned.bold_only
 
-  demo_header = {
+  suite_header = {
     "spec_commit": args.spec_commit,
     "extractor_commit": extractor_commit,
     "options": list(OPTIONS),
@@ -1660,7 +1668,7 @@ def main(argv: list[str] | None = None) -> int:
     label = resolver.labels[document["source_file"]]
     for record in document["requirements"]:
       annotate(record, label)
-      pre_review[record["id"]] = (record["demo"]["testable"], record["level"])
+      pre_review[record["id"]] = (record["suite"]["testable"], record["level"])
       key = (record["source"]["file"], record["text_digest"])
       if key in reviews:
         used_reviews.add(key)
@@ -1669,7 +1677,7 @@ def main(argv: list[str] | None = None) -> int:
     documents[path] = dict(
       [
         *[(k, v) for k, v in document.items() if k != "requirements"],
-        ("demo", demo_header),
+        ("suite", suite_header),
         ("requirements", document["requirements"]),
       ]
     )
@@ -1706,7 +1714,7 @@ def main(argv: list[str] | None = None) -> int:
   assigned = assign_stable_ids(rules, lock, args.spec_commit)
   for record, stable_id in zip(records, assigned.ids, strict=True):
     record["id"] = stable_id
-  stable_ids = {r["demo"]["positional_id"]: r["id"] for r in records}
+  stable_ids = {r["suite"]["positional_id"]: r["id"] for r in records}
   for entry in report_document["diagnostics"].get("duplicate_requirements", []):
     entry["ids"] = [stable_ids.get(i, i) for i in entry["ids"]]
 
@@ -1808,8 +1816,8 @@ def main(argv: list[str] | None = None) -> int:
   keys = dict(zip(history.removed, removed_ids, strict=True))
   for record in records:
     stated = history.stated.get(record["id"], [])
-    record["demo"]["since"] = stated[0].version if stated else DRAFT
-    record["demo"]["releases"] = statements(stated, record["text_digest"])
+    record["suite"]["since"] = stated[0].version if stated else DRAFT
+    record["suite"]["releases"] = statements(stated, record["text_digest"])
   removed_records = sorted(
     (
       removed_record(
@@ -1831,7 +1839,7 @@ def main(argv: list[str] | None = None) -> int:
       f"removed): {stale[:5]}"
     )
   unknown_actors = sorted(
-    {r["target_actor"] for r in records if r["demo"]["testable"] is None},
+    {r["target_actor"] for r in records if r["suite"]["testable"] is None},
     key=str,
   )
   if unknown_actors:
@@ -1856,7 +1864,7 @@ def main(argv: list[str] | None = None) -> int:
   problems.extend(lock_problems(lock, assigned))
   for path, document in documents.items():
     problems.extend(
-      f"{path}: {error}" for error in catalog.validate(without_demo(document))
+      f"{path}: {error}" for error in catalog.validate(without_suite(document))
     )
   index = capability_index(schemas, resolver.labels, records)
   kinds = {entry["name"]: entry["kind"] for entry in index}
@@ -1880,7 +1888,7 @@ def main(argv: list[str] | None = None) -> int:
     {
       r["target_actor"]
       for r in removed_records
-      if r["demo"]["testable"] is None
+      if r["suite"]["testable"] is None
     },
     key=str,
   )
@@ -1913,16 +1921,16 @@ def main(argv: list[str] | None = None) -> int:
   )
 
   # Write, or with --check only compare.
-  report_document = {**report_document, "demo": demo_header}
+  report_document = {**report_document, "suite": suite_header}
   index_document = {
-    "demo": demo_header,
+    "suite": suite_header,
     "extends_from": "each extension schema's $defs keys that name another "
     "capability",
     "capabilities": index,
   }
   history_document = {
     "about": HISTORY_ABOUT,
-    "demo": demo_header,
+    "suite": suite_header,
     "versions": list(versions),
     "releases": [
       {
@@ -1981,7 +1989,7 @@ def main(argv: list[str] | None = None) -> int:
       path.write_text(text, encoding="utf-8")
 
   # Summary.
-  styles = collections.Counter(r["demo"]["keyword_style"] for r in records)
+  styles = collections.Counter(r["suite"]["keyword_style"] for r in records)
   out(f"spec {args.spec_commit[:8]}, extractor {extractor_commit[:7]}\n")
   out(
     f"rules: {len(records)} ({styles['bold']} bold, "
@@ -2011,7 +2019,7 @@ def main(argv: list[str] | None = None) -> int:
   by_capability = collections.defaultdict(collections.Counter)
   for record in records:
     key = " + ".join(record["capabilities"])
-    by_capability[key][record["demo"]["keyword_style"]] += 1
+    by_capability[key][record["suite"]["keyword_style"]] += 1
   for key in sorted(by_capability):
     counts = by_capability[key]
     out(
@@ -2071,16 +2079,16 @@ def main(argv: list[str] | None = None) -> int:
       f"{entry['testable_must']:5}\n"
     )
   active = [r for r in records if is_active(r)]
-  testable_records = [r for r in active if r["demo"]["testable"]]
+  testable_records = [r for r in active if r["suite"]["testable"]]
   out(
     f"  {'unique rules':16} {len(active):5} {len(testable_records):8} "
     f"{sum(effective_level(r) in MUST_LEVELS for r in testable_records):5}\n"
   )
   for flag, title in ((True, "testable"), (False, "not testable")):
     reasons = collections.Counter(
-      "reviewed" if "review" in r["demo"] else r["demo"]["testable_reason"]
+      "reviewed" if "review" in r["suite"] else r["suite"]["testable_reason"]
       for r in active
-      if r["demo"]["testable"] is flag
+      if r["suite"]["testable"] is flag
     )
     out(
       f"  {title}: "
@@ -2088,23 +2096,23 @@ def main(argv: list[str] | None = None) -> int:
       + "\n"
     )
 
-  reviewed = [r for r in records if "review" in r["demo"]]
+  reviewed = [r for r in records if "review" in r["suite"]]
   if reviewed:
     before = [t for t, _ in pre_review.values() if t]
     before_must = sum(
       bool(t) and level in MUST_LEVELS for t, level in pre_review.values()
     )
     flips = collections.Counter(
-      (bool(pre_review[r["demo"]["positional_id"]][0]), r["demo"]["testable"])
+      (bool(pre_review[r["suite"]["positional_id"]][0]), r["suite"]["testable"])
       for r in reviewed
       if is_active(r)
     )
     actor_fixes = sum(
-      r["demo"]["review"]["actor"] != (r["target_actor"] or "none")
+      r["suite"]["review"]["actor"] != (r["target_actor"] or "none")
       for r in reviewed
     )
     calls = sum(
-      bool(r["demo"]["review"].get("needs_your_call")) for r in reviewed
+      bool(r["suite"]["review"].get("needs_your_call")) for r in reviewed
     )
     out(
       f"\nreview ({args.review.name}): {len(reviewed)} decisions applied; "
@@ -2161,10 +2169,10 @@ def main(argv: list[str] | None = None) -> int:
 
   def must_in(record: dict[str, Any]) -> list[str]:
     """Return the versions in which a testable rule is a MUST."""
-    if not is_active(record) or not record["demo"]["testable"]:
+    if not is_active(record) or not record["suite"]["testable"]:
       return []
-    stated = [(s["version"], s["level"]) for s in record["demo"]["releases"]]
-    if record["demo"].get("until") is None:
+    stated = [(s["version"], s["level"]) for s in record["suite"]["releases"]]
+    if record["suite"].get("until") is None:
       stated.append((DRAFT, effective_level(record)))
     return [version for version, level in stated if level in MUST_LEVELS]
 
@@ -2183,10 +2191,10 @@ def main(argv: list[str] | None = None) -> int:
       + "\n"
     )
   first = collections.Counter(
-    r["demo"]["since"] for r in records if is_active(r)
+    r["suite"]["since"] for r in records if is_active(r)
   )
   first_must = collections.Counter(
-    r["demo"]["since"] for r in records if DRAFT in must_in(r)
+    r["suite"]["since"] for r in records if DRAFT in must_in(r)
   )
   stated_must = collections.Counter(
     version for r in (*records, *removed_records) for version in must_in(r)
@@ -2207,11 +2215,11 @@ def main(argv: list[str] | None = None) -> int:
     f"testable MUST; new IDs {len(minted_removed)}\n"
   )
   for record in removed_must:
-    if "review" not in record["demo"]:
+    if "review" not in record["suite"]:
       out(
-        f"    not reviewed: {record['id']} ({record['demo']['since']} to "
-        f"{record['demo']['releases'][-1]['version']}, "
-        f"{record['demo']['testable_reason']}): {record['clause'][:90]}\n"
+        f"    not reviewed: {record['id']} ({record['suite']['since']} to "
+        f"{record['suite']['releases'][-1]['version']}, "
+        f"{record['suite']['testable_reason']}): {record['clause'][:90]}\n"
       )
   if history.moved_out:
     out(f"  moved out of the shopping pages: {len(history.moved_out)}\n")

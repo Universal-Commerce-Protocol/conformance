@@ -351,7 +351,7 @@ class LifespanTest(unittest.TestCase):
       id="REQ-POSITIONAL-01",
       text_digest=rules[1].wording.text_digest,
       source={"file": CHECKOUT_PAGE, "page": "x/"},
-      demo={},
+      suite={},
     )
     record = build_catalog.removed_record(
       rules, "REQ-SHOPPING-CHECKOUT-0009", self.versions, lambda f: f"p:{f}"
@@ -365,10 +365,10 @@ class LifespanTest(unittest.TestCase):
       },
     )
     self.assertEqual(
-      (record["demo"]["since"], record["demo"]["until"]),
+      (record["suite"]["since"], record["suite"]["until"]),
       ("2026-01-11", "2026-04-08"),
     )
-    self.assertEqual(len(record["demo"]["releases"]), 2)
+    self.assertEqual(len(record["suite"]["releases"]), 2)
     self.assertEqual(rules[1].record["id"], "REQ-POSITIONAL-01")
 
 
@@ -462,6 +462,8 @@ class StageReleaseTest(unittest.TestCase):
       "user.name=Test",
       "-c",
       "user.email=test@example.com",
+      "-c",
+      "commit.gpgsign=false",
       "commit",
       "--quiet",
       "-m",
@@ -502,6 +504,66 @@ class StageReleaseTest(unittest.TestCase):
       build_catalog.stage_release(
         self.repo, release, build_catalog.ReleaseConfig(), self.root
       )
+
+
+class GitCommitTest(unittest.TestCase):
+  """Tests for scoping git_commit to the extractor directory."""
+
+  def setUp(self):
+    """Create a small repository with an extractor subtree and another file."""
+    super().setUp()
+    directory = tempfile.TemporaryDirectory()
+    self.addCleanup(directory.cleanup)
+    self.repo = Path(directory.name) / "github"
+    self.scripts = (
+      self.repo / "org-tools" / "requirements-extractor" / "scripts"
+    )
+    self.scripts.mkdir(parents=True)
+    (self.scripts.parent / "pyproject.toml").write_text("[project]\n", "utf-8")
+    (self.scripts / "tool.py").write_text("x = 1\n", "utf-8")
+    self._git("init", "--quiet")
+    self._git("add", ".")
+    self._commit("add extractor")
+    self.extractor_sha = self._git("rev-parse", "HEAD").strip()
+
+  def _git(self, *args: str) -> str:
+    return subprocess.run(
+      ["git", "-C", str(self.repo), *args],
+      capture_output=True,
+      text=True,
+      check=True,
+    ).stdout
+
+  def _commit(self, message: str) -> None:
+    self._git(
+      "-c",
+      "user.name=Test",
+      "-c",
+      "user.email=test@example.com",
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "--quiet",
+      "-m",
+      message,
+    )
+
+  def test_ignores_commits_outside_extractor_tree(self):
+    """Unrelated repository commits do not advance extractor_commit."""
+    (self.repo / "MAINTAINERS.md").write_text("# Maintainers\n", "utf-8")
+    self._git("add", "MAINTAINERS.md")
+    self._commit("unrelated doc change")
+
+    tree = build_catalog.extractor_tree(self.scripts)
+    self.assertEqual(tree, self.scripts.resolve().parent)
+    self.assertEqual(
+      build_catalog.git_commit(tree), (self.extractor_sha, False)
+    )
+
+    (self.scripts.parent / "pyproject.toml").write_text(
+      "[project]\nversion = '2'\n", "utf-8"
+    )
+    self.assertEqual(build_catalog.git_commit(tree), (self.extractor_sha, True))
 
 
 if __name__ == "__main__":

@@ -305,6 +305,20 @@ class DescribeTest(unittest.TestCase):
       ),
     )
 
+  def test_runner_accepts_both_flag_spellings(self):
+    """Test that runner.parse_args accepts underscore and hyphen spellings."""
+    import runner
+
+    self.assertEqual(runner.parse_args([]).requirements_check, "strict")
+    self.assertEqual(
+      runner.parse_args(["--requirements_check=warn"]).requirements_check,
+      "warn",
+    )
+    self.assertEqual(
+      runner.parse_args(["--requirements-check=off"]).requirements_check,
+      "off",
+    )
+
 
 if __name__ == "__main__":
   unittest.main()
