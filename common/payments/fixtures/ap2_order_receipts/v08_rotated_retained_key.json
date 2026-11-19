@@ -3,8 +3,8 @@
   "title": "A receipt signed with a rotated, retained key verifies",
   "test_plan_vector": "8",
   "spec": [
-    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`, and MUST treat a receipt whose `iss` is not the business that signed the checkout covered by `mandate_ref` as `receipt_mandate_unknown`.",
-    "Business Requirements 6: MUST keep retired public keys resolvable by `kid` for at least the dispute window of the payment method used."
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Business Requirements 9: MUST keep retired public keys resolvable by `kid` for at least the dispute window of the payment method used."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
   "notes": "seq 1 is signed with test_only_2025, which was retired before seq 2 but is still published in keys.",
@@ -36,7 +36,8 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v08",
-        "business": "https://merchant.example/.well-known/ucp"
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
       }
     ],
     "order": {

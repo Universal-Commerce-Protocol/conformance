@@ -33,6 +33,7 @@ but these vectors.
 """
 
 import argparse
+import copy
 import datetime
 import hashlib
 import json
@@ -49,9 +50,9 @@ FIXTURE_DIR = (
 )
 
 # Order example in ucp#1109 (docs/specification/payment/extensions/
-# ap2-mandates.md, "Placement and Delivery"), at head 1d19291d.
+# ap2-mandates.md, "Placement and Delivery"), at head 7ee97b0.
 SPEC_SOURCE = (
-  "Universal-Commerce-Protocol/ucp#1109 at 1d19291d, ap2-mandates.md, "
+  "Universal-Commerce-Protocol/ucp#1109 at 7ee97b0, ap2-mandates.md, "
   "Order example under 'Placement and Delivery'"
 )
 # cspell:disable
@@ -65,9 +66,9 @@ _SPEC_KEY = {
   "y": "iDtJQqA9IVKbVvAQ7tL_G73kkG1GoaHJKSty0pWD0b8",
 }
 _SPEC_CHAIN = (
-  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc2MjcwMDAwMCwiaXNzIjoiaHR0cHM6Ly9idXNpbmVzcy5leGFtcGxlLmNvbS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6emkweERrMTZfR0p3X1FFS0lIYVVia1VGU3RrREo2V2phS2xmMzFzWWZPayIsIm9yZGVyX2lkIjoib3JkZXJfYWJjMTIzIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.yqOks6JCSk1SGQjykZw6WiNzk0-PC0S3cwMWXxbuH3KGCvTAFFpkT9HuJPS-krPUsWyLhVPNO2Ftz9SuEaoHpQ",
-  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzIifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzYyNzQwMDAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1Njp6RGU2eEhqc0FtMzhZRkQ0cWVXRHFKaGNNaXNzM2JqSjZCcURRVk1DSnRRIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjMwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.ZyT9V_cSIvPgIChIM9cF4xrc5_ROhG7J5E8LxCc95HfMIecZ4zRMfsj5638RrVDrcDybCHUFq3qXWftbRssvYg",
-  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjI0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEyVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzMifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzYyOTEyODAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjotTC1ZV3lkLVcxNmItR1ExM3l2bXZ4UTFmOThyMTltSzlZc3FEMlF4QkQ4Iiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.aGDMlvYL7ZjzXiv6HVKJg-sbdNLIOWSr_nNa_-mUrDSjSVcFv56nB8q2FFR0fAU5OGgrkLnwNmxV18b-SK6TPA",
+  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjAwMCwiaXNzIjoiaHR0cHM6Ly9idXNpbmVzcy5leGFtcGxlLmNvbS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6emkweERrMTZfR0p3X1FFS0lIYVVia1VGU3RrREo2V2phS2xmMzFzWWZPayIsIm9yZGVyX2lkIjoib3JkZXJfYWJjMTIzIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.B1qq-ooaU-iv_gU4sxGg6OodmLq3kHhMyMnmI-rQTr9aziOACY7l1Vbkws7lSTm09IpVugB_QksMQiXUi6gvVQ",
+  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzIifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0Mjc2MDAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjptYkhyY29KVWZCUmxFQS1iQWdFTHZZRUh3bTlCOFctRHNoSzR5dURIWGdnIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjMwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.kffxBLFlPYyfhAD_qXCpG2KIPDtmOfyRwBS9AlHUsHcmZlrFJ5YHBqPdT2fwLAzwdhFv2InssCj344UuHag1Wg",
+  "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjI0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEyVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzMifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0NDQ4ODAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjotNG9URC1FS1lfQ3lwTlM1TzhXRWhYRE5ZNkVGQkRwbDR3aUxXem9EMnFnIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.J-C66O6O4XjAD_TvtvS8endj_FfRIe_u3SysJ4U2NwX0zqQ0MlAy6FeGJZuSPUuCnY8twK9-9TjQdMT7ylL7Yw",
 )
 # cspell:enable
 _SPEC_BUSINESS = "https://business.example.com/.well-known/ucp"
@@ -91,46 +92,117 @@ _SELLER_A = "https://seller-a.example/.well-known/ucp"
 _SELLER_B = "https://seller-b.example/.well-known/ucp"
 _HOTEL = "https://hotel.example/.well-known/ucp"
 
-# ucp#1109 rule text, quoted without Markdown emphasis.
+# ucp#1109 rule text at 7ee97b0, quoted without Markdown emphasis.
 _RULES = {
   "verify_1": (
     "Platform Verification 1: MUST verify each receipt's signature against "
-    "the `keys` of the business named in `iss`, and MUST treat a receipt "
-    "whose `iss` is not the business that signed the checkout covered by "
-    "`mandate_ref` as `receipt_mandate_unknown`."
+    "the `keys` of the business named in `iss`. A receipt whose `typ` is "
+    "not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the "
+    "`keys` of `iss`, is `receipt_invalid_signature`."
   ),
   "verify_2": (
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, "
-    "`captured` ≤ `mandated` and `refunded` ≤ `captured` per "
-    "`(iss, mandate_ref)` chain."
+    "Platform Verification 2: MUST, only for receipts whose signature "
+    "verified, check that `mandate_ref` is a Payment Mandate the platform "
+    "submitted and that `iss` is the business that signed the checkout it "
+    "covers. A receipt that fails is `receipt_mandate_unknown`."
   ),
   "verify_3": (
-    "Platform Verification 3: SHOULD, when `event.seller_id` is present, "
+    "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 "
+    "from its chain, so the next receipt in that chain is reported as "
+    "`receipt_sequence_gap`."
+  ),
+  "verify_4": (
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per "
+    "`(iss, mandate_ref)` chain. A second, different receipt for a `seq` "
+    "the platform already holds is `receipt_sequence_gap`; the platform "
+    "keeps both."
+  ),
+  "verify_5": (
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and "
+    "`refunded` for each chain from the `succeeded` events it holds, per "
+    "Running Totals, and MUST check that `totals.mandated` equals the "
+    "`payment_amount` of the Payment Mandate that `mandate_ref` covers. A "
+    "receipt whose stated `totals` differ from these values is "
+    "`receipt_totals_mismatch`."
+  ),
+  "verify_6": (
+    "Platform Verification 6: MUST check, on the recomputed totals, that "
+    "`authorized` and `captured` do not exceed `mandated` "
+    "(`receipt_exceeds_mandate`) and that `refunded` does not exceed "
+    "`captured` (`receipt_refund_exceeds_capture`)."
+  ),
+  "verify_7": (
+    "Platform Verification 7: SHOULD, when `event.seller_id` is present, "
     "also check per seller that succeeded captures do not exceed that "
     "seller's attributed total and that refunds do not exceed that seller's "
     "captures."
   ),
-  "verify_4": (
-    "Platform Verification 4: SHOULD reconcile each `refund` receipt that "
-    "carries `event.ref.adjustment_id` against that Order adjustment. A "
-    "mismatch is a commercial problem, not a cryptographic one: the receipt "
-    "remains valid."
+  "verify_8": (
+    "Platform Verification 8: SHOULD reconcile refunds against Order "
+    "adjustments. The platform compares the sum of `event.amount` over the "
+    "`succeeded` refund receipts that cite an `event.ref.adjustment_id` "
+    "with the magnitude of that adjustment's `total` entry. `pending` and "
+    "`failed` receipts are not counted. A cited `adjustment_id` that "
+    "matches no adjustment is also `reconciliation_adjustment_mismatch`. A "
+    "mismatch is a commercial problem, not a cryptographic one: the "
+    "receipts remain valid."
+  ),
+  "running_totals": (
+    "Running Totals: `totals.mandated` is the `payment_amount` of the "
+    "Payment Mandate that `mandate_ref` covers. The other totals start at 0 "
+    "and change only on `succeeded` events: `authorization` and "
+    "`authorization_adjustment` add to `authorized`, `release` subtracts "
+    "from it, `capture` adds to `captured`, `capture_reversal` subtracts "
+    "from it, `refund` adds to `refunded`. A capture does not reduce "
+    "`authorized`."
+  ),
+  "each_once": (
+    "Running Totals: each movement counts once. A later `succeeded` "
+    "receipt with the same `type` and `event.ref.processing_entry_id` as an "
+    "earlier `succeeded` receipt in the chain is a follow-up (for example, "
+    "one that only adds `network_ref`) and does not change the totals "
+    "again."
+  ),
+  "no_jcs": (
+    "Hashes and Chaining: the signature covers the payload bytes as sent, "
+    "and `prev` covers the compact JWS as sent. A business SHOULD emit the "
+    "payload in JCS form, but verifiers MUST NOT require it."
   ),
   "business_3": (
-    "Business Requirements 3: MUST NOT capture so that `captured` exceeds "
-    "`mandated`. Any increase in what the buyer pays beyond "
-    "`mandated` (a tip, an overage, an order change, or a re-authorization "
-    "above the original amount) MUST be covered by a new closed Payment "
-    "Mandate from the platform. Movements that spend against the new "
-    "mandate form their own chain, keyed by its `mandate_ref`."
+    "Business Requirements 3: MUST NOT authorize or capture so that "
+    "`authorized` or `captured` exceeds `mandated`. Any increase in what "
+    "the buyer pays beyond `mandated` (a tip, an overage, an order change, "
+    "or a re-authorization above the original amount) MUST be covered by a "
+    "new closed Payment Mandate from the platform. Movements that spend "
+    "against the new mandate form their own chain, keyed by its "
+    "`mandate_ref`."
   ),
-  "business_6": (
-    "Business Requirements 6: MUST keep retired public keys resolvable by "
+  "business_7": (
+    "Business Requirements 7: MUST, on a follow-up receipt that only adds "
+    "`network_ref` to a movement already receipted as `succeeded`, carry "
+    "that movement's `event.ref.processing_entry_id`. A business that "
+    "cannot supply a `processing_entry_id` issues the movement as `pending` "
+    "first and adds `network_ref` on the `succeeded` receipt."
+  ),
+  "business_9": (
+    "Business Requirements 9: MUST keep retired public keys resolvable by "
     "`kid` for at least the dispute window of the payment method used."
   ),
   "split_shipments": (
     "Edge Cases, Split shipments: multiple `capture` receipts against the "
     "same `mandate_ref`, with `captured` accumulating."
+  ),
+  "auth_expiry": (
+    "Edge Cases, Authorization expiry: a `release` receipt for the "
+    "expired, uncaptured amount, then a new `authorization` receipt with "
+    "the same `mandate_ref`. Without a new mandate, the new authorization "
+    "is limited to `mandated` minus `captured`, so `authorized` never "
+    "exceeds `mandated`."
+  ),
+  "partial_capture_release": (
+    "Edge Cases, Partial capture, remainder released: a 3000 capture "
+    "followed by a `release` of the remaining 2400 leaves `authorized` at "
+    "3000 and `captured` at 3000."
   ),
   "marketplace": (
     "Edge Cases, Marketplace as merchant of record: the marketplace issues "
@@ -158,10 +230,12 @@ _RULES = {
   "late_network_ref": (
     "Edge Cases, Late network references: when a network reference (for "
     "example the Acquirer Reference Number of a refund) is assigned after "
-    "the movement is receipted, it appears on a follow-up receipt for the "
-    "same `event.ref`. `network_ref` is optional on every status: a refund "
-    "processed as a reversal of the original authorization may never have "
-    "one."
+    "the movement is receipted as `succeeded`, it appears on a follow-up "
+    "receipt with the same `type` and `event.ref.processing_entry_id`, "
+    "which does not change the totals. `network_ref` is optional on every "
+    "status: a refund that the processor settles as a reversal of the "
+    "original transaction may never have one. It is still receipted as a "
+    "`refund`."
   ),
 }
 
@@ -199,11 +273,34 @@ class FixtureSigner:
       "y": v.b64url_encode(numbers.y.to_bytes(32, "big")),
     }
 
-  def sign(self, payload: dict[str, Any]) -> str:
-    """Return the compact JWS receipt for a payload (Receipt Format)."""
-    header = {"alg": "ES256", "kid": self.kid, "typ": v.RECEIPT_TYP}
+  def sign(
+    self,
+    payload: dict[str, Any],
+    typ: str | None = v.RECEIPT_TYP,
+    canonical: bool = True,
+  ) -> str:
+    """Return the compact JWS receipt for a payload (Receipt Format).
+
+    Args:
+      payload: The receipt payload.
+      typ: The header `typ`; None omits it.
+      canonical: If False, sign the payload as indented JSON with its
+        members in reverse order, which is valid JSON but not JCS form
+        ("verifiers MUST NOT require" JCS).
+
+    """
+    header = {"alg": "ES256", "kid": self.kid}
+    if typ is not None:
+      header["typ"] = typ
+    payload_bytes = (
+      _jcs(payload)
+      if canonical
+      else json.dumps(
+        dict(reversed(list(payload.items()))), indent=2, ensure_ascii=False
+      ).encode("utf-8")
+    )
     signing_input = (
-      v.b64url_encode(_jcs(header)) + "." + v.b64url_encode(_jcs(payload))
+      v.b64url_encode(_jcs(header)) + "." + v.b64url_encode(payload_bytes)
     )
     der = self._key.sign(
       signing_input.encode("ascii"),
@@ -250,9 +347,11 @@ def _timestamp(value: str) -> int:
 class _Chain:
   """Issues the receipts of one `(iss, mandate_ref)` chain in order.
 
-  Running totals follow from the events: only succeeded events change
-  them, `authorization` and `release` move `authorized`, and `captured` is
-  net of capture reversals.
+  Running totals follow from the events ("Running Totals"): only succeeded
+  events change them, `authorization`, `authorization_adjustment` and
+  `release` move `authorized`, `captured` is net of capture reversals, and a
+  succeeded receipt that repeats an earlier one's `type` and
+  `processing_entry_id` is a follow-up that changes nothing.
   """
 
   def __init__(
@@ -280,6 +379,7 @@ class _Chain:
     }
     self.seq = 0
     self.prev: str | None = None
+    self._counted: set[tuple[str, str]] = set()
 
   def issue(
     self,
@@ -288,18 +388,30 @@ class _Chain:
     occurred_at: str,
     status: str = "succeeded",
     signer: FixtureSigner | None = None,
+    sign_options: dict[str, Any] | None = None,
+    stated_totals: dict[str, int] | None = None,
     **extra: Any,
   ) -> str:
-    """Sign the next receipt; `extra` adds optional `event` members."""
-    if status == "succeeded":
+    """Sign the next receipt; `extra` adds optional `event` members.
+
+    `sign_options` goes to `FixtureSigner.sign`. `stated_totals` overrides
+    members of the stated totals only, leaving the chain's true running
+    totals alone, to build a receipt that misstates them.
+    """
+    entry_id = (extra.get("ref") or {}).get("processing_entry_id")
+    follow_up = entry_id is not None and (event_type, entry_id) in self._counted
+    if status == "succeeded" and not follow_up:
       key = {
         "authorization": ("authorized", 1),
+        "authorization_adjustment": ("authorized", 1),
         "release": ("authorized", -1),
         "capture": ("captured", 1),
         "capture_reversal": ("captured", -1),
         "refund": ("refunded", 1),
       }[event_type]
       self.totals[key[0]] += key[1] * amount
+      if entry_id is not None:
+        self._counted.add((event_type, entry_id))
     self.seq += 1
     payload = {
       "iss": self.iss,
@@ -317,9 +429,9 @@ class _Chain:
         "occurred_at": occurred_at,
         **extra,
       },
-      "totals": dict(self.totals),
+      "totals": {**self.totals, **(stated_totals or {})},
     }
-    compact = (signer or self.signer).sign(payload)
+    compact = (signer or self.signer).sign(payload, **(sign_options or {}))
     self.prev = v.sha256_ref(compact)
     return compact
 
@@ -377,7 +489,7 @@ def _fixture(
   rules: list[str],
   signing: str,
   issuers: dict[str, list[dict]],
-  mandates: list[tuple[str, str]],
+  mandates: list[tuple[str, str, int]],
   order: dict[str, Any],
   outcomes: list[tuple[int, str]] = (),
   warnings: list[tuple[int, str]] = (),
@@ -397,8 +509,12 @@ def _fixture(
   fixture["inputs"] = {
     "issuers": {iss: {"keys": keys} for iss, keys in issuers.items()},
     "mandates": [
-      {"credential_token": token, "business": business}
-      for token, business in mandates
+      {
+        "credential_token": token,
+        "business": business,
+        "payment_amount": amount,
+      }
+      for token, business, amount in mandates
     ],
     "order": order,
   }
@@ -456,7 +572,9 @@ def _merchant_vector(vector: str, chain: _Chain, **kwargs: Any) -> dict:
   return _fixture(
     vector,
     issuers=kwargs.pop("issuers", {_MERCHANT: [chain.signer.jwk]}),
-    mandates=kwargs.pop("mandates", [(chain.token, chain.iss)]),
+    mandates=kwargs.pop(
+      "mandates", [(chain.token, chain.iss, chain.totals["mandated"])]
+    ),
     order=order,
     signing=_TEST_ONLY_SIGNING,
     **kwargs,
@@ -486,7 +604,7 @@ def _v01() -> dict:
     chain,
     title="A single capture equal to the mandate verifies",
     test_plan="1",
-    rules=["verify_1", "verify_2"],
+    rules=["verify_1", "verify_4", "verify_5", "verify_6"],
     receipts=receipts,
     notes=(
       "The ucp#1109 chain has two split captures, so it is vector 2; a "
@@ -500,10 +618,10 @@ def _v02() -> dict:
     "v02_split_captures",
     "Two split captures summing to the mandate verify",
     "2",
-    ["verify_1", "verify_2", "split_shipments"],
+    ["verify_1", "verify_4", "verify_5", "verify_6", "split_shipments"],
     _SPEC_SIGNING + " Source: " + SPEC_SOURCE + ".",
     {_SPEC_BUSINESS: [_SPEC_KEY]},
-    [(_SPEC_TOKEN, _SPEC_BUSINESS)],
+    [(_SPEC_TOKEN, _SPEC_BUSINESS, 5400)],
     _spec_order(list(_SPEC_CHAIN)),
   )
 
@@ -519,7 +637,7 @@ def _v03() -> dict:
     chain,
     title="A capture above the mandate, without a new mandate",
     test_plan="3",
-    rules=["verify_2", "business_3"],
+    rules=["verify_4", "verify_6", "business_3"],
     receipts=receipts,
     outcomes=[(1, v.RECEIPT_EXCEEDS_MANDATE)],
   )
@@ -556,14 +674,14 @@ def _v04() -> dict:
     original,
     title="An increase covered by a second mandate verifies",
     test_plan="4",
-    rules=["verify_2", "business_3"],
+    rules=["verify_4", "verify_6", "business_3"],
     receipts=receipts,
     totals=_usd_totals(
       5000, 400, {"type": "fee", "amount": 600, "display_text": "Tip"}
     ),
     mandates=[
-      ("test_only_payment_mandate_v04_original", _MERCHANT),
-      ("test_only_payment_mandate_v04_increase", _MERCHANT),
+      ("test_only_payment_mandate_v04_original", _MERCHANT, 5400),
+      ("test_only_payment_mandate_v04_increase", _MERCHANT, 600),
     ],
     notes=(
       "The USD 6.00 tip is covered by a second closed Payment Mandate, "
@@ -578,10 +696,10 @@ def _v05() -> dict:
     "v05_tampered_amount",
     "A tampered amount gives receipt_invalid_signature",
     "5",
-    ["verify_1"],
+    ["verify_1", "verify_3"],
     _SPEC_SIGNING + " Source: " + SPEC_SOURCE + ".",
     {_SPEC_BUSINESS: [_SPEC_KEY]},
-    [(_SPEC_TOKEN, _SPEC_BUSINESS)],
+    [(_SPEC_TOKEN, _SPEC_BUSINESS, 5400)],
     _spec_order(receipts),
     outcomes=[(2, v.RECEIPT_INVALID_SIGNATURE)],
     notes=(
@@ -596,13 +714,23 @@ def _v06() -> dict:
     "v06_missing_seq",
     "A missing seq gives receipt_sequence_gap",
     "6",
-    ["verify_2"],
+    ["verify_4"],
     _SPEC_SIGNING + " Source: " + SPEC_SOURCE + ".",
     {_SPEC_BUSINESS: [_SPEC_KEY]},
-    [(_SPEC_TOKEN, _SPEC_BUSINESS)],
+    [(_SPEC_TOKEN, _SPEC_BUSINESS, 5400)],
     _spec_order([_SPEC_CHAIN[0], _SPEC_CHAIN[2]]),
-    outcomes=[(1, v.RECEIPT_SEQUENCE_GAP)],
-    notes="The ucp#1109 chain with its seq 2 receipt removed.",
+    outcomes=[
+      (1, v.RECEIPT_SEQUENCE_GAP),
+      (1, v.RECEIPT_TOTALS_MISMATCH),
+    ],
+    notes=(
+      "The ucp#1109 chain with its seq 2 receipt removed. Platform "
+      "Verification 5 recomputes totals from the succeeded events the "
+      "platform holds, so the seq 3 receipt, which states captured 5400, "
+      "also differs from the 2400 recomputed. The specification does not "
+      "say whether a gap suppresses that outcome; this vector follows the "
+      "rule as written."
+    ),
   )
 
 
@@ -618,7 +746,7 @@ def _v07() -> dict:
     chain,
     title="A refund above captured gives receipt_refund_exceeds_capture",
     test_plan="7",
-    rules=["verify_2"],
+    rules=["verify_4", "verify_6"],
     receipts=receipts,
     outcomes=[(2, v.RECEIPT_REFUND_EXCEEDS_CAPTURE)],
   )
@@ -642,7 +770,7 @@ def _v08() -> dict:
     chain,
     title="A receipt signed with a rotated, retained key verifies",
     test_plan="8",
-    rules=["verify_1", "business_6"],
+    rules=["verify_1", "business_9"],
     receipts=receipts,
     issuers={_MERCHANT: [retired.jwk, chain.signer.jwk]},
     notes=(
@@ -659,14 +787,21 @@ def _v08_not_retained() -> dict:
     chain,
     title="A receipt whose retired key is no longer published",
     test_plan=None,
-    rules=["verify_1", "verify_2", "business_6"],
+    rules=["verify_1", "verify_3", "verify_4", "business_9"],
     receipts=receipts,
     issuers={_MERCHANT: [chain.signer.jwk]},
-    outcomes=[(0, v.RECEIPT_INVALID_SIGNATURE), (1, v.RECEIPT_SEQUENCE_GAP)],
+    outcomes=[
+      (0, v.RECEIPT_INVALID_SIGNATURE),
+      (1, v.RECEIPT_SEQUENCE_GAP),
+      (1, v.RECEIPT_TOTALS_MISMATCH),
+    ],
     notes=(
       "Negative counterpart of v08_rotated_retained_key: test_only_2025 is "
-      "gone from keys, so seq 1 cannot be verified. It is then not part of "
-      "the chain, and seq 2 is reported as a gap."
+      "gone from keys, so the `kid` of seq 1 does not resolve and it is "
+      "receipt_invalid_signature. It is then excluded from the chain, so "
+      "seq 2 is reported as a gap and, because the totals are recomputed "
+      "without the excluded receipt, as a totals mismatch too (see "
+      "v06_missing_seq)."
     ),
   )
 
@@ -701,7 +836,7 @@ def _marketplace_vector(vector: str, steps: list[tuple], **kwargs) -> dict:
   return _fixture(
     vector,
     issuers={_MARKETPLACE: [signer.jwk]},
-    mandates=[(f"test_only_payment_mandate_{vector}", _MARKETPLACE)],
+    mandates=[(f"test_only_payment_mandate_{vector}", _MARKETPLACE, 5400)],
     order=order,
     signing=_TEST_ONLY_SIGNING,
     **kwargs,
@@ -718,7 +853,7 @@ def _v09() -> dict:
     ],
     title="Marketplace as merchant of record, two sellers: captures verify",
     test_plan="9",
-    rules=["verify_2", "verify_3", "marketplace"],
+    rules=["verify_4", "verify_6", "verify_7", "marketplace"],
   )
 
 
@@ -732,7 +867,7 @@ def _v09_duplicate() -> dict:
     ],
     title="A duplicate capture for one seller gives a seller-total warning",
     test_plan="9",
-    rules=["verify_2", "verify_3", "marketplace"],
+    rules=["verify_4", "verify_6", "verify_7", "marketplace"],
     warnings=[(2, v.RECEIPT_EXCEEDS_SELLER_TOTAL)],
     notes=(
       "Chain totals pass (captured 4000 <= mandated 5400), but seller_a's "
@@ -752,7 +887,7 @@ def _v09_seller_refund() -> dict:
     ],
     title="A refund above one seller's captures gives a seller-total warning",
     test_plan=None,
-    rules=["verify_2", "verify_3"],
+    rules=["verify_4", "verify_6", "verify_7"],
     warnings=[(2, v.RECEIPT_EXCEEDS_SELLER_TOTAL)],
     notes=(
       "Chain totals pass (refunded 1000 <= captured 2000), but seller_b "
@@ -809,7 +944,7 @@ def _two_mor_vector(vector: str, with_mismatch: bool, **kwargs) -> dict:
   return _fixture(
     vector,
     issuers={_SELLER_A: [signer_a.jwk], _SELLER_B: [signer_b.jwk]},
-    mandates=[(token_a, _SELLER_A), (token_b, _SELLER_B)],
+    mandates=[(token_a, _SELLER_A, 2000), (token_b, _SELLER_B, 3400)],
     order=order,
     signing=_TEST_ONLY_SIGNING,
     **kwargs,
@@ -822,7 +957,7 @@ def _v10() -> dict:
     with_mismatch=False,
     title="Two merchants of record in one order: both chains verify",
     test_plan="10",
-    rules=["verify_1", "verify_2", "several_mor"],
+    rules=["verify_1", "verify_4", "verify_6", "several_mor"],
   )
 
 
@@ -832,7 +967,7 @@ def _v10_mismatch() -> dict:
     with_mismatch=True,
     title="A receipt whose iss does not match its mandate",
     test_plan="10",
-    rules=["verify_1", "several_mor"],
+    rules=["verify_1", "verify_2", "verify_3", "several_mor"],
     outcomes=[(4, v.RECEIPT_MANDATE_UNKNOWN)],
     notes=(
       "Receipt 4 carries seller A's mandate_ref with iss seller-b and is "
@@ -841,7 +976,16 @@ def _v10_mismatch() -> dict:
   )
 
 
-def _lodging_vector(vector: str, refund: int, **kwargs) -> dict:
+def _lodging_vector(
+  vector: str,
+  refunds: int | list[tuple[int, str]],
+  adjustment_id: str = "adj_cancel_1",
+  with_adjustment: bool = True,
+  **kwargs: Any,
+) -> dict:
+  """EUR 600.00 booking, cancelled; `refunds` is an amount or a list."""
+  if isinstance(refunds, int):
+    refunds = [(refunds, "succeeded")]
   signer = FixtureSigner(_HOTEL, "test_only_2026")
   token = f"test_only_payment_mandate_{vector}"
   chain = _Chain(
@@ -850,13 +994,17 @@ def _lodging_vector(vector: str, refund: int, **kwargs) -> dict:
   receipts = [
     chain.issue("authorization", 60000, "2026-11-01T09:00:00Z"),
     chain.issue("capture", 60000, "2026-11-01T09:00:30Z"),
-    chain.issue(
-      "refund",
-      refund,
-      "2026-11-14T16:00:00Z",
-      ref={"adjustment_id": "adj_cancel_1"},
-    ),
   ]
+  for number, (amount, status) in enumerate(refunds):
+    receipts.append(
+      chain.issue(
+        "refund",
+        amount,
+        f"2026-11-14T16:0{number}:00Z",
+        status,
+        ref={"adjustment_id": adjustment_id},
+      )
+    )
   adjustment = {
     "id": "adj_cancel_1",
     "type": "cancellation",
@@ -878,12 +1026,12 @@ def _lodging_vector(vector: str, refund: int, **kwargs) -> dict:
       {"type": "total", "amount": 60000},
     ],
     receipts,
-    adjustments=[adjustment],
+    adjustments=[adjustment] if with_adjustment else [],
   )
   return _fixture(
     vector,
     issuers={_HOTEL: [signer.jwk]},
-    mandates=[(token, _HOTEL)],
+    mandates=[(token, _HOTEL, 60000)],
     order=order,
     signing=_TEST_ONLY_SIGNING,
     **kwargs,
@@ -896,7 +1044,7 @@ def _v11() -> dict:
     45000,
     title="Lodging partial refund matching the cancellation adjustment",
     test_plan="11",
-    rules=["verify_2", "verify_4", "partial_refund"],
+    rules=["verify_4", "verify_6", "verify_8", "partial_refund"],
   )
 
 
@@ -906,7 +1054,7 @@ def _v12() -> dict:
     30000,
     title="Lodging refund that disagrees with the cancellation adjustment",
     test_plan="12",
-    rules=["verify_2", "verify_4", "partial_refund"],
+    rules=["verify_4", "verify_6", "verify_8", "partial_refund"],
     reconciliation=[(2, v.RECONCILIATION_ADJUSTMENT_MISMATCH)],
     notes=(
       "The receipt chain verifies; the refund (EUR 300.00) disagrees with "
@@ -957,7 +1105,7 @@ def _refund_delayed_network_ref() -> dict:
     network_ref="74000000000000000001063",
     title="Refund receipted pending, then succeeded with a late network_ref",
     test_plan=None,
-    rules=["verify_2", "pending", "late_network_ref"],
+    rules=["verify_4", "verify_5", "pending", "business_7"],
     notes=(
       "seq 3 is pending and leaves totals unchanged; seq 4, for the same "
       "event.ref, is succeeded, carries network_ref (an ARN assigned days "
@@ -973,11 +1121,432 @@ def _refund_reversal() -> dict:
     requested="2026-11-10T04:00:00Z",
     title="Refund processed as a reversal: succeeded without network_ref",
     test_plan=None,
-    rules=["verify_2", "pending", "late_network_ref"],
+    rules=["verify_4", "verify_5", "pending", "late_network_ref"],
     notes=(
       "The refund settles as a reversal of the authorization shortly after "
       "capture, so no network reference is ever assigned: the succeeded "
       "receipt for the same event.ref has no network_ref, and is valid."
+    ),
+  )
+
+
+def _extra(
+  vector: str,
+  title: str,
+  rules: list[str],
+  steps: list[tuple],
+  mandated: int = 5400,
+  mandate_amount: int = 5400,
+  **kwargs: Any,
+) -> dict:
+  """Single-merchant USD vector, receipts issued from `steps`.
+
+  Each step is (event_type, amount, occurred_at, status, issue_kwargs).
+  """
+  chain = _simple_chain(vector)
+  chain.totals["mandated"] = mandated
+  receipts = [
+    chain.issue(kind, amount, at, status, **extra)
+    for kind, amount, at, status, extra in steps
+  ]
+  return _merchant_vector(
+    vector,
+    chain,
+    title=title,
+    test_plan=None,
+    rules=rules,
+    receipts=receipts,
+    mandates=[(chain.token, chain.iss, mandate_amount)],
+    **kwargs,
+  )
+
+
+_AUTH_AT = "2026-11-09T14:53:20Z"
+_CAPTURE_AT = "2026-11-10T02:00:00Z"
+_RELEASE_AT = "2026-11-10T02:05:00Z"
+_LATER_AT = "2026-11-12T10:00:00Z"
+_OK = "succeeded"
+
+
+def _totals_mismatch_captured() -> dict:
+  return _extra(
+    "totals_mismatch_captured",
+    "Stated captured differs from the succeeded events",
+    ["verify_5", "running_totals"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      (
+        "capture",
+        3000,
+        _CAPTURE_AT,
+        _OK,
+        {"stated_totals": {"captured": 2400}},
+      ),
+      ("capture", 2400, _LATER_AT, _OK, {}),
+    ],
+    outcomes=[(1, v.RECEIPT_TOTALS_MISMATCH)],
+    notes=(
+      "Receipt 1 captures 3000 but states captured 2400. Totals are "
+      "recomputed from the events, so receipt 2, which states the correct "
+      "running totals, is not affected."
+    ),
+  )
+
+
+def _totals_mismatch_capture_reduces_authorized() -> dict:
+  return _extra(
+    "totals_mismatch_capture_reduces_authorized",
+    "A capture does not reduce authorized",
+    ["verify_5", "running_totals"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      (
+        "capture",
+        3000,
+        _CAPTURE_AT,
+        _OK,
+        {"stated_totals": {"authorized": 2400}},
+      ),
+    ],
+    outcomes=[(1, v.RECEIPT_TOTALS_MISMATCH)],
+    notes=(
+      "The business states authorized 2400 after a 3000 capture, as if the "
+      "capture used up the authorization. Recomputed authorized is 5400."
+    ),
+  )
+
+
+def _totals_mismatch_mandated() -> dict:
+  return _extra(
+    "totals_mismatch_mandated_9000_auth",
+    "totals.mandated differs from the mandate's payment_amount",
+    ["verify_5", "verify_6", "business_3"],
+    [("authorization", 9000, _AUTH_AT, _OK, {})],
+    mandated=9000,
+    mandate_amount=5400,
+    outcomes=[
+      (0, v.RECEIPT_TOTALS_MISMATCH),
+      (0, v.RECEIPT_EXCEEDS_MANDATE),
+    ],
+    notes=(
+      "The business authorizes 9000 and states mandated 9000 against a "
+      "Payment Mandate whose payment_amount is 5400. Its totals are "
+      "consistent with its events, so only the comparison with "
+      "payment_amount shows the problem: totals.mandated differs "
+      "(receipt_totals_mismatch) and the recomputed authorized 9000 "
+      "exceeds the mandate's 5400 (receipt_exceeds_mandate). Both rules "
+      "apply as written; the specification does not say whether the "
+      "second is suppressed."
+    ),
+  )
+
+
+def _authorized_after_capture_and_release() -> dict:
+  return _extra(
+    "authorized_after_capture_and_release",
+    "3000 captured, 2400 released: authorized stays 3000",
+    ["verify_5", "verify_6", "running_totals", "partial_capture_release"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 3000, _CAPTURE_AT, _OK, {}),
+      ("release", 2400, _RELEASE_AT, _OK, {}),
+    ],
+    notes=(
+      "authorized = authorization + authorization_adjustment - release, so "
+      "5400 - 2400 = 3000 and the capture does not reduce it. Totals after "
+      "receipt 2: authorized 3000, captured 3000."
+    ),
+  )
+
+
+def _reauthorization_within_mandate() -> dict:
+  return _extra(
+    "reauthorization_within_mandate",
+    "Authorization expiry, then a re-authorization of mandated - captured",
+    ["verify_6", "running_totals", "auth_expiry"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 3000, _CAPTURE_AT, _OK, {}),
+      ("release", 2400, _RELEASE_AT, _OK, {}),
+      ("authorization", 2400, _LATER_AT, _OK, {}),
+    ],
+    notes="authorized returns to 5400, which equals mandated.",
+  )
+
+
+def _reauthorization_exceeds_mandate() -> dict:
+  return _extra(
+    "reauthorization_exceeds_mandate",
+    "A re-authorization above the mandate gives receipt_exceeds_mandate",
+    ["verify_6", "business_3", "auth_expiry"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 3000, _CAPTURE_AT, _OK, {}),
+      ("release", 2400, _RELEASE_AT, _OK, {}),
+      ("authorization", 5400, _LATER_AT, _OK, {}),
+    ],
+    outcomes=[(3, v.RECEIPT_EXCEEDS_MANDATE)],
+    notes=(
+      "After the release authorized is 3000; authorizing the full 5400 "
+      "again makes it 8400, above mandated 5400. The totals are stated "
+      "honestly, so only receipt_exceeds_mandate applies."
+    ),
+  )
+
+
+def _authorization_adjustment() -> dict:
+  return _extra(
+    "authorization_adjustment_increase",
+    "An authorization_adjustment adds to authorized",
+    ["verify_5", "running_totals"],
+    [
+      ("authorization", 3000, _AUTH_AT, _OK, {}),
+      ("authorization_adjustment", 2400, "2026-11-09T15:00:00Z", _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+    ],
+    notes="authorized 3000 + 2400 = 5400 after receipt 1.",
+  )
+
+
+def _capture_reversal() -> dict:
+  return _extra(
+    "capture_reversal",
+    "A capture_reversal subtracts from captured",
+    ["verify_5", "running_totals"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+      ("capture_reversal", 5400, _RELEASE_AT, _OK, {}),
+      ("capture", 5400, _LATER_AT, _OK, {}),
+    ],
+    notes="captured goes 5400, 0, 5400: never above mandated.",
+  )
+
+
+def _duplicate_different_seq() -> dict:
+  chain = _simple_chain("duplicate_different_seq")
+  receipts = [
+    chain.issue("authorization", 5400, _AUTH_AT),
+    chain.issue(
+      "capture", 3000, _CAPTURE_AT, ref={"processing_entry_id": "ent_2"}
+    ),
+  ]
+  # A second, different receipt for seq 2, signed by the same business.
+  rival = copy.deepcopy(chain)
+  rival.seq -= 1
+  rival.totals["captured"] -= 3000
+  rival.prev = v.sha256_ref(receipts[0])
+  receipts.append(
+    rival.issue(
+      "capture", 3000, _CAPTURE_AT, ref={"processing_entry_id": "ent_2b"}
+    )
+  )
+  receipts.append(
+    chain.issue(
+      "capture", 2400, _LATER_AT, ref={"processing_entry_id": "ent_3"}
+    )
+  )
+  return _merchant_vector(
+    "duplicate_different_seq",
+    chain,
+    title="A second, different receipt for a seq already held",
+    test_plan=None,
+    rules=["verify_4"],
+    receipts=receipts,
+    outcomes=[(2, v.RECEIPT_SEQUENCE_GAP)],
+    notes=(
+      "Receipts 1 and 2 are both seq 2, with different processing entries. "
+      "The one held first stays in the chain, so receipt 3 (seq 3, whose "
+      "prev is receipt 1) continues it. The second is reported as a gap "
+      "and neither chained nor counted; the platform keeps both."
+    ),
+  )
+
+
+def _bad_typ(vector: str, typ: str | None, title: str) -> dict:
+  return _extra(
+    vector,
+    title,
+    ["verify_1"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      (
+        "capture",
+        5400,
+        _CAPTURE_AT,
+        _OK,
+        {"sign_options": {"typ": typ}},
+      ),
+    ],
+    outcomes=[(1, v.RECEIPT_INVALID_SIGNATURE)],
+    notes=(
+      "The last receipt is correctly signed, but its header "
+      f"typ is {typ!r}, not ucp-ap2-receipt+jwt."
+    ),
+  )
+
+
+def _wrong_typ() -> dict:
+  return _bad_typ(
+    "wrong_typ", "JWT", "A wrong typ gives receipt_invalid_signature"
+  )
+
+
+def _missing_typ() -> dict:
+  return _bad_typ(
+    "missing_typ", None, "A missing typ gives receipt_invalid_signature"
+  )
+
+
+def _signature_before_mandate_binding() -> dict:
+  receipts = [*_SPEC_CHAIN[:2], _tamper_amount(_SPEC_CHAIN[2], 4400)]
+  return _fixture(
+    "signature_checked_before_mandate_binding",
+    "mandate_ref/iss binding is checked only after the signature verifies",
+    None,
+    ["verify_1", "verify_2", "verify_3"],
+    _SPEC_SIGNING + " Source: " + SPEC_SOURCE + ".",
+    {_SPEC_BUSINESS: [_SPEC_KEY]},
+    [("a_mandate_the_platform_did_not_send", _SPEC_BUSINESS, 5400)],
+    _spec_order(receipts),
+    outcomes=[
+      (0, v.RECEIPT_MANDATE_UNKNOWN),
+      (1, v.RECEIPT_MANDATE_UNKNOWN),
+      (2, v.RECEIPT_INVALID_SIGNATURE),
+    ],
+    notes=(
+      "The platform never sent the mandate behind this chain. Receipts 0 "
+      "and 1 verify and are mandate_unknown. Receipt 2 is tampered (as in "
+      "v05_tampered_amount): its signature fails, so its mandate_ref is "
+      "not checked and it is invalid_signature only."
+    ),
+  )
+
+
+def _non_jcs_bytes() -> dict:
+  chain = _simple_chain("non_jcs_bytes")
+  loose = {"sign_options": {"canonical": False}}
+  receipts = [
+    chain.issue("authorization", 5400, _AUTH_AT, **loose),
+    chain.issue(
+      "capture",
+      3000,
+      _CAPTURE_AT,
+      ref={"processing_entry_id": "ent_2"},
+      **loose,
+    ),
+    chain.issue(
+      "capture", 2400, _LATER_AT, ref={"processing_entry_id": "ent_3"}
+    ),
+  ]
+  return _merchant_vector(
+    "non_jcs_bytes_accepted",
+    chain,
+    title="Receipts whose payload bytes are not JCS form verify",
+    test_plan=None,
+    rules=["no_jcs", "verify_1", "verify_4"],
+    receipts=receipts,
+    notes=(
+      "Receipts 0 and 1 are signed over indented JSON with members in "
+      "reverse order. The signature and the next receipt's prev cover "
+      "those bytes as sent, so verification does not depend on canonical "
+      "form."
+    ),
+  )
+
+
+def _network_ref_follow_up(vector: str, misstated: bool) -> dict:
+  chain = _simple_chain(vector)
+  ref = {"processing_entry_id": "ent_r1", "adjustment_id": "adj_refund_1"}
+  receipts = [
+    chain.issue("authorization", 5400, _AUTH_AT),
+    chain.issue("capture", 5400, _CAPTURE_AT),
+    chain.issue("refund", 5400, "2026-11-10T04:00:00Z", ref=ref),
+    chain.issue(
+      "refund",
+      5400,
+      "2026-11-10T04:00:00Z",
+      ref=ref,
+      network_ref="74000000000000000001063",
+      **({"stated_totals": {"refunded": 10800}} if misstated else {}),
+    ),
+  ]
+  adjustment = {
+    "id": "adj_refund_1",
+    "type": "refund",
+    "occurred_at": "2026-11-10T04:00:00Z",
+    "status": "completed",
+    "totals": [{"type": "total", "amount": -5400}],
+  }
+  return _merchant_vector(
+    vector,
+    chain,
+    receipts=receipts,
+    adjustments=[adjustment],
+    test_plan=None,
+    **(
+      {
+        "title": "A network_ref follow-up that changes the totals",
+        "rules": ["each_once", "verify_5"],
+        "outcomes": [(3, v.RECEIPT_TOTALS_MISMATCH)],
+        "notes": (
+          "The follow-up repeats the refund's type and processing_entry_id "
+          "but states refunded 10800, as if the 5400 counted twice."
+        ),
+      }
+      if misstated
+      else {
+        "title": "A late network_ref follow-up does not change the totals",
+        "rules": ["each_once", "business_7", "late_network_ref"],
+        "notes": (
+          "Receipt 3 repeats the succeeded refund's type and "
+          "processing_entry_id and adds network_ref. refunded stays 5400, "
+          "and the refund counts once when reconciled against its "
+          "adjustment."
+        ),
+      }
+    ),
+  )
+
+
+def _reconcile_split_refunds() -> dict:
+  return _lodging_vector(
+    "reconcile_split_refunds",
+    [(30000, "succeeded"), (15000, "succeeded")],
+    title="Two succeeded refunds citing one adjustment sum to its total",
+    test_plan=None,
+    rules=["verify_8"],
+    notes="30000 + 15000 matches the 45000 adjustment.",
+  )
+
+
+def _reconcile_pending_not_counted() -> dict:
+  return _lodging_vector(
+    "reconcile_pending_not_counted",
+    [(30000, "succeeded"), (15000, "pending")],
+    title="A pending refund is not counted when reconciling",
+    test_plan=None,
+    rules=["verify_8"],
+    reconciliation=[(2, v.RECONCILIATION_ADJUSTMENT_MISMATCH)],
+    notes=(
+      "Only the succeeded 30000 counts against the 45000 adjustment. The "
+      "finding is attached to the last succeeded refund that cites it."
+    ),
+  )
+
+
+def _reconcile_unmatched_adjustment() -> dict:
+  return _lodging_vector(
+    "reconcile_unmatched_adjustment_id",
+    45000,
+    adjustment_id="adj_does_not_exist",
+    title="A refund citing an adjustment the Order does not have",
+    test_plan=None,
+    rules=["verify_8"],
+    reconciliation=[(2, v.RECONCILIATION_ADJUSTMENT_MISMATCH)],
+    notes=(
+      "The refund cites adj_does_not_exist; the Order's only adjustment "
+      "is adj_cancel_1."
     ),
   )
 
@@ -1001,6 +1570,24 @@ _BUILDERS = (
   _v12,
   _refund_delayed_network_ref,
   _refund_reversal,
+  _totals_mismatch_captured,
+  _totals_mismatch_capture_reduces_authorized,
+  _totals_mismatch_mandated,
+  _authorized_after_capture_and_release,
+  _reauthorization_within_mandate,
+  _reauthorization_exceeds_mandate,
+  _authorization_adjustment,
+  _capture_reversal,
+  _duplicate_different_seq,
+  _wrong_typ,
+  _missing_typ,
+  _signature_before_mandate_binding,
+  _non_jcs_bytes,
+  lambda: _network_ref_follow_up("network_ref_follow_up", False),
+  lambda: _network_ref_follow_up("network_ref_follow_up_changes_totals", True),
+  _reconcile_split_refunds,
+  _reconcile_pending_not_counted,
+  _reconcile_unmatched_adjustment,
 )
 
 

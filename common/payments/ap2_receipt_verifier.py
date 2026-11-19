@@ -28,30 +28,40 @@ The verifier takes what a platform holds after checkout:
 
 It reports three groups of findings, kept apart on purpose:
 
-* `outcomes`: the MUST checks of "Platform Verification" 1 and 2;
-* `warnings`: the per-seller SHOULD of "Platform Verification" 3
+* `outcomes`: the MUST checks of "Platform Verification" 1-6;
+* `warnings`: the per-seller SHOULD of "Platform Verification" 7
   (`receipt_exceeds_seller_total`);
-* `reconciliation`: the SHOULD of "Platform Verification" 4
+* `reconciliation`: the SHOULD of "Platform Verification" 8
   (`reconciliation_adjustment_mismatch`). It is commercial, not
   cryptographic, so a receipt it flags stays valid.
 
 Only ECDSA is implemented (ES256, ES384, ES512): the extension's algorithm
 rule follows AP2 v0.2, which requires it ("Cryptographic Requirements").
 
+The verifier never requires JCS form: the signature and `prev` cover the
+bytes as sent ("Hashes and Chaining").
+
 Where the specification leaves a choice open, this verifier:
 
-* reports a receipt whose `kid` does not resolve in the `keys` of `iss`, or
-  whose `iss` has no known keys, as `receipt_invalid_signature` (its
-  signature "cannot be verified");
-* leaves a receipt that fails the signature or mandate binding check out of
-  its chain, so the next receipt in that chain is a sequence gap;
+* reports a receipt whose `iss` has no known keys as
+  `receipt_invalid_signature` (its signature "cannot be verified"), like an
+  unresolved `kid`;
+* treats a second receipt for a `seq` the chain already holds as a repeat,
+  and so as a sequence gap, only if its bytes differ ("A second, different
+  receipt"); a byte-identical copy is ignored. The first receipt held stays
+  in the chain; the second is neither chained nor counted in the totals;
+* recomputes totals cumulatively, receipt by receipt, over the chain's
+  succeeded events, so each receipt's stated `totals` are compared with the
+  state right after that receipt;
+* takes the mandate's `payment_amount` (when the caller knows it) as the
+  `mandated` that `authorized` and `captured` are held to, not the amount
+  the receipt states;
 * reconciles a refund against the magnitude of the cited adjustment's
-  `total`, because adjustment totals are signed and receipt amounts are not;
+  `total`, because adjustment totals are signed and receipt amounts are not,
+  once per adjustment, at the last succeeded refund that cites it; an
+  adjustment cited only by pending or failed refunds is not checked;
 * checks a seller only when it resolves in `sellers` and has attributed
   line items;
-* evaluates both total invariants on the totals each receipt states, as
-  Platform Verification 2 is written; `derived_totals` exposes what the
-  chain's events add up to, but a difference has no outcome;
 * records a signed receipt that is not a Receipt Payload in `malformed`
   rather than as an outcome, since no outcome covers it.
 """
@@ -73,6 +83,7 @@ RECEIPT_TYP = "ucp-ap2-receipt+jwt"
 # `receipt_verification_outcome` in payment_ap2_mandate.json.
 RECEIPT_INVALID_SIGNATURE = "receipt_invalid_signature"
 RECEIPT_SEQUENCE_GAP = "receipt_sequence_gap"
+RECEIPT_TOTALS_MISMATCH = "receipt_totals_mismatch"
 RECEIPT_EXCEEDS_MANDATE = "receipt_exceeds_mandate"
 RECEIPT_REFUND_EXCEEDS_CAPTURE = "receipt_refund_exceeds_capture"
 RECEIPT_EXCEEDS_SELLER_TOTAL = "receipt_exceeds_seller_total"
@@ -127,10 +138,25 @@ class Finding:
 
 @dataclasses.dataclass(frozen=True)
 class Totals:
-  """`captured` and `refunded` derived from a chain's succeeded events."""
+  """Totals recomputed from a chain's succeeded events ("Running Totals")."""
 
-  captured: int
-  refunded: int
+  authorized: int = 0
+  captured: int = 0
+  refunded: int = 0
+
+  def after(self, event: Mapping[str, Any]) -> "Totals":
+    """Return the totals once a succeeded `event` counts."""
+    amount = event["amount"]
+    kind = event["type"]
+    return Totals(
+      self.authorized
+      + (amount if kind in ("authorization", "authorization_adjustment") else 0)
+      - (amount if kind == "release" else 0),
+      self.captured
+      + (amount if kind == "capture" else 0)
+      - (amount if kind == "capture_reversal" else 0),
+      self.refunded + (amount if kind == "refund" else 0),
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -142,6 +168,9 @@ class VerifiedReceipt:
   header: dict[str, Any]
   payload: dict[str, Any]
   derived_totals: Totals
+  # False for a follow-up to a movement already counted ("Running Totals",
+  # "Each movement counts once") and for events that are not succeeded.
+  counted: bool = True
 
   @property
   def chain(self) -> ChainKey:
@@ -171,11 +200,15 @@ class Mandate:
       `payment.instruments[*].credential.token`.
     business: Profile URI of the business that signed the checkout the
       mandate covers (its `ap2.merchant_authorization`).
+    payment_amount: The mandate's `payment_amount` in minor units, which
+      `totals.mandated` must equal. None if the caller cannot read it; the
+      stated `mandated` is then not checked.
 
   """
 
   credential_token: str
   business: str
+  payment_amount: int | None = None
 
   @property
   def mandate_ref(self) -> str:
@@ -368,8 +401,11 @@ def verify_order_receipts(
   """
   result = VerificationResult()
   mandates_by_ref = {m.mandate_ref: m for m in mandates}
-  # Last verified receipt and derived totals of each (iss, mandate_ref) chain.
+  # Per (iss, mandate_ref) chain: the last chained receipt, the receipts
+  # held by `seq`, and the (type, processing_entry_id) pairs already counted.
   chain_tail: dict[ChainKey, VerifiedReceipt] = {}
+  held: dict[ChainKey, dict[int, str]] = {}
+  counted: dict[ChainKey, set[tuple[str, str]]] = {}
 
   receipts = (order.get("ap2") or {}).get("receipts", [])
   for index, compact in enumerate(receipts):
@@ -381,7 +417,10 @@ def verify_order_receipts(
       )
       continue
 
-    # Platform Verification 1: the signature, against the keys of `iss`.
+    # Platform Verification 1: the signature, against the keys of `iss`. A
+    # wrong or missing `typ` and a `kid` that does not resolve are
+    # `receipt_invalid_signature` too. Platform Verification 3: a receipt
+    # that fails is left out of its chain.
     iss = payload.get("iss")
     keys = issuer_keys.get(iss) if isinstance(iss, str) else None
     reason = _check_signature(compact, header, keys)
@@ -395,10 +434,10 @@ def verify_order_receipts(
       )
       continue
 
-    # Platform Verification 1: `iss` must be the business that signed the
-    # checkout covered by `mandate_ref`; the outcome table adds the case of
-    # an unknown `mandate_ref`. Business Requirements 2 says the same from
-    # the business side.
+    # Platform Verification 2: only for a receipt whose signature verified,
+    # `mandate_ref` must be a Payment Mandate the platform submitted and
+    # `iss` the business that signed the checkout it covers. Rule 3 leaves
+    # a failing receipt out of its chain.
     mandate = mandates_by_ref.get(payload["mandate_ref"])
     if mandate is None:
       result.outcomes.append(
@@ -416,19 +455,32 @@ def verify_order_receipts(
       )
       continue
 
-    # Hashes and Chaining / Platform Verification 2: one chain per
+    # Platform Verification 4: `seq` and `prev` continuity per
     # (iss, mandate_ref). `seq` starts at 1 and increases by exactly 1;
     # `prev` is the hash of the previous receipt's compact JWS, null at 1.
+    # A second, different receipt for a `seq` already held is a gap; both
+    # are kept (the platform keeps every receipt it received).
     chain: ChainKey = (payload["iss"], payload["mandate_ref"])
+    seq = payload["seq"]
+    chain_held = held.setdefault(chain, {})
+    if seq in chain_held:
+      if chain_held[seq] != compact:
+        result.outcomes.append(
+          Finding(
+            index,
+            RECEIPT_SEQUENCE_GAP,
+            f"a different receipt for seq {seq} is already held",
+          )
+        )
+      continue
+    chain_held[seq] = compact
     tail = chain_tail.get(chain)
     expected_seq = 1 if tail is None else tail.payload["seq"] + 1
     expected_prev = None if tail is None else sha256_ref(tail.compact)
-    if payload["seq"] != expected_seq:
+    if seq != expected_seq:
       result.outcomes.append(
         Finding(
-          index,
-          RECEIPT_SEQUENCE_GAP,
-          f"seq {payload['seq']}, expected {expected_seq}",
+          index, RECEIPT_SEQUENCE_GAP, f"seq {seq}, expected {expected_seq}"
         )
       )
     elif payload["prev"] != expected_prev:
@@ -440,41 +492,75 @@ def verify_order_receipts(
         )
       )
 
-    # Platform Verification 2: both total invariants, per chain, on the
-    # running totals the receipt states.
-    totals = payload["totals"]
-    if totals["captured"] > totals["mandated"]:
+    # Running Totals: only a `succeeded` event changes the totals, and each
+    # movement counts once: a later succeeded receipt with the same `type`
+    # and `event.ref.processing_entry_id` is a follow-up.
+    event = payload["event"]
+    previous = Totals() if tail is None else tail.derived_totals
+    entry_id = (event.get("ref") or {}).get("processing_entry_id")
+    key = (event["type"], entry_id)
+    chain_counted = counted.setdefault(chain, set())
+    counts = event["status"] == "succeeded" and not (
+      entry_id is not None and key in chain_counted
+    )
+    if counts:
+      recomputed = previous.after(event)
+      if entry_id is not None:
+        chain_counted.add(key)
+    else:
+      recomputed = previous
+
+    # Platform Verification 5: stated totals against the recomputed ones,
+    # and `mandated` against the mandate's `payment_amount`.
+    stated = payload["totals"]
+    differences = [
+      f"{name} {stated[name]} (recomputed {getattr(recomputed, name)})"
+      for name in ("authorized", "captured", "refunded")
+      if stated[name] != getattr(recomputed, name)
+    ]
+    if mandate.payment_amount is not None and (
+      stated["mandated"] != mandate.payment_amount
+    ):
+      differences.append(
+        f"mandated {stated['mandated']} (payment_amount "
+        f"{mandate.payment_amount})"
+      )
+    if differences:
       result.outcomes.append(
         Finding(
           index,
-          RECEIPT_EXCEEDS_MANDATE,
-          f"captured {totals['captured']} > mandated {totals['mandated']}",
+          RECEIPT_TOTALS_MISMATCH,
+          "stated totals differ: " + "; ".join(differences),
         )
       )
-    if totals["refunded"] > totals["captured"]:
+
+    # Platform Verification 6: on the recomputed totals, `authorized` and
+    # `captured` against `mandated`, and `refunded` against `captured`.
+    mandated = (
+      stated["mandated"]
+      if mandate.payment_amount is None
+      else mandate.payment_amount
+    )
+    for name in ("authorized", "captured"):
+      if getattr(recomputed, name) > mandated:
+        result.outcomes.append(
+          Finding(
+            index,
+            RECEIPT_EXCEEDS_MANDATE,
+            f"{name} {getattr(recomputed, name)} > mandated {mandated}",
+          )
+        )
+    if recomputed.refunded > recomputed.captured:
       result.outcomes.append(
         Finding(
           index,
           RECEIPT_REFUND_EXCEEDS_CAPTURE,
-          f"refunded {totals['refunded']} > captured {totals['captured']}",
+          f"refunded {recomputed.refunded} > captured {recomputed.captured}",
         )
       )
 
-    # receipt_event.status: only `succeeded` events change the running
-    # totals (Edge Cases, "Pending movements"). `captured` is net of capture
-    # reversals (receipt_totals).
-    previous = Totals(0, 0) if tail is None else tail.derived_totals
-    event = payload["event"]
-    captured, refunded = previous.captured, previous.refunded
-    if event["status"] == "succeeded":
-      if event["type"] == "capture":
-        captured += event["amount"]
-      elif event["type"] == "capture_reversal":
-        captured -= event["amount"]
-      elif event["type"] == "refund":
-        refunded += event["amount"]
     verified = VerifiedReceipt(
-      index, compact, header, payload, Totals(captured, refunded)
+      index, compact, header, payload, recomputed, counts
     )
     chain_tail[chain] = verified
     result.verified.append(verified)
@@ -487,7 +573,7 @@ def verify_order_receipts(
 def _check_sellers(
   order: Mapping[str, Any], verified: Iterable[VerifiedReceipt]
 ) -> list[Finding]:
-  """Platform Verification 3 (SHOULD), reported as warnings.
+  """Platform Verification 7 (SHOULD), reported as warnings.
 
   When `event.seller_id` is present: succeeded captures must not exceed that
   seller's attributed total, and refunds must not exceed that seller's
@@ -508,9 +594,7 @@ def _check_sellers(
   for receipt in verified:
     event = receipt.payload["event"]
     seller = event.get("seller_id")
-    if seller is None or seller not in attributed:
-      continue
-    if event["status"] != "succeeded":
+    if seller is None or seller not in attributed or not receipt.counted:
       continue
     if event["type"] == "capture":
       captured[seller] = captured.get(seller, 0) + event["amount"]
@@ -544,30 +628,52 @@ def _check_sellers(
 def _reconcile(
   order: Mapping[str, Any], verified: Iterable[VerifiedReceipt]
 ) -> list[Finding]:
-  """Platform Verification 4 (SHOULD): refunds against Order adjustments.
+  """Platform Verification 8 (SHOULD): refunds against Order adjustments.
 
-  Each `refund` receipt that carries `event.ref.adjustment_id` is compared
-  with that adjustment. A mismatch leaves the receipt valid.
+  For each `event.ref.adjustment_id` cited by a succeeded refund, the sum of
+  `event.amount` over the succeeded refund receipts citing it is compared
+  with the magnitude of that adjustment's `total`. Pending and failed
+  receipts are not counted, nor is a follow-up to a movement already
+  counted. A cited `adjustment_id` that matches no adjustment is a mismatch
+  too. A mismatch leaves the receipts valid.
   """
   adjustments = {a["id"]: a for a in order.get("adjustments", [])}
-  findings = []
+  cited: dict[str, list[VerifiedReceipt]] = {}
   for receipt in verified:
     event = receipt.payload["event"]
     adjustment_id = (event.get("ref") or {}).get("adjustment_id")
-    if event["type"] != "refund" or adjustment_id is None:
-      continue
+    if (
+      event["type"] == "refund"
+      and event["status"] == "succeeded"
+      and adjustment_id is not None
+    ):
+      cited.setdefault(adjustment_id, []).append(receipt)
+
+  findings = []
+  for adjustment_id, receipts in cited.items():
+    last = receipts[-1]
     adjustment = adjustments.get(adjustment_id)
-    expected = None if adjustment is None else _adjustment_amount(adjustment)
-    if expected is None:
-      # Not reconcilable: no such adjustment, or no single `total`.
-      continue
-    if event["amount"] != expected:
+    if adjustment is None:
       findings.append(
         Finding(
-          receipt.index,
+          last.index,
           RECONCILIATION_ADJUSTMENT_MISMATCH,
-          f"refund of {event['amount']} cites adjustment {adjustment_id}, "
-          f"whose total is {expected}",
+          f"adjustment {adjustment_id} does not exist on the Order",
+        )
+      )
+      continue
+    expected = _adjustment_amount(adjustment)
+    if expected is None:
+      # Not reconcilable: the adjustment has no single `total`.
+      continue
+    refunded = sum(r.payload["event"]["amount"] for r in receipts if r.counted)
+    if refunded != expected:
+      findings.append(
+        Finding(
+          last.index,
+          RECONCILIATION_ADJUSTMENT_MISMATCH,
+          f"succeeded refunds citing adjustment {adjustment_id} sum to "
+          f"{refunded}, whose total is {expected}",
         )
       )
   return findings

@@ -1,0 +1,188 @@
+{
+  "id": "reconcile_unmatched_adjustment_id",
+  "title": "A refund citing an adjustment the Order does not have",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. The platform compares the sum of `event.amount` over the `succeeded` refund receipts that cite an `event.ref.adjustment_id` with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "The refund cites adj_does_not_exist; the Order's only adjustment is adj_cancel_1.",
+  "inputs": {
+    "issuers": {
+      "https://hotel.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "rlpdUvhzJJYYp5_j8rmnVNxmtuY3JjGqmPmzfvJSSFU",
+            "y": "D4aPYVBPScGh-hyuwkUFBNk1IOqKALJXZfGo7jqfHOI"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_reconcile_unmatched_adjustment_id",
+        "business": "https://hotel.example/.well-known/ucp",
+        "payment_amount": 60000
+      }
+    ],
+    "order": {
+      "id": "order_reconcile_unmatched_adjustment_id",
+      "checkout_id": "chk_reconcile_unmatched_adjustment_id",
+      "currency": "EUR",
+      "line_items": [
+        {
+          "id": "li_room",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 60000
+            },
+            {
+              "type": "total",
+              "amount": 60000
+            }
+          ]
+        }
+      ],
+      "adjustments": [
+        {
+          "id": "adj_cancel_1",
+          "type": "cancellation",
+          "occurred_at": "2026-11-14T15:30:00Z",
+          "status": "completed",
+          "totals": [
+            {
+              "type": "total",
+              "amount": -45000
+            }
+          ],
+          "description": "Cancelled under the booking's cancellation policy: EUR 150.00 penalty retained, EUR 450.00 refundable."
+        }
+      ],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 60000
+        },
+        {
+          "type": "total",
+          "amount": 60000
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfdW5tYXRjaGVkX2FkanVzdG1lbnRfaWQiLCJldmVudCI6eyJhbW91bnQiOjYwMDAwLCJjdXJyZW5jeSI6IkVVUiIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wMVQwOTowMDowMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiYXV0aG9yaXphdGlvbiJ9LCJpYXQiOjE3OTM1MjM2NjAsImlzcyI6Imh0dHBzOi8vaG90ZWwuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6WkNVZTQtbF9mWGlYLTV6OEZ4aDc2TU9uMXNNcDlGaHRPU3k2LWJNTEQ4dyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3VubWF0Y2hlZF9hZGp1c3RtZW50X2lkIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NjAwMDAsImNhcHR1cmVkIjowLCJtYW5kYXRlZCI6NjAwMDAsInJlZnVuZGVkIjowfX0.YCeFf7rRAu8n6XNb8eJ0Nhu4f_eZ9dk2qrGc1BwlMciFioLrFGmopmx9ExN_rdG9dtvKZaZz-xgzPbi0_2GlQw",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfdW5tYXRjaGVkX2FkanVzdG1lbnRfaWQiLCJldmVudCI6eyJhbW91bnQiOjYwMDAwLCJjdXJyZW5jeSI6IkVVUiIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wMVQwOTowMDozMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiY2FwdHVyZSJ9LCJpYXQiOjE3OTM1MjM2OTAsImlzcyI6Imh0dHBzOi8vaG90ZWwuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6WkNVZTQtbF9mWGlYLTV6OEZ4aDc2TU9uMXNNcDlGaHRPU3k2LWJNTEQ4dyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3VubWF0Y2hlZF9hZGp1c3RtZW50X2lkIiwicHJldiI6InNoYS0yNTY6a2E1cUk2YkVmQnR5MzZlLXdUa0NXVHRWUjl3X2ZQTWNxMWZiczVZZ2t3RSIsInNlcSI6MiwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjYwMDAwLCJjYXB0dXJlZCI6NjAwMDAsIm1hbmRhdGVkIjo2MDAwMCwicmVmdW5kZWQiOjB9fQ.-Y9Wqxb2P0SuUaFMT5NX5cTSUjKyqjGaxVKWumhKh6OXir7J_AwS0qr3-dq6rVmxk-Ihi7owpchVqM_54A9jkg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfdW5tYXRjaGVkX2FkanVzdG1lbnRfaWQiLCJldmVudCI6eyJhbW91bnQiOjQ1MDAwLCJjdXJyZW5jeSI6IkVVUiIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xNFQxNjowMDowMFoiLCJyZWYiOnsiYWRqdXN0bWVudF9pZCI6ImFkal9kb2VzX25vdF9leGlzdCJ9LCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoicmVmdW5kIn0sImlhdCI6MTc5NDY3MjA2MCwiaXNzIjoiaHR0cHM6Ly9ob3RlbC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpaQ1VlNC1sX2ZYaVgtNXo4RnhoNzZNT24xc01wOUZodE9TeTYtYk1MRDh3Iiwib3JkZXJfaWQiOiJvcmRlcl9yZWNvbmNpbGVfdW5tYXRjaGVkX2FkanVzdG1lbnRfaWQiLCJwcmV2Ijoic2hhLTI1Njo5ajFxU0U0UVhmRnlpSDdxLVVsaFM2ZkV3VXhrM09uM2Q2eURjX2tNLUpJIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NjAwMDAsImNhcHR1cmVkIjo2MDAwMCwibWFuZGF0ZWQiOjYwMDAwLCJyZWZ1bmRlZCI6NDUwMDB9fQ.kNLxjk09ugj-tp5EJ7FiBiZ__OQYiSjrS23pHI6LpV-qKL992zfo_eAm42BunU-mW3eVw7kKIoxrLq_8UETxog"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_unmatched_adjustment_id",
+        "event": {
+          "amount": 60000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-01T09:00:00Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1793523660,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:ZCUe4-l_fXiX-5z8Fxh76MOn1sMp9FhtOSy6-bMLD8w",
+        "order_id": "order_reconcile_unmatched_adjustment_id",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 60000,
+          "captured": 0,
+          "mandated": 60000,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_unmatched_adjustment_id",
+        "event": {
+          "amount": 60000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-01T09:00:30Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1793523690,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:ZCUe4-l_fXiX-5z8Fxh76MOn1sMp9FhtOSy6-bMLD8w",
+        "order_id": "order_reconcile_unmatched_adjustment_id",
+        "prev": "sha-256:ka5qI6bEfBty36e-wTkCWTtVR9w_fPMcq1fbs5YgkwE",
+        "seq": 2,
+        "totals": {
+          "authorized": 60000,
+          "captured": 60000,
+          "mandated": 60000,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_unmatched_adjustment_id",
+        "event": {
+          "amount": 45000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-14T16:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_does_not_exist"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794672060,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:ZCUe4-l_fXiX-5z8Fxh76MOn1sMp9FhtOSy6-bMLD8w",
+        "order_id": "order_reconcile_unmatched_adjustment_id",
+        "prev": "sha-256:9j1qSE4QXfFyiH7q-UlhS6fEwUxk3On3d6yDc_kM-JI",
+        "seq": 3,
+        "totals": {
+          "authorized": 60000,
+          "captured": 60000,
+          "mandated": 60000,
+          "refunded": 45000
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": [
+      {
+        "receipt_index": 2,
+        "code": "reconciliation_adjustment_mismatch"
+      }
+    ]
+  }
+}

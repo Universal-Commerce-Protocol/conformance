@@ -3,10 +3,10 @@
   "title": "A missing seq gives receipt_sequence_gap",
   "test_plan_vector": "6",
   "spec": [
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain."
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both."
   ],
-  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at 1d19291d, ap2-mandates.md, Order example under 'Placement and Delivery'.",
-  "notes": "The ucp#1109 chain with its seq 2 receipt removed.",
+  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at 7ee97b0, ap2-mandates.md, Order example under 'Placement and Delivery'.",
+  "notes": "The ucp#1109 chain with its seq 2 receipt removed. Platform Verification 5 recomputes totals from the succeeded events the platform holds, so the seq 3 receipt, which states captured 5400, also differs from the 2400 recomputed. The specification does not say whether a gap suppresses that outcome; this vector follows the rule as written.",
   "inputs": {
     "issuers": {
       "https://business.example.com/.well-known/ucp": {
@@ -26,7 +26,8 @@
     "mandates": [
       {
         "credential_token": "examplePaymentMethodToken",
-        "business": "https://business.example.com/.well-known/ucp"
+        "business": "https://business.example.com/.well-known/ucp",
+        "payment_amount": 5400
       }
     ],
     "order": {
@@ -78,8 +79,8 @@
       ],
       "ap2": {
         "receipts": [
-          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc2MjcwMDAwMCwiaXNzIjoiaHR0cHM6Ly9idXNpbmVzcy5leGFtcGxlLmNvbS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6emkweERrMTZfR0p3X1FFS0lIYVVia1VGU3RrREo2V2phS2xmMzFzWWZPayIsIm9yZGVyX2lkIjoib3JkZXJfYWJjMTIzIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.yqOks6JCSk1SGQjykZw6WiNzk0-PC0S3cwMWXxbuH3KGCvTAFFpkT9HuJPS-krPUsWyLhVPNO2Ftz9SuEaoHpQ",
-          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjI0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEyVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzMifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzYyOTEyODAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjotTC1ZV3lkLVcxNmItR1ExM3l2bXZ4UTFmOThyMTltSzlZc3FEMlF4QkQ4Iiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.aGDMlvYL7ZjzXiv6HVKJg-sbdNLIOWSr_nNa_-mUrDSjSVcFv56nB8q2FFR0fAU5OGgrkLnwNmxV18b-SK6TPA"
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjAwMCwiaXNzIjoiaHR0cHM6Ly9idXNpbmVzcy5leGFtcGxlLmNvbS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6emkweERrMTZfR0p3X1FFS0lIYVVia1VGU3RrREo2V2phS2xmMzFzWWZPayIsIm9yZGVyX2lkIjoib3JkZXJfYWJjMTIzIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.B1qq-ooaU-iv_gU4sxGg6OodmLq3kHhMyMnmI-rQTr9aziOACY7l1Vbkws7lSTm09IpVugB_QksMQiXUi6gvVQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjI0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEyVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzMifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0NDQ4ODAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjotNG9URC1FS1lfQ3lwTlM1TzhXRWhYRE5ZNkVGQkRwbDR3aUxXem9EMnFnIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.J-C66O6O4XjAD_TvtvS8endj_FfRIe_u3SysJ4U2NwX0zqQ0MlAy6FeGJZuSPUuCnY8twK9-9TjQdMT7ylL7Yw"
         ]
       }
     }
@@ -100,7 +101,7 @@
           "status": "succeeded",
           "type": "authorization"
         },
-        "iat": 1762700000,
+        "iat": 1794236000,
         "iss": "https://business.example.com/.well-known/ucp",
         "mandate_ref": "sha-256:zi0xDk16_GJw_QEKIHaUbkUFStkDJ6WjaKlf31sYfOk",
         "order_id": "order_abc123",
@@ -132,11 +133,11 @@
           "status": "succeeded",
           "type": "capture"
         },
-        "iat": 1762912800,
+        "iat": 1794448800,
         "iss": "https://business.example.com/.well-known/ucp",
         "mandate_ref": "sha-256:zi0xDk16_GJw_QEKIHaUbkUFStkDJ6WjaKlf31sYfOk",
         "order_id": "order_abc123",
-        "prev": "sha-256:-L-YWyd-W16b-GQ13yvmvxQ1f98r19mK9YsqD2QxBD8",
+        "prev": "sha-256:-4oTD-EKY_CypNS5O8WEhXDNY6EFBDpl4wiLWzoD2qg",
         "seq": 3,
         "totals": {
           "authorized": 5400,
@@ -152,6 +153,10 @@
       {
         "receipt_index": 1,
         "code": "receipt_sequence_gap"
+      },
+      {
+        "receipt_index": 1,
+        "code": "receipt_totals_mismatch"
       }
     ],
     "warnings": [],

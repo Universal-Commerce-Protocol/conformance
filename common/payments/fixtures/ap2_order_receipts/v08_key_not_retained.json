@@ -3,12 +3,13 @@
   "title": "A receipt whose retired key is no longer published",
   "test_plan_vector": null,
   "spec": [
-    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`, and MUST treat a receipt whose `iss` is not the business that signed the checkout covered by `mandate_ref` as `receipt_mandate_unknown`.",
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain.",
-    "Business Requirements 6: MUST keep retired public keys resolvable by `kid` for at least the dispute window of the payment method used."
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 from its chain, so the next receipt in that chain is reported as `receipt_sequence_gap`.",
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
+    "Business Requirements 9: MUST keep retired public keys resolvable by `kid` for at least the dispute window of the payment method used."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
-  "notes": "Negative counterpart of v08_rotated_retained_key: test_only_2025 is gone from keys, so seq 1 cannot be verified. It is then not part of the chain, and seq 2 is reported as a gap.",
+  "notes": "Negative counterpart of v08_rotated_retained_key: test_only_2025 is gone from keys, so the `kid` of seq 1 does not resolve and it is receipt_invalid_signature. It is then excluded from the chain, so seq 2 is reported as a gap and, because the totals are recomputed without the excluded receipt, as a totals mismatch too (see v06_missing_seq).",
   "inputs": {
     "issuers": {
       "https://merchant.example/.well-known/ucp": {
@@ -28,7 +29,8 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v08",
-        "business": "https://merchant.example/.well-known/ucp"
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
       }
     ],
     "order": {
@@ -142,6 +144,10 @@
       {
         "receipt_index": 1,
         "code": "receipt_sequence_gap"
+      },
+      {
+        "receipt_index": 1,
+        "code": "receipt_totals_mismatch"
       }
     ],
     "warnings": [],

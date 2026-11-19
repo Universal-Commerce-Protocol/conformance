@@ -3,7 +3,8 @@
   "title": "A refund above captured gives receipt_refund_exceeds_capture",
   "test_plan_vector": "7",
   "spec": [
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain."
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
+    "Platform Verification 6: MUST check, on the recomputed totals, that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`)."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
   "inputs": {
@@ -25,7 +26,8 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v07",
-        "business": "https://merchant.example/.well-known/ucp"
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
       }
     ],
     "order": {

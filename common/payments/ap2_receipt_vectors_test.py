@@ -36,6 +36,7 @@ _FIXTURE_PATHS = sorted(fixtures.FIXTURE_DIR.glob("*.json"))
 _SPEC_OUTCOMES = {
   "receipt_invalid_signature",
   "receipt_sequence_gap",
+  "receipt_totals_mismatch",
   "receipt_exceeds_mandate",
   "receipt_refund_exceeds_capture",
   "receipt_exceeds_seller_total",
@@ -55,7 +56,7 @@ def _verify(fixture: dict[str, Any]) -> v.VerificationResult:
     inputs["order"],
     {iss: issuer["keys"] for iss, issuer in inputs["issuers"].items()},
     [
-      v.Mandate(m["credential_token"], m["business"])
+      v.Mandate(m["credential_token"], m["business"], m["payment_amount"])
       for m in inputs["mandates"]
     ],
   )
@@ -138,19 +139,20 @@ class Ap2ReceiptVectorsTest(parameterized.TestCase):
     """In each valid vector the stated totals follow from the events.
 
     receipt_event.status: "Only `succeeded` events change the running
-    totals." A receipt that is not succeeded repeats the previous totals
-    of its chain.
+    totals." A receipt that is not counted (pending, failed, or a follow-up
+    to a movement already counted) repeats the previous totals of its chain.
     """
     result = _verify(_load(path))
     previous: dict[v.ChainKey, dict[str, int]] = {}
     for receipt in result.verified:
       totals = receipt.payload["totals"]
+      derived = receipt.derived_totals
       self.assertEqual(
-        (totals["captured"], totals["refunded"]),
-        (receipt.derived_totals.captured, receipt.derived_totals.refunded),
+        (totals["authorized"], totals["captured"], totals["refunded"]),
+        (derived.authorized, derived.captured, derived.refunded),
         f"receipt {receipt.index}",
       )
-      if receipt.payload["event"]["status"] != "succeeded":
+      if not receipt.counted:
         self.assertEqual(
           totals, previous[receipt.chain], f"receipt {receipt.index}"
         )
@@ -185,6 +187,64 @@ class Ap2ReceiptVectorsTest(parameterized.TestCase):
       succeeded.payload["totals"]["refunded"], succeeded_event["amount"]
     )
     self.assertEqual("network_ref" in succeeded_event, has_network_ref)
+
+
+class Ap2ReceiptNewRulesTest(absltest.TestCase):
+  """Checks that the vectors for the revised rules show what they claim."""
+
+  def _result(self, vector_id: str) -> v.VerificationResult:
+    return _verify(_load(fixtures.FIXTURE_DIR / f"{vector_id}.json"))
+
+  def test_authorized_after_capture_and_release(self) -> None:
+    """3000 captured and 2400 released leaves authorized at 3000."""
+    result = self._result("authorized_after_capture_and_release")
+    self.assertEmpty(result.outcomes)
+    self.assertEqual(
+      result.verified[-1].derived_totals, v.Totals(3000, 3000, 0)
+    )
+
+  def test_mandated_mismatch_case(self) -> None:
+    """The 9000 authorization against a 5400 mandate."""
+    result = self._result("totals_mismatch_mandated_9000_auth")
+    self.assertEqual(
+      [f.code for f in result.outcomes],
+      [v.RECEIPT_TOTALS_MISMATCH, v.RECEIPT_EXCEEDS_MANDATE],
+    )
+
+  def test_duplicate_seq_keeps_the_first_receipt_in_the_chain(self) -> None:
+    """The later receipt for seq 2 is not counted and seq 3 still chains."""
+    result = self._result("duplicate_different_seq")
+    self.assertEqual([r.index for r in result.verified], [0, 1, 3])
+    self.assertEqual(result.verified[-1].derived_totals.captured, 5400)
+    self.assertEqual(
+      [(f.receipt_index, f.code) for f in result.outcomes],
+      [(2, v.RECEIPT_SEQUENCE_GAP)],
+    )
+
+  def test_non_jcs_vector_is_not_jcs(self) -> None:
+    """The vector really has payload bytes that differ from JCS form."""
+    fixture = _load(fixtures.FIXTURE_DIR / "non_jcs_bytes_accepted.json")
+    receipts = fixture["inputs"]["order"]["ap2"]["receipts"]
+    for compact, jcs in zip(receipts, [False, False, True], strict=True):
+      _, payload_b64, _ = compact.split(".")
+      raw = v.b64url_decode(payload_b64)
+      canonical = fixtures._jcs(json.loads(raw))
+      self.assertEqual(raw == canonical, jcs, compact[:20])
+    self.assertEmpty(_verify(fixture).outcomes)
+
+  def test_follow_up_does_not_count_twice(self) -> None:
+    """A network_ref follow-up repeats the totals and is not counted."""
+    result = self._result("network_ref_follow_up")
+    self.assertEmpty(result.outcomes)
+    self.assertEmpty(result.reconciliation)
+    self.assertEqual([r.counted for r in result.verified], [True] * 3 + [False])
+    self.assertEqual(result.verified[-1].derived_totals.refunded, 5400)
+
+  def test_no_receipt_is_dropped_by_a_duplicate(self) -> None:
+    """All four receipts of the duplicate vector are in the Order."""
+    fixture = _load(fixtures.FIXTURE_DIR / "duplicate_different_seq.json")
+    seqs = [p["payload"]["seq"] for p in fixture["decoded_receipts"]]
+    self.assertEqual(seqs, [1, 2, 2, 3])
 
 
 class Ap2ReceiptMutationTest(absltest.TestCase):
@@ -235,12 +295,49 @@ class Ap2ReceiptMutationTest(absltest.TestCase):
       self._outcomes([self.receipts[0], self.receipts[2], self.receipts[1]]),
     )
 
-  def test_repeated_receipt(self) -> None:
-    """A repeated `seq` is a sequence gap."""
+  def test_identical_repeat_is_ignored(self) -> None:
+    """A byte-identical copy of a held receipt is not "different".
+
+    Platform Verification 4 names "a second, different receipt"; the
+    outcome table says "repeated". This verifier takes the rule: a
+    redelivery of the same receipt is neither chained nor flagged.
+    """
+    self.assertEqual(self._outcomes([*self.receipts, self.receipts[2]]), [])
+
+  def test_unresolved_kid_excludes_receipt_from_chain(self) -> None:
+    """The receipt after one whose `kid` does not resolve is a gap."""
+    issuers = self.fixture["inputs"]["issuers"]
+    for issuer in issuers.values():
+      issuer["keys"] = [dict(k, kid="other_kid") for k in issuer["keys"]]
+    outcomes = self._outcomes(list(self.receipts))
     self.assertEqual(
-      self._outcomes([*self.receipts, self.receipts[2]]),
-      [(3, v.RECEIPT_SEQUENCE_GAP)],
+      outcomes[:2],
+      [(0, v.RECEIPT_INVALID_SIGNATURE), (1, v.RECEIPT_INVALID_SIGNATURE)],
     )
+
+  def test_missing_typ_header(self) -> None:
+    """A header without `typ` cannot be verified as a receipt."""
+    header, payload, signature = self.receipts[2].split(".")
+    decoded = json.loads(v.b64url_decode(header))
+    del decoded["typ"]
+    stripped = v.b64url_encode(json.dumps(decoded).encode())
+    self.assertEqual(
+      self._outcomes([*self.receipts[:2], f"{stripped}.{payload}.{signature}"]),
+      [(2, v.RECEIPT_INVALID_SIGNATURE)],
+    )
+
+  def test_stated_mandated_must_equal_payment_amount(self) -> None:
+    """`totals.mandated` is checked against the mandate's payment_amount."""
+    self.fixture["inputs"]["mandates"][0]["payment_amount"] = 6000
+    outcomes = self._outcomes(list(self.receipts))
+    self.assertEqual(
+      outcomes, [(i, v.RECEIPT_TOTALS_MISMATCH) for i in range(3)]
+    )
+
+  def test_unknown_payment_amount_skips_the_mandated_check(self) -> None:
+    """A caller that cannot read `payment_amount` still gets the rest."""
+    self.fixture["inputs"]["mandates"][0]["payment_amount"] = None
+    self.assertEqual(self._outcomes(list(self.receipts)), [])
 
   def test_unknown_issuer_key(self) -> None:
     """A `kid` that does not resolve in the keys of `iss` cannot verify."""

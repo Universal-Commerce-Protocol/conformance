@@ -3,8 +3,9 @@
   "title": "Lodging partial refund matching the cancellation adjustment",
   "test_plan_vector": "11",
   "spec": [
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain.",
-    "Platform Verification 4: SHOULD reconcile each `refund` receipt that carries `event.ref.adjustment_id` against that Order adjustment. A mismatch is a commercial problem, not a cryptographic one: the receipt remains valid.",
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
+    "Platform Verification 6: MUST check, on the recomputed totals, that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`).",
+    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. The platform compares the sum of `event.amount` over the `succeeded` refund receipts that cite an `event.ref.adjustment_id` with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid.",
     "Edge Cases, Partial refunds under a cancellation policy: the refund receipt proves the money movement and cites the cancellation adjustment through `event.ref.adjustment_id`; whether the amount was commercially correct is checked against that adjustment, not inside the receipt."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
@@ -27,7 +28,8 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v11_lodging_partial_refund",
-        "business": "https://hotel.example/.well-known/ucp"
+        "business": "https://hotel.example/.well-known/ucp",
+        "payment_amount": 60000
       }
     ],
     "order": {

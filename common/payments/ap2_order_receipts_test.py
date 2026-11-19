@@ -140,8 +140,16 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
       checkout_data["id"], payment_payload
     )
     order_id = complete_data["order"]["id"]
+    amount = next(
+      (
+        t["amount"]
+        for t in checkout_data.get("totals", [])
+        if t.get("type") == "total"
+      ),
+      None,
+    )
     return self._get_order(order_id), v.Mandate(
-      token, self.business_profile_uri
+      token, self.business_profile_uri, amount
     )
 
   def _get_order(self, order_id: str) -> dict[str, Any]:
@@ -169,17 +177,17 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
       result.malformed, [], "signed receipts that are not Receipt Payloads"
     )
 
-    # Platform Verification 1 and 2 are MUSTs.
+    # Platform Verification 1-6 are MUSTs.
     self.assertEqual(
       result.outcomes,
       [],
       "receipts failed verification (ap2-mandates.md, Platform "
-      "Verification 1-2): "
+      "Verification 1-6): "
       + "; ".join(
         f"{f.receipt_index}: {f.code} ({f.detail})" for f in result.outcomes
       ),
     )
-    # Platform Verification 3 and 4 are SHOULDs: reported, not failed.
+    # Platform Verification 7 and 8 are SHOULDs: reported, not failed.
     for finding in result.warnings + result.reconciliation:
       logging.warning(
         "receipt %d: %s (%s)",
@@ -200,13 +208,13 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
       # receipt_event.status: "Only `succeeded` events change the running
       # totals."
       totals = payload["totals"]
+      derived = receipt.derived_totals
       self.assertEqual(
-        (totals["captured"], totals["refunded"]),
-        (receipt.derived_totals.captured, receipt.derived_totals.refunded),
-        f"{where}: captured/refunded do not follow from the chain's "
-        "succeeded events",
+        (totals["authorized"], totals["captured"], totals["refunded"]),
+        (derived.authorized, derived.captured, derived.refunded),
+        f"{where}: totals do not follow from the chain's succeeded events",
       )
-      if payload["event"]["status"] != "succeeded":
+      if not receipt.counted:
         opening = {
           "mandated": totals["mandated"],
           "authorized": 0,
@@ -216,7 +224,7 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
         self.assertEqual(
           totals,
           previous.get(receipt.chain, opening),
-          f"{where}: a {payload['event']['status']} event changed totals",
+          f"{where}: a receipt that is not counted changed totals",
         )
       previous[receipt.chain] = totals
     return result

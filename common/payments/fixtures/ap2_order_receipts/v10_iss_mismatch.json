@@ -3,7 +3,9 @@
   "title": "A receipt whose iss does not match its mandate",
   "test_plan_vector": "10",
   "spec": [
-    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`, and MUST treat a receipt whose `iss` is not the business that signed the checkout covered by `mandate_ref` as `receipt_mandate_unknown`.",
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Platform Verification 2: MUST, only for receipts whose signature verified, check that `mandate_ref` is a Payment Mandate the platform submitted and that `iss` is the business that signed the checkout it covers. A receipt that fails is `receipt_mandate_unknown`.",
+    "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 from its chain, so the next receipt in that chain is reported as `receipt_sequence_gap`.",
     "Edge Cases, Several merchants of record in one Order: each has its own mandate and keys, so each `(iss, mandate_ref)` pair is an independent chain."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
@@ -40,11 +42,13 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v10_iss_mismatch_seller_a",
-        "business": "https://seller-a.example/.well-known/ucp"
+        "business": "https://seller-a.example/.well-known/ucp",
+        "payment_amount": 2000
       },
       {
         "credential_token": "test_only_payment_mandate_v10_iss_mismatch_seller_b",
-        "business": "https://seller-b.example/.well-known/ucp"
+        "business": "https://seller-b.example/.well-known/ucp",
+        "payment_amount": 3400
       }
     ],
     "order": {

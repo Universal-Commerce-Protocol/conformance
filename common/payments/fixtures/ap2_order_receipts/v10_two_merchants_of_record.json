@@ -3,8 +3,9 @@
   "title": "Two merchants of record in one order: both chains verify",
   "test_plan_vector": "10",
   "spec": [
-    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`, and MUST treat a receipt whose `iss` is not the business that signed the checkout covered by `mandate_ref` as `receipt_mandate_unknown`.",
-    "Platform Verification 2: MUST evaluate `seq` and `prev` continuity, `captured` ≤ `mandated` and `refunded` ≤ `captured` per `(iss, mandate_ref)` chain.",
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
+    "Platform Verification 6: MUST check, on the recomputed totals, that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`).",
     "Edge Cases, Several merchants of record in one Order: each has its own mandate and keys, so each `(iss, mandate_ref)` pair is an independent chain."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
@@ -40,11 +41,13 @@
     "mandates": [
       {
         "credential_token": "test_only_payment_mandate_v10_two_merchants_of_record_seller_a",
-        "business": "https://seller-a.example/.well-known/ucp"
+        "business": "https://seller-a.example/.well-known/ucp",
+        "payment_amount": 2000
       },
       {
         "credential_token": "test_only_payment_mandate_v10_two_merchants_of_record_seller_b",
-        "business": "https://seller-b.example/.well-known/ucp"
+        "business": "https://seller-b.example/.well-known/ucp",
+        "payment_amount": 3400
       }
     ],
     "order": {
