@@ -48,9 +48,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -85,7 +85,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "per-checkout-configuration"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-PER-CHECKOUT-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -151,7 +151,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -209,7 +209,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -277,7 +277,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -342,7 +342,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -395,7 +395,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -453,7 +453,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "authentication"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-AUTHENTICATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -525,7 +525,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "authentication"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-AUTHENTICATION-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -598,7 +598,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "color-scheme"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -649,7 +649,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "color-scheme"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -702,7 +702,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "color-scheme"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -753,7 +753,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "color-scheme"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-COLOR-SCHEME-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -812,7 +812,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-negotiation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -872,7 +872,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-negotiation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -938,7 +938,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-negotiation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-NEGOTIATION-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1002,7 +1002,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-contract"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-CONTRACT-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1070,7 +1070,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-acceptance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-ACCEPTANCE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1135,7 +1135,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "delegation-acceptance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-DELEGATION-ACCEPTANCE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1202,7 +1202,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1268,7 +1268,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1334,7 +1334,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1400,7 +1400,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1466,7 +1466,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1532,7 +1532,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "binding-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-BINDING-REQUIREMENTS-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1598,7 +1598,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1663,7 +1663,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1729,7 +1729,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1795,7 +1795,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1861,7 +1861,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1926,7 +1926,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "navigation-constraints"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-NAVIGATION-CONSTRAINTS-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1995,7 +1995,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "transport-messaging"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-TRANSPORT-MESSAGING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2046,7 +2046,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "transport-messaging"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-TRANSPORT-MESSAGING-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2097,7 +2097,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "core-messages"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-CORE-MESSAGES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2162,7 +2162,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "extension-messages"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EXTENSION-MESSAGES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2227,7 +2227,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "extension-messages"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EXTENSION-MESSAGES-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2294,7 +2294,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2362,7 +2362,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2422,7 +2422,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2491,7 +2491,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2542,7 +2542,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2595,7 +2595,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2648,7 +2648,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2701,7 +2701,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-08",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2754,7 +2754,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-09",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2821,7 +2821,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-10",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2888,7 +2888,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-11",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2956,7 +2956,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-12",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3021,7 +3021,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-13",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3088,7 +3088,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-14",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3155,7 +3155,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-15",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3206,7 +3206,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-16",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3259,7 +3259,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-17",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3310,7 +3310,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-READY-18",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3363,7 +3363,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecauth"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-AUTH-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3416,7 +3416,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ectotalschange"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-TOTALS-CHANGE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3478,7 +3478,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ectotalschange"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-TOTALS-CHANGE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3535,7 +3535,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentinstruments_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3603,7 +3603,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentinstruments_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3669,7 +3669,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentinstruments_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-INSTRUMENTS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3734,7 +3734,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentcredential_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3803,7 +3803,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentcredential_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3871,7 +3871,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentcredential_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3936,7 +3936,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecpaymentcredential_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-PAYMENT-CREDENTIAL-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4002,7 +4002,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecfulfillmentaddress_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4071,7 +4071,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecfulfillmentaddress_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4138,7 +4138,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "ecfulfillmentaddress_change_request"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-EC-FULFILLMENT-ADDRESS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4205,7 +4205,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-extension"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-EXTENSION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4258,7 +4258,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4311,7 +4311,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4362,7 +4362,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4413,7 +4413,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4466,7 +4466,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4517,7 +4517,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4568,7 +4568,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4621,7 +4621,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "window-overview-host-choice"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-WINDOW-OVERVIEW-HOST-08",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4672,7 +4672,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "error-codes"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-ERROR-CODES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -4723,7 +4723,7 @@
         "page": "specification/shopping/checkout/embedded/",
         "anchor": "prevention-of-unsolicited-payment-requests"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-PREVENTION-OF-01",
         "capability_source": "path",
         "keyword_style": "capitals",

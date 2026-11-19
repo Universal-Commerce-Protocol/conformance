@@ -44,9 +44,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -81,7 +81,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "schema-composition"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-SCHEMA-COMPOSITION-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -137,7 +137,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "data-dependencies"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -190,7 +190,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "data-dependencies"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-02",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -240,7 +240,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "data-dependencies"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-DATA-DEPENDENCIES-03",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -290,7 +290,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -344,7 +344,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-02",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -394,7 +394,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-03",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -448,7 +448,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-04",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -500,7 +500,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-05",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -550,7 +550,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-06",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -600,7 +600,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-07",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -653,7 +653,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-08",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -705,7 +705,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-09",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -757,7 +757,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-10",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -809,7 +809,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-11",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -859,7 +859,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-12",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -909,7 +909,7 @@
         "page": "specification/shopping/extensions/buyer-consent/",
         "anchor": "normative-requirements"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-BUYER-CONSENT-BUYERCONSENT-NORMATIVE-REQUIREMENTS-13",
         "capability_source": "path",
         "keyword_style": "capitals",

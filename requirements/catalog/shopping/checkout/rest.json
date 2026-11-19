@@ -44,9 +44,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -79,7 +79,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "content-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-CONTENT-TYPES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -150,7 +150,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "transport-security"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-TRANSPORT-SECURITY-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -222,7 +222,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "update-checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -268,7 +268,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "update-checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -312,7 +312,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "update-checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-UPDATE-CHECKOUT-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -358,7 +358,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "update-buyer-info"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-UPDATE-BUYER-INFO-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -402,7 +402,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "message-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-MESSAGE-SIGNING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -453,7 +453,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "request-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-REQUEST-SIGNING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -510,7 +510,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "response-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-RESPONSE-SIGNING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -567,7 +567,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "response-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-RESPONSE-SIGNING-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -624,7 +624,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "authentication"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-AUTHENTICATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -695,7 +695,7 @@
         "page": "specification/shopping/checkout/rest/",
         "anchor": "authentication"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-REST-AUTHENTICATION-02",
         "capability_source": "path",
         "keyword_style": "bold",

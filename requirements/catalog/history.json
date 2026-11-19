@@ -1,8 +1,8 @@
 {
-  "about": "Which releases state each rule. A rule in the catalog lists them in demo.releases, from demo.since on. A rule that only older releases state is under removed, with demo.until, the first version that doesn't state it. See requirements/README.md.",
-  "demo": {
+  "about": "Which releases state each rule. A rule in the catalog lists them in suite.releases, from suite.since on. A rule that only older releases state is under removed, with suite.until, the first version that doesn't state it. See requirements/README.md.",
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -104,7 +104,7 @@
         "page": "specification/catalog/search/",
         "anchor": "pagination"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGINATION-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -149,7 +149,7 @@
         "page": "specification/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -194,7 +194,7 @@
         "page": "specification/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -239,7 +239,7 @@
         "page": "specification/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-03",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -288,7 +288,7 @@
         "page": "specification/checkout/",
         "anchor": "business"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-BUSINESS-05",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -342,7 +342,7 @@
         "page": "specification/checkout/",
         "anchor": "eligibility-verification-at-completion"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-08",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -389,7 +389,7 @@
         "page": "specification/checkout/",
         "anchor": "eligibility-verification-at-completion"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-10",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -434,7 +434,7 @@
         "page": "specification/checkout/",
         "anchor": "eligibility-verification-at-completion"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-ELIGIBILITY-VERIFICATION-11",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -479,7 +479,7 @@
         "page": "specification/checkout/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-CONTEXT-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -524,7 +524,7 @@
         "page": "specification/checkout/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-CONTEXT-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -571,7 +571,7 @@
         "page": "specification/embedded-checkout/",
         "anchor": "loading-an-embedded-checkout-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-LOADING-AN-EMBEDDED-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -616,7 +616,7 @@
         "page": "specification/embedded-checkout/",
         "anchor": "communication-channel-for-native-hosts"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-COMMUNICATION-CHANNEL-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -668,7 +668,7 @@
         "page": "specification/embedded-checkout/",
         "anchor": "content-security-policy-csp"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-CONTENT-SECURITY-POLICY-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -713,7 +713,7 @@
         "page": "specification/embedded-checkout/",
         "anchor": "error-codes"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-EP-ERROR-CODES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -765,7 +765,7 @@
         "page": "specification/checkout-mcp/",
         "anchor": "platform-profile-advertisement"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-PLATFORM-PROFILE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -812,7 +812,7 @@
         "page": "specification/checkout-mcp/",
         "anchor": "platform-profile-advertisement"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-PLATFORM-PROFILE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -857,7 +857,7 @@
         "page": "specification/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-11",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -919,7 +919,7 @@
         "page": "specification/fulfillment/",
         "anchor": "adding-new-methods"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-ADDING-NEW-METHODS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -978,7 +978,7 @@
         "page": "specification/order/",
         "anchor": "guidelines"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-01",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -1033,7 +1033,7 @@
         "page": "specification/order/",
         "anchor": "guidelines"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-02",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -1086,7 +1086,7 @@
         "page": "specification/order/",
         "anchor": "guidelines"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-03",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -1139,7 +1139,7 @@
         "page": "specification/order/",
         "anchor": "guidelines"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-GUIDELINES-07",
         "capability_source": "bullet",
         "keyword_style": "bold",

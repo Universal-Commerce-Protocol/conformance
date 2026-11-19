@@ -46,9 +46,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -84,7 +84,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "search-inputs"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -141,7 +141,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "search-inputs"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -198,7 +198,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "search-inputs"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-03",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -255,7 +255,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "search-inputs"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-INPUTS-04",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -312,7 +312,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "search-filters"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-SEARCH-FILTERS-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -369,7 +369,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "pagination"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGINATION-01",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -415,7 +415,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-01",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -459,7 +459,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-02",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -503,7 +503,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-03",
         "capability_source": "bullet",
         "keyword_style": "bold",
@@ -547,7 +547,7 @@
         "page": "specification/shopping/catalog/search/",
         "anchor": "page-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SEARCH-SEARCH-PAGE-SIZE-04",
         "capability_source": "bullet",
         "keyword_style": "bold",

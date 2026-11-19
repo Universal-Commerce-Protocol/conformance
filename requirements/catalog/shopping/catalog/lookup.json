@@ -43,9 +43,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -78,7 +78,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "operations"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OPERATIONS-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -135,7 +135,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "supported-identifiers"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -192,7 +192,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "supported-identifiers"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -249,7 +249,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "supported-identifiers"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-03",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -306,7 +306,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "supported-identifiers"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-04",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -363,7 +363,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "supported-identifiers"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-SUPPORTED-IDENTIFIERS-05",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -422,7 +422,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "client-correlation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-CLIENT-CORRELATION-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -479,7 +479,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "batch-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -536,7 +536,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "batch-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -595,7 +595,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "batch-size"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-BATCH-SIZE-03",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -655,7 +655,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "resolution-behavior"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-RESOLUTION-BEHAVIOR-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -712,7 +712,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "resolution-behavior"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-RESOLUTION-BEHAVIOR-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -769,7 +769,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "input"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-INPUT-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -829,7 +829,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "output-effective-selections"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-EFFECTIVE-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -888,7 +888,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "output-effective-selections"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-EFFECTIVE-02",
         "capability_source": "bullet",
         "keyword_style": "capitals",
@@ -947,7 +947,7 @@
         "page": "specification/shopping/catalog/lookup/",
         "anchor": "output-availability-signals"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-LOOKUP-LOOKUP-OUTPUT-AVAILABILITY-01",
         "capability_source": "bullet",
         "keyword_style": "capitals",

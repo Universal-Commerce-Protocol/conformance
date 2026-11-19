@@ -45,9 +45,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -82,7 +82,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "request-metadata"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-REQUEST-METADATA-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -140,7 +140,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "request-metadata"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-REQUEST-METADATA-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -201,7 +201,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "identifier-pattern"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-IDENTIFIER-PATTERN-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -269,7 +269,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "update_checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-UPDATE-CHECKOUT-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -315,7 +315,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "update_checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-UPDATE-CHECKOUT-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -365,7 +365,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "message-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-MESSAGE-SIGNING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -416,7 +416,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "response-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-RESPONSE-SIGNING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -467,7 +467,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "response-signing"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-RESPONSE-SIGNING-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -518,7 +518,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-CONFORMANCE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -583,7 +583,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-CONFORMANCE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -634,7 +634,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "implementation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-IMPLEMENTATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -692,7 +692,7 @@
         "page": "specification/shopping/checkout/mcp/",
         "anchor": "implementation"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-CHECKOUT-MCP-IMPLEMENTATION-02",
         "capability_source": "path",
         "keyword_style": "bold",

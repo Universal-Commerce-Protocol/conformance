@@ -45,9 +45,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -84,7 +84,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -131,7 +131,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -178,7 +178,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-CONTEXT-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -225,7 +225,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "destinations"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -278,7 +278,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "destinations"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -322,7 +322,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "destinations"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -375,7 +375,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "destinations"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-DESTINATIONS-04",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -428,7 +428,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-location-destination"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -476,7 +476,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-location-destination"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -522,7 +522,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-location-destination"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-LOCATION-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -568,7 +568,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -620,7 +620,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -673,7 +673,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -723,7 +723,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -769,7 +769,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -815,7 +815,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -863,7 +863,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "selection-and-location-identity"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-SELECTION-AND-LOCATION-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -907,7 +907,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -973,7 +973,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1041,7 +1041,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1116,7 +1116,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1182,7 +1182,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1248,7 +1248,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1314,7 +1314,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1380,7 +1380,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-08",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1452,7 +1452,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-09",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1520,7 +1520,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-10",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1586,7 +1586,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-11",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1630,7 +1630,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-12",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1674,7 +1674,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-13",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1724,7 +1724,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "platform-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1789,7 +1789,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "platform-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1856,7 +1856,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "platform-responsibilities"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1923,7 +1923,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "available-methods"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-AVAILABLE-METHODS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1991,7 +1991,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "methods"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2037,7 +2037,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "methods"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-02",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2089,7 +2089,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "methods"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHODS-03",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2141,7 +2141,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "options"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2191,7 +2191,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "options"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2235,7 +2235,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "options"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-03",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2289,7 +2289,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "options"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-04",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2341,7 +2341,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "options"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-OPTIONS-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2385,7 +2385,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-and-method-context-and-filters"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2429,7 +2429,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-and-method-context-and-filters"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2475,7 +2475,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "location-and-method-context-and-filters"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-LOCATION-AND-METHOD-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2521,7 +2521,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "platform-profile"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-PROFILE-01",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2571,7 +2571,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "platform-profile"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-PLATFORM-PROFILE-02",
         "capability_source": "path",
         "keyword_style": "capitals",
@@ -2621,7 +2621,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-response-behavior"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2687,7 +2687,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-response-behavior"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2753,7 +2753,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "business-response-behavior"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-BUSINESS-RESPONSE-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2823,7 +2823,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "method-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2869,7 +2869,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "method-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2915,7 +2915,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "method-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -2959,7 +2959,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "method-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -3006,7 +3006,7 @@
         "page": "specification/shopping/extensions/fulfillment/",
         "anchor": "method-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-FULFILLMENT-FULFILLMENT-METHOD-TYPES-05",
         "capability_source": "path",
         "keyword_style": "capitals",

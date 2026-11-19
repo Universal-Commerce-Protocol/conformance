@@ -44,9 +44,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -81,7 +81,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "per-cart-configuration"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-PER-CART-CONFIGURATION-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -140,7 +140,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -197,7 +197,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -250,7 +250,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -304,7 +304,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -355,7 +355,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -408,7 +408,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "loading-an-embedded-cart-url"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-LOADING-AN-EMBEDDED-CART-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -463,7 +463,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "transport-messaging"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-TRANSPORT-MESSAGING-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -514,7 +514,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "transport-messaging"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-TRANSPORT-MESSAGING-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -565,7 +565,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "core-messages"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-CORE-MESSAGES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -618,7 +618,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -672,7 +672,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -725,7 +725,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -780,7 +780,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -833,7 +833,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-05",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -886,7 +886,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-06",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -939,7 +939,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-07",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -992,7 +992,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-08",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1045,7 +1045,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-09",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1098,7 +1098,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-10",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1152,7 +1152,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-11",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1203,7 +1203,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-12",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1256,7 +1256,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-13",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1307,7 +1307,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-14",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1360,7 +1360,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-15",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1411,7 +1411,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartready"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-READY-16",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1464,7 +1464,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartauth"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-AUTH-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -1517,7 +1517,7 @@
         "page": "specification/shopping/cart/embedded/",
         "anchor": "epcartcomplete"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CART-EP-EP-CART-COMPLETE-01",
         "capability_source": "path",
         "keyword_style": "bold",

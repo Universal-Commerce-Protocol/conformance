@@ -46,9 +46,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -82,7 +82,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "relationship-to-checkout"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-RELATIONSHIP-TO-CHECKOUT-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -143,7 +143,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -191,7 +191,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -239,7 +239,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-03",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -288,7 +288,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-04",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -335,7 +335,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-05",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -380,7 +380,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-06",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -427,7 +427,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-07",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -474,7 +474,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-08",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -519,7 +519,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-09",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -566,7 +566,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "distinction-from-unit-price"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-DISTINCTION-FROM-UNIT-10",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -611,7 +611,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-01",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -669,7 +669,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-02",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -727,7 +727,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-03",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -785,7 +785,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-04",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -845,7 +845,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-05",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -907,7 +907,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-06",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -963,7 +963,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "context"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-CONTEXT-07",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1015,7 +1015,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "signals"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-SIGNALS-01",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -1073,7 +1073,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "product"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-PRODUCT-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1125,7 +1125,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "product"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-PRODUCT-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1177,7 +1177,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "variant"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-VARIANT-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1229,7 +1229,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "variant"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-VARIANT-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1283,7 +1283,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "media"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1338,7 +1338,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "media"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1398,7 +1398,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "media"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-03",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1453,7 +1453,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "media"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-MEDIA-04",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1508,7 +1508,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "image"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-IMAGE-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1560,7 +1560,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "external-video"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-EXTERNAL-VIDEO-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1615,7 +1615,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "external-video"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-EXTERNAL-VIDEO-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1675,7 +1675,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "actions"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-01",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1720,7 +1720,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "actions"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-02",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1771,7 +1771,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "actions"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-ACTIONS-03",
         "capability_source": "path (family)",
         "keyword_style": "bold",
@@ -1826,7 +1826,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "message-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-MESSAGE-TYPES-01",
         "capability_source": "path (family)",
         "keyword_style": "capitals",
@@ -1877,7 +1877,7 @@
         "page": "specification/shopping/catalog/",
         "anchor": "identifiers-not-found"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-CATALOG-IDENTIFIERS-NOT-FOUND-01",
         "capability_source": "path (family)",
         "keyword_style": "capitals",

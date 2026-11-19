@@ -40,9 +40,9 @@
       "rfc2119_boilerplate": 0
     }
   },
-  "demo": {
+  "suite": {
     "spec_commit": "f2626c28b8288976eee5bda77f3a9b1ddc0132b1",
-    "extractor_commit": "1687b56c5cb62012defb16d1f51575ff894b9dcb",
+    "extractor_commit": "16f3afa45effac5625888afffb2a883e2e4e9b6d",
     "options": [
       "capability-from-bullet-or-path",
       "count-capitals"
@@ -75,7 +75,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "content-types"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONTENT-TYPES-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -132,7 +132,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "transport-security"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-TRANSPORT-SECURITY-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -190,7 +190,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-01",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -249,7 +249,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-02",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -308,7 +308,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-03",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -365,7 +365,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-04",
         "capability_source": "path",
         "keyword_style": "bold",
@@ -423,7 +423,7 @@
         "page": "specification/shopping/order/rest/",
         "anchor": "conformance"
       },
-      "demo": {
+      "suite": {
         "positional_id": "REQ-SHOPPING-ORDER-REST-CONFORMANCE-05",
         "capability_source": "path",
         "keyword_style": "bold",
