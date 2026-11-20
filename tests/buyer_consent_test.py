@@ -62,12 +62,12 @@ def advertised_consent() -> dict:
 class MockBusiness:
   """A business that advertises consent and applies platform confirms.
 
-  Each attribute changes one behaviour, so a test can make the business
+  Each attribute changes one behavior, so a test can make the business
   break the extension in one specific way.
   """
 
   def __init__(self) -> None:
-    """Start with the advertised consent and conforming behaviour."""
+    """Start with the advertised consent and conforming behavior."""
     self.consent = advertised_consent()
     self.instruments: list | None = []
     self.record_platform_choice = True
