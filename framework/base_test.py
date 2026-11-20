@@ -177,7 +177,13 @@ SHOWN_REQUEST_HEADERS = (
   "request-id",
   "content-type",
 )
-REDACTED_HEADERS = ("authorization", "signature", "signature-input")
+REDACTED_HEADERS = (
+  "authorization",
+  "signature",
+  "signature-input",
+  "simulation-secret",
+  "x-api-key",
+)
 
 
 def _clip(text: str, limit: int = BODY_LIMIT) -> str:
@@ -193,7 +199,7 @@ def _body_text(content: bytes | None) -> str:
     return ""
   text = content.decode("utf-8", errors="replace")
   try:
-    return json.dumps(json.loads(text), indent=2)
+    return json.dumps(json.loads(text), indent=2, ensure_ascii=False)
   except ValueError:
     return text
 
@@ -207,7 +213,10 @@ def describe_request(request: httpx.Request) -> str:
       lines.append(f"> {name}: <redacted>")
     elif lower in SHOWN_REQUEST_HEADERS:
       lines.append(f"> {name}: {value}")
-  body = _body_text(request.content)
+  try:
+    body = _body_text(request.content)
+  except httpx.RequestNotRead:
+    body = "(body not read)"
   if body:
     lines.append(_clip(body))
   return "\n".join(lines)
@@ -229,14 +238,23 @@ def describe_response(response: httpx.Response) -> str:
   return "\n".join(lines)
 
 
-def describe_exchange(response: httpx.Response | None) -> str:
+def describe_exchange(
+  response: httpx.Response | None,
+  request: httpx.Request | None = None,
+) -> str:
   """Render a test's last request and response for its failure report.
 
-  Returns an empty string when no exchange was recorded.
+  When a request was sent without receiving a response (for example on a
+  timeout or connection error), renders the request followed by
+  `< (no response)`. Returns an empty string when nothing was sent.
   """
-  if response is None:
-    return ""
-  return f"{describe_request(response.request)}\n{describe_response(response)}"
+  if response is not None:
+    return (
+      f"{describe_request(response.request)}\n{describe_response(response)}"
+    )
+  if request is not None:
+    return f"{describe_request(request)}\n< (no response)"
+  return ""
 
 
 class BaseIntegrationTest(absltest.TestCase):
@@ -274,7 +292,8 @@ class BaseIntegrationTest(absltest.TestCase):
     httpx_logger.setLevel(
       logging.INFO if self._verbose_http else logging.WARNING
     )
-    # The last response the test's client received, for its failure report.
+    # The last HTTP request/response on the test's client, for failure reports.
+    self._last_request: httpx.Request | None = None
     self._last_response: httpx.Response | None = None
 
     # Merchant-declared conformance input.
@@ -305,7 +324,9 @@ class BaseIntegrationTest(absltest.TestCase):
     self._start_agent_server()
 
   def _note_request(self, request: httpx.Request) -> None:
-    """Log a request with its body under --verbose_http."""
+    """Keep the request for failure reports; log it under --verbose_http."""
+    self._last_request = request
+    self._last_response = None
     if self._verbose_http:
       logging.info("HTTP request\n%s", describe_request(request))
 
@@ -325,9 +346,13 @@ class BaseIntegrationTest(absltest.TestCase):
 
     `RecordingResult` appends this to a failure or error, so that an
     in-band refusal answered with HTTP 200 and a KeyError further down
-    shows the response that caused it.
+    shows the response that caused it, while a timeout or connection error
+    shows the unanswered request instead of an earlier response.
     """
-    return describe_exchange(getattr(self, "_last_response", None))
+    return describe_exchange(
+      getattr(self, "_last_response", None),
+      getattr(self, "_last_request", None),
+    )
 
   @property
   def ucp_version(self) -> str:

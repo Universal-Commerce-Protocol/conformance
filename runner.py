@@ -546,8 +546,9 @@ def main(argv: list[str] | None = None) -> int:
   )
   result = runner.run(test_suite)
 
-  # One outcome per test (a test with two failing subtests is one failure);
-  # unittest's own `failures` list has one entry per failing subtest.
+  # One outcome per test (a test with two failing subtests is one failure),
+  # plus any class- or module-level fixture errors (`setUpClass` /
+  # `tearDownClass`), which unittest reports outside `TestCase` instances.
   counts = collections.Counter(
     outcome.status for outcome in result.outcomes.values()
   )
@@ -557,7 +558,7 @@ def main(argv: list[str] | None = None) -> int:
   sys.stdout.write(f"Passed: {counts[PASSED]}\n")
   sys.stdout.write(f"Skipped: {counts[SKIPPED]}\n")
   sys.stdout.write(f"Failures: {counts[FAILED]}\n")
-  sys.stdout.write(f"Errors: {counts[ERROR]}\n")
+  sys.stdout.write(f"Errors: {counts[ERROR] + result.fixture_errors}\n")
   sys.stdout.write("=" * 70 + "\n")
 
   return 0 if result.wasSuccessful() else 1

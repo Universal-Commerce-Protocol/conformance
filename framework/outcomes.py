@@ -14,22 +14,16 @@
 
 """Record per-test outcomes and attach HTTP exchanges to failure reports."""
 
-from collections.abc import Iterable
 import dataclasses
-import re
 import unittest
 
 PASSED = "passed"
 FAILED = "failed"
 ERROR = "error"
 SKIPPED = "skipped"
-NOT_RUN = "not_run"
 
 # The longest detail kept, in characters.
 MAX_DETAIL = 200
-# How unittest names a class or module fixture that failed or skipped, as in
-# "setUpClass (shopping.checkout.example_test.ExampleTest)".
-_FIXTURE = re.compile(r"(\w+) \((.+)\)")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -37,9 +31,9 @@ class Outcome:
   """What happened to one test.
 
   Attributes:
-    status: One of `PASSED`, `FAILED`, `ERROR`, `SKIPPED` or `NOT_RUN`.
-    detail: Why the test was skipped or didn't run, or its failure or error
-      message, on one line and shortened.
+    status: One of `PASSED`, `FAILED`, `ERROR`, or `SKIPPED`.
+    detail: Why the test was skipped, or its failure or error message, on one
+      line and shortened.
 
   """
 
@@ -57,8 +51,8 @@ class RecordingResult(unittest.TextTestResult):
 
   Attributes:
     outcomes: The outcome of each test that started, by test ID.
-    fixtures: For each class or module whose fixture failed or skipped, by
-      its dotted name, the outcome its tests take.
+    fixture_errors: Count of class- or module-level fixture errors (such as a
+      failing `setUpClass` or `tearDownClass`).
 
   """
 
@@ -66,7 +60,7 @@ class RecordingResult(unittest.TextTestResult):
     """Start with no outcomes; the arguments are TextTestResult's."""
     super().__init__(*args, **kwargs)
     self.outcomes: dict[str, Outcome] = {}
-    self.fixtures: dict[str, Outcome] = {}
+    self.fixture_errors: int = 0
 
   def addSuccess(self, test):  # noqa: N802
     """Record a pass."""
@@ -96,9 +90,9 @@ class RecordingResult(unittest.TextTestResult):
     self._record(test, Outcome(SKIPPED, f"expected failure: {_message(err)}"))
 
   def addUnexpectedSuccess(self, test):  # noqa: N802
-    """Record an unexpected success as a pass: the check passed."""
+    """Record an unexpected success as a failure, matching wasSuccessful()."""
     super().addUnexpectedSuccess(test)
-    self._record(test, Outcome(PASSED, "unexpected success"))
+    self._record(test, Outcome(FAILED, "unexpected success"))
 
   def addSubTest(self, test, subtest, err):  # noqa: N802
     """Record a failing subtest as its test's failure or error."""
@@ -133,26 +127,11 @@ class RecordingResult(unittest.TextTestResult):
     holder, formatted = entries[-1]
     entries[-1] = (holder, f"{formatted}\nLast HTTP exchange:\n{exchange}\n")
 
-  def outcomes_for(self, test_ids: Iterable[str]) -> dict[str, Outcome]:
-    """Return the outcome of each of the given tests."""
-    return {
-      test_id: self.outcomes.get(test_id) or self._not_started(test_id)
-      for test_id in test_ids
-    }
-
-  def _not_started(self, test_id: str) -> Outcome:
-    """Return the outcome of a test that never started."""
-    class_name = test_id.rpartition(".")[0]
-    module = class_name.rpartition(".")[0]
-    for parent in (class_name, module):
-      if parent in self.fixtures:
-        return self.fixtures[parent]
-    return Outcome(NOT_RUN, "no outcome was recorded")
-
   def _record(self, test: object, outcome: Outcome) -> None:
     """Keep a test's first outcome, unless a failure or error follows."""
     if not isinstance(test, unittest.TestCase):
-      self._record_fixture(test, outcome)
+      if outcome.status in (FAILED, ERROR):
+        self.fixture_errors += 1
       return
     parent = getattr(test, "test_case", None)
     if isinstance(parent, unittest.TestCase):
@@ -163,19 +142,6 @@ class RecordingResult(unittest.TextTestResult):
       earlier.status in (PASSED, SKIPPED) and outcome.status in (FAILED, ERROR)
     ):
       self.outcomes[test_id] = outcome
-
-  def _record_fixture(self, holder: object, outcome: Outcome) -> None:
-    """Note a class or module fixture's error or skip, for its tests."""
-    describe = getattr(holder, "id", None)
-    match = _FIXTURE.fullmatch(describe()) if callable(describe) else None
-    if not match:
-      return
-    fixture, parent = match.groups()
-    if outcome.status != SKIPPED:
-      outcome = Outcome(
-        NOT_RUN, _shorten(f"{fixture} failed: {outcome.detail}")
-      )
-    self.fixtures.setdefault(parent, outcome)
 
 
 def _message(err: tuple, with_type: bool = False) -> str:

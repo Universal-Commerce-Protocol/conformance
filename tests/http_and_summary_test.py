@@ -44,6 +44,7 @@ def _make_base_probe(verbose_http: bool) -> base_test.BaseIntegrationTest:
 
   probe = Probe()
   probe._verbose_http = verbose_http
+  probe._last_request = None
   probe._last_response = None
   probe.client = httpx.Client(
     base_url="https://store.example",
@@ -68,8 +69,8 @@ def _run_cases(*classes: type[unittest.TestCase]) -> outcomes.RecordingResult:
   return test_runner.run(suite)
 
 
-def _run_runner_suite(suite: unittest.TestSuite) -> str:
-  """Run `suite` through `runner.main` and return its console output."""
+def _run_runner_suite(suite: unittest.TestSuite) -> tuple[int, str]:
+  """Run `suite` through `runner.main` and return `(exit_code, output)`."""
   out = io.StringIO()
   fetch = mock.Mock(side_effect=OSError("offline"))
   with (
@@ -80,8 +81,8 @@ def _run_runner_suite(suite: unittest.TestSuite) -> str:
     contextlib.redirect_stdout(out),
     contextlib.redirect_stderr(out),
   ):
-    runner.main(["--server_url=https://shop.example"])
-  return out.getvalue()
+    code = runner.main(["--server_url=https://shop.example"])
+  return code, out.getvalue()
 
 
 def _summary_counts(output: str) -> dict[str, int | None]:
@@ -97,7 +98,7 @@ class HttpExchangeTest(unittest.TestCase):
   """Rendering of requests and responses for logs and failure reports."""
 
   def test_request_shows_identifying_headers_and_redacts_credentials(self):
-    """UCP-Agent and request IDs show; Authorization and Signature do not."""
+    """UCP-Agent and request IDs show; credential headers do not."""
     request = httpx.Request(
       "POST",
       "https://store.example/ucp/checkout-sessions",
@@ -106,18 +107,39 @@ class HttpExchangeTest(unittest.TestCase):
         "Idempotency-Key": "k-1",
         "Authorization": "Bearer secret-token",
         "Signature": "sig1=:abc:",
+        "Simulation-Secret": "sim-secret-value",
+        "X-API-Key": "api-key-value",
         "Content-Type": "application/json",
       },
-      json={"line_items": [{"item": {"id": "sku"}, "quantity": 1}]},
+      json={
+        "line_items": [{"item": {"id": "sku"}, "quantity": 1}],
+        "note": "Café €",
+      },
     )
     text = base_test.describe_request(request)
     self.assertIn("> POST https://store.example/ucp/checkout-sessions", text)
     self.assertIn('profile="https://p.example/profile"', text)
     self.assertIn("k-1", text)
     self.assertIn("authorization: <redacted>", text.lower())
+    self.assertIn("simulation-secret: <redacted>", text.lower())
+    self.assertIn("x-api-key: <redacted>", text.lower())
     self.assertNotIn("secret-token", text)
     self.assertNotIn("sig1=:abc:", text)
+    self.assertNotIn("sim-secret-value", text)
+    self.assertNotIn("api-key-value", text)
     self.assertIn('"quantity": 1', text)
+    self.assertIn("Café €", text)
+
+  def test_unread_streaming_request_does_not_raise(self):
+    """A streaming request whose body has not been read renders safely."""
+    request = httpx.Request(
+      "POST",
+      "https://store.example/ucp/upload",
+      content=iter([b"chunk-1", b"chunk-2"]),
+    )
+    text = base_test.describe_request(request)
+    self.assertIn("> POST https://store.example/ucp/upload", text)
+    self.assertIn("(body not read)", text)
 
   def test_response_and_exchange_clip_large_bodies(self):
     """A response renders status, content type and body; long bodies clip."""
@@ -167,6 +189,52 @@ class HttpExchangeTest(unittest.TestCase):
 
     self.assertFalse([c for c in info.call_args_list if "HTTP" in str(c)])
     self.assertIsNotNone(probe._last_response)
+
+  def test_transport_error_clears_stale_response_and_shows_failed_request(self):
+    """A timeout on request 2 renders request 2, not request 1's 201."""
+
+    class Probe(base_test.BaseIntegrationTest):
+      def runTest(self):  # noqa: N802
+        """Do nothing."""
+
+    calls = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+      nonlocal calls
+      calls += 1
+      if calls == 1:
+        return httpx.Response(
+          201,
+          json={"id": "chk_123", "status": "incomplete"},
+          request=request,
+        )
+      raise httpx.ReadTimeout("timed out", request=request)
+
+    probe = Probe()
+    probe._verbose_http = False
+    probe._last_request = None
+    probe._last_response = None
+    probe.client = httpx.Client(
+      base_url="https://store.example",
+      transport=httpx.MockTransport(handler),
+      event_hooks={
+        "request": [probe._note_request],
+        "response": [probe._note_response],
+      },
+    )
+    self.addCleanup(probe.client.close)
+
+    probe.client.post("/ucp/checkout-sessions", json={"line_items": []})
+    with self.assertRaises(httpx.ReadTimeout):
+      probe.client.get("/ucp/checkout-sessions/second")
+
+    exchange = probe.describe_last_exchange()
+    self.assertIn(
+      "> GET https://store.example/ucp/checkout-sessions/second", exchange
+    )
+    self.assertIn("< (no response)", exchange)
+    self.assertNotIn("201", exchange)
+    self.assertNotIn("chk_123", exchange)
 
 
 class LastExchangeTest(unittest.TestCase):
@@ -242,8 +310,9 @@ class SummaryCountsTest(unittest.TestCase):
         self.skipTest("optional feature not configured")
 
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(Case)
-    output = _run_runner_suite(suite)
+    code, output = _run_runner_suite(suite)
 
+    self.assertEqual(code, 1)
     self.assertEqual(
       _summary_counts(output),
       {
@@ -264,8 +333,9 @@ class SummaryCountsTest(unittest.TestCase):
         raise KeyError("order")
 
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(Case)
-    output = _run_runner_suite(suite)
+    code, output = _run_runner_suite(suite)
 
+    self.assertEqual(code, 1)
     self.assertEqual(
       _summary_counts(output),
       {
@@ -274,6 +344,79 @@ class SummaryCountsTest(unittest.TestCase):
         "Skipped": 0,
         "Failures": 0,
         "Errors": 1,
+      },
+      output,
+    )
+
+  def test_class_fixture_errors_are_counted_in_summary(self):
+    """Failing `setUpClass` and `tearDownClass` increment summary Errors."""
+
+    class BrokenSetUp(unittest.TestCase):
+      @classmethod
+      def setUpClass(cls):
+        raise RuntimeError("setUpClass boom")
+
+      def test_never_runs(self):
+        pass
+
+    suite1 = unittest.defaultTestLoader.loadTestsFromTestCase(BrokenSetUp)
+    code1, output1 = _run_runner_suite(suite1)
+    self.assertEqual(code1, 1)
+    self.assertEqual(
+      _summary_counts(output1),
+      {
+        "Total Executed": 0,
+        "Passed": 0,
+        "Skipped": 0,
+        "Failures": 0,
+        "Errors": 1,
+      },
+      output1,
+    )
+
+    class BrokenTearDown(unittest.TestCase):
+      @classmethod
+      def tearDownClass(cls):
+        raise RuntimeError("tearDownClass boom")
+
+      def test_runs_and_passes(self):
+        pass
+
+    suite2 = unittest.defaultTestLoader.loadTestsFromTestCase(BrokenTearDown)
+    code2, output2 = _run_runner_suite(suite2)
+    self.assertEqual(code2, 1)
+    self.assertEqual(
+      _summary_counts(output2),
+      {
+        "Total Executed": 1,
+        "Passed": 1,
+        "Skipped": 0,
+        "Failures": 0,
+        "Errors": 1,
+      },
+      output2,
+    )
+
+  def test_unexpected_success_counts_as_failure(self):
+    """An unexpected success increments Failures to match exit code 1."""
+
+    class Case(unittest.TestCase):
+      @unittest.expectedFailure
+      def test_unexpectedly_passes(self):
+        pass
+
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(Case)
+    code, output = _run_runner_suite(suite)
+
+    self.assertEqual(code, 1)
+    self.assertEqual(
+      _summary_counts(output),
+      {
+        "Total Executed": 1,
+        "Passed": 0,
+        "Skipped": 0,
+        "Failures": 1,
+        "Errors": 0,
       },
       output,
     )
