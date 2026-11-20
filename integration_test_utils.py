@@ -24,6 +24,7 @@ import uuid
 import warnings
 from framework.agent_profile_server import AgentProfileServer
 from framework.base_test import (
+  agent_profile_url,
   BaseIntegrationTest,
   DEFAULT_UCP_VERSION,
   flag_value,
@@ -93,10 +94,8 @@ def get_headers(
   idempotency_key: str | None = None, request_id: str | None = None
 ) -> dict[str, str]:
   """Generate headers for UCP requests (same set as the base class)."""
-  port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
-  profile_url = f"http://localhost:{port}{AgentProfileServer.PROFILE_PATH}"
   return {
-    "UCP-Agent": f'profile="{profile_url}"',
+    "UCP-Agent": f'profile="{agent_profile_url()}"',
     "request-signature": "test",
     "idempotency-key": idempotency_key or str(uuid.uuid4()),
     "request-id": request_id or str(uuid.uuid4()),

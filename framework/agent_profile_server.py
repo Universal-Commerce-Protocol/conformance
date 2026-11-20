@@ -47,6 +47,7 @@ class AgentProfileServer:
     ucp_version: str = DEFAULT_UCP_VERSION,
     profile_template_path: str | None = None,
     profile_dict: dict[str, Any] | None = None,
+    webhook_base_url: str | None = None,
   ):
     """Initialize AgentProfileServer with port and profile configuration.
 
@@ -58,11 +59,16 @@ class AgentProfileServer:
         server under test targets.
       profile_template_path: Optional path to a JSON profile template.
       profile_dict: Optional dictionary to serialize as the profile.
+      webhook_base_url: A public address that reaches the mock webhook
+        server, such as a tunnel, for a server under test that cannot reach
+        this machine's localhost. It replaces
+        http://localhost:{webhook_port} in the profile.
 
     """
     self.port = port
     self.webhook_port = webhook_port
     self.ucp_version = ucp_version
+    self.webhook_base_url = webhook_base_url
     self.app = FastAPI()
 
     if profile_dict is not None:
@@ -81,12 +87,20 @@ class AgentProfileServer:
     self._server: uvicorn.Server | None = None
     self._thread: threading.Thread | None = None
 
+  def render_profile(self) -> dict[str, Any]:
+    """Return the profile, with its placeholders filled in."""
+    content = self._profile_template
+    if self.webhook_base_url:
+      content = content.replace(
+        "http://localhost:{webhook_port}", self.webhook_base_url.rstrip("/")
+      )
+    content = content.replace("{webhook_port}", str(self.webhook_port))
+    content = content.replace("{ucp_version}", self.ucp_version)
+    return json.loads(content)
+
   def _setup_routes(self) -> None:
     async def _respond_profile() -> JSONResponse:
-      content = self._profile_template.replace(
-        "{webhook_port}", str(self.webhook_port)
-      ).replace("{ucp_version}", self.ucp_version)
-      return JSONResponse(content=json.loads(content))
+      return JSONResponse(content=self.render_profile())
 
     self.app.get(self.PROFILE_PATH, response_model=None)(_respond_profile)
     self.app.get(self.LEGACY_PROFILE_PATH, response_model=None)(

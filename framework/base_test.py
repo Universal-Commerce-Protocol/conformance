@@ -19,12 +19,17 @@ import json
 import logging
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 import uuid
 from absl import flags
 from absl.testing import absltest
 from framework.agent_profile_server import AgentProfileServer
 from framework.constants import DEFAULT_UCP_VERSION
-from framework.discovery import UcpProfile, fetch_server_profile
+from framework.discovery import (
+  UcpProfile,
+  fetch_server_profile,
+  resolve_discovery_url,
+)
 import httpx
 
 # Re-exported so suites can keep importing the default release from the base
@@ -33,7 +38,9 @@ __all__ = [
   "DEFAULT_UCP_VERSION",
   "BaseIntegrationTest",
   "FLAGS",
+  "agent_profile_url",
   "flag_value",
+  "is_local_url",
 ]
 
 FLAGS = flags.FLAGS
@@ -103,13 +110,62 @@ _define_flag(
   None,
   "Directory containing CSV test data.",
 )
+_define_flag(
+  flags.DEFINE_string,
+  "discovery_url",
+  None,
+  "URL of the target server's discovery profile, if it is not at "
+  "<server_url>/.well-known/ucp: a full URL, or a path on --server_url.",
+)
 
 
 def flag_value(name: str):
-  """Return a flag's value, or None when flags have not been parsed yet."""
-  if not FLAGS.is_parsed():
-    return None
-  return getattr(FLAGS, name, None)
+  """Return a flag's value, or else its FLAGS_<name> environment variable.
+
+  The runner forwards its options as flags. Pytest parses no flags, so
+  pytest runs can set an option in the environment instead, as with
+  SERVER_URL; None means neither was given.
+  """
+  if (
+    FLAGS.is_parsed() and name in FLAGS and FLAGS[name].value not in (None, "")
+  ):
+    return FLAGS[name].value
+  return os.environ.get(f"FLAGS_{name}") or None
+
+
+_define_flag(
+  flags.DEFINE_string,
+  "agent_profile_url",
+  None,
+  "Public URL of the test agent's profile, sent in the UCP-Agent header, "
+  "for a server that cannot reach this machine's localhost (default: the "
+  "local mock agent server).",
+)
+_define_flag(
+  flags.DEFINE_string,
+  "webhook_base_url",
+  None,
+  "Public URL that reaches the local mock webhook server, for a server "
+  "that cannot reach this machine's localhost. The agent profile gives "
+  "it as the webhook address.",
+)
+
+_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "0.0.0.0"})
+
+
+def is_local_url(url: str) -> bool:
+  """Return whether a URL is on this machine, so it can reach localhost."""
+  host = urlsplit(url).hostname or ""
+  return host in _LOCAL_HOSTS or host.endswith(".localhost")
+
+
+def agent_profile_url() -> str:
+  """Return the test agent's profile URL for the UCP-Agent header."""
+  agent_port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
+  return (
+    flag_value("agent_profile_url")
+    or f"http://localhost:{agent_port}{AgentProfileServer.PROFILE_PATH}"
+  )
 
 
 class BaseIntegrationTest(absltest.TestCase):
@@ -138,6 +194,9 @@ class BaseIntegrationTest(absltest.TestCase):
     if not server_url:
       self.skipTest("Missing --server_url flag (or SERVER_URL variable)")
     self.base_url = server_url.rstrip("/")
+    self.discovery_url = resolve_discovery_url(
+      self.base_url, flag_value("discovery_url")
+    )
 
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
@@ -150,9 +209,11 @@ class BaseIntegrationTest(absltest.TestCase):
     # Lazily cache server discovery profile across tests
     if BaseIntegrationTest.server_profile is None:
       try:
-        BaseIntegrationTest.server_profile = fetch_server_profile(self.base_url)
+        BaseIntegrationTest.server_profile = fetch_server_profile(
+          self.base_url, discovery_url=self.discovery_url
+        )
       except Exception as e:  # pylint: disable=broad-exception-caught
-        logging.warning("Could not pre-fetch /.well-known/ucp: %s", e)
+        logging.warning("Could not pre-fetch %s: %s", self.discovery_url, e)
 
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
@@ -205,9 +266,24 @@ class BaseIntegrationTest(absltest.TestCase):
       port=agent_port,
       webhook_port=webhook_port,
       ucp_version=self.ucp_version,
+      webhook_base_url=flag_value("webhook_base_url"),
     )
     self.agent_server.start()
     self.addCleanup(self.agent_server.stop)
+
+  def skip_unless_webhooks_reachable(self) -> None:
+    """Skip if the server can't reach the mock webhook server.
+
+    A server on another machine can't deliver to this machine's localhost,
+    so its webhook tests need --webhook_base_url: a public address, such as
+    a tunnel, that reaches the mock webhook server.
+    """
+    if not is_local_url(self.base_url) and not flag_value("webhook_base_url"):
+      self.skipTest(
+        "the server is not on this machine, so it cannot deliver webhooks to "
+        "localhost: pass --webhook_base_url with a public address, such as a "
+        "tunnel, that reaches the mock webhook server's port"
+      )
 
   def get_headers(
     self,
@@ -216,11 +292,7 @@ class BaseIntegrationTest(absltest.TestCase):
     custom_profile_url: str | None = None,
   ) -> dict[str, str]:
     """Generate standard UCP transport headers."""
-    agent_port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
-    profile_url = (
-      custom_profile_url
-      or f"http://localhost:{agent_port}{AgentProfileServer.PROFILE_PATH}"
-    )
+    profile_url = custom_profile_url or agent_profile_url()
     return {
       "UCP-Agent": f'profile="{profile_url}"',
       "request-signature": "test",

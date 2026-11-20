@@ -98,6 +98,28 @@ DEFAULT_REQUIRED_CAPABILITIES = [
 ]
 
 
+class FixturePaths(TypedDict):
+  """The fixture files the shopping tests use."""
+
+  conformance_input: str
+  fixture_config: str
+  data_dir: str
+
+
+def fixture_paths() -> FixturePaths:
+  """Return the fixture files to use: those configured, else the defaults.
+
+  Each value comes from a flag or its FLAGS_<name> environment variable
+  (see flag_value); the flower shop's files are the fallback.
+  """
+  return FixturePaths(
+    conformance_input=flag_value("conformance_input")
+    or DEFAULT_CONFORMANCE_INPUT,
+    fixture_config=flag_value("fixture_config") or DEFAULT_FIXTURE_CONFIG,
+    data_dir=flag_value("test_data_dir") or DEFAULT_SHOPPING_FIXTURES,
+  )
+
+
 class ShoppingTestData:
   """Holder for loaded retail test data."""
 
@@ -493,6 +515,43 @@ class DynamicFixtureContext:
 ConfiguredFixtureContext = DynamicFixtureContext
 
 
+def rest_entry(entries: Any) -> dict[str, Any] | None:
+  """Return the REST entry of a service's discovery entries, if any.
+
+  A profile lists a service once per transport, and the REST entry, the
+  binding these tests use, need not come first.
+  """
+  items = entries if isinstance(entries, list) else [entries]
+  return next(
+    (
+      item
+      for item in items
+      if isinstance(item, dict) and item.get("transport") == "rest"
+    ),
+    None,
+  )
+
+
+def shopping_rest_endpoint(profile: dict[str, Any]) -> str:
+  """Return the REST endpoint of the shopping service in a profile.
+
+  Raises:
+    RuntimeError: The profile lists no shopping service, or no REST entry
+      with an endpoint for it.
+
+  """
+  ucp_data = profile.get("ucp", profile)
+  shopping_services = ucp_data.get("services", {}).get("dev.ucp.shopping", [])
+  if not shopping_services:
+    raise RuntimeError("Shopping service not found in discovery profile")
+  endpoint = (rest_entry(shopping_services) or {}).get("endpoint")
+  if not endpoint:
+    raise RuntimeError(
+      "Shopping service endpoint not found in discovery profile"
+    )
+  return str(endpoint)
+
+
 # Every shopping test needs the checkout capability; declaring it here makes
 # BaseIntegrationTest skip before it starts the agent profile server.
 @requires_capability("dev.ucp.shopping.checkout")
@@ -505,9 +564,11 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     """Set up shopping fixtures, configs, and endpoints."""
     super().setUp()
 
+    paths = fixture_paths()
+
     # Load fixture configuration
     fixture_config = {}
-    fix_cfg_path = flag_value("fixture_config") or DEFAULT_FIXTURE_CONFIG
+    fix_cfg_path = paths["fixture_config"]
     if Path(fix_cfg_path).exists():
       with Path(fix_cfg_path).open(encoding="utf-8") as f:
         fixture_config = json.load(f)
@@ -519,7 +580,7 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     )
 
     # Load CSV test data
-    fixtures_dir = flag_value("test_data_dir") or DEFAULT_SHOPPING_FIXTURES
+    fixtures_dir = paths["data_dir"]
     if Path(fixtures_dir).exists():
       try:
         shopping_test_data.load(fixtures_dir)
@@ -534,33 +595,11 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
   def shopping_service_endpoint(self) -> str:
     """Cached property for the shopping service endpoint."""
     if self._shopping_service_endpoint is None:
-      discovery_resp = self.client.get("/.well-known/ucp")
+      discovery_resp = self.client.get(self.discovery_url)
       self.assert_response_status(discovery_resp, 200)
-
-      profile_data = discovery_resp.json()
-      ucp_data = profile_data.get("ucp", profile_data)
-      shopping_services = ucp_data.get("services", {}).get(
-        "dev.ucp.shopping", []
+      self._shopping_service_endpoint = shopping_rest_endpoint(
+        discovery_resp.json()
       )
-      if not shopping_services:
-        raise RuntimeError("Shopping service not found in discovery profile")
-
-      shopping_service = (
-        shopping_services[0]
-        if isinstance(shopping_services, list)
-        else shopping_services
-      )
-
-      endpoint = (
-        shopping_service.get("endpoint")
-        if shopping_service and shopping_service.get("transport") == "rest"
-        else None
-      )
-      if not endpoint:
-        raise RuntimeError(
-          "Shopping service endpoint not found in discovery profile"
-        )
-      self._shopping_service_endpoint = str(endpoint)
     return self._shopping_service_endpoint
 
   def get_shopping_url(self, path: str) -> str:
