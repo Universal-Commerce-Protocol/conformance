@@ -2,6 +2,22 @@
   "ucp": {
     "version": "{ucp_version}",
     "capabilities": {
+      "dev.ucp.shopping.catalog.search": [
+        {
+          "name": "dev.ucp.shopping.catalog.search",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/catalog/search/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/catalog_search.json"
+        }
+      ],
+      "dev.ucp.shopping.catalog.lookup": [
+        {
+          "name": "dev.ucp.shopping.catalog.lookup",
+          "version": "{ucp_version}",
+          "spec": "https://ucp.dev/{ucp_version}/specification/catalog/lookup/",
+          "schema": "https://ucp.dev/{ucp_version}/schemas/shopping/catalog_lookup.json"
+        }
+      ],
       "dev.ucp.shopping.checkout": [
         {
           "name": "dev.ucp.shopping.checkout",
