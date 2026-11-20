@@ -232,8 +232,12 @@ uv run ucp-conformance \
   --suite=all
 ```
 
-Use `-k/--filter` to run a subset of tests by name, and `--dry-run` to list
-what would execute without contacting the server.
+Use `-k/--filter` to run a subset of tests by name, `--dry-run` to list what
+would execute without contacting the server, and `--verbose_http` to log every
+HTTP request and response with its identifying headers and body (JSON
+pretty-printed, truncated at 4 KB, credentials redacted). With or without
+`--verbose_http`, a failing or erroring test ends its report with its last HTTP
+request and response.
 
 ### 5. Testing a Server on Another Machine
 

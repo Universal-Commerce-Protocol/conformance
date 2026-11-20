@@ -43,6 +43,7 @@ idless
 ingestions
 inlinehilite
 Kroger
+levelname
 linenums
 llmstxt
 Lowe's
@@ -76,6 +77,7 @@ shopify
 Shopify
 Smallville
 Stripe
+subtest
 superfences
 Target
 testpaths

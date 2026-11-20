@@ -168,6 +168,95 @@ def agent_profile_url() -> str:
   )
 
 
+# How much of a body a log line or a failure report shows.
+BODY_LIMIT = 4096
+# Headers worth showing with a request; credentials are never shown.
+SHOWN_REQUEST_HEADERS = (
+  "ucp-agent",
+  "idempotency-key",
+  "request-id",
+  "content-type",
+)
+REDACTED_HEADERS = (
+  "authorization",
+  "signature",
+  "signature-input",
+  "simulation-secret",
+  "x-api-key",
+)
+
+
+def _clip(text: str, limit: int = BODY_LIMIT) -> str:
+  """Return text cut to `limit` characters, saying how much was cut."""
+  if len(text) <= limit:
+    return text
+  return f"{text[:limit]}… ({len(text) - limit} more characters)"
+
+
+def _body_text(content: bytes | None) -> str:
+  """Return a body as text, pretty-printed when it is JSON."""
+  if not content:
+    return ""
+  text = content.decode("utf-8", errors="replace")
+  try:
+    return json.dumps(json.loads(text), indent=2, ensure_ascii=False)
+  except ValueError:
+    return text
+
+
+def describe_request(request: httpx.Request) -> str:
+  """Render a request for the log: line, shown headers, body."""
+  lines = [f"> {request.method} {request.url}"]
+  for name, value in request.headers.items():
+    lower = name.lower()
+    if lower in REDACTED_HEADERS:
+      lines.append(f"> {name}: <redacted>")
+    elif lower in SHOWN_REQUEST_HEADERS:
+      lines.append(f"> {name}: {value}")
+  try:
+    body = _body_text(request.content)
+  except httpx.RequestNotRead:
+    body = "(body not read)"
+  if body:
+    lines.append(_clip(body))
+  return "\n".join(lines)
+
+
+def describe_response(response: httpx.Response) -> str:
+  """Render a response for the log: status, content type, body."""
+  request = response.request
+  lines = [f"< {response.status_code} for {request.method} {request.url}"]
+  content_type = response.headers.get("content-type")
+  if content_type:
+    lines.append(f"< Content-Type: {content_type}")
+  try:
+    body = _body_text(response.content)
+  except httpx.ResponseNotRead:
+    body = "(body not read)"
+  if body:
+    lines.append(_clip(body))
+  return "\n".join(lines)
+
+
+def describe_exchange(
+  response: httpx.Response | None,
+  request: httpx.Request | None = None,
+) -> str:
+  """Render a test's last request and response for its failure report.
+
+  When a request was sent without receiving a response (for example on a
+  timeout or connection error), renders the request followed by
+  `< (no response)`. Returns an empty string when nothing was sent.
+  """
+  if response is not None:
+    return (
+      f"{describe_request(response.request)}\n{describe_response(response)}"
+    )
+  if request is not None:
+    return f"{describe_request(request)}\n< (no response)"
+  return ""
+
+
 class BaseIntegrationTest(absltest.TestCase):
   """Agnostic foundation for all UCP protocol and capability tests."""
 
@@ -198,10 +287,14 @@ class BaseIntegrationTest(absltest.TestCase):
       self.base_url, flag_value("discovery_url")
     )
 
+    self._verbose_http = bool(flag_value("verbose_http"))
     httpx_logger = logging.getLogger("httpx")
     httpx_logger.setLevel(
-      logging.INFO if flag_value("verbose_http") else logging.WARNING
+      logging.INFO if self._verbose_http else logging.WARNING
     )
+    # The last HTTP request/response on the test's client, for failure reports.
+    self._last_request: httpx.Request | None = None
+    self._last_response: httpx.Response | None = None
 
     # Merchant-declared conformance input.
     self.conformance_config = self._load_conformance_config()
@@ -218,10 +311,48 @@ class BaseIntegrationTest(absltest.TestCase):
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
 
-    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
+    self.client = httpx.Client(
+      base_url=self.base_url,
+      timeout=15.0,
+      event_hooks={
+        "request": [self._note_request],
+        "response": [self._note_response],
+      },
+    )
     self.addCleanup(self.client.close)
 
     self._start_agent_server()
+
+  def _note_request(self, request: httpx.Request) -> None:
+    """Keep the request for failure reports; log it under --verbose_http."""
+    self._last_request = request
+    self._last_response = None
+    if self._verbose_http:
+      logging.info("HTTP request\n%s", describe_request(request))
+
+  def _note_response(self, response: httpx.Response) -> None:
+    """Keep the response for the failure report; log it under --verbose_http.
+
+    The body is read here so that it is available to both; every test
+    reads it anyway.
+    """
+    response.read()
+    self._last_response = response
+    if self._verbose_http:
+      logging.info("HTTP response\n%s", describe_response(response))
+
+  def describe_last_exchange(self) -> str:
+    """Return the test's last request and response, for its failure report.
+
+    `RecordingResult` appends this to a failure or error, so that an
+    in-band refusal answered with HTTP 200 and a KeyError further down
+    shows the response that caused it, while a timeout or connection error
+    shows the unanswered request instead of an earlier response.
+    """
+    return describe_exchange(
+      getattr(self, "_last_response", None),
+      getattr(self, "_last_request", None),
+    )
 
   @property
   def ucp_version(self) -> str:
