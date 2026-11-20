@@ -44,6 +44,35 @@ class ContentDigestTest(absltest.TestCase):
     add_content_digest(request)
     self.assertNotIn("Content-Digest", request.headers)
 
+  def test_hook_skips_bodiless_post(self):
+    """Leaves a POST with no body untouched."""
+    request = httpx.Request("POST", "http://test/x")
+    add_content_digest(request)
+    self.assertNotIn("Content-Digest", request.headers)
+
+  def test_hook_digests_non_ascii_utf8_json_body(self):
+    """Digests the UTF-8 bytes of a non-ASCII JSON body."""
+    request = httpx.Request(
+      "POST", "http://test/x", json={"name": "Café ☕ 日本"}
+    )
+    add_content_digest(request)
+    self.assertEqual(
+      request.headers["Content-Digest"],
+      compute_content_digest(request.content),
+    )
+    self.assertIn("Café".encode(), request.content)
+
+  def test_hook_keeps_existing_digest(self):
+    """Does not overwrite a caller-supplied digest (case-insensitive)."""
+    request = httpx.Request(
+      "POST",
+      "http://test/x",
+      json={"a": 1},
+      headers={"content-digest": "sha-256=:bad=:"},
+    )
+    add_content_digest(request)
+    self.assertEqual(request.headers["Content-Digest"], "sha-256=:bad=:")
+
   def test_client_event_hook_sends_header(self):
     """Sends the header on the wire through a client hook."""
     seen = {}

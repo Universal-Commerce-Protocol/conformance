@@ -34,7 +34,13 @@ def compute_content_digest(body: bytes) -> str:
 
 
 def add_content_digest(request: httpx.Request) -> None:
-  """Set Content-Digest on an outgoing request when it has a body."""
-  body = request.content
+  """Set Content-Digest on an outgoing request when it has a body.
+
+  An explicitly provided Content-Digest header is left untouched so negative
+  tests can send an invalid digest.
+  """
+  if CONTENT_DIGEST_HEADER in request.headers:
+    return
+  body = request.read()
   if body:
     request.headers[CONTENT_DIGEST_HEADER] = compute_content_digest(body)
