@@ -42,6 +42,10 @@ from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
+# The release (ucp#451) that made buyer consent a map of reverse-DNS purposes,
+# each confirmed with `granted` and `source`. Earlier releases send booleans.
+CONSENT_PURPOSE_MAP_VERSION = "2026-08-25"
+
 
 @requires_capability("dev.ucp.shopping.checkout")
 class BusinessLogicTest(ShoppingIntegrationTestBase):
@@ -141,14 +145,23 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
 
   @requires_capability("dev.ucp.shopping.buyer_consent")
   def test_buyer_consent(self):
-    """Test that buyer consent preferences are persisted on creation.
+    """Test that buyer consent is exchanged in the shape of the target release.
 
+    From 2026-08-25 (ucp#451) consent is a map of reverse-DNS purposes that the
+    business advertises and the platform confirms; see
+    `_check_consent_advertise_and_confirm`.
+
+    For 2026-04-08:
     Given a checkout creation payload including buyer consent preferences
     (marketing=True, analytics=False),
     When the checkout session is created,
     Then the returned checkout object should correctly reflect these consent
     values.
     """
+    if self.ucp_version >= CONSENT_PURPOSE_MAP_VERSION:
+      self._check_consent_advertise_and_confirm()
+      return
+
     create_payload = self.create_checkout_payload()
 
     # Consent is sent as a plain mapping: in newer SDK releases
@@ -211,6 +224,146 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
         getattr(consent_data, "analytics", True),
         f"Analytics consent not persisted. Resp: {consent_data}",
       )
+
+  def _check_consent_advertise_and_confirm(self):
+    """Check the 2026-08-25 advertise and confirm flow for buyer consent.
+
+    Given a checkout created with a buyer and no consent (requirement 3: a
+    business ignores purposes it has not advertised, so a platform has nothing
+    to send yet),
+    When the platform confirms every advertised purpose and segment with
+    `granted` and `source` (requirement 2), changing one purpose to a
+    platform-sourced choice,
+    Then the checkout still advertises the same purposes and segments in the
+    response shape, and the changed purpose holds either that choice with
+    `source: "platform"` or a business-sourced value.
+
+    Whether a business must record a platform-sourced confirm is not settled
+    by the extension (ucp#1113), so recording is not required here.
+    """
+    buyer = {
+      "first_name": "Consent",
+      "last_name": "Tester",
+      "email": "consent@example.com",
+    }
+    created = self.create_checkout_session(
+      buyer=buyer, select_fulfillment=False
+    )
+    advertised = (created.get("buyer") or {}).get("consent")
+    if not advertised:
+      self.skipTest(
+        "The business advertises dev.ucp.shopping.buyer_consent but the"
+        " checkout response carries no buyer.consent options to confirm."
+      )
+    self._assert_consent_advertised(advertised, "create response")
+
+    # Echo every advertised key; the platform states a buyer choice for one.
+    purpose = sorted(advertised)[0]
+    choice = not advertised[purpose]["granted"]
+    confirm = {
+      key: self._consent_confirm_entry(value)
+      for key, value in advertised.items()
+    }
+    confirm[purpose]["granted"] = choice
+    confirm[purpose]["source"] = "platform"
+
+    # checkout.json marks `id` and `currency` as `ucp_request: "omit"`, so
+    # the update carries only fields a platform may send.
+    checkout_id = created["id"]
+    update_payload = {
+      "line_items": [
+        {
+          "id": line_item["id"],
+          "item": {"id": line_item["item"]["id"]},
+          "quantity": line_item["quantity"],
+        }
+        for line_item in created["line_items"]
+      ],
+      "buyer": {**buyer, "consent": confirm},
+    }
+    if created.get("payment"):
+      update_payload["payment"] = {
+        "instruments": created["payment"].get("instruments") or []
+      }
+    response = self.client.put(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      json=update_payload,
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+
+    response = self.client.get(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(response, 200)
+    current = (response.json().get("buyer") or {}).get("consent")
+    self.assertTrue(
+      current, "buyer.consent is missing after the platform confirmed it"
+    )
+    self._assert_consent_advertised(current, "read after confirm")
+
+    self.assertEqual(
+      set(current),
+      set(advertised),
+      "The advertised purposes changed after a confirm that echoed them",
+    )
+    for key, value in advertised.items():
+      self.assertEqual(
+        set(current[key].get("segments") or {}),
+        set(value.get("segments") or {}),
+        f"The advertised segments of {key} changed after a confirm that"
+        " echoed them",
+      )
+
+    recorded = current[purpose]
+    if recorded["source"] == "platform":
+      self.assertEqual(
+        recorded["granted"],
+        choice,
+        f"{purpose} reports source 'platform' but not the granted value the"
+        f" platform confirmed. Resp: {recorded}",
+      )
+
+  def _assert_consent_advertised(self, consent, where):
+    """Assert a consent map has the response shape of buyer_consent.json."""
+    self.assertIsInstance(consent, dict, f"buyer.consent in {where}")
+    for key, purpose in consent.items():
+      self._assert_consent_value(purpose, f"{key} in {where}")
+      if "segments" not in purpose:
+        continue
+      segments = purpose["segments"]
+      self.assertIsInstance(
+        segments, dict, f"{key}.segments in {where} is not an object"
+      )
+      for segment_key, segment in segments.items():
+        self._assert_consent_value(segment, f"{segment_key} in {where}")
+
+  def _assert_consent_value(self, value, label):
+    """Assert one advertised purpose or segment carries its required fields."""
+    self.assertIsInstance(value, dict, f"{label} is not an object")
+    self.assertIsInstance(
+      value.get("granted"), bool, f"{label} has no boolean granted"
+    )
+    self.assertIn(
+      value.get("source"),
+      ("business", "platform"),
+      f"{label} has no valid source",
+    )
+    self.assertIsInstance(
+      value.get("description"), str, f"{label} has no description"
+    )
+
+  @staticmethod
+  def _consent_confirm_entry(advertised):
+    """Echo an advertised purpose as a confirm: granted, source, segments."""
+    entry = {"granted": advertised["granted"], "source": advertised["source"]}
+    if advertised.get("segments"):
+      entry["segments"] = {
+        key: {"granted": segment["granted"], "source": segment["source"]}
+        for key, segment in advertised["segments"].items()
+      }
+    return entry
 
   def test_buyer_info_persistence(self):
     """Test that buyer information is persisted on update.
