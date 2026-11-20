@@ -376,7 +376,9 @@ class ValidationTest(ShoppingIntegrationTestBase):
     problem, or returns an in-band error message with code 'missing' or
     'field_required'.
     """
-    response_json = self.create_checkout_session(select_fulfillment=False)
+    response_json = self.create_checkout_session(
+      select_fulfillment=False, buyer=self.DEFAULT_BUYER
+    )
     checkout_id = response_json["id"]
 
     payment_payload = get_valid_payment_payload()

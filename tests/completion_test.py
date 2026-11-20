@@ -358,6 +358,105 @@ class CompletionAgainstStrictStoreTest(unittest.TestCase):
     logged = " ".join(str(call) for call in warning.call_args_list)
     self.assertIn("missing_buyer_info", logged)
 
+  def test_create_checkout_destination_skips_null_or_empty_aliases(self):
+    """Null or empty destination aliases fall through to populated fallbacks."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    probe.fixture_ctx = base.DynamicFixtureContext(
+      {
+        "test_destination": {
+          "address_locality": None,
+          "locality": "",
+          "city": "Oakland",
+          "address_region": None,
+          "region": "",
+          "state": "OR",
+        }
+      }
+    )
+
+    body = probe.create_checkout_payload().model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
+    destination = body["fulfillment"]["methods"][0]["destinations"][0]
+    self.assertEqual(destination["address_locality"], "Oakland")
+    self.assertEqual(destination["address_region"], "OR")
+
+  def test_attempt_complete_checkout_omits_buyer_field(self):
+    """Complete Checkout sends payment + risk_signals only, never buyer."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+
+    response = probe.attempt_complete_checkout(created["id"])
+    self.assertEqual(response.status_code, 200)
+    complete_body = sent_json(store.requests[-1])
+    self.assertNotIn("buyer", complete_body)
+    self.assertIn("payment", complete_body)
+
+  def test_lifecycle_complete_helper_settles_and_checks_outcome(self):
+    """`_complete_checkout` settles async completion and fails on errors."""
+    from shopping.checkout import lifecycle_test
+
+    # 1. Async completion settles via GET before returning.
+    async_store = strict_store.StrictStore(async_completion=True)
+    case = lifecycle_test.CheckoutLifecycleTest("test_complete_is_idempotent")
+    case.client = async_store.client()
+    case._shopping_service_endpoint = strict_store.ENDPOINT
+    case.conformance_config = {}
+    case.fixture_ctx = base.DynamicFixtureContext({})
+    case.COMPLETION_POLL_SECONDS = 0
+    created = case.create_checkout_session(buyer=case.DEFAULT_BUYER)
+    settled = case._complete_checkout(created["id"])
+    self.assertEqual(settled["status"], "completed")
+
+    # 2. In-band completion failure raises AssertionError instead of passing.
+    strict = strict_store.StrictStore(needs_buyer=True)
+    case2 = lifecycle_test.CheckoutLifecycleTest("test_complete_is_idempotent")
+    case2.client = strict.client()
+    case2._shopping_service_endpoint = strict_store.ENDPOINT
+    case2.conformance_config = {}
+    case2.fixture_ctx = base.DynamicFixtureContext({})
+    case2.COMPLETION_POLL_SECONDS = 0
+    unready = case2.create_checkout_session()
+    with self.assertRaises(AssertionError) as caught:
+      case2._complete_checkout(unready["id"])
+    self.assertIn("missing_buyer_info", str(caught.exception))
+
+  def test_lifecycle_update_checkout_handles_saved_instruments(self):
+    """`test_update_checkout` carries saved instruments without failing."""
+    from shopping.checkout import lifecycle_test
+
+    store = strict_store.StrictStore()
+    orig_view = store._view
+
+    def view_with_saved_instrument(chk):
+      data = orig_view(chk)
+      data["payment"] = {
+        "instruments": [
+          {
+            "id": "instr_saved",
+            "handler_id": "mock_payment_handler",
+            "type": "card",
+            "display": {"brand": "Visa", "last_digits": "4242"},
+          }
+        ]
+      }
+      return data
+
+    store._view = view_with_saved_instrument  # type: ignore[method-assign]
+    case = lifecycle_test.CheckoutLifecycleTest("test_update_checkout")
+    case.client = store.client()
+    case._shopping_service_endpoint = strict_store.ENDPOINT
+    case.conformance_config = {}
+    case.fixture_ctx = base.DynamicFixtureContext({})
+
+    case.test_update_checkout()
+
+    last_put = sent_json([r for r in store.requests if r.method == "PUT"][-1])
+    self.assertEqual(last_put["payment"]["instruments"][0]["id"], "instr_saved")
+    self.assertNotIn("handlers", last_put["payment"])
+
 
 if __name__ == "__main__":
   unittest.main()

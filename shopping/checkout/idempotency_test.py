@@ -91,7 +91,7 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
 
     # 3. Conflict Request
     conflict_payload = create_payload.model_copy(deep=True)
-    conflict_payload.currency = "EUR"
+    conflict_payload.line_items[0].quantity = 2
     response3 = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=conflict_payload.model_dump(
