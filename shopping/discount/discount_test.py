@@ -14,6 +14,8 @@
 
 """Discount application tests for the UCP Shopping vertical."""
 
+from fractions import Fraction
+
 from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import ShoppingIntegrationTestBase
@@ -43,6 +45,15 @@ from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
+def _percent_of(amount, percentage) -> Fraction:
+  """Return the exact `percentage` % of `amount`, before any rounding.
+
+  Fixture percentages arrive as floats (e.g. 12.5), so they go through
+  `str` to keep the decimal value the fixture author wrote.
+  """
+  return Fraction(amount) * Fraction(str(percentage)) / 100
+
+
 @requires_capability("dev.ucp.shopping.discount")
 class DiscountTest(ShoppingIntegrationTestBase):
   """Tests for applying discount codes to a checkout session.
@@ -62,7 +73,7 @@ class DiscountTest(ShoppingIntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = round(expected_price * (percentage / 100))
+    expected_discount = _percent_of(expected_price, percentage)
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -103,7 +114,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response.json())
 
     self.assert_totals_consistent(
-      discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout,
+      expected_price,
+      expected_discount=expected_discount,
+      discount_tolerance=1,
     )
 
     # Parse discounts from extra fields
@@ -140,15 +154,16 @@ class DiscountTest(ShoppingIntegrationTestBase):
     percentage1 = self.fixture_ctx.get_expected_discount_percentage()
     percentage2 = self.fixture_ctx.get_expected_discount_percentage_2()
 
+    # Exact amounts before rounding to minor units. The spec does not define
+    # the rounding mode, so the assertion allows one minor unit per code.
     # Cumulative discount: each calculated on the original price
-    d1_cum = round(expected_price * (percentage1 / 100))
-    d2_cum = round(expected_price * (percentage2 / 100))
-    expected_discount_cumulative = d1_cum + d2_cum
+    d1 = _percent_of(expected_price, percentage1)
+    d2_cum = _percent_of(expected_price, percentage2)
+    expected_discount_cumulative = d1 + d2_cum
 
     # Sequential discount: second calculated on the remaining balance
-    d1_seq = round(expected_price * (percentage1 / 100))
-    d2_seq = round((expected_price - d1_seq) * (percentage2 / 100))
-    expected_discount_sequential = d1_seq + d2_seq
+    d2_seq = _percent_of(expected_price - d1, percentage2)
+    expected_discount_sequential = d1 + d2_seq
 
     # Accept either approach
     expected_discount = [
@@ -167,7 +182,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response_json)
 
     self.assert_totals_consistent(
-      discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout,
+      expected_price,
+      expected_discount=expected_discount,
+      discount_tolerance=2,
     )
 
     # Verify both submitted codes are present in the applied list. The applied
@@ -193,7 +211,7 @@ class DiscountTest(ShoppingIntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = round(expected_price * (percentage / 100))
+    expected_discount = _percent_of(expected_price, percentage)
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -206,7 +224,10 @@ class DiscountTest(ShoppingIntegrationTestBase):
     discounted_checkout = checkout.Checkout(**response_json)
 
     self.assert_totals_consistent(
-      discounted_checkout, expected_price, expected_discount=expected_discount
+      discounted_checkout,
+      expected_price,
+      expected_discount=expected_discount,
+      discount_tolerance=1,
     )
 
     # Verify the valid code is present in the applied list. The applied list
