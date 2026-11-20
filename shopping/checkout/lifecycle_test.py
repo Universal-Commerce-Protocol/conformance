@@ -16,16 +16,12 @@
 
 from absl.testing import absltest
 from framework.decorators import requires_capability
-from shopping.base import ShoppingIntegrationTestBase, get_valid_payment_payload
-from ucp_sdk.models.schemas.shopping import (
-  checkout_update_request as checkout_update_req,
+from shopping.base import (
+  completion_problem,
+  get_valid_payment_payload,
+  ShoppingIntegrationTestBase,
 )
 from ucp_sdk.models.schemas.shopping import checkout as checkout
-
-try:
-  from ucp_sdk.models.schemas.shopping import payment_update_request
-except ImportError:
-  from ucp_sdk.models.schemas.common.types import payment_update_request
 
 try:
   from ucp_sdk.models.schemas.shopping.payment import (
@@ -61,11 +57,6 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
   - POST /checkout-sessions/{id}/complete
   - POST /checkout-sessions/{id}/cancel
   """
-
-  DEFAULT_BUYER = {
-    "email": "conformance-test-buyer@example.com",
-    "name": "Conformance Test Buyer",
-  }
 
   def test_create_checkout(self):
     """Test successful checkout creation.
@@ -123,14 +114,6 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       quantity=2,
     )
 
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-
     buyer_update = buyer_update_request.BuyerUpdateRequest(
       email="update-checkout-buyer@example.com",
       first_name="Jane",
@@ -177,20 +160,16 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       ]
     }
 
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
+    update_payload = self.checkout_update_payload(
+      checkout_obj,
       line_items=[line_item_update],
-      payment=payment_update,
       buyer=buyer_update,
       fulfillment=fulfillment_update,
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
 
@@ -425,25 +404,13 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assertGreaterEqual(
@@ -487,14 +454,14 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     )
 
   def _complete_checkout(self, checkout_id):
-    """Complete a checkout."""
-    response = self.client.post(
-      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
-      json=get_valid_payment_payload(),
-      headers=self.get_headers(),
-    )
+    """Complete a checkout and verify the order was placed."""
+    response = self.attempt_complete_checkout(checkout_id)
     self.assert_response_status(response, 200)
-    return response
+    body = self.settle_completion(checkout_id, response.json())
+    problem = completion_problem(body)
+    if problem is not None:
+      self.fail(problem)
+    return body
 
   def test_complete_is_idempotent(self):
     """Tests that completing an already completed checkout behaves correctly.
@@ -548,25 +515,13 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
       item=item_update,
       quantity=2,
     )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-      handlers=[
-        h.model_dump(mode="json", exclude_none=True)
-        for h in checkout_obj.payment.instruments
-      ],
-    )
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
+    update_payload = self.checkout_update_payload(
+      checkout_obj, line_items=[line_item_update]
     )
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      json=update_payload,
       headers=self.get_headers(),
     )
     self.assertGreaterEqual(

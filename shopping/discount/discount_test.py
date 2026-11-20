@@ -19,14 +19,6 @@ from framework.decorators import requires_capability
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import discount as discount
-from ucp_sdk.models.schemas.shopping import (
-  checkout_update_request as checkout_update_req,
-)
-
-try:
-  from ucp_sdk.models.schemas.shopping import payment_update_request
-except ImportError:
-  from ucp_sdk.models.schemas.common.types import payment_update_request
 
 try:
   from ucp_sdk.models.schemas.shopping.payment import (
@@ -36,8 +28,6 @@ except ImportError:
   from ucp_sdk.models.schemas.common.types.payment import (
     Payment,
   )
-from ucp_sdk.models.schemas.shopping.types import item_update_request
-from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 
 # Rebuild models to resolve forward references
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
@@ -68,30 +58,12 @@ class DiscountTest(ShoppingIntegrationTestBase):
     checkout_obj = checkout.Checkout(**response_json)
     checkout_id = checkout_obj.id
 
-    # Apply Discount
-    item_update = item_update_request.ItemUpdateRequest(
-      id=checkout_obj.line_items[0].item.id,
+    # Apply Discount. The shared payload helper carries the checkout over and
+    # copes with a checkout that has no `payment` member, which the schema
+    # leaves optional.
+    update_dict = self.checkout_update_payload(
+      checkout_obj, discounts={"codes": [valid_code]}
     )
-    line_item_update = line_item_update_request.LineItemUpdateRequest(
-      id=checkout_obj.line_items[0].id,
-      item=item_update,
-      quantity=1,
-    )
-    payment_update = payment_update_request.PaymentUpdateRequest(
-      instruments=checkout_obj.payment.instruments,
-    )
-
-    update_payload = checkout_update_req.CheckoutUpdateRequest(
-      id=checkout_id,
-      currency=checkout_obj.currency,
-      line_items=[line_item_update],
-      payment=payment_update,
-    )
-
-    update_dict = update_payload.model_dump(
-      mode="json", by_alias=True, exclude_none=True
-    )
-    update_dict["discounts"] = {"codes": [valid_code]}
 
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),

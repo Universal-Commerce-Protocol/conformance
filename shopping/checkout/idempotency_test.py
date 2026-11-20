@@ -17,7 +17,11 @@
 import uuid
 from absl.testing import absltest
 from framework.decorators import requires_capability
-from shopping.base import get_valid_payment_payload, ShoppingIntegrationTestBase
+from shopping.base import (
+  completion_problem,
+  get_valid_payment_payload,
+  ShoppingIntegrationTestBase,
+)
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
 try:
@@ -87,7 +91,7 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
 
     # 3. Conflict Request
     conflict_payload = create_payload.model_copy(deep=True)
-    conflict_payload.currency = "EUR"
+    conflict_payload.line_items[0].quantity = 2
     response3 = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=conflict_payload.model_dump(
@@ -113,31 +117,16 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
     idem_key = str(uuid.uuid4())
     headers = self.get_headers(idempotency_key=idem_key)
 
-    # Use the helper logic but manually call to control headers/idempotency key
-    # We construct the update payload same as helper does
-    line_items_req = []
-    for li in checkout_obj.line_items:
-      line_items_req.append(
-        {
-          "item": {"id": li.item.id, "title": li.item.title},
-          "quantity": 2,  # Change quantity
-          "id": li.id,
-        }
-      )
-
-    payment_req = {
-      "instruments": [
-        i.model_dump(mode="json", exclude_none=True)
-        for i in checkout_obj.payment.instruments
+    # The shared payload helper carries the checkout over (and copes with a
+    # checkout that has no `payment` member); only the quantity changes.
+    # The request itself is sent by hand to control the idempotency key.
+    update_payload = self.checkout_update_payload(
+      checkout_obj,
+      line_items=[
+        {"id": li.id, "item": {"id": li.item.id}, "quantity": 2}
+        for li in checkout_obj.line_items
       ],
-    }
-
-    update_payload = {
-      "id": checkout_obj.id,
-      "currency": checkout_obj.currency,
-      "line_items": line_items_req,
-      "payment": payment_req,
-    }
+    )
 
     response1 = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
@@ -183,7 +172,12 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
     and a modified completion request with the same key should result in a 409
     Conflict.
     """
-    response_json = self.create_checkout_session()
+    # A checkout that can be completed: a buyer and a selected fulfillment
+    # option, like create_completed_order sets up. Without them a business
+    # may answer both completions with the same recoverable error, and two
+    # identical refusals would pass the replay check without an order ever
+    # being placed.
+    response_json = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
     checkout_id = checkout.Checkout(**response_json).id
 
     # 1. Initial Complete
@@ -197,6 +191,10 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
       headers=headers,
     )
     self.assert_response_status(response1, 200)
+    first = self.settle_completion(checkout_id, response1.json())
+    problem = completion_problem(first)
+    if problem is not None:
+      self.fail(problem)
 
     # 2. Duplicate Request
     response2 = self.client.post(
