@@ -1030,13 +1030,10 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     self,
     checkout_id: str,
     payment_payload: dict[str, Any] | None = None,
-    buyer: dict[str, Any] | None = None,
   ) -> httpx.Response:
     """POST /checkout-sessions/{id}/complete and return the raw response."""
     if payment_payload is None:
       payment_payload = get_valid_payment_payload()
-    if buyer is not None:
-      payment_payload = {**payment_payload, "buyer": buyer}
     return self.client.post(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
       json=payment_payload,
