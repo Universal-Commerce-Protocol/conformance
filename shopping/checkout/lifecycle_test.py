@@ -162,8 +162,8 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
         id="dest_2",
         address_country="US",
         postal_code="90210",
-        locality="Beverly Hills",
-        region="CA",
+        address_locality="Beverly Hills",
+        address_region="CA",
         street_address="456 Elm St",
       )
     )
@@ -238,6 +238,8 @@ class CheckoutLifecycleTest(ShoppingIntegrationTestBase):
     )
     self.assertEqual(selected_dest.get("postal_code"), "90210")
     self.assertEqual(selected_dest.get("street_address"), "456 Elm St")
+    self.assertEqual(selected_dest.get("address_locality"), "Beverly Hills")
+    self.assertEqual(selected_dest.get("address_region"), "CA")
 
   @spec_assert(
     "REQ-SHOPPING-CHECKOUT-0120",  # non-terminal checkouts SHOULD be cancelable
