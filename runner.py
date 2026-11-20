@@ -38,6 +38,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "core.binding_test",
   ],
   "common": [
+    "framework.server_startup_test",
     "common.payments.card_credential_test",
     "common.payments.ap2_test",
     "common.payments.token_binding_test",
