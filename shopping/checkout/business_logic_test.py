@@ -267,10 +267,10 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     confirm[purpose]["granted"] = choice
     confirm[purpose]["source"] = "platform"
 
+    # checkout.json marks `id` and `currency` as `ucp_request: "omit"`, so
+    # the update carries only fields a platform may send.
     checkout_id = created["id"]
     update_payload = {
-      "id": checkout_id,
-      "currency": created["currency"],
       "line_items": [
         {
           "id": line_item["id"],
@@ -283,7 +283,7 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     }
     if created.get("payment"):
       update_payload["payment"] = {
-        "instruments": created["payment"].get("instruments", [])
+        "instruments": created["payment"].get("instruments") or []
       }
     response = self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
@@ -330,8 +330,12 @@ class BusinessLogicTest(ShoppingIntegrationTestBase):
     self.assertIsInstance(consent, dict, f"buyer.consent in {where}")
     for key, purpose in consent.items():
       self._assert_consent_value(purpose, f"{key} in {where}")
-      segments = purpose.get("segments") or {}
-      self.assertIsInstance(segments, dict, f"{key}.segments in {where}")
+      if "segments" not in purpose:
+        continue
+      segments = purpose["segments"]
+      self.assertIsInstance(
+        segments, dict, f"{key}.segments in {where} is not an object"
+      )
       for segment_key, segment in segments.items():
         self._assert_consent_value(segment, f"{segment_key} in {where}")
 
