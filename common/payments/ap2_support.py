@@ -140,6 +140,9 @@ class Ap2AgentProfileServer(AgentProfileServer):
   # reject every completion without a mandate once AP2 is negotiated, so
   # advertising it in the default profile would affect every other test.
   AP2_PROFILE_PATH = "/profiles/shopping-agent-ap2.json"
+  # Optional `config` for the AP2 Mandates capability entry. A subclass sets
+  # it to declare options such as `order_receipts`.
+  AP2_CAPABILITY_CONFIG: dict[str, Any] | None = None
   # Public test key for the mock AP2 platform, which uses the trusted
   # platform provider flow. Only the public half exists: no test signs a
   # mandate with it yet.
@@ -184,14 +187,15 @@ class Ap2AgentProfileServer(AgentProfileServer):
           "schema": ap2["checkout_schema"],
         }
       ]
-      capabilities[ap2["capability"]] = [
-        {
-          "version": self.ucp_version,
-          "spec": ap2["spec"],
-          "schema": ap2["schema"],
-          "extends": "dev.ucp.shopping.checkout",
-        }
-      ]
+      entry = {
+        "version": self.ucp_version,
+        "spec": ap2["spec"],
+        "schema": ap2["schema"],
+        "extends": "dev.ucp.shopping.checkout",
+      }
+      if self.AP2_CAPABILITY_CONFIG is not None:
+        entry["config"] = self.AP2_CAPABILITY_CONFIG
+      capabilities[ap2["capability"]] = [entry]
       keys = content_dict.setdefault(ap2["keys_field"], [])
       if not any(
         k.get("kid") == self.AP2_PLATFORM_KEY["kid"]

@@ -31,7 +31,10 @@ The test suite follows a 4-tier modular architecture per UCP RFC #520:
 - **`common/`**: Cross-cutting protocol capabilities such as payment
   credentials and extensions (`common/payments/`). These currently use the
   shopping checkout as their vehicle and are gated on the capabilities they
-  need.
+  need. The AP2 Order receipt verifier and fixtures
+  (`common/payments/`) are the exception: the vectors check fixed receipts
+  with a platform-side verifier, run without a server, and live in
+  `tests/` (`uv run pytest tests`) so live runs do not count them.
 - **`shopping/`**: Retail shopping domain tests organized by functional domain:
   `checkout/` (including idempotency), `discount/`, `fulfillment/`, `order/`
   (including order-event webhooks), and `validation/`.

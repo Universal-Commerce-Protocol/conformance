@@ -1,0 +1,17 @@
+title = "gitleaks config"
+
+[extend]
+# Keep the default gitleaks ruleset (this is also super-linter's default).
+useDefault = true
+
+[[allowlists]]
+description = """
+AP2 order-receipt conformance vectors. These JWS receipts are signed with
+TEST-ONLY P-256 keys derived from fixed public labels (deterministic ECDSA,
+RFC 6979; see common/payments/ap2_receipt_fixtures.py). They protect nothing
+and must stay byte-for-byte reproducible, so they are not secrets.
+"""
+paths = [
+  '''common/payments/ap2_receipt_fixtures\.py$''',
+  '''common/payments/fixtures/ap2_order_receipts/[^/]+\.json$''',
+]

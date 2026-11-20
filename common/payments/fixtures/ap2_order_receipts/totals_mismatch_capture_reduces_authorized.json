@@ -1,0 +1,146 @@
+{
+  "id": "totals_mismatch_capture_reduces_authorized",
+  "title": "A capture does not reduce authorized",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`.",
+    "Running Totals: `totals.mandated` is the `payment_amount` of the Payment Mandate that `mandate_ref` covers. The other totals start at 0 and change only on `succeeded` events: `authorization` and `authorization_adjustment` add to `authorized`, `release` subtracts from it, `capture` adds to `captured`, `capture_reversal` subtracts from it, `refund` adds to `refunded`. A capture does not reduce `authorized`."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "The business states authorized 2400 after a 3000 capture, as if the capture used up the authorization. Recomputed authorized is 5400.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_totals_mismatch_capture_reduces_authorized",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_totals_mismatch_capture_reduces_authorized",
+      "checkout_id": "chk_totals_mismatch_capture_reduces_authorized",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa190b3RhbHNfbWlzbWF0Y2hfY2FwdHVyZV9yZWR1Y2VzX2F1dGhvcml6ZWQiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njo4Qzc4RFBZSnE4cXJ2aE80YUZKVWdSYUIyaXJfVHVWVENaamlpT25tQzJvIiwib3JkZXJfaWQiOiJvcmRlcl90b3RhbHNfbWlzbWF0Y2hfY2FwdHVyZV9yZWR1Y2VzX2F1dGhvcml6ZWQiLCJwcmV2IjpudWxsLCJzZXEiOjEsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.iiQQq3YTB2ai1BDQXqA9XMI3KFT71w5lUl1KUIdW7OpXBogrtEaoVsCqTCKAX2Vo1jSsnc_RRf022_9lpmXLBg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa190b3RhbHNfbWlzbWF0Y2hfY2FwdHVyZV9yZWR1Y2VzX2F1dGhvcml6ZWQiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDI3NjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njo4Qzc4RFBZSnE4cXJ2aE80YUZKVWdSYUIyaXJfVHVWVENaamlpT25tQzJvIiwib3JkZXJfaWQiOiJvcmRlcl90b3RhbHNfbWlzbWF0Y2hfY2FwdHVyZV9yZWR1Y2VzX2F1dGhvcml6ZWQiLCJwcmV2Ijoic2hhLTI1NjpYakgtOUFIRlJLeW92eDNxTWRRbW41NVZVbmJJRzJheEkzOEI1cXdqUkZVIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6MjQwMCwiY2FwdHVyZWQiOjMwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.hFV1js_VAE8d_5hqmr02d7t1F_Lc4QKcPP8rSKzRN8cT9ZkTzx5BHYS8Mbdq_6yzTTuJqTAIrK4s8rC3yAfenA"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_totals_mismatch_capture_reduces_authorized",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:8C78DPYJq8qrvhO4aFJUgRaB2ir_TuVTCZjiiOnmC2o",
+        "order_id": "order_totals_mismatch_capture_reduces_authorized",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_totals_mismatch_capture_reduces_authorized",
+        "event": {
+          "amount": 3000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:8C78DPYJq8qrvhO4aFJUgRaB2ir_TuVTCZjiiOnmC2o",
+        "order_id": "order_totals_mismatch_capture_reduces_authorized",
+        "prev": "sha-256:XjH-9AHFRKyovx3qMdQmn55VUnbIG2axI38B5qwjRFU",
+        "seq": 2,
+        "totals": {
+          "authorized": 2400,
+          "captured": 3000,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [
+      {
+        "receipt_index": 1,
+        "code": "receipt_totals_mismatch"
+      }
+    ],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "id": "non_jcs_bytes_accepted",
+  "title": "Receipts whose payload bytes are not JCS form verify",
+  "test_plan_vector": null,
+  "spec": [
+    "Hashes and Chaining: the signature covers the payload bytes as sent, and `prev` covers the compact JWS as sent. A business SHOULD emit the payload in JCS form, but verifiers MUST NOT require it.",
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "Receipts 0 and 1 are signed over indented JSON with members in reverse order. The signature and the next receipt's prev cover those bytes as sent, so verification does not depend on canonical form.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_non_jcs_bytes",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_non_jcs_bytes",
+      "checkout_id": "chk_non_jcs_bytes",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.ewogICJ0b3RhbHMiOiB7CiAgICAibWFuZGF0ZWQiOiA1NDAwLAogICAgImF1dGhvcml6ZWQiOiA1NDAwLAogICAgImNhcHR1cmVkIjogMCwKICAgICJyZWZ1bmRlZCI6IDAKICB9LAogICJldmVudCI6IHsKICAgICJ0eXBlIjogImF1dGhvcml6YXRpb24iLAogICAgInN0YXR1cyI6ICJzdWNjZWVkZWQiLAogICAgImFtb3VudCI6IDU0MDAsCiAgICAiY3VycmVuY3kiOiAiVVNEIiwKICAgICJvY2N1cnJlZF9hdCI6ICIyMDI2LTExLTA5VDE0OjUzOjIwWiIKICB9LAogICJwcmV2IjogbnVsbCwKICAic2VxIjogMSwKICAibWFuZGF0ZV9yZWYiOiAic2hhLTI1NjpYUmNURTZ4Y1V3TUhBQUZqc2FKbGk5MXZlQUFFcERFOWYxT3RhYXM3bUJFIiwKICAiY2hlY2tvdXRfaWQiOiAiY2hrX25vbl9qY3NfYnl0ZXMiLAogICJvcmRlcl9pZCI6ICJvcmRlcl9ub25famNzX2J5dGVzIiwKICAiaWF0IjogMTc5NDIzNjA2MCwKICAiaXNzIjogImh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiCn0.V85TkXfRru9WrRa3lD_ToDo-dWhPrd7nIDTtITztzZtmPRKqt_1jfTeZfB9xqVO3Ev0CCbatNpQa_a9o1SOs2Q",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.ewogICJ0b3RhbHMiOiB7CiAgICAibWFuZGF0ZWQiOiA1NDAwLAogICAgImF1dGhvcml6ZWQiOiA1NDAwLAogICAgImNhcHR1cmVkIjogMzAwMCwKICAgICJyZWZ1bmRlZCI6IDAKICB9LAogICJldmVudCI6IHsKICAgICJ0eXBlIjogImNhcHR1cmUiLAogICAgInN0YXR1cyI6ICJzdWNjZWVkZWQiLAogICAgImFtb3VudCI6IDMwMDAsCiAgICAiY3VycmVuY3kiOiAiVVNEIiwKICAgICJvY2N1cnJlZF9hdCI6ICIyMDI2LTExLTEwVDAyOjAwOjAwWiIsCiAgICAicmVmIjogewogICAgICAicHJvY2Vzc2luZ19lbnRyeV9pZCI6ICJlbnRfMiIKICAgIH0KICB9LAogICJwcmV2IjogInNoYS0yNTY6TUhNVHN5MkdGN1dvZDFhZTdSblYxS2JMN0VRZzNoQmxTMUJUbmlCc05PNCIsCiAgInNlcSI6IDIsCiAgIm1hbmRhdGVfcmVmIjogInNoYS0yNTY6WFJjVEU2eGNVd01IQUFGanNhSmxpOTF2ZUFBRXBERTlmMU90YWFzN21CRSIsCiAgImNoZWNrb3V0X2lkIjogImNoa19ub25famNzX2J5dGVzIiwKICAib3JkZXJfaWQiOiAib3JkZXJfbm9uX2pjc19ieXRlcyIsCiAgImlhdCI6IDE3OTQyNzYwNjAsCiAgImlzcyI6ICJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIgp9.ZxE_XhpMOwGxMMTh_n_wgNejDeNSQw37U4wBExyc5FsvAxQQfOMEFzhn02xUB496PKaP0EO168R479qzFUZiqQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19ub25famNzX2J5dGVzIiwiZXZlbnQiOnsiYW1vdW50IjoyNDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMlQxMDowMDowMFoiLCJyZWYiOnsicHJvY2Vzc2luZ19lbnRyeV9pZCI6ImVudF8zIn0sInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDQ3NzY2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpYUmNURTZ4Y1V3TUhBQUZqc2FKbGk5MXZlQUFFcERFOWYxT3RhYXM3bUJFIiwib3JkZXJfaWQiOiJvcmRlcl9ub25famNzX2J5dGVzIiwicHJldiI6InNoYS0yNTY6UnNudlNodFh6UldSU3VsYWw2M19WSXh3RHlnbzV2Rk84MS02YUdpTGFlWSIsInNlcSI6MywidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjo1NDAwLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.24Id_HaHsXxxQg-S7OqDoIyQmNxllY1U884EnonWKtNMfoRB8ZHnIMcmKAia9DkKXTzrXHnV0ZJy888vIFqKsQ"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "totals": {
+          "mandated": 5400,
+          "authorized": 5400,
+          "captured": 0,
+          "refunded": 0
+        },
+        "event": {
+          "type": "authorization",
+          "status": "succeeded",
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z"
+        },
+        "prev": null,
+        "seq": 1,
+        "mandate_ref": "sha-256:XRcTE6xcUwMHAAFjsaJli91veAAEpDE9f1Otaas7mBE",
+        "checkout_id": "chk_non_jcs_bytes",
+        "order_id": "order_non_jcs_bytes",
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp"
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "totals": {
+          "mandated": 5400,
+          "authorized": 5400,
+          "captured": 3000,
+          "refunded": 0
+        },
+        "event": {
+          "type": "capture",
+          "status": "succeeded",
+          "amount": 3000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "ref": {
+            "processing_entry_id": "ent_2"
+          }
+        },
+        "prev": "sha-256:MHMTsy2GF7Wod1ae7RnV1KbL7EQg3hBlS1BTniBsNO4",
+        "seq": 2,
+        "mandate_ref": "sha-256:XRcTE6xcUwMHAAFjsaJli91veAAEpDE9f1Otaas7mBE",
+        "checkout_id": "chk_non_jcs_bytes",
+        "order_id": "order_non_jcs_bytes",
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp"
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_non_jcs_bytes",
+        "event": {
+          "amount": 2400,
+          "currency": "USD",
+          "occurred_at": "2026-11-12T10:00:00Z",
+          "ref": {
+            "processing_entry_id": "ent_3"
+          },
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794477660,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:XRcTE6xcUwMHAAFjsaJli91veAAEpDE9f1Otaas7mBE",
+        "order_id": "order_non_jcs_bytes",
+        "prev": "sha-256:RsnvShtXzRWRSulal63_VIxwDygo5vFO81-6aGiLaeY",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

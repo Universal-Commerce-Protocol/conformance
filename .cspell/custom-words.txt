@@ -14,6 +14,7 @@ Backordered
 Braintree
 Carrefour
 Centricity
+chargeback
 checkout
 Chewy
 codespell
@@ -69,6 +70,7 @@ repudiable
 resourceless
 schemas
 sdjwt
+SECP
 Sephora
 shellcheck
 Shopee
@@ -81,6 +83,7 @@ Target
 testpaths
 UCP
 Ulta
+unpadded
 Villagetown
 Visa
 vulnz
