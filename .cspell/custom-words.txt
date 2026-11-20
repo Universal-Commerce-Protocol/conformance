@@ -28,6 +28,7 @@ dpan
 Etsy
 ewallet
 EWALLET
+flagsaver
 Flipkart
 fontawesome
 fpan
@@ -78,6 +79,7 @@ Smallville
 Stripe
 superfences
 Target
+testpaths
 UCP
 Ulta
 unpadded

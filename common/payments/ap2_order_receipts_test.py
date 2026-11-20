@@ -20,27 +20,30 @@ they are required only when both profiles declare `order_receipts` in the
 business does, and the platform profile they serve declares it too.
 
 The receipts are checked with the same platform-side verifier as the fixed
-vectors in ap2_receipt_vectors_test.py, against the `keys` the business
-publishes at `/.well-known/ucp` and the Payment Mandate the test sent.
+vectors in tests/ap2_receipt_vectors_test.py, against the `keys` the business
+publishes at its discovery profile and the Payment Mandate the test sent.
 
-Like ap2_test.py, completion sends placeholder mandates; a business that
-verifies real AP2 mandates rejects them.
+Like ap2_test.py:test_ap2_mandate_completion, the tests skip until the suite
+has a signed SD-JWT+kb checkout mandate fixture. With AP2 negotiated, a
+business that verifies mandates rejects a placeholder, so a completion cannot
+be placed without one.
 """
 
-import json
 import logging
 from typing import Any
 
 from absl.testing import absltest
 from common.payments import ap2_receipt_verifier as v
-from framework.agent_profile_server import (
-  DEFAULT_PROFILE_TEMPLATE,
-  AgentProfileServer,
+from common.payments.ap2_support import (
+  ap2_release,
+  Ap2AgentProfileServer,
+  capability_intersection,
 )
-from framework.base_test import FLAGS
+from framework.base_test import FLAGS, flag_value
 from framework.decorators import requires_capability
 from framework.discovery import FORMER_NAMES
-from shopping.base import ShoppingIntegrationTestBase, get_valid_payment_payload
+import httpx
+from shopping.base import get_valid_payment_payload, ShoppingIntegrationTestBase
 
 _AP2_CAPABILITY = "dev.ucp.common.payment.ap2_mandate"
 
@@ -53,6 +56,17 @@ _RECEIPT_EVENTS = [
   "release",
   "refund",
 ]
+
+_MANDATE_SKIP = (
+  "Needs a signed SD-JWT+kb checkout mandate fixture. With AP2 negotiated, a "
+  "Business that verifies the mandate must reject a placeholder mandate."
+)
+
+
+class _ReceiptsAgentProfileServer(Ap2AgentProfileServer):
+  """The AP2 agent profile server, declaring `order_receipts` too."""
+
+  AP2_CAPABILITY_CONFIG = {"order_receipts": {"events": _RECEIPT_EVENTS}}
 
 
 def _order_receipts_config(profile_raw: dict[str, Any]) -> dict | None:
@@ -75,10 +89,18 @@ def _order_receipts_config(profile_raw: dict[str, Any]) -> dict | None:
 class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
   """Receipts a business issues on an AP2 Order verify.
 
+  Every request here uses the mock agent profile that declares the AP2
+  Mandates extension with `order_receipts`.
+
   Validated Paths:
   - POST /checkout-sessions/{id}/complete
   - GET /orders/{id}
   """
+
+  DEFAULT_BUYER = {
+    "email": "conformance-test-buyer@example.com",
+    "name": "Conformance Test Buyer",
+  }
 
   def _verify_required_capabilities(self) -> None:
     """Also skip unless the business declares `order_receipts`."""
@@ -91,59 +113,92 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
         "config (ap2-mandates.md, Order Receipts: Negotiation)"
       )
 
-  def _start_agent_server(self) -> None:
-    """Serve a platform profile that also declares `order_receipts`.
+  def setUp(self) -> None:
+    """Skip unless AP2 is in the negotiated capability intersection."""
+    super().setUp()
+    ap2 = ap2_release(self.ucp_version)
+    if ap2 is None:
+      self.skipTest(
+        f"No AP2 Mandates definition for UCP release {self.ucp_version}"
+      )
+    self._keys_field = ap2["keys_field"]
+    discovery = self.client.get(self.discovery_url)
+    self.assert_response_status(discovery, 200)
+    platform = httpx.get(self._ap2_profile_url())
+    self.assert_response_status(platform, 200)
+    if ap2["capability"] not in capability_intersection(
+      discovery.json(), platform.json()
+    ):
+      self.skipTest(
+        f"{ap2['capability']} is not in the capability intersection, so "
+        "AP2 is not negotiated"
+      )
 
-    Receipts are required only when both profiles declare it
+  def _start_agent_server(self) -> None:
+    """Serve the agent profiles, including the one that declares AP2.
+
+    Receipts are required only when both profiles declare `order_receipts`
     (ap2-mandates.md, Order Receipts: Negotiation).
     """
-    profile = json.loads(DEFAULT_PROFILE_TEMPLATE.read_text(encoding="utf-8"))
-    profile["ucp"]["capabilities"][_AP2_CAPABILITY] = [
-      {
-        "name": _AP2_CAPABILITY,
-        "version": "{ucp_version}",
-        "spec": "https://ucp.dev/{ucp_version}/specification/payment/"
-        "extensions/ap2-mandates",
-        "schema": "https://ucp.dev/{ucp_version}/schemas/common/"
-        "payment_ap2_mandate.json",
-        "extends": ["dev.ucp.shopping.checkout", "dev.ucp.shopping.order"],
-        "config": {"order_receipts": {"events": _RECEIPT_EVENTS}},
-      }
-    ]
-    self.agent_server = AgentProfileServer(
+    self.agent_server = _ReceiptsAgentProfileServer(
       port=FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285,
       webhook_port=FLAGS.mock_webhook_port if FLAGS.is_parsed() else 8284,
       ucp_version=self.ucp_version,
-      profile_dict=profile,
+      webhook_base_url=flag_value("webhook_base_url"),
     )
     self.agent_server.start()
     self.addCleanup(self.agent_server.stop)
 
+  def _ap2_profile_url(self) -> str:
+    port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
+    return f"http://localhost:{port}{Ap2AgentProfileServer.AP2_PROFILE_PATH}"
+
+  def get_headers(
+    self,
+    idempotency_key: str | None = None,
+    request_id: str | None = None,
+    custom_profile_url: str | None = None,
+  ) -> dict[str, str]:
+    """Use the agent profile that declares the AP2 Mandates extension."""
+    return super().get_headers(
+      idempotency_key,
+      request_id,
+      custom_profile_url=custom_profile_url or self._ap2_profile_url(),
+    )
+
   @property
   def business_profile_uri(self) -> str:
     """The profile URI the business's receipts carry as `iss`."""
-    return f"{self.base_url}/.well-known/ucp"
+    return self.discovery_url
+
+  def _signed_checkout_mandate(self) -> str:
+    """Return a signed SD-JWT+kb checkout mandate for the checkout.
+
+    There is no fixture for one yet, so this skips; see ap2_test.py.
+    """
+    self.skipTest(_MANDATE_SKIP)
 
   def _place_order(self) -> tuple[dict[str, Any], v.Mandate]:
     """Complete an AP2 checkout; return the Order and the mandate sent."""
-    checkout_data = self.create_checkout_session()
+    checkout_data = self.create_checkout_session(buyer=self.DEFAULT_BUYER)
+    checkout_mandate = self._signed_checkout_mandate()
     payment_payload = get_valid_payment_payload()
-    # Placeholder mandate, as in ap2_test.py. The Payment Mandate travels in
+    # The signed mandate goes in `ap2.checkout_mandate` of the completion
+    # request (ap2_with_checkout_mandate). The Payment Mandate travels in
     # payment.instruments[*].credential.token, which mandate_ref hashes
     # (ap2-mandates.md, Hashes and Chaining).
-    payment_payload["ap2"] = {
-      **checkout_data,
-      "checkout_mandate": "header.payload.signature~kb_signature",
-    }
+    payment_payload["ap2"] = {"checkout_mandate": checkout_mandate}
     token = payment_payload["payment"]["instruments"][0]["credential"]["token"]
     complete_data = self.complete_checkout_session(
       checkout_data["id"], payment_payload
     )
     order_id = complete_data["order"]["id"]
+    # Fulfillment selection during completion can change the totals, so read
+    # the amount from the completed checkout, not the one created.
     amount = next(
       (
         t["amount"]
-        for t in checkout_data.get("totals", [])
+        for t in complete_data.get("totals", [])
         if t.get("type") == "total"
       ),
       None,
@@ -160,7 +215,13 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
     return response.json()
 
   def _receipts(self, order: dict[str, Any]) -> list[str]:
-    receipts = (order.get("ap2") or {}).get("receipts") or []
+    ap2 = order.get("ap2")
+    self.assertTrue(
+      ap2 is None or isinstance(ap2, dict), "ap2 must be an object"
+    )
+    receipts = (ap2 or {}).get("receipts")
+    if receipts is None:
+      return []
     self.assertIsInstance(receipts, list, "ap2.receipts must be an array")
     return receipts
 
@@ -168,7 +229,7 @@ class Ap2OrderReceiptsTest(ShoppingIntegrationTestBase):
     self, order: dict[str, Any], mandate: v.Mandate
   ) -> v.VerificationResult:
     """Verify the Order's receipts and the business requirements on them."""
-    keys = self.server_profile.raw.get("keys") or []
+    keys = self.server_profile.raw.get(self._keys_field) or []
     result = v.verify_order_receipts(
       order, {self.business_profile_uri: keys}, [mandate]
     )

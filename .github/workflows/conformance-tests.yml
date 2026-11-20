@@ -72,6 +72,10 @@ jobs:
           uv sync --directory samples/rest/python/server/
           uv sync --directory conformance/
 
+      - name: Run framework unit tests
+        working-directory: conformance
+        run: uv run pytest tests
+
       - name: Initialize test database
         run: |
           rm -rf ${DATABASE_PATH}

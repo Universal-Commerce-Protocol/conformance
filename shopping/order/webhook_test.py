@@ -46,6 +46,7 @@ class WebhookTest(ShoppingIntegrationTestBase):
   def setUp(self) -> None:
     """Set up the webhook server and configuration."""
     super().setUp()
+    self.skip_unless_webhooks_reachable()
     port = FLAGS.mock_webhook_port
     self.webhook_server = MockWebhookServer(port=port)
     self.webhook_server.start()

@@ -381,6 +381,18 @@ class _Chain:
     self.prev: str | None = None
     self._counted: set[tuple[str, str]] = set()
 
+  def clone(self) -> "_Chain":
+    """Return a copy that continues from this chain's state.
+
+    It reuses the signer, because a `cryptography` private key cannot be
+    deep-copied, and copies the mutable state so issuing from the clone
+    leaves this chain alone.
+    """
+    twin = copy.copy(self)
+    twin.totals = dict(self.totals)
+    twin._counted = set(self._counted)
+    return twin
+
   def issue(
     self,
     event_type: str,
@@ -1332,7 +1344,7 @@ def _duplicate_different_seq() -> dict:
     ),
   ]
   # A second, different receipt for seq 2, signed by the same business.
-  rival = copy.deepcopy(chain)
+  rival = chain.clone()
   rival.seq -= 1
   rival.totals["captured"] -= 3000
   rival.prev = v.sha256_ref(receipts[0])

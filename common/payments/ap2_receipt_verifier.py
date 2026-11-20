@@ -63,7 +63,15 @@ Where the specification leaves a choice open, this verifier:
 * checks a seller only when it resolves in `sellers` and has attributed
   line items;
 * records a signed receipt that is not a Receipt Payload in `malformed`
-  rather than as an outcome, since no outcome covers it.
+  rather than as an outcome, since no outcome covers it. That covers a
+  missing member, a wrong type, a negative `iat`, amount or total, a `seq`
+  below 1, an `event.type` or `event.status` outside its enum, and an
+  `event.ref` or id of the wrong type. `ap2.receipts` that is not an array
+  is recorded there too, at index -1; `null` is no receipts;
+* treats an empty `processing_entry_id` or `adjustment_id` as absent;
+* ignores Order data it cannot read (`line_items`, `adjustments`, `sellers`
+  of the wrong type, or entries without the members it needs) rather than
+  raising.
 """
 
 import base64
@@ -104,6 +112,16 @@ REQUIRED_PAYLOAD_MEMBERS = (
 # `required` of `receipt_event` and `receipt_totals`.
 REQUIRED_EVENT_MEMBERS = ("type", "status", "amount", "currency", "occurred_at")
 REQUIRED_TOTALS_MEMBERS = ("mandated", "authorized", "captured", "refunded")
+# `receipt_event.type` and `receipt_event.status` enums.
+EVENT_TYPES = (
+  "authorization",
+  "authorization_adjustment",
+  "capture",
+  "capture_reversal",
+  "release",
+  "refund",
+)
+EVENT_STATUSES = ("pending", "succeeded", "failed")
 
 # JWS `alg` -> (JWK `crv`, hash, byte length of each of r and s).
 _ECDSA_ALGORITHMS: dict[str, tuple[str, type[hashes.HashAlgorithm], int]] = {
@@ -287,7 +305,14 @@ def _check_signature(
   if issuer_keys is None:
     return "no keys are known for the business named in iss"
   kid = header.get("kid")
-  jwk = next((k for k in issuer_keys if kid and k.get("kid") == kid), None)
+  jwk = next(
+    (
+      k
+      for k in issuer_keys
+      if kid and isinstance(k, Mapping) and k.get("kid") == kid
+    ),
+    None,
+  )
   if jwk is None:
     return f"kid {header.get('kid')!r} does not resolve in the keys of iss"
   crv, hash_cls, size = _ECDSA_ALGORITHMS[alg]
@@ -311,35 +336,71 @@ def _check_signature(
   return None
 
 
+def _is_int(value: Any, minimum: int | None = None) -> bool:
+  """Return whether `value` is an integer (not a bool), at least `minimum`."""
+  return (
+    isinstance(value, int)
+    and not isinstance(value, bool)
+    and (minimum is None or value >= minimum)
+  )
+
+
+def _ref_id(event: Mapping[str, Any], name: str) -> str | None:
+  """Return `event.ref[name]`, or None if it is absent or an empty string."""
+  ref = event.get("ref")
+  value = ref.get(name) if isinstance(ref, Mapping) else None
+  return value if isinstance(value, str) and value else None
+
+
 def _payload_problems(payload: Mapping[str, Any]) -> list[str]:
-  """List required members a payload lacks or has with the wrong type.
+  """List required members a payload lacks or has with the wrong value.
 
   Checks the members the verifier reads against `receipt_payload`,
-  `receipt_event` and `receipt_totals`.
+  `receipt_event` and `receipt_totals`: types, minimums (`iat` >= 0,
+  `seq` >= 1, amounts and totals >= 0) and the `type` and `status` enums.
+  The optional `event.seller_id`, `event.ref` and its ids are checked when
+  present.
   """
   event = payload.get("event")
   totals = payload.get("totals")
-  expected: dict[str, tuple[Any, type | tuple[type, ...]]] = {
-    "iss": (payload.get("iss"), str),
-    "mandate_ref": (payload.get("mandate_ref"), str),
-    "seq": (payload.get("seq"), int),
-    "prev": (payload.get("prev"), (str, type(None))),
-    "event": (event, dict),
-    "totals": (totals, dict),
+  # Member name -> whether its value is acceptable.
+  checks: dict[str, bool] = {
+    "iss": isinstance(payload.get("iss"), str),
+    "iat": _is_int(payload.get("iat"), 0),
+    "order_id": isinstance(payload.get("order_id"), str),
+    "mandate_ref": isinstance(payload.get("mandate_ref"), str),
+    "seq": _is_int(payload.get("seq"), 1),
+    "prev": payload.get("prev") is None or isinstance(payload.get("prev"), str),
+    "event": isinstance(event, dict),
+    "totals": isinstance(totals, dict),
   }
   if isinstance(event, dict):
     for member in REQUIRED_EVENT_MEMBERS:
-      kind = int if member == "amount" else str
-      expected[f"event.{member}"] = (event.get(member), kind)
+      value = event.get(member)
+      checks[f"event.{member}"] = (
+        _is_int(value, 0) if member == "amount" else isinstance(value, str)
+      )
+    if checks["event.type"]:
+      checks["event.type"] = event["type"] in EVENT_TYPES
+    if checks["event.status"]:
+      checks["event.status"] = event["status"] in EVENT_STATUSES
+    if event.get("seller_id") is not None:
+      checks["event.seller_id"] = isinstance(event["seller_id"], str)
+    ref = event.get("ref")
+    if ref is not None:
+      checks["event.ref"] = isinstance(ref, dict)
+      if isinstance(ref, dict):
+        for member in ("processing_entry_id", "adjustment_id"):
+          if ref.get(member) is not None:
+            checks[f"event.ref.{member}"] = isinstance(ref[member], str)
   if isinstance(totals, dict):
     for member in REQUIRED_TOTALS_MEMBERS:
-      expected[f"totals.{member}"] = (totals.get(member), int)
+      checks[f"totals.{member}"] = _is_int(totals.get(member), 0)
   problems = [m for m in REQUIRED_PAYLOAD_MEMBERS if m not in payload]
   problems += [
     name
-    for name, (value, kind) in expected.items()
-    if name.split(".")[0] in payload
-    and (not isinstance(value, kind) or isinstance(value, bool))
+    for name, ok in checks.items()
+    if not ok and name.split(".")[0] in payload and name not in problems
   ]
   return problems
 
@@ -348,23 +409,36 @@ def _seller_of_line(line_item: Mapping[str, Any], order: Mapping[str, Any]):
   """Return the seller of record of an Order line item.
 
   Seller attribution (ucp#1018): `line_items[].seller_id` overrides the
-  order-level `seller_id`.
+  order-level `seller_id`. Anything but a string is no seller.
   """
-  return line_item.get("seller_id", order.get("seller_id"))
+  seller = line_item.get("seller_id", order.get("seller_id"))
+  return seller if isinstance(seller, str) else None
+
+
+def _total_amounts(totals: Any) -> list[int]:
+  """Return the integer `amount` of each `type: total` entry in `totals`."""
+  if not isinstance(totals, list):
+    return []
+  return [
+    t["amount"]
+    for t in totals
+    if isinstance(t, Mapping)
+    and t.get("type") == "total"
+    and _is_int(t.get("amount"))
+  ]
 
 
 def _attributed_totals(order: Mapping[str, Any]) -> dict[str, int]:
   """Sum each seller's line item `total` amounts."""
   totals: dict[str, int] = {}
-  for line_item in order.get("line_items", []):
+  line_items = order.get("line_items")
+  for line_item in line_items if isinstance(line_items, list) else []:
+    if not isinstance(line_item, Mapping):
+      continue
     seller = _seller_of_line(line_item, order)
     if seller is None:
       continue
-    amount = sum(
-      t["amount"]
-      for t in line_item.get("totals", [])
-      if t.get("type") == "total"
-    )
+    amount = sum(_total_amounts(line_item.get("totals")))
     totals[seller] = totals.get(seller, 0) + amount
   return totals
 
@@ -375,11 +449,7 @@ def _adjustment_amount(adjustment: Mapping[str, Any]) -> int | None:
   Adjustment totals are signed, negative for money returned to the buyer
   (adjustment.json), while a receipt `amount` is always non-negative.
   """
-  totals = [
-    t["amount"]
-    for t in adjustment.get("totals", [])
-    if t.get("type") == "total"
-  ]
+  totals = _total_amounts(adjustment.get("totals"))
   return abs(totals[0]) if len(totals) == 1 else None
 
 
@@ -407,7 +477,14 @@ def verify_order_receipts(
   held: dict[ChainKey, dict[int, str]] = {}
   counted: dict[ChainKey, set[tuple[str, str]]] = {}
 
-  receipts = (order.get("ap2") or {}).get("receipts", [])
+  ap2 = order.get("ap2")
+  receipts = ap2.get("receipts") if isinstance(ap2, Mapping) else None
+  if receipts is None:
+    receipts = []  # `ap2.receipts: null` is no receipts.
+  elif not isinstance(receipts, list):
+    # Not an array: nothing to iterate. Index -1 stands for the field.
+    result.malformed.append((-1, "ap2.receipts is not an array"))
+    receipts = []
   for index, compact in enumerate(receipts):
     try:
       header, payload = decode_receipt(compact)
@@ -497,7 +574,7 @@ def verify_order_receipts(
     # and `event.ref.processing_entry_id` is a follow-up.
     event = payload["event"]
     previous = Totals() if tail is None else tail.derived_totals
-    entry_id = (event.get("ref") or {}).get("processing_entry_id")
+    entry_id = _ref_id(event, "processing_entry_id")
     key = (event["type"], entry_id)
     chain_counted = counted.setdefault(chain, set())
     counts = event["status"] == "succeeded" and not (
@@ -582,7 +659,9 @@ def _check_sellers(
   for that scope as unavailable". Neither is a seller with no attributed
   line items, which has no attributed total to compare with.
   """
-  sellers = order.get("sellers") or {}
+  sellers = order.get("sellers")
+  if not isinstance(sellers, Mapping):
+    sellers = {}
   attributed = {
     seller: total
     for seller, total in _attributed_totals(order).items()
@@ -637,11 +716,16 @@ def _reconcile(
   counted. A cited `adjustment_id` that matches no adjustment is a mismatch
   too. A mismatch leaves the receipts valid.
   """
-  adjustments = {a["id"]: a for a in order.get("adjustments", [])}
+  listed = order.get("adjustments")
+  adjustments = {
+    a["id"]: a
+    for a in (listed if isinstance(listed, list) else [])
+    if isinstance(a, Mapping) and isinstance(a.get("id"), str)
+  }
   cited: dict[str, list[VerifiedReceipt]] = {}
   for receipt in verified:
     event = receipt.payload["event"]
-    adjustment_id = (event.get("ref") or {}).get("adjustment_id")
+    adjustment_id = _ref_id(event, "adjustment_id")
     if (
       event["type"] == "refund"
       and event["status"] == "succeeded"

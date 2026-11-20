@@ -17,7 +17,9 @@
 Each fixture in fixtures/ap2_order_receipts/ is an Order with its receipts,
 the business keys and the Payment Mandates a platform holds, and the exact
 findings verification must produce. These tests need no server: they check
-the vectors and the verifier in ap2_receipt_verifier.py against each other.
+the vectors and the verifier in common/payments/ap2_receipt_verifier.py
+against each other. They live in tests/, run by `uv run pytest tests`, so that
+live suite runs do not report them as server results.
 ap2_order_receipts_test.py applies the same verifier to receipts a live
 business issues.
 """
@@ -406,6 +408,207 @@ class Ap2ReceiptMutationTest(absltest.TestCase):
     fixture = _load(fixtures.FIXTURE_DIR / "v09_duplicate_seller_capture.json")
     del fixture["inputs"]["order"]["sellers"]["seller_a"]
     self.assertEqual(_verify(fixture).warnings, [])
+
+
+_MALFORMED_ISS = "https://malformed.example/.well-known/ucp"
+
+
+def _valid_payload() -> dict[str, Any]:
+  """Return a Receipt Payload that passes the shape checks."""
+  return {
+    "iss": _MALFORMED_ISS,
+    "iat": 1794236000,
+    "order_id": "order_1",
+    "checkout_id": "checkout_1",
+    "mandate_ref": v.sha256_ref("token"),
+    "seq": 1,
+    "prev": None,
+    "event": {
+      "type": "authorization",
+      "status": "succeeded",
+      "amount": 100,
+      "currency": "USD",
+      "occurred_at": "2026-11-01T00:00:00Z",
+    },
+    "totals": {
+      "mandated": 100,
+      "authorized": 100,
+      "captured": 0,
+      "refunded": 0,
+    },
+  }
+
+
+def _with(path: str, value: Any) -> dict[str, Any]:
+  """Return a valid payload with the member at `path` ("a.b") set."""
+  payload = _valid_payload()
+  *parents, leaf = path.split(".")
+  target = payload
+  for name in parents:
+    target = target[name]
+  target[leaf] = value
+  return payload
+
+
+class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
+  """Signed receipts whose payload breaks the schema are `malformed`.
+
+  They are signed by a business whose keys are known, so the signature
+  verifies and the shape checks are what reject them. None may raise.
+  """
+
+  def _verify(self, payload: dict[str, Any], order: dict | None = None):
+    signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
+    order = order or {}
+    order["ap2"] = {"receipts": [signer.sign(payload)]}
+    return v.verify_order_receipts(
+      order,
+      {_MALFORMED_ISS: [signer.jwk]},
+      [v.Mandate("token", _MALFORMED_ISS, 100)],
+    )
+
+  def test_valid_payload_is_not_malformed(self) -> None:
+    """The base payload for the cases below passes the shape checks."""
+    result = self._verify(_valid_payload())
+    self.assertEqual(result.malformed, [])
+    self.assertEqual(result.outcomes, [])
+
+  @parameterized.named_parameters(
+    ("iat_negative", "iat", -1, "iat"),
+    ("iat_string", "iat", "1794236000", "iat"),
+    ("iat_bool", "iat", True, "iat"),
+    ("order_id_int", "order_id", 7, "order_id"),
+    ("order_id_null", "order_id", None, "order_id"),
+    ("seq_zero", "seq", 0, "seq"),
+    ("seq_negative", "seq", -3, "seq"),
+    ("seq_string", "seq", "1", "seq"),
+    ("amount_negative", "event.amount", -1, "event.amount"),
+    ("amount_string", "event.amount", "100", "event.amount"),
+    ("mandated_negative", "totals.mandated", -1, "totals.mandated"),
+    ("authorized_negative", "totals.authorized", -1, "totals.authorized"),
+    ("captured_negative", "totals.captured", -1, "totals.captured"),
+    ("refunded_negative", "totals.refunded", -1, "totals.refunded"),
+    ("unknown_type", "event.type", "chargeback", "event.type"),
+    ("unhashable_type", "event.type", ["capture"], "event.type"),
+    ("unknown_status", "event.status", "settled", "event.status"),
+    ("seller_id_int", "event.seller_id", 5, "event.seller_id"),
+    ("ref_list", "event.ref", ["ent_1"], "event.ref"),
+    ("ref_string", "event.ref", "ent_1", "event.ref"),
+    (
+      "entry_id_list",
+      "event.ref",
+      {"processing_entry_id": ["a"]},
+      "event.ref.processing_entry_id",
+    ),
+    (
+      "adjustment_id_dict",
+      "event.ref",
+      {"adjustment_id": {"a": 1}},
+      "event.ref.adjustment_id",
+    ),
+  )
+  def test_rejected_as_malformed(
+    self, path: str, value: Any, member: str
+  ) -> None:
+    """A bad value is recorded as malformed, naming the member."""
+    result = self._verify(_with(path, value))
+    self.assertEqual([i for i, _ in result.malformed], [0])
+    self.assertIn(member, result.malformed[0][1])
+    self.assertEqual(result.outcomes, [])
+    self.assertEqual(result.verified, [])
+
+  @parameterized.named_parameters(
+    # An empty id is absent, so both captures count and 200 is right.
+    ("empty", "", []),
+    # The same id makes the second a follow-up: 100 is right, not 200.
+    ("same_id", "ent_1", [v.RECEIPT_TOTALS_MISMATCH]),
+  )
+  def test_empty_processing_entry_id_is_absent(
+    self, entry_id: str, codes: list[str]
+  ) -> None:
+    """An empty `processing_entry_id` does not make a follow-up."""
+    signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
+    receipts: list[str] = []
+    for seq in (1, 2):
+      payload = _valid_payload()
+      payload["seq"] = seq
+      payload["prev"] = v.sha256_ref(receipts[-1]) if receipts else None
+      payload["event"].update(
+        type="capture", ref={"processing_entry_id": entry_id}
+      )
+      payload["totals"].update(mandated=300, authorized=0, captured=100 * seq)
+      receipts.append(signer.sign(payload))
+    result = v.verify_order_receipts(
+      {"ap2": {"receipts": receipts}},
+      {_MALFORMED_ISS: [signer.jwk]},
+      [v.Mandate("token", _MALFORMED_ISS, 300)],
+    )
+    self.assertEqual(result.malformed, [])
+    self.assertEqual([f.code for f in result.outcomes], codes)
+
+  @parameterized.named_parameters(
+    ("null", None, []),
+    ("empty_list", [], []),
+    ("string", "", [(-1, "ap2.receipts is not an array")]),
+    ("zero", 0, [(-1, "ap2.receipts is not an array")]),
+    ("object", {}, [(-1, "ap2.receipts is not an array")]),
+  )
+  def test_receipts_field(self, value: Any, malformed: list) -> None:
+    """`ap2.receipts` of null is none; other non-arrays are malformed."""
+    result = v.verify_order_receipts({"ap2": {"receipts": value}}, {}, [])
+    self.assertEqual(result.malformed, malformed)
+    self.assertEqual(result.outcomes, [])
+
+  @parameterized.named_parameters(
+    ("ap2_null", {"ap2": None}),
+    ("ap2_list", {"ap2": []}),
+    ("no_ap2", {}),
+  )
+  def test_ap2_member(self, order: dict) -> None:
+    """An Order without a usable `ap2` object has no receipts."""
+    result = v.verify_order_receipts(order, {}, [])
+    self.assertEqual((result.malformed, result.outcomes), ([], []))
+
+  def test_unreadable_order_data_does_not_raise(self) -> None:
+    """Odd `line_items`, `adjustments` and `sellers` are skipped."""
+    payload = _valid_payload()
+    payload["event"].update(
+      type="refund", seller_id="s1", ref={"adjustment_id": "adj_1"}
+    )
+    payload["totals"].update(authorized=0, refunded=100)
+    order = {
+      "sellers": {"s1": {}},
+      "line_items": [
+        None,
+        {"seller_id": "s1"},
+        {"seller_id": "s1", "totals": [None, {"type": "total"}, 3]},
+        {"seller_id": ["x"], "totals": "none"},
+      ],
+      "adjustments": [None, {}, {"id": "adj_1"}, {"id": 4, "totals": 1}],
+    }
+    result = self._verify(payload, order)
+    self.assertEqual(result.malformed, [])
+    self.assertEqual(result.reconciliation, [])
+
+  @parameterized.named_parameters(
+    ("line_items_string", {"line_items": "x", "adjustments": "x"}),
+    ("sellers_list", {"sellers": [], "adjustments": {}}),
+  )
+  def test_wrong_typed_order_collections(self, extra: dict) -> None:
+    """Order collections of the wrong type are ignored."""
+    result = self._verify(_valid_payload(), dict(extra))
+    self.assertEqual((result.malformed, result.warnings), ([], []))
+
+  def test_non_object_keys_are_ignored(self) -> None:
+    """A `keys` entry that is not an object does not stop `kid` lookup."""
+    signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
+    receipt = signer.sign(_valid_payload())
+    result = v.verify_order_receipts(
+      {"ap2": {"receipts": [receipt]}},
+      {_MALFORMED_ISS: [None, "k", signer.jwk]},
+      [v.Mandate("token", _MALFORMED_ISS, 100)],
+    )
+    self.assertEqual((result.malformed, result.outcomes), ([], []))
 
 
 if __name__ == "__main__":
