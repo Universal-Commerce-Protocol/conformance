@@ -19,7 +19,13 @@ from typing import Any
 
 from absl.testing import absltest
 from framework.base_test import FLAGS
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  partly,
+  requires_capability,
+  scenario,
+  spec_assert,
+)
 from framework.mock_webhook_server import MockWebhookServer
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout
@@ -78,6 +84,18 @@ class WebhookTest(ShoppingIntegrationTestBase):
       and e["payload"].get("id") == order_id
     ]
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-ORDER-0023",  # MUST send "Order created" with full entity
+      "that a delivery follows completion, not that the entity is fully "
+      "populated",
+    ),
+    partly(
+      "REQ-SHOPPING-ORDER-0024",  # MUST send the full entity on updates
+      "that an update delivery reflects the shipment, not that it carries "
+      "the full entity",
+    ),
+  )
   def test_webhook_event_stream(self) -> None:
     """Test that completing and then shipping an order each notify.
 
@@ -157,6 +175,11 @@ class WebhookTest(ShoppingIntegrationTestBase):
       "no delivery reflected the shipped state in the order data",
     )
 
+  @scenario(
+    "the store offers its known customer's stored addresses (fixtures) as "
+    "destinations, and the order event's expectation carries the one "
+    "selected; no rule requires either"
+  )
   def test_webhook_order_address_known_customer(self) -> None:
     """Test that webhook contains correct address for known customer/address."""
     customer = self.fixture_ctx.get_known_customer()
@@ -279,6 +302,11 @@ class WebhookTest(ShoppingIntegrationTestBase):
       if field in selected_destination:
         self.assertEqual(destination.get(field), selected_destination[field])
 
+  @no_rule(
+    "order/index.md, Expectations: an expectation records 'where they're "
+    "going (destination)'; no keyword says it is the destination selected "
+    "at checkout"
+  )
   def test_webhook_order_address_new_address(self) -> None:
     """Test that webhook contains correct address when a new one is provided."""
     customer = self.fixture_ctx.get_known_customer()

@@ -37,6 +37,9 @@ repos:
     hooks:
       - id: prettier
         files: \.(json|md|yaml|yml)$
+        # requirements/tools/build_catalog.py writes the catalog, and its
+        # output must stay byte-identical to what the tool produces.
+        exclude: ^requirements/catalog/
   - repo: https://github.com/koalaman/shellcheck-precommit
     rev: v0.10.0
     hooks:
@@ -46,3 +49,5 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
+        # The catalog quotes the specification verbatim.
+        exclude: ^requirements/catalog/
