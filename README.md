@@ -33,8 +33,9 @@ The test suite follows a 4-tier modular architecture per UCP RFC #520:
   shopping checkout as their vehicle and are gated on the capabilities they
   need.
 - **`shopping/`**: Retail shopping domain tests organized by functional domain:
-  `checkout/` (including idempotency and the MCP binding), `discount/`,
-  `fulfillment/`, `order/` (including order-event webhooks), and `validation/`.
+  `checkout/` (including idempotency and the MCP binding), `cart/` (MCP
+  binding), `discount/`, `fulfillment/`, `order/` (including order-event
+  webhooks), and `validation/`.
 - **`platforms/`**: Platform certification profiles (e.g. `google.yaml`) that
   mandate required capabilities and payment handlers.
 
