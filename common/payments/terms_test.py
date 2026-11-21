@@ -106,20 +106,37 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     return _PT_CAPABILITY in names
 
   # ── shared drivers (raw wire dicts throughout) ──────────────────────────
-  def _new_terms_checkout(self):
+  def _new_terms_checkout(self, select_fulfillment: bool = False):
     """Create a checkout and return its raw dict; skip if it has no terms.
 
     Offering terms on a given checkout is a business decision
     (terms.md: payment terms are optional), so a business that
     advertises the capability but returns no terms for the default test
     item leaves nothing to assert.
+
+    Fulfillment is left unselected by default, so the create response is
+    read before any fulfillment update recomputes it. A case that needs a
+    checkout it can drive to readiness passes select_fulfillment=True, so
+    the create carries a fulfillment method: a business that honors the
+    selection on create is then ready without any update, and one that
+    does not leaves the readiness helper a method to update instead of
+    none to build from. That build-from-nothing path omits a field the
+    update requires, which is reported upstream in #102.
     """
-    raw = self.create_checkout_session(select_fulfillment=False)
-    if not self._terms(raw):
+    raw = self.create_checkout_session(select_fulfillment=select_fulfillment)
+    terms = self._terms(raw)
+    if terms is None:
       self.skipTest(
         "business advertises payment terms but returned none on the "
         "driven checkout; nothing to assert"
       )
+    # An absent terms[] is a business decision; a present but empty one
+    # is not allowed, so it is asserted rather than skipped.
+    self.assertTrue(
+      terms,
+      "payment.terms is present but empty (terms.md: where terms is "
+      "present it MUST contain at least one term)",
+    )
     return raw
 
   @staticmethod
@@ -208,7 +225,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     )
 
   def _raw_selection_put(self, raw, term_id):
-    """PUT a minimal selection update; return the unasserted response.
+    """PUT a minimal selection update; return the response unchecked.
 
     Sends a valid update body (id, currency, line items, payment) and
     returns the raw httpx response so a test can accept either spec
@@ -346,6 +363,12 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
         for t in self._terms(raw) or []
         if t.get("id") not in visited
       ]
+      # Visit the term in effect first. The in-place rule only applies to
+      # that term, so leaving it to the end of the walk would make the rule
+      # unreachable for a business that lists its default anywhere but
+      # first.
+      selected_now = self._selected_id(raw)
+      candidates.sort(key=lambda tid: tid != selected_now)
       if not candidates:
         break
       term_id = candidates[0]
@@ -353,6 +376,11 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       before = next(
         (t for t in self._terms(raw) if t.get("id") == term_id), None
       )
+      # Only the term already in effect is covered by the in-place rule.
+      # An unselected term is indicative, and the spec directs a platform
+      # not to assume its amounts survive selection unchanged (terms.md),
+      # so recomputing one on selection needs no warning.
+      was_selected = self._selected_id(raw) == term_id
       raw = self._select_term(raw, term_id)
       if not self._terms(raw):
         # The spec does not forbid a recomputed response from no longer
@@ -363,7 +391,8 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
         (t for t in self._terms(raw) if t.get("id") == term_id), None
       )
       if (
-        self._selected_id(raw) == term_id
+        was_selected
+        and self._selected_id(raw) == term_id
         and before is not None
         and after is not None
         and self._term_shape(before) != self._term_shape(after)
@@ -425,6 +454,14 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       f"(got {control.status_code}: {control.text[:200]})",
     )
     raw = control.json()
+    selected_before = self._selected_id(raw)
+    control_messages = [
+      m for m in (raw.get("messages") or []) if isinstance(m, dict)
+    ]
+    control_term = next(
+      (t for t in (self._terms(raw) or []) if t.get("id") == selected_before),
+      None,
+    )
     bogus = f"pt_unresolvable_{uuid.uuid4().hex[:12]}"
     resp = self._raw_selection_put(raw, bogus)
     if 400 <= resp.status_code < 500:
@@ -438,6 +475,37 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     updated = resp.json()
     if self._terms(updated):
       self._selected_term(updated)
+    # A business may refuse the update through the message channel rather
+    # than an HTTP 4xx, returning the checkout with a recoverable error for
+    # the platform to correct in band (checkout.md "Error Handling"). Only
+    # an error this probe produced counts: an incomplete checkout already
+    # lists what it still needs as recoverable errors, and treating those as
+    # a refusal would excuse a business that ignored the selection outright.
+    # The refusal must also have changed nothing, in the selection and in
+    # the schedules of the term in effect, since a rewrite of the term in
+    # effect is the very thing the warning exists to report.
+    refused = [
+      m
+      for m in (updated.get("messages") or [])
+      if isinstance(m, dict)
+      and m.get("type") == "error"
+      and m not in control_messages
+    ]
+    kept = next(
+      (
+        t
+        for t in (self._terms(updated) or [])
+        if t.get("id") == self._selected_id(updated)
+      ),
+      None,
+    )
+    untouched = self._selected_id(updated) == selected_before and (
+      control_term is None
+      or kept is None
+      or self._term_shape(kept) == self._term_shape(control_term)
+    )
+    if refused and untouched:
+      return
     self.assertIn(
       _PT_WARNING_CODE,
       self._warning_codes(updated),
@@ -461,10 +529,11 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     amounts sum to the Order total").
 
     The selection is captured AFTER fulfillment is driven ready, since
-    those updates recompute the checkout and may conformantly change
-    the selected or default term (with a warning) before it settles.
+    those updates recompute the checkout and may change the selected
+    or default term (with a warning) before it settles, as the spec
+    allows.
     """
-    raw = self._new_terms_checkout()
+    raw = self._new_terms_checkout(select_fulfillment=True)
     ready = self.ensure_fulfillment_ready(raw["id"])
     if not self._terms(ready):
       self.skipTest(
@@ -475,7 +544,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       # The term is already agreed before a checkout can reach
       # ready_for_complete, so only a capture made at readiness is
       # anchored; completing from an earlier state may involve further
-      # recomputing updates that conformantly change the selection.
+      # recomputing updates that change the selection, as the spec allows.
       self.skipTest(
         "the driven checkout did not reach ready_for_complete; the "
         "accepted-term capture point cannot be anchored"
