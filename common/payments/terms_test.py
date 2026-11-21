@@ -51,7 +51,11 @@ import re
 import uuid
 
 from absl.testing import absltest
-import integration_test_utils
+from common.payments.terms_support import TermsAgentProfileServer
+from framework.base_test import FLAGS
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
+from shopping.base import UnifiedUpdate
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
@@ -83,27 +87,48 @@ _RFC3339_RE = re.compile(
 _RFC3339_FRACTION_RE = re.compile(r"\.\d+")
 
 
-class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
-  """Payment-terms capability conformance (terms.md)."""
+@requires_capability(_PT_CAPABILITY)
+class PaymentTermsTest(ShoppingIntegrationTestBase):
+  """Payment-terms capability conformance (terms.md).
 
-  def setUp(self) -> None:
-    """Skip unless the business advertises the payment-terms capability."""
-    super().setUp()
-    if not self._advertises_payment_terms():
-      self.skipTest(f"business does not advertise {_PT_CAPABILITY}; skipping")
+  Every request uses the mock agent profile that declares the payment-terms
+  extension, so a Business computing the capability intersection negotiates it.
+  `@requires_capability` skips the suite when the Business does not advertise
+  Payment Terms, before the mock agent server starts, and accumulates with
+  whatever the base class requires.
+  """
 
-  def _advertises_payment_terms(self) -> bool:
-    """Return True if discovery advertises the payment-terms capability."""
-    resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(resp, 200)
-    ucp = resp.json().get("ucp", resp.json())
-    caps = ucp.get("capabilities") or {}
-    names = (
-      list(caps.keys())
-      if isinstance(caps, dict)
-      else [c.get("name") for c in caps if isinstance(c, dict)]
+  def _start_agent_server(self) -> None:
+    """Serve the agent profiles, including the one that declares terms."""
+    flags = FLAGS
+    self.agent_server = TermsAgentProfileServer(
+      port=flags.mock_agent_port if flags.is_parsed() else 8285,
+      webhook_port=flags.mock_webhook_port if flags.is_parsed() else 8284,
+      ucp_version=self.ucp_version,
     )
-    return _PT_CAPABILITY in names
+    self.agent_server.start()
+    self.addCleanup(self.agent_server.stop)
+
+  def _terms_profile_url(self) -> str:
+    """Return the URL of the agent profile that declares terms."""
+    flags = FLAGS
+    port = flags.mock_agent_port if flags.is_parsed() else 8285
+    return (
+      f"http://localhost:{port}{TermsAgentProfileServer.TERMS_PROFILE_PATH}"
+    )
+
+  def get_headers(
+    self,
+    idempotency_key: str | None = None,
+    request_id: str | None = None,
+    custom_profile_url: str | None = None,
+  ) -> dict[str, str]:
+    """Use the agent profile that declares the payment-terms extension."""
+    return super().get_headers(
+      idempotency_key,
+      request_id,
+      custom_profile_url=custom_profile_url or self._terms_profile_url(),
+    )
 
   # ── shared drivers (raw wire dicts throughout) ──────────────────────────
   def _new_terms_checkout(self, select_fulfillment: bool = False):
@@ -244,7 +269,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       )
       for li in checkout_obj.line_items
     ]
-    body = integration_test_utils.UnifiedUpdate(
+    body = UnifiedUpdate(
       id=checkout_obj.id,
       currency=checkout_obj.currency,
       line_items=line_items,
@@ -253,7 +278,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     return self.client.put(
       self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
       json=body,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
 
   def _fetch_order(self, order_ref):
@@ -276,7 +301,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     )
     resp = self.client.get(
       self.get_order_url(order_id),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assert_response_status(resp, 200)
     return resp.json()
@@ -382,10 +407,12 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       # so recomputing one on selection needs no warning.
       was_selected = self._selected_id(raw) == term_id
       raw = self._select_term(raw, term_id)
-      if not self._terms(raw):
+      if self._terms(raw) is None:
         # The spec does not forbid a recomputed response from no longer
-        # carrying terms; with none offered there is nothing left to
-        # select or assert.
+        # carrying terms; with none offered there is nothing left to select
+        # or assert. ABSENT is that case. A present but empty terms[] is a
+        # defect, so it falls through to the assertions instead of ending the
+        # walk, which is the distinction _new_terms_checkout draws.
         break
       after = next(
         (t for t in self._terms(raw) if t.get("id") == term_id), None
@@ -473,7 +500,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       f"with a warned checkout (200), got {resp.status_code}",
     )
     updated = resp.json()
-    if self._terms(updated):
+    if self._terms(updated) is not None:
       self._selected_term(updated)
     # A business may refuse the update through the message channel rather
     # than an HTTP 4xx, returning the checkout with a recoverable error for
@@ -499,10 +526,16 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
       ),
       None,
     )
+    # `kept is None` is not a pass: a business that dropped terms[] while
+    # keeping selected_term_id changed the term in effect to nothing, which is
+    # exactly the rewrite this warning exists to report. When a control term
+    # existed, the term in effect must still be present and still match.
     untouched = self._selected_id(updated) == selected_before and (
       control_term is None
-      or kept is None
-      or self._term_shape(kept) == self._term_shape(control_term)
+      or (
+        kept is not None
+        and self._term_shape(kept) == self._term_shape(control_term)
+      )
     )
     if refused and untouched:
       return
@@ -533,13 +566,12 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
     or default term (with a warning) before it settles, as the spec
     allows.
     """
-    raw = self._new_terms_checkout(select_fulfillment=True)
-    ready = self.ensure_fulfillment_ready(raw["id"])
-    if not self._terms(ready):
-      self.skipTest(
-        "the ready checkout no longer carries payment terms; the "
-        "accepted-term projection cannot be asserted"
-      )
+    # create_checkout_session(select_fulfillment=True) already calls
+    # ensure_fulfillment_ready and returns the readied checkout
+    # (shopping/base.py), so a second call would re-fetch for nothing.
+    # _new_terms_checkout already skips on an absent terms and asserts on an
+    # empty one, so there is nothing left to re-test here.
+    ready = self._new_terms_checkout(select_fulfillment=True)
     if ready.get("status") != "ready_for_complete":
       # The term is already agreed before a checkout can reach
       # ready_for_complete, so only a capture made at readiness is
@@ -550,7 +582,7 @@ class PaymentTermsTest(integration_test_utils.IntegrationTestBase):
         "accepted-term capture point cannot be anchored"
       )
     selected_id = self._selected_term(ready).get("id")
-    complete_data = self.complete_checkout_session(raw["id"])
+    complete_data = self.complete_checkout_session(ready["id"])
     order_ref = complete_data.get("order")
     self.assertIsInstance(
       order_ref, dict, "the completion response must reference the order"
