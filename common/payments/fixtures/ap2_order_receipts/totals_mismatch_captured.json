@@ -3,7 +3,7 @@
   "title": "Stated captured differs from the succeeded events",
   "test_plan_vector": null,
   "spec": [
-    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`.",
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`. Recomputation stops at the first `receipt_sequence_gap` or excluded receipt in a chain: the platform does not report `receipt_totals_mismatch` for later receipts in that chain, because the events it holds are incomplete.",
     "Running Totals: `totals.mandated` is the `payment_amount` of the Payment Mandate that `mandate_ref` covers. The other totals start at 0 and change only on `succeeded` events: `authorization` and `authorization_adjustment` add to `authorized`, `release` subtracts from it, `capture` adds to `captured`, `capture_reversal` subtracts from it, `refund` adds to `refunded`. A capture does not reduce `authorized`."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",

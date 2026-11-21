@@ -50,9 +50,9 @@ FIXTURE_DIR = (
 )
 
 # Order example in ucp#1109 (docs/specification/payment/extensions/
-# ap2-mandates.md, "Placement and Delivery"), at head 7ee97b0.
+# ap2-mandates.md, "Placement and Delivery"), at head fc59727.
 SPEC_SOURCE = (
-  "Universal-Commerce-Protocol/ucp#1109 at 7ee97b0, ap2-mandates.md, "
+  "Universal-Commerce-Protocol/ucp#1109 at fc59727, ap2-mandates.md, "
   "Order example under 'Placement and Delivery'"
 )
 # cspell:disable
@@ -92,7 +92,7 @@ _SELLER_A = "https://seller-a.example/.well-known/ucp"
 _SELLER_B = "https://seller-b.example/.well-known/ucp"
 _HOTEL = "https://hotel.example/.well-known/ucp"
 
-# ucp#1109 rule text at 7ee97b0, quoted without Markdown emphasis.
+# ucp#1109 rule text at fc59727, quoted without Markdown emphasis.
 _RULES = {
   "verify_1": (
     "Platform Verification 1: MUST verify each receipt's signature against "
@@ -113,9 +113,10 @@ _RULES = {
   ),
   "verify_4": (
     "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per "
-    "`(iss, mandate_ref)` chain. A second, different receipt for a `seq` "
-    "the platform already holds is `receipt_sequence_gap`; the platform "
-    "keeps both."
+    "`(iss, mandate_ref)` chain. A byte-identical redelivery of a receipt "
+    "the platform already holds is ignored. A second, different receipt "
+    "for a `seq` the platform already holds is `receipt_sequence_gap`; the "
+    "platform keeps both."
   ),
   "verify_5": (
     "Platform Verification 5: MUST recompute `authorized`, `captured` and "
@@ -123,13 +124,19 @@ _RULES = {
     "Running Totals, and MUST check that `totals.mandated` equals the "
     "`payment_amount` of the Payment Mandate that `mandate_ref` covers. A "
     "receipt whose stated `totals` differ from these values is "
-    "`receipt_totals_mismatch`."
+    "`receipt_totals_mismatch`. Recomputation stops at the first "
+    "`receipt_sequence_gap` or excluded receipt in a chain: the platform "
+    "does not report `receipt_totals_mismatch` for later receipts in that "
+    "chain, because the events it holds are incomplete."
   ),
   "verify_6": (
-    "Platform Verification 6: MUST check, on the recomputed totals, that "
-    "`authorized` and `captured` do not exceed `mandated` "
-    "(`receipt_exceeds_mandate`) and that `refunded` does not exceed "
-    "`captured` (`receipt_refund_exceeds_capture`)."
+    "Platform Verification 6: MUST check that `authorized` and `captured` "
+    "do not exceed `mandated` (`receipt_exceeds_mandate`) and that "
+    "`refunded` does not exceed `captured` "
+    "(`receipt_refund_exceeds_capture`). The check uses the recomputed "
+    "totals, or the stated totals for receipts after the point where "
+    "recomputation stopped. These outcomes are independent of "
+    "`receipt_totals_mismatch`: a receipt can report both."
   ),
   "verify_7": (
     "Platform Verification 7: SHOULD, when `event.seller_id` is present, "
@@ -726,22 +733,19 @@ def _v06() -> dict:
     "v06_missing_seq",
     "A missing seq gives receipt_sequence_gap",
     "6",
-    ["verify_4"],
+    ["verify_4", "verify_5", "verify_6"],
     _SPEC_SIGNING + " Source: " + SPEC_SOURCE + ".",
     {_SPEC_BUSINESS: [_SPEC_KEY]},
     [(_SPEC_TOKEN, _SPEC_BUSINESS, 5400)],
     _spec_order([_SPEC_CHAIN[0], _SPEC_CHAIN[2]]),
-    outcomes=[
-      (1, v.RECEIPT_SEQUENCE_GAP),
-      (1, v.RECEIPT_TOTALS_MISMATCH),
-    ],
+    outcomes=[(1, v.RECEIPT_SEQUENCE_GAP)],
     notes=(
-      "The ucp#1109 chain with its seq 2 receipt removed. Platform "
-      "Verification 5 recomputes totals from the succeeded events the "
-      "platform holds, so the seq 3 receipt, which states captured 5400, "
-      "also differs from the 2400 recomputed. The specification does not "
-      "say whether a gap suppresses that outcome; this vector follows the "
-      "rule as written."
+      "The ucp#1109 chain with its seq 2 receipt removed. The platform "
+      "holds incomplete events, so recomputation stops at the gap "
+      "(Platform Verification 5): the seq 3 receipt, which states captured "
+      "5400 where the events held give 2400, reports only "
+      "receipt_sequence_gap, not receipt_totals_mismatch. Rule 6 still "
+      "runs on its stated totals, which are within the mandate."
     ),
   )
 
@@ -799,20 +803,19 @@ def _v08_not_retained() -> dict:
     chain,
     title="A receipt whose retired key is no longer published",
     test_plan=None,
-    rules=["verify_1", "verify_3", "verify_4", "business_9"],
+    rules=["verify_1", "verify_3", "verify_4", "verify_5", "business_9"],
     receipts=receipts,
     issuers={_MERCHANT: [chain.signer.jwk]},
     outcomes=[
       (0, v.RECEIPT_INVALID_SIGNATURE),
       (1, v.RECEIPT_SEQUENCE_GAP),
-      (1, v.RECEIPT_TOTALS_MISMATCH),
     ],
     notes=(
       "Negative counterpart of v08_rotated_retained_key: test_only_2025 is "
       "gone from keys, so the `kid` of seq 1 does not resolve and it is "
       "receipt_invalid_signature. It is then excluded from the chain, so "
-      "seq 2 is reported as a gap and, because the totals are recomputed "
-      "without the excluded receipt, as a totals mismatch too (see "
+      "seq 2 is reported as a gap only: recomputation stops at the excluded "
+      "receipt, so no receipt_totals_mismatch is reported for seq 2 (see "
       "v06_missing_seq)."
     ),
   )
@@ -1246,9 +1249,10 @@ def _totals_mismatch_mandated() -> dict:
       "consistent with its events, so only the comparison with "
       "payment_amount shows the problem: totals.mandated differs "
       "(receipt_totals_mismatch) and the recomputed authorized 9000 "
-      "exceeds the mandate's 5400 (receipt_exceeds_mandate). Both rules "
-      "apply as written; the specification does not say whether the "
-      "second is suppressed."
+      "exceeds the mandate's 5400 (receipt_exceeds_mandate). The two "
+      "outcomes are independent, so both are reported when both "
+      "conditions hold. Compare reauthorization_exceeds_mandate, whose "
+      "stated totals are honest and which reports only the exceed."
     ),
   )
 
@@ -1370,7 +1374,11 @@ def _duplicate_different_seq() -> dict:
       "Receipts 1 and 2 are both seq 2, with different processing entries. "
       "The one held first stays in the chain, so receipt 3 (seq 3, whose "
       "prev is receipt 1) continues it. The second is reported as a gap "
-      "and neither chained nor counted; the platform keeps both."
+      "and neither chained nor counted; the platform keeps both. "
+      "Recomputation stops at that gap, so receipt 3 is not compared with "
+      "recomputed totals; its stated totals are within the mandate. A "
+      "byte-identical redelivery of a held receipt would be ignored, not "
+      "a gap."
     ),
   )
 

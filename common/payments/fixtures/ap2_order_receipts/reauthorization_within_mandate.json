@@ -3,7 +3,7 @@
   "title": "Authorization expiry, then a re-authorization of mandated - captured",
   "test_plan_vector": null,
   "spec": [
-    "Platform Verification 6: MUST check, on the recomputed totals, that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`).",
+    "Platform Verification 6: MUST check that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`). The check uses the recomputed totals, or the stated totals for receipts after the point where recomputation stopped. These outcomes are independent of `receipt_totals_mismatch`: a receipt can report both.",
     "Running Totals: `totals.mandated` is the `payment_amount` of the Payment Mandate that `mandate_ref` covers. The other totals start at 0 and change only on `succeeded` events: `authorization` and `authorization_adjustment` add to `authorized`, `release` subtracts from it, `capture` adds to `captured`, `capture_reversal` subtracts from it, `refund` adds to `refunded`. A capture does not reduce `authorized`.",
     "Edge Cases, Authorization expiry: a `release` receipt for the expired, uncaptured amount, then a new `authorization` receipt with the same `mandate_ref`. Without a new mandate, the new authorization is limited to `mandated` minus `captured`, so `authorized` never exceeds `mandated`."
   ],

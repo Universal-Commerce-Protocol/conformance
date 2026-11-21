@@ -4,7 +4,7 @@
   "test_plan_vector": null,
   "spec": [
     "Running Totals: each movement counts once. A later `succeeded` receipt with the same `type` and `event.ref.processing_entry_id` as an earlier `succeeded` receipt in the chain is a follow-up (for example, one that only adds `network_ref`) and does not change the totals again.",
-    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`."
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`. Recomputation stops at the first `receipt_sequence_gap` or excluded receipt in a chain: the platform does not report `receipt_totals_mismatch` for later receipts in that chain, because the events it holds are incomplete."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
   "notes": "The follow-up repeats the refund's type and processing_entry_id but states refunded 10800, as if the 5400 counted twice.",

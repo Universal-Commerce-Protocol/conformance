@@ -7,7 +7,7 @@
     "Platform Verification 2: MUST, only for receipts whose signature verified, check that `mandate_ref` is a Payment Mandate the platform submitted and that `iss` is the business that signed the checkout it covers. A receipt that fails is `receipt_mandate_unknown`.",
     "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 from its chain, so the next receipt in that chain is reported as `receipt_sequence_gap`."
   ],
-  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at 7ee97b0, ap2-mandates.md, Order example under 'Placement and Delivery'.",
+  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at fc59727, ap2-mandates.md, Order example under 'Placement and Delivery'.",
   "notes": "The platform never sent the mandate behind this chain. Receipts 0 and 1 verify and are mandate_unknown. Receipt 2 is tampered (as in v05_tampered_amount): its signature fails, so its mandate_ref is not checked and it is invalid_signature only.",
   "inputs": {
     "issuers": {

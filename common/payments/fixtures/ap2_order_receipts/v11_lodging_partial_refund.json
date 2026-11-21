@@ -3,8 +3,8 @@
   "title": "Lodging partial refund matching the cancellation adjustment",
   "test_plan_vector": "11",
   "spec": [
-    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
-    "Platform Verification 6: MUST check, on the recomputed totals, that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`).",
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A byte-identical redelivery of a receipt the platform already holds is ignored. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both.",
+    "Platform Verification 6: MUST check that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`). The check uses the recomputed totals, or the stated totals for receipts after the point where recomputation stopped. These outcomes are independent of `receipt_totals_mismatch`: a receipt can report both.",
     "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. The platform compares the sum of `event.amount` over the `succeeded` refund receipts that cite an `event.ref.adjustment_id` with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid.",
     "Edge Cases, Partial refunds under a cancellation policy: the refund receipt proves the money movement and cites the cancellation adjustment through `event.ref.adjustment_id`; whether the amount was commercially correct is checked against that adjustment, not inside the receipt."
   ],

@@ -298,13 +298,20 @@ class Ap2ReceiptMutationTest(absltest.TestCase):
     )
 
   def test_identical_repeat_is_ignored(self) -> None:
-    """A byte-identical copy of a held receipt is not "different".
+    """A byte-identical redelivery of a held receipt is ignored.
 
-    Platform Verification 4 names "a second, different receipt"; the
-    outcome table says "repeated". This verifier takes the rule: a
-    redelivery of the same receipt is neither chained nor flagged.
+    Platform Verification 4 (ucp#1109 at fc59727): a byte-identical
+    redelivery is ignored, and the outcome table says "repeated with
+    different content". The copy is neither chained nor flagged.
     """
     self.assertEqual(self._outcomes([*self.receipts, self.receipts[2]]), [])
+
+  def test_gap_reports_no_totals_mismatch(self) -> None:
+    """Recomputation stops at a gap, so only the gap is reported."""
+    self.assertEqual(
+      self._outcomes([self.receipts[0], self.receipts[2]]),
+      [(1, v.RECEIPT_SEQUENCE_GAP)],
+    )
 
   def test_unresolved_kid_excludes_receipt_from_chain(self) -> None:
     """The receipt after one whose `kid` does not resolve is a gap."""
@@ -545,6 +552,45 @@ class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
     )
     self.assertEqual(result.malformed, [])
     self.assertEqual([f.code for f in result.outcomes], codes)
+
+  def _chain(self, stated: list[dict[str, int]], seqs: list[int]):
+    """Verify captures of 100 stating `stated` totals, with these `seq`s."""
+    signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
+    receipts: list[str] = []
+    for seq, totals in zip(seqs, stated, strict=True):
+      payload = _valid_payload()
+      payload["seq"] = seq
+      payload["prev"] = v.sha256_ref(receipts[-1]) if receipts else None
+      payload["event"].update(
+        type="capture", ref={"processing_entry_id": f"ent_{seq}"}
+      )
+      payload["totals"].update(mandated=300, authorized=0, **totals)
+      receipts.append(signer.sign(payload))
+    result = v.verify_order_receipts(
+      {"ap2": {"receipts": receipts}},
+      {_MALFORMED_ISS: [signer.jwk]},
+      [v.Mandate("token", _MALFORMED_ISS, 300)],
+    )
+    return [(f.receipt_index, f.code) for f in result.outcomes]
+
+  def test_after_a_gap_rule_6_uses_stated_totals(self) -> None:
+    """Later receipts report no totals mismatch but still the exceed."""
+    outcomes = self._chain(
+      [{"captured": 100, "refunded": 0}, {"captured": 400, "refunded": 0}],
+      [1, 3],
+    )
+    self.assertEqual(
+      outcomes,
+      [(1, v.RECEIPT_SEQUENCE_GAP), (1, v.RECEIPT_EXCEEDS_MANDATE)],
+    )
+
+  def test_honest_totals_over_the_mandate_report_only_the_exceed(self) -> None:
+    """`receipt_exceeds_mandate` does not imply `receipt_totals_mismatch`."""
+    outcomes = self._chain(
+      [{"captured": 100 * n, "refunded": 0} for n in range(1, 5)],
+      [1, 2, 3, 4],
+    )
+    self.assertEqual(outcomes, [(3, v.RECEIPT_EXCEEDS_MANDATE)])
 
   @parameterized.named_parameters(
     ("null", None, []),

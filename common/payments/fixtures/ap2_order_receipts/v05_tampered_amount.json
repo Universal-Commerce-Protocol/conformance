@@ -6,7 +6,7 @@
     "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
     "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 from its chain, so the next receipt in that chain is reported as `receipt_sequence_gap`."
   ],
-  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at 7ee97b0, ap2-mandates.md, Order example under 'Placement and Delivery'.",
+  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at fc59727, ap2-mandates.md, Order example under 'Placement and Delivery'.",
   "notes": "The ucp#1109 chain with event.amount of the third receipt changed from 2400 to 4400 after signing; header and signature are unchanged.",
   "inputs": {
     "issuers": {

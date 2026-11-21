@@ -47,9 +47,20 @@ Where the specification leaves a choice open, this verifier:
   `receipt_invalid_signature` (its signature "cannot be verified"), like an
   unresolved `kid`;
 * treats a second receipt for a `seq` the chain already holds as a repeat,
-  and so as a sequence gap, only if its bytes differ ("A second, different
-  receipt"); a byte-identical copy is ignored. The first receipt held stays
-  in the chain; the second is neither chained nor counted in the totals;
+  and so as a sequence gap, only if its bytes differ ("repeated with
+  different content"); a byte-identical redelivery is ignored ("Platform
+  Verification" 4). The first receipt held stays in the chain; the second
+  is neither chained nor counted in the totals;
+* stops recomputing a chain's totals at its first `receipt_sequence_gap` or
+  excluded receipt ("Platform Verification" 5): from there on the platform
+  holds incomplete events, so it reports no `receipt_totals_mismatch` for
+  that receipt or the later ones, and "Platform Verification" 6 runs on
+  their stated `totals` instead of recomputed ones. This verifier also
+  treats the gapped receipt itself as the point where recomputation
+  stopped;
+* reports `receipt_exceeds_mandate`, `receipt_refund_exceeds_capture` and
+  `receipt_totals_mismatch` independently of each other: a receipt can
+  report any combination;
 * recomputes totals cumulatively, receipt by receipt, over the chain's
   succeeded events, so each receipt's stated `totals` are compared with the
   state right after that receipt;
@@ -453,6 +464,21 @@ def _adjustment_amount(adjustment: Mapping[str, Any]) -> int | None:
   return abs(totals[0]) if len(totals) == 1 else None
 
 
+def _stated_totals(stated: Mapping[str, Any]) -> Totals:
+  """Return the totals a receipt states, as `Totals`."""
+  return Totals(stated["authorized"], stated["captured"], stated["refunded"])
+
+
+def _stop_chain(stopped: set[ChainKey], payload: Mapping[str, Any]) -> None:
+  """Stop recomputing the chain an excluded receipt names, if it names one.
+
+  "Platform Verification" 5: recomputation stops at an excluded receipt.
+  """
+  iss, mandate_ref = payload.get("iss"), payload.get("mandate_ref")
+  if isinstance(iss, str) and isinstance(mandate_ref, str):
+    stopped.add((iss, mandate_ref))
+
+
 def verify_order_receipts(
   order: Mapping[str, Any],
   issuer_keys: Mapping[str, Iterable[Mapping[str, Any]]],
@@ -476,6 +502,8 @@ def verify_order_receipts(
   chain_tail: dict[ChainKey, VerifiedReceipt] = {}
   held: dict[ChainKey, dict[int, str]] = {}
   counted: dict[ChainKey, set[tuple[str, str]]] = {}
+  # Chains where recomputation has stopped: a gap or an excluded receipt.
+  stopped: set[ChainKey] = set()
 
   ap2 = order.get("ap2")
   receipts = ap2.get("receipts") if isinstance(ap2, Mapping) else None
@@ -503,6 +531,7 @@ def verify_order_receipts(
     reason = _check_signature(compact, header, keys)
     if reason is not None:
       result.outcomes.append(Finding(index, RECEIPT_INVALID_SIGNATURE, reason))
+      _stop_chain(stopped, payload)
       continue
     problems = _payload_problems(payload)
     if problems:
@@ -520,6 +549,7 @@ def verify_order_receipts(
       result.outcomes.append(
         Finding(index, RECEIPT_MANDATE_UNKNOWN, "mandate_ref is unknown")
       )
+      _stop_chain(stopped, payload)
       continue
     if mandate.business != payload["iss"]:
       result.outcomes.append(
@@ -530,13 +560,15 @@ def verify_order_receipts(
           f"({mandate.business})",
         )
       )
+      _stop_chain(stopped, payload)
       continue
 
     # Platform Verification 4: `seq` and `prev` continuity per
     # (iss, mandate_ref). `seq` starts at 1 and increases by exactly 1;
     # `prev` is the hash of the previous receipt's compact JWS, null at 1.
     # A second, different receipt for a `seq` already held is a gap; both
-    # are kept (the platform keeps every receipt it received).
+    # are kept (the platform keeps every receipt it received). A
+    # byte-identical redelivery is ignored.
     chain: ChainKey = (payload["iss"], payload["mandate_ref"])
     seq = payload["seq"]
     chain_held = held.setdefault(chain, {})
@@ -549,6 +581,7 @@ def verify_order_receipts(
             f"a different receipt for seq {seq} is already held",
           )
         )
+        stopped.add(chain)
       continue
     chain_held[seq] = compact
     tail = chain_tail.get(chain)
@@ -560,6 +593,7 @@ def verify_order_receipts(
           index, RECEIPT_SEQUENCE_GAP, f"seq {seq}, expected {expected_seq}"
         )
       )
+      stopped.add(chain)
     elif payload["prev"] != expected_prev:
       result.outcomes.append(
         Finding(
@@ -568,6 +602,7 @@ def verify_order_receipts(
           f"prev {payload['prev']} does not match {expected_prev}",
         )
       )
+      stopped.add(chain)
 
     # Running Totals: only a `succeeded` event changes the totals, and each
     # movement counts once: a later succeeded receipt with the same `type`
@@ -588,15 +623,21 @@ def verify_order_receipts(
       recomputed = previous
 
     # Platform Verification 5: stated totals against the recomputed ones,
-    # and `mandated` against the mandate's `payment_amount`.
+    # and `mandated` against the mandate's `payment_amount`. Recomputation
+    # stops at the first gap or excluded receipt of the chain: the platform
+    # then holds incomplete events, so none of this is reported from there
+    # on, and rule 6 reads the stated totals.
     stated = payload["totals"]
+    recomputing = chain not in stopped
     differences = [
       f"{name} {stated[name]} (recomputed {getattr(recomputed, name)})"
       for name in ("authorized", "captured", "refunded")
-      if stated[name] != getattr(recomputed, name)
+      if recomputing and stated[name] != getattr(recomputed, name)
     ]
-    if mandate.payment_amount is not None and (
-      stated["mandated"] != mandate.payment_amount
+    if (
+      recomputing
+      and mandate.payment_amount is not None
+      and stated["mandated"] != mandate.payment_amount
     ):
       differences.append(
         f"mandated {stated['mandated']} (payment_amount "
@@ -611,28 +652,31 @@ def verify_order_receipts(
         )
       )
 
-    # Platform Verification 6: on the recomputed totals, `authorized` and
-    # `captured` against `mandated`, and `refunded` against `captured`.
+    # Platform Verification 6: `authorized` and `captured` against
+    # `mandated`, and `refunded` against `captured`, on the recomputed
+    # totals, or on the stated ones once recomputation has stopped. Reported
+    # independently of rule 5.
+    checked = recomputed if recomputing else _stated_totals(stated)
     mandated = (
       stated["mandated"]
       if mandate.payment_amount is None
       else mandate.payment_amount
     )
     for name in ("authorized", "captured"):
-      if getattr(recomputed, name) > mandated:
+      if getattr(checked, name) > mandated:
         result.outcomes.append(
           Finding(
             index,
             RECEIPT_EXCEEDS_MANDATE,
-            f"{name} {getattr(recomputed, name)} > mandated {mandated}",
+            f"{name} {getattr(checked, name)} > mandated {mandated}",
           )
         )
-    if recomputed.refunded > recomputed.captured:
+    if checked.refunded > checked.captured:
       result.outcomes.append(
         Finding(
           index,
           RECEIPT_REFUND_EXCEEDS_CAPTURE,
-          f"refunded {recomputed.refunded} > captured {recomputed.captured}",
+          f"refunded {checked.refunded} > captured {checked.captured}",
         )
       )
 
