@@ -33,9 +33,9 @@ The test suite follows a 4-tier modular architecture per UCP RFC #520:
   shopping checkout as their vehicle and are gated on the capabilities they
   need.
 - **`shopping/`**: Retail shopping domain tests organized by functional domain:
-  `checkout/` (including idempotency and the MCP binding), `cart/` (MCP
-  binding), `discount/`, `fulfillment/`, `order/` (including order-event
-  webhooks), and `validation/`.
+  `checkout/` (including idempotency and the MCP binding), `cart/` and
+  `catalog/` (MCP binding), `discount/`, `fulfillment/`, `order/` (including
+  order-event webhooks), and `validation/`.
 - **`platforms/`**: Platform certification profiles (e.g. `google.yaml`) that
   mandate required capabilities and payment handlers.
 
@@ -91,6 +91,7 @@ Example `conformance_input.json`:
 - `items`: List of items available on your server. The first item in this list will be used for standard checkout tests.
 - `out_of_stock_item`: An item ID that should trigger an out-of-stock error (status `409`) when trying to complete checkout.
 - `non_existent_item`: An item ID that does not exist in your catalog, used to test invalid input handling.
+- `catalog`: **Optional**. Used by the catalog tests. `search_query` is a query that returns at least one product; the search tests skip without it. `max_lookup_ids` is the largest batch your server accepts in a lookup; the batch limit test skips without it.
 
 ### 3. Configure Test Fixtures (`test_fixtures.json`)
 
