@@ -33,8 +33,8 @@ ones that are stated as MUST and are not covered elsewhere:
 Sections are named rather than cited by line, so the references survive
 edits to the specification.
 
-Server-agnostic by construction. Line items are compared as a bag of
-(item id, quantity) rather than by server-assigned identifiers; the conversion
+Server-agnostic by construction. Line items are compared by quantity summed
+per item id rather than by server-assigned identifiers; the conversion
 identity check compares checkout ids rather than totals arithmetic; both 200 and
 201 are accepted where the specification does not pin a status; and the discount
 assertion accepts any of the three wire signals a conformant business may use.
@@ -49,28 +49,42 @@ the post-cancel status is not asserted.
 import uuid
 
 from absl.testing import absltest
-import integration_test_utils
+from framework.decorators import requires_capability
+from shopping.base import ShoppingIntegrationTestBase
 
 _CART_CAPABILITY = "dev.ucp.shopping.cart"
 _DISCOUNT_CAPABILITY = "dev.ucp.shopping.discount"
 
 
-class CartTest(integration_test_utils.IntegrationTestBase):
-  """Cart capability conformance (cart.md)."""
+@requires_capability(_CART_CAPABILITY)
+class CartTest(ShoppingIntegrationTestBase):
+  """Cart capability conformance (cart.md).
+
+  `@requires_capability` skips the suite when the business does not advertise
+  Cart, before the mock agent server starts, and accumulates with whatever the
+  base class requires.
+  """
 
   def setUp(self) -> None:
-    """Skip unless the business advertises the cart capability."""
+    """Resolve the fixture SKU; capability gating belongs to the decorator."""
     super().setUp()
-    self._capabilities = self._advertised_capabilities()
-    if _CART_CAPABILITY not in self._capabilities:
-      self.skipTest(f"business does not advertise {_CART_CAPABILITY}; skipping")
     self._sku = self.fixture_ctx.get_test_sku()
 
   def _advertised_capabilities(self) -> dict:
-    """Return the advertised capability map, keyed by capability name."""
-    resp = self.client.get("/.well-known/ucp")
-    self.assert_response_status(resp, 200)
-    ucp = resp.json().get("ucp", resp.json())
+    """Return the advertised capability map, keyed by capability name.
+
+    Prefers the profile the framework already fetched, so no second request is
+    made, and falls back to `self.discovery_url` rather than a hardcoded
+    `/.well-known/ucp` so `--discovery_url` is respected.
+    """
+    raw = None
+    if self.server_profile is not None:
+      raw = self.server_profile.raw
+    if raw is None:
+      resp = self.client.get(self.discovery_url)
+      self.assert_response_status(resp, 200)
+      raw = resp.json()
+    ucp = raw.get("ucp", raw)
     caps = ucp.get("capabilities") or {}
     if isinstance(caps, dict):
       return caps
@@ -78,7 +92,7 @@ class CartTest(integration_test_utils.IntegrationTestBase):
 
   def _discount_extends_cart(self) -> bool:
     """Return True if the discount capability declares it extends cart."""
-    entry = self._capabilities.get(_DISCOUNT_CAPABILITY)
+    entry = self._advertised_capabilities().get(_DISCOUNT_CAPABILITY)
     if entry is None:
       return False
     entries = entry if isinstance(entry, list) else [entry]
@@ -104,7 +118,7 @@ class CartTest(integration_test_utils.IntegrationTestBase):
     resp = self.client.post(
       self.get_shopping_url("/carts"),
       json=payload,
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assertIn(
       resp.status_code,
@@ -120,9 +134,7 @@ class CartTest(integration_test_utils.IntegrationTestBase):
     resp = self.client.post(
       self.get_shopping_url("/checkout-sessions"),
       json=payload,
-      headers=integration_test_utils.get_headers(
-        idempotency_key=str(uuid.uuid4())
-      ),
+      headers=self.get_headers(idempotency_key=str(uuid.uuid4())),
     )
     self.assertIn(
       resp.status_code,
@@ -184,7 +196,7 @@ class CartTest(integration_test_utils.IntegrationTestBase):
 
     resp = self.client.post(
       self.get_shopping_url(f"/carts/{cart['id']}/cancel"),
-      headers=integration_test_utils.get_headers(),
+      headers=self.get_headers(),
     )
     self.assertIn(
       resp.status_code,
@@ -239,7 +251,11 @@ class CartTest(integration_test_utils.IntegrationTestBase):
     return sum(
       t.get("amount") or 0
       for t in (raw.get("totals") or [])
-      if t.get("type") == "discount" and (t.get("amount") or 0) < 0
+      # discount.md "Impact on Line Items and Totals": a code allocated to
+      # line items appears as `items_discount`, not `discount`, so a suite
+      # that only counted `discount` missed the line-item allocation case.
+      if t.get("type") in ("discount", "items_discount")
+      and (t.get("amount") or 0) < 0
     )
 
   @staticmethod
