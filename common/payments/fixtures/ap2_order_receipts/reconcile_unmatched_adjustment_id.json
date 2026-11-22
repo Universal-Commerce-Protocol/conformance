@@ -3,7 +3,7 @@
   "title": "A refund citing an adjustment the Order does not have",
   "test_plan_vector": null,
   "spec": [
-    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. The platform compares the sum of `event.amount` over the `succeeded` refund receipts that cite an `event.ref.adjustment_id` with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid."
+    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. For each `event.ref.adjustment_id` cited, the platform sums `event.amount` over the `succeeded` `refund` receipts that cite it, minus `succeeded` `refund_reversal` receipts that cite it, counting each movement once per Running Totals, and compares the result with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. The outcome is reported on the last `succeeded` receipt that cites the adjustment. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
   "notes": "The refund cites adj_does_not_exist; the Order's only adjustment is adj_cancel_1.",

@@ -1,0 +1,180 @@
+{
+  "id": "exceed_persists_authorized_over_mandate",
+  "title": "receipt_exceeds_mandate on every receipt still over",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 6: MUST check that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`) and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`). The check uses the recomputed totals, or the stated totals for the receipt at which recomputation stopped and every receipt after it. An outcome is reported on every receipt for which the totals are over, not only the first. These outcomes are independent of `receipt_totals_mismatch`: a receipt can report both.",
+    "Business Requirements 3: MUST NOT authorize or capture so that `authorized` or `captured` exceeds `mandated`. Any increase in what the buyer pays beyond `mandated` (a tip, an overage, an order change, or a re-authorization above the original amount) MUST be covered by a new closed Payment Mandate from the platform. Movements that spend against the new mandate form their own chain, keyed by its `mandate_ref`."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "authorized is 6000 after receipt 1 and stays 6000 after the capture in receipt 2, against mandated 5400. Both are reported.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_exceed_persists_authorized_over_mandate",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_exceed_persists_authorized_over_mandate",
+      "checkout_id": "chk_exceed_persists_authorized_over_mandate",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19leGNlZWRfcGVyc2lzdHNfYXV0aG9yaXplZF9vdmVyX21hbmRhdGUiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njo5bkJUejlGREl6a0hwNGNCdUdSYzFpeDlyaFJtZWFYRzc0Qlh1VDljUkFRIiwib3JkZXJfaWQiOiJvcmRlcl9leGNlZWRfcGVyc2lzdHNfYXV0aG9yaXplZF9vdmVyX21hbmRhdGUiLCJwcmV2IjpudWxsLCJzZXEiOjEsInRvdGFscyI6eyJhdXRob3JpemVkIjozMDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.P1FFzDADCrRzXlQSYbCLCjdkfChxbqQ-ts2CDLWnZtHLZqd8OHX_fKw7qTJC7AV5AwmTcC1kS148H-UuQ_rSRg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19leGNlZWRfcGVyc2lzdHNfYXV0aG9yaXplZF9vdmVyX21hbmRhdGUiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE1OjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uX2FkanVzdG1lbnQifSwiaWF0IjoxNzk0MjM2NDYwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OjluQlR6OUZESXprSHA0Y0J1R1JjMWl4OXJoUm1lYVhHNzRCWHVUOWNSQVEiLCJvcmRlcl9pZCI6Im9yZGVyX2V4Y2VlZF9wZXJzaXN0c19hdXRob3JpemVkX292ZXJfbWFuZGF0ZSIsInByZXYiOiJzaGEtMjU2Om1qLTRVak90REdpMTd0R2Ffc0JSMnhVMV9ISmE0VVY2bVVnVkxxLVNyb1EiLCJzZXEiOjIsInRvdGFscyI6eyJhdXRob3JpemVkIjo2MDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.6NutjIMJlaLmP_gYE86WjGJ19g7radMWkG0Em_qPISGrR-lrHhPnmrsLnVlxkz_58y5gMVu79Sfxbypjf32Uew",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19leGNlZWRfcGVyc2lzdHNfYXV0aG9yaXplZF9vdmVyX21hbmRhdGUiLCJldmVudCI6eyJhbW91bnQiOjIwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDI3NjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njo5bkJUejlGREl6a0hwNGNCdUdSYzFpeDlyaFJtZWFYRzc0Qlh1VDljUkFRIiwib3JkZXJfaWQiOiJvcmRlcl9leGNlZWRfcGVyc2lzdHNfYXV0aG9yaXplZF9vdmVyX21hbmRhdGUiLCJwcmV2Ijoic2hhLTI1Njp0UVNPTE4xSWhiMVpBbVRObVdoYXV4MWtjcVBXTHZGX191NTZEV2E5WGlRIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NjAwMCwiY2FwdHVyZWQiOjIwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.cFAvlGnUt8G-LEFUf6bV88WQKoY8RCyeUZ0HmoqLoPo8z0ZFjL4I53HbWr8r3Hd95uRpUWzalQGvLhbZkaqGBQ"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_exceed_persists_authorized_over_mandate",
+        "event": {
+          "amount": 3000,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:9nBTz9FDIzkHp4cBuGRc1ix9rhRmeaXG74BXuT9cRAQ",
+        "order_id": "order_exceed_persists_authorized_over_mandate",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 3000,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_exceed_persists_authorized_over_mandate",
+        "event": {
+          "amount": 3000,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T15:00:00Z",
+          "status": "succeeded",
+          "type": "authorization_adjustment"
+        },
+        "iat": 1794236460,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:9nBTz9FDIzkHp4cBuGRc1ix9rhRmeaXG74BXuT9cRAQ",
+        "order_id": "order_exceed_persists_authorized_over_mandate",
+        "prev": "sha-256:mj-4UjOtDGi17tGa_sBR2xU1_HJa4UV6mUgVLq-SroQ",
+        "seq": 2,
+        "totals": {
+          "authorized": 6000,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_exceed_persists_authorized_over_mandate",
+        "event": {
+          "amount": 2000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:9nBTz9FDIzkHp4cBuGRc1ix9rhRmeaXG74BXuT9cRAQ",
+        "order_id": "order_exceed_persists_authorized_over_mandate",
+        "prev": "sha-256:tQSOLN1Ihb1ZAmTNmWhaux1kcqPWLvF__u56DWa9XiQ",
+        "seq": 3,
+        "totals": {
+          "authorized": 6000,
+          "captured": 2000,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [
+      {
+        "receipt_index": 1,
+        "code": "receipt_exceeds_mandate"
+      },
+      {
+        "receipt_index": 2,
+        "code": "receipt_exceeds_mandate"
+      }
+    ],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

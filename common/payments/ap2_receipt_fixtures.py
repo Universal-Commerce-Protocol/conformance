@@ -50,9 +50,9 @@ FIXTURE_DIR = (
 )
 
 # Order example in ucp#1109 (docs/specification/payment/extensions/
-# ap2-mandates.md, "Placement and Delivery"), at head fc59727.
+# ap2-mandates.md, "Placement and Delivery"), at head 0110eac.
 SPEC_SOURCE = (
-  "Universal-Commerce-Protocol/ucp#1109 at fc59727, ap2-mandates.md, "
+  "Universal-Commerce-Protocol/ucp#1109 at 0110eac, ap2-mandates.md, "
   "Order example under 'Placement and Delivery'"
 )
 # cspell:disable
@@ -92,7 +92,8 @@ _SELLER_A = "https://seller-a.example/.well-known/ucp"
 _SELLER_B = "https://seller-b.example/.well-known/ucp"
 _HOTEL = "https://hotel.example/.well-known/ucp"
 
-# ucp#1109 rule text at fc59727, quoted without Markdown emphasis.
+# ucp#1109 rule text at 0110eac (docs; schema 89600e5), quoted without
+# Markdown emphasis.
 _RULES = {
   "verify_1": (
     "Platform Verification 1: MUST verify each receipt's signature against "
@@ -116,13 +117,17 @@ _RULES = {
     "`(iss, mandate_ref)` chain. A byte-identical redelivery of a receipt "
     "the platform already holds is ignored. A second, different receipt "
     "for a `seq` the platform already holds is `receipt_sequence_gap`; the "
-    "platform keeps both."
+    "platform keeps both. A receipt whose `prev` is the hash of a receipt "
+    "reported as `receipt_sequence_gap` continues the chain from that "
+    "receipt and is not itself a gap."
   ),
   "verify_5": (
     "Platform Verification 5: MUST recompute `authorized`, `captured` and "
     "`refunded` for each chain from the `succeeded` events it holds, per "
-    "Running Totals, and MUST check that `totals.mandated` equals the "
-    "`payment_amount` of the Payment Mandate that `mandate_ref` covers. A "
+    "Running Totals, counting each movement once and never counting a "
+    "second receipt kept under rule 4, and MUST check that "
+    "`totals.mandated` equals the `payment_amount` of the Payment Mandate "
+    "that `mandate_ref` covers. A "
     "receipt whose stated `totals` differ from these values is "
     "`receipt_totals_mismatch`. Recomputation stops at the first "
     "`receipt_sequence_gap` or excluded receipt in a chain: the platform "
@@ -134,9 +139,11 @@ _RULES = {
     "do not exceed `mandated` (`receipt_exceeds_mandate`) and that "
     "`refunded` does not exceed `captured` "
     "(`receipt_refund_exceeds_capture`). The check uses the recomputed "
-    "totals, or the stated totals for receipts after the point where "
-    "recomputation stopped. These outcomes are independent of "
-    "`receipt_totals_mismatch`: a receipt can report both."
+    "totals, or the stated totals for the receipt at which recomputation "
+    "stopped and every receipt after it. An outcome is reported on every "
+    "receipt for which the totals are over, not only the first. These "
+    "outcomes are independent of `receipt_totals_mismatch`: a receipt can "
+    "report both."
   ),
   "verify_7": (
     "Platform Verification 7: SHOULD, when `event.seller_id` is present, "
@@ -146,13 +153,17 @@ _RULES = {
   ),
   "verify_8": (
     "Platform Verification 8: SHOULD reconcile refunds against Order "
-    "adjustments. The platform compares the sum of `event.amount` over the "
-    "`succeeded` refund receipts that cite an `event.ref.adjustment_id` "
-    "with the magnitude of that adjustment's `total` entry. `pending` and "
-    "`failed` receipts are not counted. A cited `adjustment_id` that "
-    "matches no adjustment is also `reconciliation_adjustment_mismatch`. A "
-    "mismatch is a commercial problem, not a cryptographic one: the "
-    "receipts remain valid."
+    "adjustments. For each `event.ref.adjustment_id` cited, the platform "
+    "sums `event.amount` over the `succeeded` `refund` receipts that cite "
+    "it, minus `succeeded` `refund_reversal` receipts that cite it, "
+    "counting each movement once per Running Totals, and compares the "
+    "result with the magnitude of that adjustment's `total` entry. "
+    "`pending` and `failed` receipts are not counted. A cited "
+    "`adjustment_id` that matches no adjustment is also "
+    "`reconciliation_adjustment_mismatch`. The outcome is reported on the "
+    "last `succeeded` receipt that cites the adjustment. A mismatch is a "
+    "commercial problem, not a cryptographic one: the receipts remain "
+    "valid."
   ),
   "running_totals": (
     "Running Totals: `totals.mandated` is the `payment_amount` of the "
@@ -160,15 +171,16 @@ _RULES = {
     "and change only on `succeeded` events: `authorization` and "
     "`authorization_adjustment` add to `authorized`, `release` subtracts "
     "from it, `capture` adds to `captured`, `capture_reversal` subtracts "
-    "from it, `refund` adds to `refunded`. A capture does not reduce "
-    "`authorized`."
+    "from it, `refund` adds to `refunded`, `refund_reversal` subtracts "
+    "from it. A capture does not reduce `authorized`."
   ),
   "each_once": (
     "Running Totals: each movement counts once. A later `succeeded` "
     "receipt with the same `type` and `event.ref.processing_entry_id` as an "
     "earlier `succeeded` receipt in the chain is a follow-up (for example, "
     "one that only adds `network_ref`) and does not change the totals "
-    "again."
+    "again. A second, different receipt for a `seq` already held (see "
+    "Platform Verification rule 4) is never counted."
   ),
   "no_jcs": (
     "Hashes and Chaining: the signature covers the payload bytes as sent, "
@@ -198,6 +210,19 @@ _RULES = {
   "split_shipments": (
     "Edge Cases, Split shipments: multiple `capture` receipts against the "
     "same `mandate_ref`, with `captured` accumulating."
+  ),
+  "overcapture": (
+    "Edge Cases, Overcapture: when the processor allows capturing more "
+    "than was authorized, the business first issues an "
+    "`authorization_adjustment` receipt for the difference, so `captured` "
+    "never exceeds `authorized`. An overcapture above `mandated` needs a "
+    "new mandate, as for any increase."
+  ),
+  "refund_returned": (
+    "Edge Cases, Refund returned after success: a refund that was "
+    "receipted as `succeeded` and later fails or is returned by the issuer "
+    "gets a `refund_reversal` receipt with the same `event.ref`, which "
+    "lowers `refunded`."
   ),
   "auth_expiry": (
     "Edge Cases, Authorization expiry: a `release` receipt for the "
@@ -427,6 +452,7 @@ class _Chain:
         "capture": ("captured", 1),
         "capture_reversal": ("captured", -1),
         "refund": ("refunded", 1),
+        "refund_reversal": ("refunded", -1),
       }[event_type]
       self.totals[key[0]] += key[1] * amount
       if entry_id is not None:
@@ -907,6 +933,32 @@ def _v09_seller_refund() -> dict:
     notes=(
       "Chain totals pass (refunded 1000 <= captured 2000), but seller_b "
       "has no captures. Second half of the per-seller SHOULD."
+    ),
+  )
+
+
+def _v09_seller_refund_reversal() -> dict:
+  return _marketplace_vector(
+    "seller_refund_reversal_nets",
+    [
+      ("authorization", 5400, "2026-11-09T14:53:20Z", {}),
+      ("capture", 2000, "2026-11-10T18:04:00Z", {"seller_id": "seller_a"}),
+      ("capture", 3400, "2026-11-11T18:04:00Z", {"seller_id": "seller_b"}),
+      ("refund", 1500, "2026-11-12T09:00:00Z", {"seller_id": "seller_a"}),
+      (
+        "refund_reversal",
+        1500,
+        "2026-11-13T09:00:00Z",
+        {"seller_id": "seller_a"},
+      ),
+      ("refund", 2000, "2026-11-14T09:00:00Z", {"seller_id": "seller_a"}),
+    ],
+    title="A refund_reversal lowers a seller's refunds",
+    test_plan=None,
+    rules=["verify_7", "refund_returned"],
+    notes=(
+      "seller_a's refunds go 1500, 0, 2000: never above its 2000 captures. "
+      "Summed without the reversal they would reach 3500 and warn."
     ),
   )
 
@@ -1571,6 +1623,238 @@ def _reconcile_unmatched_adjustment() -> dict:
   )
 
 
+def _refund_adjustment(amount: int = 5400) -> dict:
+  return {
+    "id": "adj_refund_1",
+    "type": "refund",
+    "occurred_at": "2026-11-10T04:00:00Z",
+    "status": "completed",
+    "totals": [{"type": "total", "amount": -amount}],
+  }
+
+
+_R1 = {
+  "ref": {"processing_entry_id": "ent_r1", "adjustment_id": "adj_refund_1"}
+}
+_R2 = {
+  "ref": {"processing_entry_id": "ent_r2", "adjustment_id": "adj_refund_1"}
+}
+
+
+def _refund_reversal_chain() -> dict:
+  return _extra(
+    "refund_reversal_chain",
+    "A refund_reversal lowers refunded and nets against its adjustment",
+    ["verify_8", "running_totals", "refund_returned"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+      ("refund", 5400, "2026-11-10T04:00:00Z", _OK, _R1),
+      ("refund_reversal", 5400, "2026-11-12T10:00:00Z", _OK, _R1),
+      ("refund", 5400, "2026-11-13T10:00:00Z", _OK, _R2),
+    ],
+    adjustments=[_refund_adjustment()],
+    notes=(
+      "refunded goes 5400, 0, 5400. The reversal has the same type-distinct "
+      "event.ref as the refund it reverses, so it is not a follow-up. "
+      "Reconciliation: 5400 - 5400 + 5400 matches the 5400 adjustment."
+    ),
+  )
+
+
+def _reconcile_refund_reversal_mismatch() -> dict:
+  return _extra(
+    "reconcile_refund_reversal_mismatch",
+    "A reversed refund no longer matches the adjustment it cites",
+    ["verify_8", "refund_returned"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+      ("refund", 5400, "2026-11-10T04:00:00Z", _OK, _R1),
+      ("refund_reversal", 5400, "2026-11-12T10:00:00Z", _OK, _R1),
+    ],
+    adjustments=[_refund_adjustment()],
+    reconciliation=[(3, v.RECONCILIATION_ADJUSTMENT_MISMATCH)],
+    notes=(
+      "The refund is returned and not reissued: 5400 - 5400 = 0 against a "
+      "5400 adjustment. The finding is on the last succeeded receipt that "
+      "cites it, the reversal. The receipts remain valid."
+    ),
+  )
+
+
+def _overcapture() -> dict:
+  return _extra(
+    "overcapture_after_authorization_adjustment",
+    "An overcapture is preceded by an authorization_adjustment",
+    ["overcapture", "running_totals"],
+    [
+      ("authorization", 5000, _AUTH_AT, _OK, {}),
+      ("authorization_adjustment", 400, "2026-11-10T01:00:00Z", _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+    ],
+    notes=(
+      "authorized 5000 + 400 = 5400 before a 5400 capture, so captured "
+      "never exceeds authorized and both stay within mandated 5400. The "
+      "specification gives no outcome for a capture above authorized "
+      "without the adjustment, so there is no vector for it."
+    ),
+  )
+
+
+def _exceed_persists_refund() -> dict:
+  return _extra(
+    "exceed_persists_refund_over_captured",
+    "receipt_refund_exceeds_capture on every receipt still over",
+    ["verify_6"],
+    [
+      ("authorization", 5400, _AUTH_AT, _OK, {}),
+      ("capture", 5400, _CAPTURE_AT, _OK, {}),
+      ("refund", 6000, "2026-11-12T10:00:00Z", _OK, {}),
+      ("refund", 100, "2026-11-13T10:00:00Z", _OK, {}),
+    ],
+    outcomes=[
+      (2, v.RECEIPT_REFUND_EXCEEDS_CAPTURE),
+      (3, v.RECEIPT_REFUND_EXCEEDS_CAPTURE),
+    ],
+    notes=(
+      "refunded is 6000 then 6100 against captured 5400: both receipts "
+      "are reported, not only the first. Their stated totals are honest, "
+      "so there is no receipt_totals_mismatch."
+    ),
+  )
+
+
+def _exceed_persists_mandate() -> dict:
+  return _extra(
+    "exceed_persists_authorized_over_mandate",
+    "receipt_exceeds_mandate on every receipt still over",
+    ["verify_6", "business_3"],
+    [
+      ("authorization", 3000, _AUTH_AT, _OK, {}),
+      ("authorization_adjustment", 3000, "2026-11-09T15:00:00Z", _OK, {}),
+      ("capture", 2000, _CAPTURE_AT, _OK, {}),
+    ],
+    outcomes=[
+      (1, v.RECEIPT_EXCEEDS_MANDATE),
+      (2, v.RECEIPT_EXCEEDS_MANDATE),
+    ],
+    notes=(
+      "authorized is 6000 after receipt 1 and stays 6000 after the capture "
+      "in receipt 2, against mandated 5400. Both are reported."
+    ),
+  )
+
+
+def _gap_vector(vector: str, title: str, rules: list[str], build, **kwargs):
+  chain = _simple_chain(vector)
+  receipts = [
+    chain.issue("authorization", 5400, _AUTH_AT),
+    chain.issue(
+      "capture", 3000, _CAPTURE_AT, ref={"processing_entry_id": "ent_2"}
+    ),
+  ]
+  receipts.extend(build(chain, receipts))
+  return _merchant_vector(
+    vector,
+    chain,
+    title=title,
+    test_plan=None,
+    rules=rules,
+    receipts=receipts,
+    **kwargs,
+  )
+
+
+def _rival(chain: _Chain, receipts: list[str], **stated) -> tuple:
+  """Return a second, different seq 2 receipt and the chain continuing it."""
+  rival = chain.clone()
+  rival.seq -= 1
+  rival.totals["captured"] -= 3000
+  rival.prev = v.sha256_ref(receipts[0])
+  compact = rival.issue(
+    "capture",
+    3000,
+    _CAPTURE_AT,
+    ref={"processing_entry_id": "ent_2b"},
+    stated_totals=stated or None,
+  )
+  return compact, rival
+
+
+def _continues_from_gapped() -> dict:
+  def build(chain, receipts):
+    rival, twin = _rival(chain, receipts)
+    return [
+      rival,
+      twin.issue(
+        "capture", 2400, _LATER_AT, ref={"processing_entry_id": "ent_3"}
+      ),
+    ]
+
+  return _gap_vector(
+    "receipt_after_gap_continues_chain",
+    "A receipt whose prev is the gapped receipt is not a second gap",
+    ["verify_4", "verify_5"],
+    build,
+    outcomes=[(2, v.RECEIPT_SEQUENCE_GAP)],
+    notes=(
+      "Receipts 1 and 2 are both seq 2. Receipt 3 (seq 3) has prev set to "
+      "the hash of receipt 2, the one reported as a gap, so it continues "
+      "the chain from it and reports nothing. Contrast "
+      "duplicate_different_seq, where seq 3 chains from the first receipt "
+      "held."
+    ),
+  )
+
+
+def _gapped_receipt_checked_duplicate() -> dict:
+  def build(chain, receipts):
+    return [_rival(chain, receipts, captured=9000)[0]]
+
+  return _gap_vector(
+    "gapped_receipt_checked_on_stated_totals_duplicate_seq",
+    "Rule 6 checks a duplicate-seq gapped receipt on its stated totals",
+    ["verify_4", "verify_6"],
+    build,
+    outcomes=[(2, v.RECEIPT_SEQUENCE_GAP), (2, v.RECEIPT_EXCEEDS_MANDATE)],
+    notes=(
+      "The second seq 2 receipt is the gap and states captured 9000 against "
+      "mandated 5400. Recomputation stopped at it, so there is no "
+      "receipt_totals_mismatch, but rule 6 applies to the receipt itself."
+    ),
+  )
+
+
+def _gapped_receipt_checked_skip() -> dict:
+  chain = _simple_chain("gapped_receipt_checked_on_stated_totals_skipped_seq")
+  receipts = [chain.issue("authorization", 5400, _AUTH_AT)]
+  chain.issue("capture", 3000, _CAPTURE_AT)  # seq 2, never delivered
+  receipts.append(
+    chain.issue(
+      "capture",
+      2400,
+      _LATER_AT,
+      stated_totals={"captured": 6000},
+    )
+  )
+  return _merchant_vector(
+    "gapped_receipt_checked_on_stated_totals_skipped_seq",
+    chain,
+    title="Rule 6 checks the gapped receipt itself on its stated totals",
+    test_plan=None,
+    rules=["verify_4", "verify_5", "verify_6"],
+    receipts=receipts,
+    outcomes=[(1, v.RECEIPT_SEQUENCE_GAP), (1, v.RECEIPT_EXCEEDS_MANDATE)],
+    notes=(
+      "seq 2 is missing, so the seq 3 receipt is the gap and the point "
+      "where recomputation stops. It states captured 6000 against mandated "
+      "5400: rule 6 reports it on those stated totals, and rule 5 reports "
+      "no receipt_totals_mismatch."
+    ),
+  )
+
+
 _BUILDERS = (
   _v01,
   _v02,
@@ -1608,6 +1892,15 @@ _BUILDERS = (
   _reconcile_split_refunds,
   _reconcile_pending_not_counted,
   _reconcile_unmatched_adjustment,
+  _refund_reversal_chain,
+  _reconcile_refund_reversal_mismatch,
+  _overcapture,
+  _v09_seller_refund_reversal,
+  _exceed_persists_refund,
+  _exceed_persists_mandate,
+  _continues_from_gapped,
+  _gapped_receipt_checked_duplicate,
+  _gapped_receipt_checked_skip,
 )
 
 

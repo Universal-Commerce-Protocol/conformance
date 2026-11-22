@@ -1,0 +1,227 @@
+{
+  "id": "reconcile_refund_reversal_mismatch",
+  "title": "A reversed refund no longer matches the adjustment it cites",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. For each `event.ref.adjustment_id` cited, the platform sums `event.amount` over the `succeeded` `refund` receipts that cite it, minus `succeeded` `refund_reversal` receipts that cite it, counting each movement once per Running Totals, and compares the result with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. The outcome is reported on the last `succeeded` receipt that cites the adjustment. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid.",
+    "Edge Cases, Refund returned after success: a refund that was receipted as `succeeded` and later fails or is returned by the issuer gets a `refund_reversal` receipt with the same `event.ref`, which lowers `refunded`."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "The refund is returned and not reissued: 5400 - 5400 = 0 against a 5400 adjustment. The finding is on the last succeeded receipt that cites it, the reversal. The receipts remain valid.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_reconcile_refund_reversal_mismatch",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_reconcile_refund_reversal_mismatch",
+      "checkout_id": "chk_reconcile_refund_reversal_mismatch",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [
+        {
+          "id": "adj_refund_1",
+          "type": "refund",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "status": "completed",
+          "totals": [
+            {
+              "type": "total",
+              "amount": -5400
+            }
+          ]
+        }
+      ],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfcmVmdW5kX3JldmVyc2FsX21pc21hdGNoIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wOVQxNDo1MzoyMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiYXV0aG9yaXphdGlvbiJ9LCJpYXQiOjE3OTQyMzYwNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6aHI4Y1AtZDRzWUM2eld2akZKVGlPdnlWMFdMdlhSa18yRVdBMzJGZmpodyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3JlZnVuZF9yZXZlcnNhbF9taXNtYXRjaCIsInByZXYiOm51bGwsInNlcSI6MSwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjowLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.yqe7tPprJfPthc44mV27nlUup50d1I_XN3V7YCtK1MC9toWmoHW6t8naReWMokI63mGW0IHABJ_ulBSP0rM--Q",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfcmVmdW5kX3JldmVyc2FsX21pc21hdGNoIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMFQwMjowMDowMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiY2FwdHVyZSJ9LCJpYXQiOjE3OTQyNzYwNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6aHI4Y1AtZDRzWUM2eld2akZKVGlPdnlWMFdMdlhSa18yRVdBMzJGZmpodyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3JlZnVuZF9yZXZlcnNhbF9taXNtYXRjaCIsInByZXYiOiJzaGEtMjU2OmpGN1lRaWJqMlh3WEN2SDJyLVAwNWJBa0tSRVhTVzNKYWRtU2NleTRYaVUiLCJzZXEiOjIsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.p9wcUIOQ99PLZPLaKxKvit5r26GCVibBJuqOU_pRwHRrGtATsTbYLuqnQK7qrIaBbk8m-B7EwdZlRgHb2geklw",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfcmVmdW5kX3JldmVyc2FsX21pc21hdGNoIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMFQwNDowMDowMFoiLCJyZWYiOnsiYWRqdXN0bWVudF9pZCI6ImFkal9yZWZ1bmRfMSIsInByb2Nlc3NpbmdfZW50cnlfaWQiOiJlbnRfcjEifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6InJlZnVuZCJ9LCJpYXQiOjE3OTQyODMyNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6aHI4Y1AtZDRzWUM2eld2akZKVGlPdnlWMFdMdlhSa18yRVdBMzJGZmpodyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3JlZnVuZF9yZXZlcnNhbF9taXNtYXRjaCIsInByZXYiOiJzaGEtMjU2OnZ0N3k2Sm9jU3cyNTVmeGE2SmJkYmh3RWJwWkZPR3dYUm50c2p5dEdJdFUiLCJzZXEiOjMsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjo1NDAwfX0.Jn8sNl6w01tFmi08EAc7jznz-FAt44jOA4EvP1N3YaZgSprzM4QzOKvbpkrQxQmNWXAsLytkoiPz4QhjO81FtA",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfcmVmdW5kX3JldmVyc2FsX21pc21hdGNoIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMlQxMDowMDowMFoiLCJyZWYiOnsiYWRqdXN0bWVudF9pZCI6ImFkal9yZWZ1bmRfMSIsInByb2Nlc3NpbmdfZW50cnlfaWQiOiJlbnRfcjEifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6InJlZnVuZF9yZXZlcnNhbCJ9LCJpYXQiOjE3OTQ0Nzc2NjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6aHI4Y1AtZDRzWUM2eld2akZKVGlPdnlWMFdMdlhSa18yRVdBMzJGZmpodyIsIm9yZGVyX2lkIjoib3JkZXJfcmVjb25jaWxlX3JlZnVuZF9yZXZlcnNhbF9taXNtYXRjaCIsInByZXYiOiJzaGEtMjU2OkJ3bVhxQV9VTTNEa0t6RmdzOXJsaWhqMW94eVE3Z01haGdGRXdMbDlUUVEiLCJzZXEiOjQsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.agZG4KBRYvcDoAR5GgsAjtI_LIRKV8xABlwAefscw2tB0sxKw-G8T1xrjBTWzr-0Kg7indScsCGgtKDLVbBWPg"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_refund_reversal_mismatch",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:hr8cP-d4sYC6zWvjFJTiOvyV0WLvXRk_2EWA32Ffjhw",
+        "order_id": "order_reconcile_refund_reversal_mismatch",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_refund_reversal_mismatch",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:hr8cP-d4sYC6zWvjFJTiOvyV0WLvXRk_2EWA32Ffjhw",
+        "order_id": "order_reconcile_refund_reversal_mismatch",
+        "prev": "sha-256:jF7YQibj2XwXCvH2r-P05bAkKREXSW3JadmScey4XiU",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_refund_reversal_mismatch",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1",
+            "processing_entry_id": "ent_r1"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794283260,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:hr8cP-d4sYC6zWvjFJTiOvyV0WLvXRk_2EWA32Ffjhw",
+        "order_id": "order_reconcile_refund_reversal_mismatch",
+        "prev": "sha-256:vt7y6JocSw255fxa6JbdbhwEbpZFOGwXRntsjytGItU",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 5400
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_refund_reversal_mismatch",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-12T10:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1",
+            "processing_entry_id": "ent_r1"
+          },
+          "status": "succeeded",
+          "type": "refund_reversal"
+        },
+        "iat": 1794477660,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:hr8cP-d4sYC6zWvjFJTiOvyV0WLvXRk_2EWA32Ffjhw",
+        "order_id": "order_reconcile_refund_reversal_mismatch",
+        "prev": "sha-256:BwmXqA_UM3DkKzFgs9rlihj1oxyQ7gMahgFEwLl9TQQ",
+        "seq": 4,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": [
+      {
+        "receipt_index": 3,
+        "code": "reconciliation_adjustment_mismatch"
+      }
+    ]
+  }
+}

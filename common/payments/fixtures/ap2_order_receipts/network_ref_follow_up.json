@@ -3,7 +3,7 @@
   "title": "A late network_ref follow-up does not change the totals",
   "test_plan_vector": null,
   "spec": [
-    "Running Totals: each movement counts once. A later `succeeded` receipt with the same `type` and `event.ref.processing_entry_id` as an earlier `succeeded` receipt in the chain is a follow-up (for example, one that only adds `network_ref`) and does not change the totals again.",
+    "Running Totals: each movement counts once. A later `succeeded` receipt with the same `type` and `event.ref.processing_entry_id` as an earlier `succeeded` receipt in the chain is a follow-up (for example, one that only adds `network_ref`) and does not change the totals again. A second, different receipt for a `seq` already held (see Platform Verification rule 4) is never counted.",
     "Business Requirements 7: MUST, on a follow-up receipt that only adds `network_ref` to a movement already receipted as `succeeded`, carry that movement's `event.ref.processing_entry_id`. A business that cannot supply a `processing_entry_id` issues the movement as `pending` first and adds `network_ref` on the `succeeded` receipt.",
     "Edge Cases, Late network references: when a network reference (for example the Acquirer Reference Number of a refund) is assigned after the movement is receipted as `succeeded`, it appears on a follow-up receipt with the same `type` and `event.ref.processing_entry_id`, which does not change the totals. `network_ref` is optional on every status: a refund that the processor settles as a reversal of the original transaction may never have one. It is still receipted as a `refund`."
   ],

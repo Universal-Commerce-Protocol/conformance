@@ -67,6 +67,11 @@ Where the specification leaves a choice open, this verifier:
 * takes the mandate's `payment_amount` (when the caller knows it) as the
   `mandated` that `authorized` and `captured` are held to, not the amount
   the receipt states;
+* continues a chain from a kept duplicate-seq receipt that was reported as
+  a gap when a later receipt's `prev` is its hash ("Platform Verification"
+  4), and runs rule 6 on that receipt's stated totals too;
+* counts a succeeded `refund_reversal` against `refunded` (and a seller's
+  refunds), and nets it against the adjustment its `event.ref` cites;
 * reconciles a refund against the magnitude of the cited adjustment's
   `total`, because adjustment totals are signed and receipt amounts are not,
   once per adjustment, at the last succeeded refund that cites it; an
@@ -131,6 +136,7 @@ EVENT_TYPES = (
   "capture_reversal",
   "release",
   "refund",
+  "refund_reversal",
 )
 EVENT_STATUSES = ("pending", "succeeded", "failed")
 
@@ -184,7 +190,9 @@ class Totals:
       self.captured
       + (amount if kind == "capture" else 0)
       - (amount if kind == "capture_reversal" else 0),
-      self.refunded + (amount if kind == "refund" else 0),
+      self.refunded
+      + (amount if kind == "refund" else 0)
+      - (amount if kind == "refund_reversal" else 0),
     )
 
 
@@ -469,6 +477,38 @@ def _stated_totals(stated: Mapping[str, Any]) -> Totals:
   return Totals(stated["authorized"], stated["captured"], stated["refunded"])
 
 
+def _mandated_for(mandate: Mandate, stated: Mapping[str, Any]) -> int:
+  """Return the `mandated` that rule 6 holds a receipt's totals to."""
+  if mandate.payment_amount is None:
+    return stated["mandated"]
+  return mandate.payment_amount
+
+
+def _exceed_findings(
+  index: int, checked: Totals, mandated: int
+) -> list[Finding]:
+  """Platform Verification 6 for one receipt's `checked` totals."""
+  findings = []
+  for name in ("authorized", "captured"):
+    if getattr(checked, name) > mandated:
+      findings.append(
+        Finding(
+          index,
+          RECEIPT_EXCEEDS_MANDATE,
+          f"{name} {getattr(checked, name)} > mandated {mandated}",
+        )
+      )
+  if checked.refunded > checked.captured:
+    findings.append(
+      Finding(
+        index,
+        RECEIPT_REFUND_EXCEEDS_CAPTURE,
+        f"refunded {checked.refunded} > captured {checked.captured}",
+      )
+    )
+  return findings
+
+
 def _stop_chain(stopped: set[ChainKey], payload: Mapping[str, Any]) -> None:
   """Stop recomputing the chain an excluded receipt names, if it names one.
 
@@ -504,6 +544,9 @@ def verify_order_receipts(
   counted: dict[ChainKey, set[tuple[str, str]]] = {}
   # Chains where recomputation has stopped: a gap or an excluded receipt.
   stopped: set[ChainKey] = set()
+  # Per chain: hash -> seq of each kept receipt reported as a duplicate-seq
+  # gap, which a later receipt's `prev` can name (rule 4).
+  forks: dict[ChainKey, dict[str, int]] = {}
 
   ap2 = order.get("ap2")
   receipts = ap2.get("receipts") if isinstance(ap2, Mapping) else None
@@ -582,11 +625,26 @@ def verify_order_receipts(
           )
         )
         stopped.add(chain)
+        # Rule 6 covers the gapped receipt itself, on its stated totals.
+        result.outcomes.extend(
+          _exceed_findings(
+            index,
+            _stated_totals(payload["totals"]),
+            _mandated_for(mandate, payload["totals"]),
+          )
+        )
+        # A receipt whose `prev` is this one's hash continues from it.
+        forks.setdefault(chain, {})[sha256_ref(compact)] = seq
       continue
     chain_held[seq] = compact
     tail = chain_tail.get(chain)
     expected_seq = 1 if tail is None else tail.payload["seq"] + 1
     expected_prev = None if tail is None else sha256_ref(tail.compact)
+    fork_seq = forks.get(chain, {}).get(payload["prev"])
+    if fork_seq is not None and fork_seq + 1 == seq == expected_seq:
+      # Rule 4: `prev` is the hash of a receipt reported as a gap, so this
+      # receipt continues the chain from it and is not a gap itself.
+      expected_prev = payload["prev"]
     if seq != expected_seq:
       result.outcomes.append(
         Finding(
@@ -656,29 +714,12 @@ def verify_order_receipts(
     # `mandated`, and `refunded` against `captured`, on the recomputed
     # totals, or on the stated ones once recomputation has stopped. Reported
     # independently of rule 5.
+    # It runs on every receipt, so an exceed that persists is reported on
+    # each receipt whose totals are still over, not only the first.
     checked = recomputed if recomputing else _stated_totals(stated)
-    mandated = (
-      stated["mandated"]
-      if mandate.payment_amount is None
-      else mandate.payment_amount
+    result.outcomes.extend(
+      _exceed_findings(index, checked, _mandated_for(mandate, stated))
     )
-    for name in ("authorized", "captured"):
-      if getattr(checked, name) > mandated:
-        result.outcomes.append(
-          Finding(
-            index,
-            RECEIPT_EXCEEDS_MANDATE,
-            f"{name} {getattr(checked, name)} > mandated {mandated}",
-          )
-        )
-    if checked.refunded > checked.captured:
-      result.outcomes.append(
-        Finding(
-          index,
-          RECEIPT_REFUND_EXCEEDS_CAPTURE,
-          f"refunded {checked.refunded} > captured {checked.captured}",
-        )
-      )
 
     verified = VerifiedReceipt(
       index, compact, header, payload, recomputed, counts
@@ -725,6 +766,8 @@ def _check_sellers(
       captured[seller] = captured.get(seller, 0) - event["amount"]
     elif event["type"] == "refund":
       refunded[seller] = refunded.get(seller, 0) + event["amount"]
+    elif event["type"] == "refund_reversal":
+      refunded[seller] = refunded.get(seller, 0) - event["amount"]
     else:
       continue
     if captured.get(seller, 0) > attributed[seller]:
@@ -753,9 +796,11 @@ def _reconcile(
 ) -> list[Finding]:
   """Platform Verification 8 (SHOULD): refunds against Order adjustments.
 
-  For each `event.ref.adjustment_id` cited by a succeeded refund, the sum of
-  `event.amount` over the succeeded refund receipts citing it is compared
-  with the magnitude of that adjustment's `total`. Pending and failed
+  For each `event.ref.adjustment_id` cited by a succeeded refund or
+  refund_reversal, the sum of `event.amount` over the succeeded refund
+  receipts citing it, minus that of the succeeded refund_reversal receipts
+  citing it, is compared with the magnitude of that adjustment's `total`.
+  Pending and failed
   receipts are not counted, nor is a follow-up to a movement already
   counted. A cited `adjustment_id` that matches no adjustment is a mismatch
   too. A mismatch leaves the receipts valid.
@@ -771,7 +816,7 @@ def _reconcile(
     event = receipt.payload["event"]
     adjustment_id = _ref_id(event, "adjustment_id")
     if (
-      event["type"] == "refund"
+      event["type"] in ("refund", "refund_reversal")
       and event["status"] == "succeeded"
       and adjustment_id is not None
     ):
@@ -794,13 +839,20 @@ def _reconcile(
     if expected is None:
       # Not reconcilable: the adjustment has no single `total`.
       continue
-    refunded = sum(r.payload["event"]["amount"] for r in receipts if r.counted)
+    refunded = sum(
+      -r.payload["event"]["amount"]
+      if r.payload["event"]["type"] == "refund_reversal"
+      else r.payload["event"]["amount"]
+      for r in receipts
+      if r.counted
+    )
     if refunded != expected:
       findings.append(
         Finding(
           last.index,
           RECONCILIATION_ADJUSTMENT_MISMATCH,
-          f"succeeded refunds citing adjustment {adjustment_id} sum to "
+          f"succeeded refunds, net of reversals, citing adjustment "
+          f"{adjustment_id} sum to "
           f"{refunded}, whose total is {expected}",
         )
       )

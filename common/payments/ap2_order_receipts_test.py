@@ -55,6 +55,7 @@ _RECEIPT_EVENTS = [
   "capture_reversal",
   "release",
   "refund",
+  "refund_reversal",
 ]
 
 _MANDATE_SKIP = (

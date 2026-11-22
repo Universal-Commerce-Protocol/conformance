@@ -249,6 +249,103 @@ class Ap2ReceiptNewRulesTest(absltest.TestCase):
     self.assertEqual(seqs, [1, 2, 2, 3])
 
 
+class Ap2Receipt0110eacTest(absltest.TestCase):
+  """Vectors for the changes in ucp#1109 at 0110eac."""
+
+  def _result(self, vector_id: str) -> v.VerificationResult:
+    return _verify(_load(fixtures.FIXTURE_DIR / f"{vector_id}.json"))
+
+  def _codes(self, result: v.VerificationResult) -> list[tuple[int, str]]:
+    return [(f.receipt_index, f.code) for f in result.outcomes]
+
+  def test_refund_reversal_lowers_refunded(self) -> None:
+    """Refunded goes 5400, 0, 5400 and the chain verifies clean."""
+    result = self._result("refund_reversal_chain")
+    self.assertEmpty(result.outcomes)
+    self.assertEmpty(result.reconciliation)
+    self.assertEqual([r.counted for r in result.verified], [True] * 5)
+    self.assertEqual(
+      [r.derived_totals.refunded for r in result.verified[2:]],
+      [5400, 0, 5400],
+    )
+
+  def test_refund_reversal_is_a_valid_event_type(self) -> None:
+    """The event type is not rejected as malformed."""
+    self.assertIn("refund_reversal", v.EVENT_TYPES)
+    self.assertEmpty(self._result("refund_reversal_chain").malformed)
+
+  def test_refund_reversal_nets_against_the_adjustment(self) -> None:
+    """A refund and its reversal sum to 0, not to the adjustment's total."""
+    result = self._result("reconcile_refund_reversal_mismatch")
+    self.assertEmpty(result.outcomes)
+    self.assertEqual(
+      [(f.receipt_index, f.code) for f in result.reconciliation],
+      [(3, v.RECONCILIATION_ADJUSTMENT_MISMATCH)],
+    )
+
+  def test_refund_reversal_nets_per_seller(self) -> None:
+    """Per-seller refunds are net of reversals (rule 7)."""
+    result = self._result("seller_refund_reversal_nets")
+    self.assertEmpty(result.outcomes)
+    self.assertEmpty(result.warnings)
+
+  def test_overcapture_after_authorization_adjustment(self) -> None:
+    """Captured never exceeds authorized when the adjustment comes first."""
+    result = self._result("overcapture_after_authorization_adjustment")
+    self.assertEmpty(result.outcomes)
+    final = result.verified[-1].derived_totals
+    self.assertEqual((final.authorized, final.captured), (5400, 5400))
+
+  def test_receipt_after_a_gap_continues_the_chain(self) -> None:
+    """Prev naming the gapped receipt is not a second gap."""
+    fixture = _load(
+      fixtures.FIXTURE_DIR / "receipt_after_gap_continues_chain.json"
+    )
+    receipts = fixture["inputs"]["order"]["ap2"]["receipts"]
+    self.assertEqual(
+      fixture["decoded_receipts"][3]["payload"]["prev"],
+      v.sha256_ref(receipts[2]),
+    )
+    self.assertEqual(
+      self._codes(_verify(fixture)), [(2, v.RECEIPT_SEQUENCE_GAP)]
+    )
+
+  def test_receipt_naming_the_first_held_still_continues(self) -> None:
+    """duplicate_different_seq: prev naming the first receipt held is fine."""
+    self.assertEqual(
+      self._codes(self._result("duplicate_different_seq")),
+      [(2, v.RECEIPT_SEQUENCE_GAP)],
+    )
+
+  def test_exceed_is_reported_on_every_receipt_still_over(self) -> None:
+    """Both exceed outcomes repeat on each receipt whose totals are over."""
+    self.assertEqual(
+      self._codes(self._result("exceed_persists_refund_over_captured")),
+      [
+        (2, v.RECEIPT_REFUND_EXCEEDS_CAPTURE),
+        (3, v.RECEIPT_REFUND_EXCEEDS_CAPTURE),
+      ],
+    )
+    self.assertEqual(
+      self._codes(self._result("exceed_persists_authorized_over_mandate")),
+      [(1, v.RECEIPT_EXCEEDS_MANDATE), (2, v.RECEIPT_EXCEEDS_MANDATE)],
+    )
+
+  def test_rule_6_checks_the_gapped_receipt_itself(self) -> None:
+    """The receipt at the gap is checked on its stated totals."""
+    for vector in (
+      "gapped_receipt_checked_on_stated_totals_skipped_seq",
+      "gapped_receipt_checked_on_stated_totals_duplicate_seq",
+    ):
+      codes = self._codes(self._result(vector))
+      self.assertEqual(
+        [c for _, c in codes],
+        [v.RECEIPT_SEQUENCE_GAP, v.RECEIPT_EXCEEDS_MANDATE],
+        vector,
+      )
+      self.assertEqual(len({i for i, _ in codes}), 1, vector)
+
+
 class Ap2ReceiptMutationTest(absltest.TestCase):
   """Changes to a valid chain that the verifier must reject.
 
