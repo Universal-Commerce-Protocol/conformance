@@ -43,7 +43,10 @@ server under test.
 """
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping import checkout_create_request
@@ -112,6 +115,9 @@ class FulfillmentStructureTest(ShoppingIntegrationTestBase):
       checkout_obj, fulfillment=fulfillment_payload
     )
 
+  @spec_assert(
+    "REQ-SHOPPING-FULFILLMENT-0018",  # option title MUST distinguish siblings
+  )
   def test_option_titles_distinguish_siblings(self) -> None:
     """FUL-001: sibling ``options[].title`` are non-empty and distinct.
 
@@ -155,6 +161,9 @@ class FulfillmentStructureTest(ShoppingIntegrationTestBase):
     if groups_with_options == 0:
       self.skipTest("server generated no fulfillment options to assert on")
 
+  @spec_assert(
+    "REQ-SHOPPING-FULFILLMENT-0048",  # single group per method by default
+  )
   def test_default_config_single_group_per_method(self) -> None:
     """FUL-008: under default config a method has one consolidating group.
 

@@ -16,7 +16,10 @@
 
 import uuid
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  outside_catalog,
+  requires_capability,
+)
 from shopping.base import get_valid_payment_payload, ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -44,6 +47,13 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
   - POST /checkout-sessions/{id}/cancel
   """
 
+  @outside_catalog(
+    "checkout/rest.md, Specific Header Requirements (rendered by the "
+    "header_requirements macro, so the catalog lacks it): when an "
+    "Idempotency-Key is provided the server MUST return the cached result "
+    "for a duplicate key with a matching body and 409 Conflict for a "
+    "mismatched body"
+  )
   def test_idempotency_create(self) -> None:
     """Test that checkout creation is idempotent.
 
@@ -97,6 +107,13 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
     )
     self.assert_response_status(response3, 409)
 
+  @outside_catalog(
+    "checkout/rest.md, Specific Header Requirements (rendered by the "
+    "header_requirements macro, so the catalog lacks it): when an "
+    "Idempotency-Key is provided the server MUST return the cached result "
+    "for a duplicate key with a matching body and 409 Conflict for a "
+    "mismatched body"
+  )
   def test_idempotency_update(self) -> None:
     """Test that checkout update is idempotent.
 
@@ -174,6 +191,13 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
     )
     self.assert_response_status(response3, 409)
 
+  @outside_catalog(
+    "checkout/rest.md, Specific Header Requirements (rendered by the "
+    "header_requirements macro, so the catalog lacks it): when an "
+    "Idempotency-Key is provided the server MUST return the cached result "
+    "for a duplicate key with a matching body and 409 Conflict for a "
+    "mismatched body"
+  )
   def test_idempotency_complete(self) -> None:
     """Test that checkout completion is idempotent.
 
@@ -227,6 +251,12 @@ class IdempotencyTest(ShoppingIntegrationTestBase):
     )
     self.assert_response_status(response3, 409)
 
+  @outside_catalog(
+    "checkout/rest.md, Specific Header Requirements (rendered by the "
+    "header_requirements macro, so the catalog lacks it): when an "
+    "Idempotency-Key is provided the server MUST return the cached result "
+    "for a duplicate key with a matching body"
+  )
   def test_idempotency_cancel(self) -> None:
     """Test that checkout cancellation is idempotent.
 
