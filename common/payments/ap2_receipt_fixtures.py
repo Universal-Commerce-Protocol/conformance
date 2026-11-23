@@ -136,14 +136,15 @@ _RULES = {
   ),
   "verify_6": (
     "Platform Verification 6: MUST check that `authorized` and `captured` "
-    "do not exceed `mandated` (`receipt_exceeds_mandate`) and that "
-    "`refunded` does not exceed `captured` "
-    "(`receipt_refund_exceeds_capture`). The check uses the recomputed "
-    "totals, or the stated totals for the receipt at which recomputation "
-    "stopped and every receipt after it. An outcome is reported on every "
-    "receipt for which the totals are over, not only the first. These "
-    "outcomes are independent of `receipt_totals_mismatch`: a receipt can "
-    "report both."
+    "do not exceed `mandated` (`receipt_exceeds_mandate`), that "
+    "`captured` does not exceed `authorized` "
+    "(`receipt_capture_exceeds_authorization`), and that `refunded` does "
+    "not exceed `captured` (`receipt_refund_exceeds_capture`). The check "
+    "uses the recomputed totals, or the stated totals for the receipt at "
+    "which recomputation stopped and every receipt after it. An outcome is "
+    "reported on every receipt for which the totals are over, not only the "
+    "first. These outcomes are independent of `receipt_totals_mismatch`: a "
+    "receipt can report both."
   ),
   "verify_7": (
     "Platform Verification 7: SHOULD, when `event.seller_id` is present, "
@@ -215,8 +216,9 @@ _RULES = {
     "Edge Cases, Overcapture: when the processor allows capturing more "
     "than was authorized, the business first issues an "
     "`authorization_adjustment` receipt for the difference, so `captured` "
-    "never exceeds `authorized`. An overcapture above `mandated` needs a "
-    "new mandate, as for any increase."
+    "never exceeds `authorized`. Without it, the capture is "
+    "`receipt_capture_exceeds_authorization`. An overcapture above "
+    "`mandated` needs a new mandate, as for any increase."
   ),
   "refund_returned": (
     "Edge Cases, Refund returned after success: a refund that was "
@@ -684,7 +686,14 @@ def _v03() -> dict:
     test_plan="3",
     rules=["verify_4", "verify_6", "business_3"],
     receipts=receipts,
-    outcomes=[(1, v.RECEIPT_EXCEEDS_MANDATE)],
+    outcomes=[
+      (1, v.RECEIPT_EXCEEDS_MANDATE),
+      (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+    ],
+    notes=(
+      "captured 6000 exceeds mandated 5400 and also authorized 5400, with "
+      "no authorization_adjustment, so both outcomes are reported."
+    ),
   )
 
 
@@ -1695,9 +1704,70 @@ def _overcapture() -> dict:
     ],
     notes=(
       "authorized 5000 + 400 = 5400 before a 5400 capture, so captured "
-      "never exceeds authorized and both stay within mandated 5400. The "
-      "specification gives no outcome for a capture above authorized "
-      "without the adjustment, so there is no vector for it."
+      "never exceeds authorized and both stay within mandated 5400, so no "
+      "outcome applies. Compare capture_exceeds_authorized_without_"
+      "adjustment."
+    ),
+  )
+
+
+def _capture_exceeds_authorized() -> dict:
+  return _extra(
+    "capture_exceeds_authorized_without_adjustment",
+    "A capture above authorized with no adjustment",
+    ["overcapture", "verify_6"],
+    [
+      ("authorization", 3000, _AUTH_AT, _OK, {}),
+      ("capture", 5000, _CAPTURE_AT, _OK, {}),
+    ],
+    outcomes=[(1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION)],
+    notes=(
+      "authorized 3000, captured 5000, mandated 5400, with no "
+      "authorization_adjustment before the capture. captured exceeds "
+      "authorized but not mandated, so only "
+      "receipt_capture_exceeds_authorization applies."
+    ),
+  )
+
+
+def _capture_exceeds_authorized_and_mandate() -> dict:
+  return _extra(
+    "capture_exceeds_authorized_and_mandate",
+    "A capture above both authorized and mandated reports both",
+    ["overcapture", "verify_6"],
+    [
+      ("authorization", 3000, _AUTH_AT, _OK, {}),
+      ("capture", 6000, _CAPTURE_AT, _OK, {}),
+    ],
+    outcomes=[
+      (1, v.RECEIPT_EXCEEDS_MANDATE),
+      (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+    ],
+    notes=(
+      "captured 6000 exceeds authorized 3000 and mandated 5400. The two "
+      "checks are independent, so receipt 1 reports both. authorized 3000 "
+      "is within the mandate."
+    ),
+  )
+
+
+def _exceed_persists_capture() -> dict:
+  return _extra(
+    "exceed_persists_capture_over_authorized",
+    "receipt_capture_exceeds_authorization on every receipt still over",
+    ["verify_6", "overcapture"],
+    [
+      ("authorization", 3000, _AUTH_AT, _OK, {}),
+      ("capture", 3500, _CAPTURE_AT, _OK, {}),
+      ("capture", 100, "2026-11-12T10:00:00Z", _OK, {}),
+    ],
+    outcomes=[
+      (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+      (2, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+    ],
+    notes=(
+      "captured is 3500 then 3600 against authorized 3000: both receipts "
+      "are reported, not only the first. Both stay within mandated 5400."
     ),
   )
 
@@ -1817,10 +1887,15 @@ def _gapped_receipt_checked_duplicate() -> dict:
     "Rule 6 checks a duplicate-seq gapped receipt on its stated totals",
     ["verify_4", "verify_6"],
     build,
-    outcomes=[(2, v.RECEIPT_SEQUENCE_GAP), (2, v.RECEIPT_EXCEEDS_MANDATE)],
+    outcomes=[
+      (2, v.RECEIPT_SEQUENCE_GAP),
+      (2, v.RECEIPT_EXCEEDS_MANDATE),
+      (2, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+    ],
     notes=(
       "The second seq 2 receipt is the gap and states captured 9000 against "
-      "mandated 5400. Recomputation stopped at it, so there is no "
+      "authorized 5400 and mandated 5400, so it is over both. "
+      "Recomputation stopped at it, so there is no "
       "receipt_totals_mismatch, but rule 6 applies to the receipt itself."
     ),
   )
@@ -1845,12 +1920,16 @@ def _gapped_receipt_checked_skip() -> dict:
     test_plan=None,
     rules=["verify_4", "verify_5", "verify_6"],
     receipts=receipts,
-    outcomes=[(1, v.RECEIPT_SEQUENCE_GAP), (1, v.RECEIPT_EXCEEDS_MANDATE)],
+    outcomes=[
+      (1, v.RECEIPT_SEQUENCE_GAP),
+      (1, v.RECEIPT_EXCEEDS_MANDATE),
+      (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+    ],
     notes=(
       "seq 2 is missing, so the seq 3 receipt is the gap and the point "
-      "where recomputation stops. It states captured 6000 against mandated "
-      "5400: rule 6 reports it on those stated totals, and rule 5 reports "
-      "no receipt_totals_mismatch."
+      "where recomputation stops. It states captured 6000 against "
+      "authorized 5400 and mandated 5400: rule 6 reports both on those "
+      "stated totals, and rule 5 reports no receipt_totals_mismatch."
     ),
   )
 
@@ -1895,6 +1974,9 @@ _BUILDERS = (
   _refund_reversal_chain,
   _reconcile_refund_reversal_mismatch,
   _overcapture,
+  _capture_exceeds_authorized,
+  _capture_exceeds_authorized_and_mandate,
+  _exceed_persists_capture,
   _v09_seller_refund_reversal,
   _exceed_persists_refund,
   _exceed_persists_mandate,

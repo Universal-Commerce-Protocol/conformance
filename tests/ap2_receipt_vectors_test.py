@@ -40,6 +40,7 @@ _SPEC_OUTCOMES = {
   "receipt_sequence_gap",
   "receipt_totals_mismatch",
   "receipt_exceeds_mandate",
+  "receipt_capture_exceeds_authorization",
   "receipt_refund_exceeds_capture",
   "receipt_exceeds_seller_total",
   "receipt_mandate_unknown",
@@ -331,6 +332,33 @@ class Ap2Receipt0110eacTest(absltest.TestCase):
       [(1, v.RECEIPT_EXCEEDS_MANDATE), (2, v.RECEIPT_EXCEEDS_MANDATE)],
     )
 
+  def test_capture_exceeds_authorization_vectors(self) -> None:
+    """Rule 6 also checks `captured` against `authorized`."""
+    self.assertEqual(
+      self._codes(
+        self._result("capture_exceeds_authorized_without_adjustment")
+      ),
+      [(1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION)],
+    )
+    self.assertEqual(
+      self._codes(self._result("capture_exceeds_authorized_and_mandate")),
+      [
+        (1, v.RECEIPT_EXCEEDS_MANDATE),
+        (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+      ],
+    )
+    self.assertEqual(
+      self._codes(self._result("exceed_persists_capture_over_authorized")),
+      [
+        (1, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+        (2, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+      ],
+    )
+    self.assertEqual(
+      self._codes(self._result("overcapture_after_authorization_adjustment")),
+      [],
+    )
+
   def test_rule_6_checks_the_gapped_receipt_itself(self) -> None:
     """The receipt at the gap is checked on its stated totals."""
     for vector in (
@@ -340,7 +368,11 @@ class Ap2Receipt0110eacTest(absltest.TestCase):
       codes = self._codes(self._result(vector))
       self.assertEqual(
         [c for _, c in codes],
-        [v.RECEIPT_SEQUENCE_GAP, v.RECEIPT_EXCEEDS_MANDATE],
+        [
+          v.RECEIPT_SEQUENCE_GAP,
+          v.RECEIPT_EXCEEDS_MANDATE,
+          v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION,
+        ],
         vector,
       )
       self.assertEqual(len({i for i, _ in codes}), 1, vector)
@@ -648,7 +680,17 @@ class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
       [v.Mandate("token", _MALFORMED_ISS, 300)],
     )
     self.assertEqual(result.malformed, [])
-    self.assertEqual([f.code for f in result.outcomes], codes)
+    # These hand-built chains have no authorization receipt, so
+    # `captured` exceeds `authorized` by construction; that outcome is
+    # covered by its own vectors.
+    self.assertEqual(
+      [
+        f.code
+        for f in result.outcomes
+        if f.code != v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION
+      ],
+      codes,
+    )
 
   def _chain(self, stated: list[dict[str, int]], seqs: list[int]):
     """Verify captures of 100 stating `stated` totals, with these `seq`s."""
@@ -668,7 +710,11 @@ class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
       {_MALFORMED_ISS: [signer.jwk]},
       [v.Mandate("token", _MALFORMED_ISS, 300)],
     )
-    return [(f.receipt_index, f.code) for f in result.outcomes]
+    return [
+      (i, c)
+      for i, c in ((f.receipt_index, f.code) for f in result.outcomes)
+      if c != v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION
+    ]
 
   def test_after_a_gap_rule_6_uses_stated_totals(self) -> None:
     """Later receipts report no totals mismatch but still the exceed."""

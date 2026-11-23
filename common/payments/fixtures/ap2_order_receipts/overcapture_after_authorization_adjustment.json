@@ -3,11 +3,11 @@
   "title": "An overcapture is preceded by an authorization_adjustment",
   "test_plan_vector": null,
   "spec": [
-    "Edge Cases, Overcapture: when the processor allows capturing more than was authorized, the business first issues an `authorization_adjustment` receipt for the difference, so `captured` never exceeds `authorized`. An overcapture above `mandated` needs a new mandate, as for any increase.",
+    "Edge Cases, Overcapture: when the processor allows capturing more than was authorized, the business first issues an `authorization_adjustment` receipt for the difference, so `captured` never exceeds `authorized`. Without it, the capture is `receipt_capture_exceeds_authorization`. An overcapture above `mandated` needs a new mandate, as for any increase.",
     "Running Totals: `totals.mandated` is the `payment_amount` of the Payment Mandate that `mandate_ref` covers. The other totals start at 0 and change only on `succeeded` events: `authorization` and `authorization_adjustment` add to `authorized`, `release` subtracts from it, `capture` adds to `captured`, `capture_reversal` subtracts from it, `refund` adds to `refunded`, `refund_reversal` subtracts from it. A capture does not reduce `authorized`."
   ],
   "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
-  "notes": "authorized 5000 + 400 = 5400 before a 5400 capture, so captured never exceeds authorized and both stay within mandated 5400. The specification gives no outcome for a capture above authorized without the adjustment, so there is no vector for it.",
+  "notes": "authorized 5000 + 400 = 5400 before a 5400 capture, so captured never exceeds authorized and both stay within mandated 5400, so no outcome applies. Compare capture_exceeds_authorized_without_adjustment.",
   "inputs": {
     "issuers": {
       "https://merchant.example/.well-known/ucp": {

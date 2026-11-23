@@ -58,7 +58,8 @@ Where the specification leaves a choice open, this verifier:
   their stated `totals` instead of recomputed ones. This verifier also
   treats the gapped receipt itself as the point where recomputation
   stopped;
-* reports `receipt_exceeds_mandate`, `receipt_refund_exceeds_capture` and
+* reports `receipt_exceeds_mandate`, `receipt_capture_exceeds_authorization`,
+  `receipt_refund_exceeds_capture` and
   `receipt_totals_mismatch` independently of each other: a receipt can
   report any combination;
 * recomputes totals cumulatively, receipt by receipt, over the chain's
@@ -109,6 +110,7 @@ RECEIPT_INVALID_SIGNATURE = "receipt_invalid_signature"
 RECEIPT_SEQUENCE_GAP = "receipt_sequence_gap"
 RECEIPT_TOTALS_MISMATCH = "receipt_totals_mismatch"
 RECEIPT_EXCEEDS_MANDATE = "receipt_exceeds_mandate"
+RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION = "receipt_capture_exceeds_authorization"
 RECEIPT_REFUND_EXCEEDS_CAPTURE = "receipt_refund_exceeds_capture"
 RECEIPT_EXCEEDS_SELLER_TOTAL = "receipt_exceeds_seller_total"
 RECEIPT_MANDATE_UNKNOWN = "receipt_mandate_unknown"
@@ -498,6 +500,14 @@ def _exceed_findings(
           f"{name} {getattr(checked, name)} > mandated {mandated}",
         )
       )
+  if checked.captured > checked.authorized:
+    findings.append(
+      Finding(
+        index,
+        RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION,
+        f"captured {checked.captured} > authorized {checked.authorized}",
+      )
+    )
   if checked.refunded > checked.captured:
     findings.append(
       Finding(
