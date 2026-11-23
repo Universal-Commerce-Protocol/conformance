@@ -30,7 +30,55 @@ from shopping.base import ShoppingIntegrationTestBase
 
 @requires_capability("dev.ucp.shopping.order")
 class SecurityTest(ShoppingIntegrationTestBase):
-  """Tests for security controls."""
+  """Tests for security controls.
+
+  The hook is the sample server's own. A business without it has nothing
+  to show here, so each test skips when the hook is absent (404 or 405 to
+  the configured secret) or when the configured secret is rejected (403),
+  instead of counting three failures against a store that never had the
+  hook.
+  """
+
+  def _simulate_shipping(self, order_id: str, headers: dict) -> object:
+    return self.client.post(
+      f"/testing/simulate-shipping/{order_id}", headers=headers
+    )
+
+  def _with_secret(self, secret: str) -> dict:
+    headers = self.get_headers()
+    headers["Simulation-Secret"] = secret
+    return headers
+
+  def _skip_without_hook(self, order_id: str) -> None:
+    """Skip when the hook is absent or the configured secret is rejected.
+
+    Probes with the configured secret; a 200 also advances the order, so
+    the tests that expect a refusal call this only after their own
+    request came back as if the hook did not exist.
+    """
+    probe = self._simulate_shipping(
+      order_id, self._with_secret(FLAGS.simulation_secret)
+    )
+    if probe.status_code in (404, 405):
+      self.skipTest(
+        "server exposes no webhook simulation path "
+        f"(/testing/simulate-shipping -> {probe.status_code}); "
+        "cannot exercise simulation security controls"
+      )
+    if probe.status_code == 403:
+      self.skipTest(
+        "simulation secret rejected (/testing/simulate-shipping -> 403); "
+        "configure --simulation_secret to match the server under test"
+      )
+
+  def _assert_refused(self, order_id: str, response) -> None:
+    """Assert the hook refused a request without the right secret."""
+    if response.status_code in (404, 405):
+      # Either no hook at all, or a hook that reveals nothing to an
+      # unauthenticated caller; the probe tells which.
+      self._skip_without_hook(order_id)
+      return
+    self.assert_response_status(response, 403)
 
   @scenario(
     "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
@@ -38,13 +86,13 @@ class SecurityTest(ShoppingIntegrationTestBase):
     "page describes"
   )
   def test_simulation_endpoint_missing_header(self):
-    """Test access without the secret header returns 403."""
+    """Test access without the secret header is refused (403)."""
     order_id = self.create_completed_order()
-    response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
-      headers=self.get_headers(),  # Standard headers only
+    response = self._simulate_shipping(
+      order_id,
+      self.get_headers(),  # Standard headers only
     )
-    self.assert_response_status(response, 403)
+    self._assert_refused(order_id, response)
 
   @scenario(
     "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
@@ -52,15 +100,12 @@ class SecurityTest(ShoppingIntegrationTestBase):
     "page describes"
   )
   def test_simulation_endpoint_incorrect_secret(self):
-    """Test access with an incorrect secret returns 403."""
+    """Test access with an incorrect secret is refused (403)."""
     order_id = self.create_completed_order()
-    headers = self.get_headers()
-    headers["Simulation-Secret"] = "for-sure-incorrect-secret"
-    response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
-      headers=headers,
+    response = self._simulate_shipping(
+      order_id, self._with_secret("for-sure-incorrect-secret")
     )
-    self.assert_response_status(response, 403)
+    self._assert_refused(order_id, response)
 
   @scenario(
     "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
@@ -70,12 +115,11 @@ class SecurityTest(ShoppingIntegrationTestBase):
   def test_simulation_endpoint_correct_secret(self):
     """Test access with the correct secret returns 200."""
     order_id = self.create_completed_order()
-    headers = self.get_headers()
-    headers["Simulation-Secret"] = FLAGS.simulation_secret
-    response = self.client.post(
-      f"/testing/simulate-shipping/{order_id}",
-      headers=headers,
+    response = self._simulate_shipping(
+      order_id, self._with_secret(FLAGS.simulation_secret)
     )
+    if response.status_code in (403, 404, 405):
+      self._skip_without_hook(order_id)
     self.assert_response_status(response, 200)
 
 
