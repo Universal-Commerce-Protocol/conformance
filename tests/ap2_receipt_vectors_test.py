@@ -586,6 +586,14 @@ def _with(path: str, value: Any) -> dict[str, Any]:
   return payload
 
 
+def _authorization_receipt(signer: fixtures.FixtureSigner) -> str:
+  """Sign seq 1, authorizing the whole 300 mandate, with `prev` null."""
+  payload = _valid_payload()
+  payload["event"]["amount"] = 300
+  payload["totals"].update(mandated=300, authorized=300)
+  return signer.sign(payload)
+
+
 class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
   """Signed receipts whose payload breaks the schema are `malformed`.
 
@@ -664,15 +672,17 @@ class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
   ) -> None:
     """An empty `processing_entry_id` does not make a follow-up."""
     signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
-    receipts: list[str] = []
-    for seq in (1, 2):
+    receipts = [_authorization_receipt(signer)]
+    for seq in (2, 3):
       payload = _valid_payload()
       payload["seq"] = seq
-      payload["prev"] = v.sha256_ref(receipts[-1]) if receipts else None
+      payload["prev"] = v.sha256_ref(receipts[-1])
       payload["event"].update(
         type="capture", ref={"processing_entry_id": entry_id}
       )
-      payload["totals"].update(mandated=300, authorized=0, captured=100 * seq)
+      payload["totals"].update(
+        mandated=300, authorized=300, captured=100 * (seq - 1)
+      )
       receipts.append(signer.sign(payload))
     result = v.verify_order_receipts(
       {"ap2": {"receipts": receipts}},
@@ -680,60 +690,63 @@ class Ap2ReceiptMalformedInputTest(parameterized.TestCase):
       [v.Mandate("token", _MALFORMED_ISS, 300)],
     )
     self.assertEqual(result.malformed, [])
-    # These hand-built chains have no authorization receipt, so
-    # `captured` exceeds `authorized` by construction; that outcome is
-    # covered by its own vectors.
-    self.assertEqual(
-      [
-        f.code
-        for f in result.outcomes
-        if f.code != v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION
-      ],
-      codes,
-    )
+    self.assertEqual([f.code for f in result.outcomes], codes)
 
   def _chain(self, stated: list[dict[str, int]], seqs: list[int]):
-    """Verify captures of 100 stating `stated` totals, with these `seq`s."""
+    """Verify an authorization of 300, then captures of 100.
+
+    The captures state `stated` totals and use these `seq`s, which
+    follow the authorization at seq 1. Returns `(receipt_index, code)`
+    for every outcome; index 0 is the authorization.
+    """
     signer = fixtures.FixtureSigner(_MALFORMED_ISS, "test_only_2026")
-    receipts: list[str] = []
+    receipts = [_authorization_receipt(signer)]
     for seq, totals in zip(seqs, stated, strict=True):
       payload = _valid_payload()
       payload["seq"] = seq
-      payload["prev"] = v.sha256_ref(receipts[-1]) if receipts else None
+      payload["prev"] = v.sha256_ref(receipts[-1])
       payload["event"].update(
         type="capture", ref={"processing_entry_id": f"ent_{seq}"}
       )
-      payload["totals"].update(mandated=300, authorized=0, **totals)
+      payload["totals"].update(mandated=300, authorized=300, **totals)
       receipts.append(signer.sign(payload))
     result = v.verify_order_receipts(
       {"ap2": {"receipts": receipts}},
       {_MALFORMED_ISS: [signer.jwk]},
       [v.Mandate("token", _MALFORMED_ISS, 300)],
     )
-    return [
-      (i, c)
-      for i, c in ((f.receipt_index, f.code) for f in result.outcomes)
-      if c != v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION
-    ]
+    return [(f.receipt_index, f.code) for f in result.outcomes]
 
   def test_after_a_gap_rule_6_uses_stated_totals(self) -> None:
-    """Later receipts report no totals mismatch but still the exceed."""
+    """Later receipts report no totals mismatch but still the exceeds."""
     outcomes = self._chain(
       [{"captured": 100, "refunded": 0}, {"captured": 400, "refunded": 0}],
-      [1, 3],
+      [2, 4],
     )
     self.assertEqual(
       outcomes,
-      [(1, v.RECEIPT_SEQUENCE_GAP), (1, v.RECEIPT_EXCEEDS_MANDATE)],
+      [
+        (2, v.RECEIPT_SEQUENCE_GAP),
+        (2, v.RECEIPT_EXCEEDS_MANDATE),
+        (2, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+      ],
     )
 
-  def test_honest_totals_over_the_mandate_report_only_the_exceed(self) -> None:
-    """`receipt_exceeds_mandate` does not imply `receipt_totals_mismatch`."""
+  def test_honest_totals_over_the_mandate_report_no_mismatch(self) -> None:
+    """Exceeding the mandate does not imply `receipt_totals_mismatch`."""
     outcomes = self._chain(
       [{"captured": 100 * n, "refunded": 0} for n in range(1, 5)],
-      [1, 2, 3, 4],
+      [2, 3, 4, 5],
     )
-    self.assertEqual(outcomes, [(3, v.RECEIPT_EXCEEDS_MANDATE)])
+    # Authorized is at most the mandate, so a capture over the mandate is
+    # also over authorized.
+    self.assertEqual(
+      outcomes,
+      [
+        (4, v.RECEIPT_EXCEEDS_MANDATE),
+        (4, v.RECEIPT_CAPTURE_EXCEEDS_AUTHORIZATION),
+      ],
+    )
 
   @parameterized.named_parameters(
     ("null", None, []),
