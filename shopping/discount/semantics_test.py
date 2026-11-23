@@ -34,7 +34,12 @@ code is supplied or when the business does not advertise the capability.
 """
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import (
+  no_rule,
+  partly,
+  requires_capability,
+  spec_assert,
+)
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -85,6 +90,10 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
     ]
 
   # ── DSC-005: case-insensitive matching (discount.md) ────────────────────
+  @no_rule(
+    "discount.md, Operations: 'Codes are matched case-insensitively by "
+    "business', with no keyword"
+  )
   def test_code_matches_case_insensitively(self):
     """A code submitted in a different case still matches and applies."""
     base, _ = self._new_checkout()
@@ -106,6 +115,12 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
     )
 
   # ── discount total is negative (discount.md / total.json) ───────────────
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0142",  # subtractive types MUST be negative
+      "the discount entry only, not items_discount",
+    ),
+  )
   def test_discount_total_is_negative(self):
     """A discount's totals[] entry is negative (total.json exclusiveMax 0)."""
     base, base_raw = self._new_checkout()
@@ -126,6 +141,10 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
       )
 
   # ── DSC-022: allocations sum to the applied discount amount ─────────────
+  @no_rule(
+    "discount.md, Allocations Array: an 'Invariant' that allocations sum to "
+    "applied_discount.amount, with no keyword"
+  )
   def test_allocations_sum_to_applied_amount(self):
     """Each applied discount's allocations sum to its amount (discount.md).
 
@@ -155,6 +174,11 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
       self.skipTest("server does not emit discount allocations[]")
 
   # ── DSC-027: client-supplied applied[] must not change pricing ──────────
+  @no_rule(
+    "discount.md, Operations: codes fall under 'Request behavior' and "
+    "applied under 'Response behavior'; no keyword says a submitted applied[] "
+    "is ignored"
+  )
   def test_client_applied_does_not_change_price(self):
     """Injected discounts.applied[] must not lower the priced total.
 
@@ -193,6 +217,10 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
     )
 
   # ── DSC-004: empty codes[] removes all discounts ────────────────────────
+  @no_rule(
+    "discount.md, Operations: an empty codes array removes all discount "
+    "codes, with no keyword"
+  )
   def test_empty_codes_removes_discount(self):
     """Sending codes:[] removes previously applied discounts."""
     base, _ = self._new_checkout()
@@ -210,6 +238,10 @@ class DiscountSemanticsTest(ShoppingIntegrationTestBase):
     )
 
   # ── DSC-003: a new codes[] set replaces the previous one ────────────────
+  @no_rule(
+    "discount.md, Operations: 'Submitting discounts.codes replaces any "
+    "previously submitted codes', with no keyword"
+  )
   def test_codes_replace_previous_set(self):
     """Submitting discounts.codes replaces any previously submitted codes."""
     second = self.fixture_ctx.get_test_discount_code_2()

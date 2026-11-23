@@ -21,7 +21,10 @@ why these tests live with the shopping order suite rather than in `core/`.
 
 from absl.testing import absltest
 from framework.base_test import FLAGS
-from framework.decorators import requires_capability
+from framework.decorators import (
+  requires_capability,
+  scenario,
+)
 from shopping.base import ShoppingIntegrationTestBase
 
 
@@ -77,6 +80,11 @@ class SecurityTest(ShoppingIntegrationTestBase):
       return
     self.assert_response_status(response, 403)
 
+  @scenario(
+    "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
+    "a test harness of the implementation under test that no specification "
+    "page describes"
+  )
   def test_simulation_endpoint_missing_header(self):
     """Test access without the secret header is refused (403)."""
     order_id = self.create_completed_order()
@@ -86,6 +94,11 @@ class SecurityTest(ShoppingIntegrationTestBase):
     )
     self._assert_refused(order_id, response)
 
+  @scenario(
+    "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
+    "a test harness of the implementation under test that no specification "
+    "page describes"
+  )
   def test_simulation_endpoint_incorrect_secret(self):
     """Test access with an incorrect secret is refused (403)."""
     order_id = self.create_completed_order()
@@ -94,6 +107,11 @@ class SecurityTest(ShoppingIntegrationTestBase):
     )
     self._assert_refused(order_id, response)
 
+  @scenario(
+    "the store's /testing/simulate-shipping hook and its Simulation-Secret, "
+    "a test harness of the implementation under test that no specification "
+    "page describes"
+  )
   def test_simulation_endpoint_correct_secret(self):
     """Test access with the correct secret returns 200."""
     order_id = self.create_completed_order()
