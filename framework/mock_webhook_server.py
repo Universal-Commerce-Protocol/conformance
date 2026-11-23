@@ -104,13 +104,15 @@ class MockWebhookServer:
     for _ in range(50):
       if not self._thread.is_alive():
         break
-      try:
-        with httpx.Client() as client:
-          resp = client.get(f"http://localhost:{self.port}/healthz")
-          if self._server.started and resp.status_code == 200:
-            return
-      except httpx.ConnectError:
-        time.sleep(0.05)
+      if self._server.started:
+        try:
+          with httpx.Client(timeout=1.0) as client:
+            resp = client.get(f"http://localhost:{self.port}/healthz")
+            if resp.status_code == 200:
+              return
+        except httpx.HTTPError:
+          pass
+      time.sleep(0.05)
     self.stop()
     raise RuntimeError(f"MockWebhookServer failed to start on port {self.port}")
 
