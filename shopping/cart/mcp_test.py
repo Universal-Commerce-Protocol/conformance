@@ -19,7 +19,6 @@ import uuid
 from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import DynamicFixtureContext
-from shopping.mcp import DISCOVERY_ERROR
 from shopping.mcp import McpIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import cart as cart
 
@@ -67,17 +66,7 @@ class McpCartTest(McpIntegrationTestBase):
     When tools/list is called,
     Then all four cart tools are listed.
     """
-    names: set[str] = set()
-    params: dict[str, Any] | None = None
-    while True:
-      _, body = self.rpc("tools/list", params)
-      page = self.rpc_result(body)
-      names.update(tool.get("name") for tool in page.get("tools", []))
-      if not page.get("nextCursor"):
-        break
-      params = {"cursor": page["nextCursor"]}
-    missing = sorted(set(CART_TOOLS) - names)
-    self.assertEqual(missing, [], msg=f"Cart tools not provided: {missing}")
+    self.assert_tools_listed(CART_TOOLS)
 
   def test_create_returns_cart(self) -> None:
     """Test that create_cart returns the cart in the UCP envelope.
@@ -151,7 +140,7 @@ class McpCartTest(McpIntegrationTestBase):
     Given a create_cart call whose meta names no platform profile,
     When it is sent,
     Then the server answers with the discovery error, as REST does for a
-    missing profile URL.
+    missing profile URL, or rejects the arguments as invalid.
     """
     body = self.call_tool(
       "create_cart",
@@ -159,7 +148,7 @@ class McpCartTest(McpIntegrationTestBase):
       cart=self.cart_payload(),
     )
 
-    self.assert_rpc_error(body, DISCOVERY_ERROR, http_status=400)
+    self.assert_missing_agent_rejected(body)
 
   def test_cancel_requires_idempotency_key(self) -> None:
     """Test that cancel_cart needs meta["idempotency-key"].

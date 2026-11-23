@@ -19,13 +19,11 @@ import uuid
 from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import DynamicFixtureContext
-from shopping.mcp import DISCOVERY_ERROR
+from shopping.mcp import INVALID_PARAMS
 from shopping.mcp import McpIntegrationTestBase
 
 SEARCH = "dev.ucp.shopping.catalog.search"
 LOOKUP = "dev.ucp.shopping.catalog.lookup"
-
-INVALID_PARAMS = -32602
 
 
 class McpCatalogTest(McpIntegrationTestBase):
@@ -81,20 +79,6 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertIsInstance(ucp, dict, msg="The payload has no `ucp` object")
     self.assertIsInstance(ucp.get("version"), str, msg="`ucp.version`")
 
-  def assert_tools_listed(self, expected: tuple[str, ...]) -> None:
-    """Assert tools/list includes every expected tool."""
-    names: set[str] = set()
-    params: dict[str, Any] | None = None
-    while True:
-      _, body = self.rpc("tools/list", params)
-      page = self.rpc_result(body)
-      names.update(tool.get("name") for tool in page.get("tools", []))
-      if not page.get("nextCursor"):
-        break
-      params = {"cursor": page["nextCursor"]}
-    missing = sorted(set(expected) - names)
-    self.assertEqual(missing, [], msg=f"Catalog tools not provided: {missing}")
-
   @requires_capability(SEARCH)
   def test_lists_search_tool(self) -> None:
     """Test that the search tool is provided when search is advertised.
@@ -135,6 +119,8 @@ class McpCatalogTest(McpIntegrationTestBase):
       for variant in variants:
         price = variant.get("price", {})
         self.assertIsInstance(price.get("amount"), int, msg=str(variant))
+        # bool is a subclass of int, and JSON `true` is not an amount.
+        self.assertNotIsInstance(price.get("amount"), bool, msg=str(variant))
         self.assertRegex(str(price.get("currency")), r"^[A-Z]{3}$")
 
   @requires_capability(SEARCH)
@@ -274,13 +260,13 @@ class McpCatalogTest(McpIntegrationTestBase):
     Given a get_product call whose meta names no platform profile,
     When it is sent,
     Then the server answers with the discovery error, as REST does for a
-    missing profile URL.
+    missing profile URL, or rejects the arguments as invalid.
     """
     body = self.call_tool(
       "get_product", meta={}, catalog={"id": self.known_product_id()}
     )
 
-    self.assert_rpc_error(body, DISCOVERY_ERROR, http_status=400)
+    self.assert_missing_agent_rejected(body)
 
 
 if __name__ == "__main__":

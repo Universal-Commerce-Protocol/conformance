@@ -18,33 +18,51 @@ from typing import Any
 import uuid
 
 from framework.base_test import agent_profile_url
+from framework.base_test import BaseIntegrationTest
 import httpx
+from shopping.base import DEFAULT_CONFORMANCE_INPUT
 from shopping.base import mcp_entry
-from shopping.base import ShoppingIntegrationTestBase
 
 MCP_PROTOCOL_VERSION = "2025-06-18"
 
-# JSON-RPC's own "method not found", and the codes UCP assigns to protocol
-# and discovery errors.
+# JSON-RPC's own "method not found" and "invalid params", and the codes UCP
+# assigns to protocol and discovery errors.
 METHOD_NOT_FOUND = -32601
+INVALID_PARAMS = -32602
 PROTOCOL_ERROR = -32000
 DISCOVERY_ERROR = -32001
 
 
-class McpIntegrationTestBase(ShoppingIntegrationTestBase):
+class McpIntegrationTestBase(BaseIntegrationTest):
   """Base class for tests that call the shopping tools over MCP.
 
   Tests are skipped when the discovery profile lists no MCP entry for the
   shopping service. Every test opens an MCP session with `initialize` first.
+
+  The class requires no capability of its own, so a server that offers only
+  the cart or the catalog over MCP is still tested: each suite declares the
+  capability its tools belong to.
   """
+
+  default_conformance_input = DEFAULT_CONFORMANCE_INPUT
+
+  def _verify_required_capabilities(self) -> None:
+    """Skip, before any resource is created, without an MCP endpoint.
+
+    BaseIntegrationTest calls this before it creates the HTTP client and
+    starts the agent profile server, so a server without the MCP transport
+    skips these tests without starting either.
+    """
+    super()._verify_required_capabilities()
+    services = self.server_profile.services if self.server_profile else {}
+    self._mcp_service = mcp_entry(services.get("dev.ucp.shopping", []))
+    if not self._mcp_service:
+      self.skipTest("Server does not advertise an MCP shopping service")
 
   def setUp(self) -> None:
     """Find the MCP endpoint and open a session on it."""
     super().setUp()
-    services = self.server_profile.services if self.server_profile else {}
-    entry = mcp_entry(services.get("dev.ucp.shopping", []))
-    if not entry:
-      self.skipTest("Server does not advertise an MCP shopping service")
+    entry = self._mcp_service
     self.assertTrue(
       entry.get("endpoint"), msg="The MCP service entry has no endpoint."
     )
@@ -112,8 +130,9 @@ class McpIntegrationTestBase(ShoppingIntegrationTestBase):
     MCP over HTTP lets a server answer with a single JSON document or with an
     event stream that carries it.
     """
+    # Media types are case-insensitive (RFC 9110, section 8.3.1).
     content_type = response.headers.get("content-type", "")
-    if content_type.startswith("text/event-stream"):
+    if content_type.strip().lower().startswith("text/event-stream"):
       messages = self._event_stream_messages(response.text)
     else:
       messages = [self._parse_json(response.text)]
@@ -162,6 +181,34 @@ class McpIntegrationTestBase(ShoppingIntegrationTestBase):
       http_status,
       msg=f"JSON-RPC error {code} must come with HTTP {http_status}.",
     )
+
+  def assert_missing_agent_rejected(self, body: dict[str, Any]) -> None:
+    """Assert a call whose meta has no `ucp-agent` was rejected.
+
+    A missing profile URL is the discovery error `invalid_profile_url`
+    (HTTP 400). The tool schema also marks `ucp-agent` as required, so a
+    server that validates the arguments first may answer with JSON-RPC's
+    "invalid params" before discovery runs; that answer has no HTTP status
+    of its own in UCP.
+    """
+    self.assertNotIn("result", body, msg=f"Expected a JSON-RPC error: {body}")
+    if body.get("error", {}).get("code") == INVALID_PARAMS:
+      return
+    self.assert_rpc_error(body, DISCOVERY_ERROR, http_status=400)
+
+  def assert_tools_listed(self, expected: tuple[str, ...]) -> None:
+    """Assert tools/list, over all its pages, includes every expected tool."""
+    names: set[str] = set()
+    params: dict[str, Any] | None = None
+    while True:
+      _, body = self.rpc("tools/list", params)
+      page = self.rpc_result(body)
+      names.update(tool.get("name") for tool in page.get("tools", []))
+      if not page.get("nextCursor"):
+        break
+      params = {"cursor": page["nextCursor"]}
+    missing = sorted(set(expected) - names)
+    self.assertEqual(missing, [], msg=f"Tools not provided: {missing}")
 
   def request_meta(
     self,

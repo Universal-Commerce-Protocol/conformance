@@ -19,7 +19,7 @@ import uuid
 from absl.testing import absltest
 from framework.decorators import requires_capability
 from shopping.base import get_valid_payment_payload
-from shopping.mcp import DISCOVERY_ERROR
+from shopping.base import ShoppingIntegrationTestBase
 from shopping.mcp import McpIntegrationTestBase
 from shopping.mcp import METHOD_NOT_FOUND
 from shopping.mcp import PROTOCOL_ERROR
@@ -45,9 +45,14 @@ CHECKOUT_TOOLS = (
   "cancel_checkout",
 )
 
+# Fields of the payload ShoppingIntegrationTestBase builds for REST that a
+# create_checkout call must not carry: the checkout has no id before it is
+# created, and the others are for the business to set.
+NOT_IN_CREATE_ARGUMENT = frozenset({"id", "status", "ucp", "totals", "links"})
+
 
 @requires_capability("dev.ucp.shopping.checkout")
-class McpCheckoutTest(McpIntegrationTestBase):
+class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
   """Tests for the checkout tools served over the MCP transport.
 
   Validated Tools:
@@ -57,6 +62,12 @@ class McpCheckoutTest(McpIntegrationTestBase):
   - complete_checkout
   - cancel_checkout
   """
+
+  # Some servers need to know the buyer before they complete a checkout.
+  DEFAULT_BUYER = {
+    "email": "conformance-test-buyer@example.com",
+    "name": "Conformance Test Buyer",
+  }
 
   def fetch_checkout(self, checkout_id: str) -> Any:
     """Read a checkout through get_checkout."""
@@ -77,16 +88,17 @@ class McpCheckoutTest(McpIntegrationTestBase):
       )
     )
 
+  def create_argument(self, **kwargs: Any) -> dict[str, Any]:
+    """Build the `checkout` argument of a create_checkout call."""
+    payload = self.create_checkout_payload(**kwargs).model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
+    return {k: v for k, v in payload.items() if k not in NOT_IN_CREATE_ARGUMENT}
+
   def create_over_mcp(self, **kwargs: Any) -> dict[str, Any]:
     """Create a checkout through create_checkout and return it."""
-    create_payload = self.create_checkout_payload(**kwargs)
     return self.tool_payload(
-      self.call_tool(
-        "create_checkout",
-        checkout=create_payload.model_dump(
-          mode="json", by_alias=True, exclude_none=True
-        ),
-      )
+      self.call_tool("create_checkout", checkout=self.create_argument(**kwargs))
     )
 
   def test_speaks_json_rpc(self) -> None:
@@ -110,17 +122,7 @@ class McpCheckoutTest(McpIntegrationTestBase):
     When tools/list is called,
     Then all five checkout tools are listed.
     """
-    names: set[str] = set()
-    params: dict[str, Any] | None = None
-    while True:
-      _, body = self.rpc("tools/list", params)
-      page = self.rpc_result(body)
-      names.update(tool.get("name") for tool in page.get("tools", []))
-      if not page.get("nextCursor"):
-        break
-      params = {"cursor": page["nextCursor"]}
-    missing = sorted(set(CHECKOUT_TOOLS) - names)
-    self.assertEqual(missing, [], msg=f"Checkout tools not provided: {missing}")
+    self.assert_tools_listed(CHECKOUT_TOOLS)
 
   def test_create_returns_checkout(self) -> None:
     """Test that create_checkout returns the checkout in the UCP envelope.
@@ -174,7 +176,7 @@ class McpCheckoutTest(McpIntegrationTestBase):
     When complete_checkout is called with a valid payment,
     Then the checkout is completed and carries the order id.
     """
-    created = self.create_over_mcp()
+    created = self.create_over_mcp(buyer=self.DEFAULT_BUYER)
     checkout_id = created["id"]
     self.ensure_fulfillment_ready(checkout_id)
 
@@ -210,18 +212,15 @@ class McpCheckoutTest(McpIntegrationTestBase):
     Given a create_checkout call whose meta names no platform profile,
     When it is sent,
     Then the server answers with the discovery error, as REST does for a
-    missing profile URL.
+    missing profile URL, or rejects the arguments as invalid.
     """
-    create_payload = self.create_checkout_payload()
     body = self.call_tool(
       "create_checkout",
       meta={"idempotency-key": str(uuid.uuid4())},
-      checkout=create_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
+      checkout=self.create_argument(),
     )
 
-    self.assert_rpc_error(body, DISCOVERY_ERROR, http_status=400)
+    self.assert_missing_agent_rejected(body)
 
   def test_final_operations_require_idempotency_key(self) -> None:
     """Test that complete and cancel need meta["idempotency-key"].
@@ -230,7 +229,7 @@ class McpCheckoutTest(McpIntegrationTestBase):
     When complete_checkout and cancel_checkout are called without the key,
     Then neither is processed and the checkout is unchanged.
     """
-    created = self.create_over_mcp()
+    created = self.create_over_mcp(buyer=self.DEFAULT_BUYER)
     checkout_id = created["id"]
     ready = self.ensure_fulfillment_ready(checkout_id)
 
@@ -289,7 +288,7 @@ class McpCheckoutTest(McpIntegrationTestBase):
     Then the same order is returned,
     and reusing the key with a different payment is a protocol error.
     """
-    created = self.create_over_mcp()
+    created = self.create_over_mcp(buyer=self.DEFAULT_BUYER)
     checkout_id = created["id"]
     self.ensure_fulfillment_ready(checkout_id)
     meta = self.request_meta()
