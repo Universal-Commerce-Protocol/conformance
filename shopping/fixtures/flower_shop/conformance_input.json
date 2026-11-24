@@ -27,5 +27,9 @@
   "non_existent_item": {
     "id": "pink_wumpus",
     "title": "Pink Wumpus"
+  },
+  "catalog": {
+    "search_query": "a",
+    "max_lookup_ids": 50
   }
 }

@@ -550,6 +550,19 @@ def rest_entry(entries: Any) -> dict[str, Any] | None:
   )
 
 
+def mcp_entry(entries: Any) -> dict[str, Any] | None:
+  """Return the MCP entry of a service's discovery entries, if any."""
+  items = entries if isinstance(entries, list) else [entries]
+  return next(
+    (
+      item
+      for item in items
+      if isinstance(item, dict) and item.get("transport") == "mcp"
+    ),
+    None,
+  )
+
+
 def shopping_rest_endpoint(profile: dict[str, Any]) -> str:
   """Return the REST endpoint of the shopping service in a profile.
 
@@ -840,13 +853,29 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
 
     return checkout_data
 
-  def ensure_fulfillment_ready(self, checkout_id: str) -> Any:
-    """Ensure a fulfillment option is selected for the checkout."""
+  def fetch_checkout(self, checkout_id: str) -> Any:
+    """Read a checkout. Tests for another transport override this."""
     response = self.client.get(
       self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
       headers=self.get_headers(),
     )
-    checkout_data = response.json()
+    return response.json()
+
+  def send_checkout_update(
+    self, checkout_id: str, payload: dict[str, Any], headers: dict[str, str]
+  ) -> Any:
+    """Send a checkout update. Tests for another transport override this."""
+    response = self.client.put(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}"),
+      json=payload,
+      headers=headers,
+    )
+    self.assert_response_status(response, 200)
+    return response.json()
+
+  def ensure_fulfillment_ready(self, checkout_id: str) -> Any:
+    """Ensure a fulfillment option is selected for the checkout."""
+    checkout_data = self.fetch_checkout(checkout_id)
 
     def is_ready(data):
       if not data.get("fulfillment") or not data["fulfillment"].get("methods"):
@@ -1037,12 +1066,8 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
     if headers:
       request_headers.update(headers)
 
-    response = self.client.put(
-      self.get_shopping_url(f"/checkout-sessions/{checkout_obj.id}"),
-      json=update_payload.model_dump(
-        mode="json", by_alias=True, exclude_none=True
-      ),
-      headers=request_headers,
+    return self.send_checkout_update(
+      checkout_obj.id,
+      update_payload.model_dump(mode="json", by_alias=True, exclude_none=True),
+      request_headers,
     )
-    self.assert_response_status(response, 200)
-    return response.json()
