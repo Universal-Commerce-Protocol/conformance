@@ -25,6 +25,7 @@ from absl import flags
 from absl.testing import absltest
 from framework.agent_profile_server import AgentProfileServer
 from framework.constants import DEFAULT_UCP_VERSION
+from framework.content_digest import add_content_digest
 from framework.discovery import (
   UcpProfile,
   fetch_server_profile,
@@ -218,7 +219,12 @@ class BaseIntegrationTest(absltest.TestCase):
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
 
-    self.client = httpx.Client(base_url=self.base_url, timeout=15.0)
+    # Every request with a body carries an RFC 9530 Content-Digest.
+    self.client = httpx.Client(
+      base_url=self.base_url,
+      timeout=15.0,
+      event_hooks={"request": [add_content_digest]},
+    )
     self.addCleanup(self.client.close)
 
     self._start_agent_server()
@@ -295,7 +301,6 @@ class BaseIntegrationTest(absltest.TestCase):
     profile_url = custom_profile_url or agent_profile_url()
     return {
       "UCP-Agent": f'profile="{profile_url}"',
-      "request-signature": "test",
       "idempotency-key": idempotency_key or str(uuid.uuid4()),
       "request-id": request_id or str(uuid.uuid4()),
       "Content-Type": "application/json",
