@@ -62,6 +62,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "shopping.order.simulation_url_security_test",
     "shopping.validation.validation_test",
     "shopping.validation.invalid_input_test",
+    "shopping.rest.json_bodies_test",
   ],
 }
 
