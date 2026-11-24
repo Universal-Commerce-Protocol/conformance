@@ -33,6 +33,7 @@ from shopping.base import (
   fixture_paths,
   shopping_rest_endpoint,
 )
+from ucp_sdk.models.schemas.ucp import PlatformSchema
 
 
 def run_main(
@@ -396,6 +397,23 @@ class PublicAddressTest(unittest.TestCase):
       "https://hooks.example/webhooks/partners/test_partner/events/order", text
     )
     self.assertNotIn("localhost", text)
+
+  def test_default_profile_is_a_valid_platform_profile(self):
+    """Test that the repository's agent profile is a valid platform profile.
+
+    overview/index.md, Profile Structure: a platform profile needs
+    `ucp.version`, `ucp.services` and `ucp.payment_handlers`, and the two
+    registries MUST be present even when empty. A business that validates
+    the profile a request names would refuse every request the suite sends
+    otherwise.
+    """
+    server = AgentProfileServer(
+      port=0, webhook_port=8284, ucp_version="2026-04-08"
+    )
+    ucp = server.render_profile()["ucp"]
+    self.assertIsInstance(ucp["services"], dict)
+    self.assertIsInstance(ucp["payment_handlers"], dict)
+    PlatformSchema(**ucp)
 
   def test_agent_profile_url(self):
     """Test the UCP-Agent profile URL, by default and when set."""

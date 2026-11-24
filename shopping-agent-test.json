@@ -1,6 +1,7 @@
 {
   "ucp": {
     "version": "{ucp_version}",
+    "services": {},
     "capabilities": {
       "dev.ucp.shopping.cart": [
         {
@@ -56,6 +57,7 @@
           }
         }
       ]
-    }
+    },
+    "payment_handlers": {}
   }
 }
