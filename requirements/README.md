@@ -158,6 +158,12 @@ For example, a totals test that checks one rule fully and another in part:
 )
 ```
 
+Outcomes are recorded per test method, so when a test fails or hits an error,
+every rule its `@spec_assert` marker cites is affected, even if `unittest`
+stopped at an earlier assertion. Prefer one rule per test where the assertions
+are separable, and share one method only when the rules check the same
+exchange.
+
 `framework/requirements.py` looks rules up in the catalog. Before any test
 runs, the runner checks every shopping test's marker against it, and so does
 pytest:
@@ -170,7 +176,137 @@ pytest:
 `--dry-run` runs the check without a server. `--requirements_check=warn`
 (or `--requirements-check=warn`, also accepted by pytest) reports problems
 without stopping, and `off` skips the check. Unit tests for the markers, the
-loader and the check are in `tests/`: run `python -m pytest tests`.
+loader, the check, and the report are in `tests/`: run `python -m pytest tests`.
+
+## Rules the server's version doesn't state
+
+A server advertises the release each of its capabilities implements, such as
+`2026-04-08`, and the catalog records which releases state each rule. Before
+a `spec_assert` test runs, `framework/versions.py` compares the rules it
+cites with the version the server advertises for their capability (or its
+profile's version, when the capability has none). If that version states
+none of them, the test doesn't apply and is skipped with a reason that says
+why:
+
+```text
+not applicable: the server implements 2026-04-08, which doesn't state
+REQ-SHOPPING-FULFILLMENT-0012 (introduced in 2026-08-25)
+```
+
+A rule the server's version removed reads `removed in 2026-04-08`, and one
+only the draft states, `not yet in a release`. A test that cites one stated
+rule among others runs. Tests without rules (`no_rule`, `scenario`, and the
+rest) always run, and so does everything when the server's profile can't be
+fetched.
+
+A version the catalog doesn't know is read as the newest release that isn't
+newer than it. A version newer than every release, a version older than all
+of them, and a server that advertises no version are read as the draft, the
+catalog's own version.
+
+The runner records such a skip as **not applicable**, an outcome of its own,
+and lists it apart from the other skips in its summary. In the coverage
+report a rule the server's version doesn't state is not applicable too,
+whatever its tests did: it neither passes nor fails, and it leaves the
+denominator of the results. Coverage is unaffected: it is measured against
+the pinned specification, as before.
+
+## Why a test was skipped
+
+Every other skip says why, with a reason that starts with its category. A
+test skips through one of the base class's methods, which write the prefix:
+
+| Method                    | Reason starts with           | For                                                                                                                                                    |
+| ------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `skip_no_trigger(...)`    | `no trigger declared:`       | The fixtures don't declare what the test needs, such as a known customer with two stored addresses                                                     |
+| `skip_environment(...)`   | `environment:`               | The run's own settings or surroundings: no server URL, a server that can't reach this machine's webhook port, a rejected simulation secret             |
+| `skip_not_exercised(...)` | `not exercised:`             | The server's responses gave the test nothing to check: an optional feature it doesn't use, such as discount `allocations[]`, or data they didn't carry |
+| (the framework)           | `capability not advertised:` | A capability the test requires, from `@requires_capability`, that the server doesn't advertise                                                         |
+| `skipTest(...)`           | anything else                | Another reason, such as a check on hold for a specification fix; the report counts it as "other reason"                                                |
+
+The runner's summary breaks the skips down by reason. In the coverage
+report, a rule whose tests all skipped or didn't run is "not run", and
+takes the first reason its tests give, in this order: no trigger declared,
+environment, other reason, not exercised, capability not advertised. A rule
+one test could run with a trigger is therefore "no trigger declared",
+whatever its other tests say. The report breaks the MUST and MUST NOT rules
+not run down by reason, and `matrix.json` gives each test's `category` and
+each not-run rule's `not_run_category`.
+
+"Not run" never counts as passed. The report's **upgrade list** is what a
+server should act on: the rules that failed, plus the rules not run because
+the fixtures declare no trigger for their tests. Rules not run for the other
+reasons, and rules the server's version doesn't state, are left out.
+
+## Coverage report
+
+`--requirements_report=<dir>` (or `--requirements-report=<dir>`) makes the
+runner write a coverage report to a directory. With `--dry-run`, the report
+reads only the catalog and the tests' markers, so it needs no server, and it
+says which rules have a test:
+
+```bash
+uv run --no-sources ucp-conformance --suite=shopping --dry-run \
+  --requirements_report=requirements/reports
+```
+
+Without `--dry-run`, the runner first checks that it can write the report,
+then runs the tests, then writes the report with each test's outcome and
+each rule's result:
+
+```bash
+uv run --no-sources ucp-conformance --suite=shopping --server_url=http://localhost:8182 \
+  --requirements_report=requirements/reports
+```
+
+It writes the same report three ways:
+
+| File          | For                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `matrix.md`   | Reading on GitHub                                                                                |
+| `matrix.html` | Reading in a browser: one page, with no scripts and nothing loaded from elsewhere                |
+| `matrix.json` | Tools: every count, every rule with its tests and result, every test with its marker and outcome |
+
+The Markdown and HTML pages hold:
+
+- **Summary:** for each capability, then each extension, and for all rules
+  counted once: the rules, the testable rules, the testable MUST and MUST NOT
+  rules, and how many of those a test checks fully, or only in part;
+- **By release:** for each release and the draft, the testable MUST and MUST
+  NOT rules it states, removed rules included, and how many a test checks;
+- **Results,** after a run: for each capability, how many of its testable
+  rules with a test passed, failed, hit an error, weren't run, or don't apply
+  to the server's version; the upgrade list; then the rules that failed, the
+  rules whose tests hit an error, the rules whose tests didn't run, broken
+  down by reason, and the rules the server's version doesn't state, with
+  their tests' messages;
+- **A section per capability:** the rules a test checks fully, then those
+  checked only in part, each test with its gap, with their results after a
+  run; then the testable MUST and MUST NOT rules without a test, which is the
+  to-do list; the other testable rules and the rules this suite can't test
+  are folded away;
+- **Tests:** every shopping test, grouped by marker, with its outcome after a
+  run;
+- **Notes:** what the counts mean.
+
+A rule counts as covered when a `spec_assert` marker cites it as fully
+checked. A rule cited only with `partly` counts as checked in part, not
+covered, and in `matrix.json` each rule's `coverage` is `full`, `partial`, or
+`none`. After a run, a rule passed when at least one of the tests that cite
+it passed and none failed or hit an error; it failed when any of them failed
+an assertion; it hit an error (`error` in `matrix.json`) when none failed and
+one raised an unexpected exception before checking it; and it wasn't run when
+they were all skipped or didn't run. Because outcomes are recorded per test
+method, a failure or error in a test that cites more than one rule applies to
+every rule it cites unless another test for the rule failed an assertion. A
+rule the version the server implements doesn't state is not applicable instead
+(see [Rules the server's version doesn't state](#rules-the-servers-version-doesnt-state)).
+Tests that check the rule only in part count here too, so a pass shows only
+what their assertions check. Outcomes come from the runner, so a pytest run
+doesn't record them.
+
+The report covers the tests the run selects, with `--suite` and `-k`.
+`requirements/reports/` isn't committed.
 
 ## Numbers at `f2626c28`
 
