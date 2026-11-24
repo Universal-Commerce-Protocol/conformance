@@ -32,7 +32,7 @@ in the create response and when the session is read back afterward.
 """
 
 from absl.testing import absltest
-from framework.decorators import requires_capability
+from framework.decorators import no_rule, outside_catalog, requires_capability
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.payment import Payment
@@ -115,6 +115,11 @@ class CheckoutFieldOwnershipTest(ShoppingIntegrationTestBase):
       f"the caller-supplied value must not appear in {where}",
     )
 
+  @outside_catalog(
+    "checkout.json marks continue_url, expires_at, messages and order with "
+    "ucp_request: omit, so no request variant carries them; the schemas are "
+    "outside the catalog's pages"
+  )
   def test_create_does_not_adopt_caller_supplied_omit_members(self) -> None:
     """The create response must not echo back caller-owned-field values.
 
@@ -127,6 +132,11 @@ class CheckoutFieldOwnershipTest(ShoppingIntegrationTestBase):
     data = self._post_checkout_with_caller_supplied_fields()
     self._assert_caller_values_absent(data, "the create response")
 
+  @outside_catalog(
+    "checkout.json marks continue_url, expires_at, messages and order with "
+    "ucp_request: omit, so no request variant carries them; the schemas are "
+    "outside the catalog's pages"
+  )
   def test_create_does_not_persist_caller_supplied_omit_members(self) -> None:
     """Caller-owned-field values must not be persisted, only reflected.
 
@@ -148,6 +158,10 @@ class CheckoutFieldOwnershipTest(ShoppingIntegrationTestBase):
     stored = response.json()
     self._assert_caller_values_absent(stored, "the stored checkout")
 
+  @no_rule(
+    "control case for the two omit-member tests: a create that never sends "
+    "the server-owned members is the ordinary create flow"
+  )
   def test_create_without_omit_members_is_unaffected(self) -> None:
     """A create that never sends these members must still succeed.
 
