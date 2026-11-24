@@ -17,6 +17,10 @@ from typing import Any
 import uuid
 
 from absl.testing import absltest
+from framework.decorators import spec_assert
+from framework.decorators import outside_catalog
+from framework.decorators import no_rule
+from framework.decorators import partly
 from framework.decorators import requires_capability
 from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
@@ -101,6 +105,13 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
       self.call_tool("create_checkout", checkout=self.create_argument(**kwargs))
     )
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0237",  # a conforming MCP implementation MUST
+      "item 1 only (implement JSON-RPC 2.0 correctly), and of that only "
+      "the response envelope, initialize and the method-not-found error",
+    ),
+  )
   def test_speaks_json_rpc(self) -> None:
     """Test that the endpoint implements JSON-RPC 2.0.
 
@@ -115,6 +126,13 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     self.assertNotIn("result", body)
     self.assertEqual(body.get("error", {}).get("code"), METHOD_NOT_FOUND)
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0237",  # a conforming MCP implementation MUST
+      "item 2 only (provide all core checkout tools): the five tools are "
+      "listed by tools/list",
+    ),
+  )
   def test_lists_checkout_tools(self) -> None:
     """Test that every core checkout tool is provided.
 
@@ -124,6 +142,11 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     """
     self.assert_tools_listed(CHECKOUT_TOOLS)
 
+  @no_rule(
+    "checkout/mcp.md, Identifier Pattern: the create_checkout response "
+    "includes the newly assigned checkout.id, and the create_checkout "
+    "output is the Checkout object; neither is stated with a keyword"
+  )
   def test_create_returns_checkout(self) -> None:
     """Test that create_checkout returns the checkout in the UCP envelope.
 
@@ -138,6 +161,11 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     self.assertTrue(checkout_data.get("id"))
     self.assertIn("version", checkout_data.get("ucp", {}))
 
+  @no_rule(
+    "checkout/mcp.md, Identifier Pattern: for operations on existing "
+    "checkouts a top-level id parameter identifies the target resource; "
+    "stated without a keyword"
+  )
   def test_get_uses_top_level_id(self) -> None:
     """Test that get_checkout finds a checkout by the top-level id.
 
@@ -153,6 +181,11 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     self.assertEqual(fetched.get("id"), created["id"])
     self.assertEqual(fetched["status"], created["status"])
 
+  @no_rule(
+    "checkout/mcp.md, update_checkout: the tool maps to the Update "
+    "Checkout operation and returns the updated Checkout; stated without "
+    "a keyword"
+  )
   def test_update_changes_checkout(self) -> None:
     """Test that update_checkout applies a change.
 
@@ -169,6 +202,11 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     self.assertEqual(updated["id"], created["id"])
     self.assertEqual(updated["line_items"][0]["quantity"], 2)
 
+  @no_rule(
+    "checkout/mcp.md, complete_checkout: the tool maps to the Complete "
+    "Checkout operation, whose result is a completed checkout with its "
+    "order; stated without a keyword"
+  )
   def test_complete_places_order(self) -> None:
     """Test that complete_checkout places the order.
 
@@ -191,6 +229,10 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     self.assertEqual(completed["status"], "completed")
     self.assertTrue(completed.get("order", {}).get("id"))
 
+  @no_rule(
+    "checkout/mcp.md, cancel_checkout: the output is the Checkout object "
+    "with status canceled; stated without a keyword"
+  )
   def test_cancel(self) -> None:
     """Test that cancel_checkout cancels the checkout.
 
@@ -206,6 +248,12 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
 
     self.assertEqual(canceled["status"], "canceled")
 
+  @no_rule(
+    'checkout/mcp.md, Request Metadata: meta["ucp-agent"] is required '
+    "on all requests, in bold but without an RFC 2119 keyword; the "
+    "invalid_profile_url discovery error (HTTP 400, -32001) is in the "
+    "overview page's error registry"
+  )
   def test_ucp_agent_is_required(self) -> None:
     """Test that a call without meta["ucp-agent"] fails discovery.
 
@@ -222,6 +270,11 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
 
     self.assert_missing_agent_rejected(body)
 
+  @no_rule(
+    "checkout/mcp.md, Request Metadata: complete_checkout and "
+    'cancel_checkout also require meta["idempotency-key"] for retry '
+    "safety; stated without an RFC 2119 keyword"
+  )
   def test_final_operations_require_idempotency_key(self) -> None:
     """Test that complete and cancel need meta["idempotency-key"].
 
@@ -253,6 +306,14 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
       self.fetch_checkout(checkout_id)["status"], ready["status"]
     )
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CHECKOUT-0237",  # a conforming MCP implementation MUST
+      "item 4 only (business outcomes as a JSON-RPC result with the UCP "
+      "envelope and messages), for one outcome: an out-of-stock item on "
+      "create_checkout",
+    ),
+  )
   def test_business_outcome_is_a_result(self) -> None:
     """Test that a business error is not a JSON-RPC error.
 
@@ -280,6 +341,13 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
       msg=f"Expected a stock error code, got {sorted(codes)}",
     )
 
+  @outside_catalog(
+    "overview/index.md, Error Handling: an idempotency key reused with a "
+    "different payload is HTTP 409 with JSON-RPC -32000; the cached result "
+    "for a duplicate key is a rule of checkout/rest.md's Specific Header "
+    "Requirements (rendered by the header_requirements macro, so the "
+    'catalog lacks it), which meta["idempotency-key"] maps to'
+  )
   def test_complete_is_idempotent(self) -> None:
     """Test that meta["idempotency-key"] makes complete_checkout retry safe.
 
@@ -315,6 +383,10 @@ class McpCheckoutTest(McpIntegrationTestBase, ShoppingIntegrationTestBase):
     )
     self.assert_rpc_error(conflict, PROTOCOL_ERROR, http_status=409)
 
+  @outside_catalog(
+    "The MCP specification, which checkout/mcp.md binds to: a tools/call "
+    "request for an unknown tool is answered with an error"
+  )
   def test_unknown_tool_is_an_error(self) -> None:
     """Test that calling a tool the server does not provide is an error.
 

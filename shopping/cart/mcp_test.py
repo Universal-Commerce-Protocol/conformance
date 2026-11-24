@@ -17,8 +17,11 @@ from typing import Any
 import uuid
 
 from absl.testing import absltest
+from framework.decorators import spec_assert
+from framework.decorators import outside_catalog
+from framework.decorators import no_rule
+from framework.decorators import partly
 from framework.decorators import requires_capability
-from shopping.base import DynamicFixtureContext
 from shopping.mcp import McpIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import cart as cart
 
@@ -41,7 +44,7 @@ class McpCartTest(McpIntegrationTestBase):
   ) -> dict[str, Any]:
     """Build the `cart` argument for one line item."""
     if item_id is None:
-      item_id = DynamicFixtureContext(self.conformance_config).get_test_sku()
+      item_id = self.product_sku()
     return {"line_items": [{"item": {"id": item_id}, "quantity": quantity}]}
 
   def create_cart(self, **kwargs: Any) -> dict[str, Any]:
@@ -59,6 +62,13 @@ class McpCartTest(McpIntegrationTestBase):
       errors, msg=f"Expected an error message in the envelope: {outcome}"
     )
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CART-0061",  # a conforming MCP implementation MUST
+      "item 2 only (provide all core cart tools): the four tools are "
+      "listed by tools/list",
+    ),
+  )
   def test_lists_cart_tools(self) -> None:
     """Test that every core cart tool is provided.
 
@@ -68,6 +78,11 @@ class McpCartTest(McpIntegrationTestBase):
     """
     self.assert_tools_listed(CART_TOOLS)
 
+  @no_rule(
+    "cart/mcp.md, Identifier Pattern: the create_cart response includes "
+    "the newly assigned cart.id, and the create_cart output is the Cart "
+    "object; neither is stated with a keyword"
+  )
   def test_create_returns_cart(self) -> None:
     """Test that create_cart returns the cart in the UCP envelope.
 
@@ -82,6 +97,11 @@ class McpCartTest(McpIntegrationTestBase):
     self.assertTrue(created.get("id"))
     self.assertIn("version", created.get("ucp", {}))
 
+  @no_rule(
+    "cart/mcp.md, Identifier Pattern: for operations on existing carts a "
+    "top-level id parameter identifies the target resource; stated "
+    "without a keyword"
+  )
   def test_get_uses_top_level_id(self) -> None:
     """Test that get_cart finds a cart by the top-level id.
 
@@ -96,6 +116,10 @@ class McpCartTest(McpIntegrationTestBase):
 
     self.assertEqual(fetched.get("id"), created["id"])
 
+  @no_rule(
+    "cart/mcp.md, update_cart: the tool maps to the Update Cart operation "
+    "and returns the updated Cart; stated without a keyword"
+  )
   def test_update_changes_cart(self) -> None:
     """Test that update_cart applies a change.
 
@@ -115,6 +139,12 @@ class McpCartTest(McpIntegrationTestBase):
     self.assertEqual(updated["id"], created["id"])
     self.assertEqual(updated["line_items"][0]["quantity"], 2)
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CART-0025",  # return the cart state before deletion
+      "the id and the line items' item ids and quantities only",
+    ),
+  )
   def test_cancel_returns_cart(self) -> None:
     """Test that cancel_cart returns the cart it canceled.
 
@@ -134,6 +164,12 @@ class McpCartTest(McpIntegrationTestBase):
       [(li["item"]["id"], li["quantity"]) for li in created["line_items"]],
     )
 
+  @no_rule(
+    'cart/mcp.md, Request Metadata: meta["ucp-agent"] is required on '
+    "all requests, in bold but without an RFC 2119 keyword; the "
+    "invalid_profile_url discovery error (HTTP 400, -32001) is in the "
+    "overview page's error registry"
+  )
   def test_ucp_agent_is_required(self) -> None:
     """Test that a call without meta["ucp-agent"] fails discovery.
 
@@ -150,6 +186,11 @@ class McpCartTest(McpIntegrationTestBase):
 
     self.assert_missing_agent_rejected(body)
 
+  @no_rule(
+    "The shopping service's MCP definition (mcp.openrpc.json) lists "
+    "idempotency-key as a required meta field of cancel_cart; cart/mcp.md "
+    "shows it in the cancel_cart example but states no rule"
+  )
   def test_cancel_requires_idempotency_key(self) -> None:
     """Test that cancel_cart needs meta["idempotency-key"].
 
@@ -170,6 +211,13 @@ class McpCartTest(McpIntegrationTestBase):
     fetched = self.tool_payload(self.call_tool("get_cart", id=created["id"]))
     self.assertEqual(fetched.get("id"), created["id"])
 
+  @outside_catalog(
+    "cart/rest.md, Specific Header Requirements (rendered by the "
+    "header_requirements macro, so the catalog lacks it): when an "
+    "Idempotency-Key is provided the server MUST return the cached result "
+    'for a duplicate key with a matching body; meta["idempotency-key"] '
+    "maps to that header"
+  )
   def test_cancel_is_idempotent(self) -> None:
     """Test that meta["idempotency-key"] makes cancel_cart retry safe.
 
@@ -190,6 +238,13 @@ class McpCartTest(McpIntegrationTestBase):
 
     self.assertEqual(replay.get("id"), first["id"])
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CART-0061",  # a conforming MCP implementation MUST
+      "item 4 only (business outcomes as a JSON-RPC result with the UCP "
+      "envelope and messages), for one outcome: get_cart on an unknown id",
+    ),
+  )
   def test_unknown_cart_is_a_result(self) -> None:
     """Test that a cart that does not exist is not a JSON-RPC error.
 
@@ -205,6 +260,14 @@ class McpCartTest(McpIntegrationTestBase):
     self.assert_error_outcome(outcome)
     self.assertNotIn("line_items", outcome)
 
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CART-0061",  # a conforming MCP implementation MUST
+      "item 4 only (business outcomes as a JSON-RPC result with the UCP "
+      "envelope and messages), for one outcome: create_cart with an "
+      "unavailable item",
+    ),
+  )
   def test_business_outcome_is_a_result(self) -> None:
     """Test that a cart with no available item is not a JSON-RPC error.
 

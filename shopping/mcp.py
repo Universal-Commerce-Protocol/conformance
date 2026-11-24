@@ -21,6 +21,8 @@ from framework.base_test import agent_profile_url
 from framework.base_test import BaseIntegrationTest
 import httpx
 from shopping.base import DEFAULT_CONFORMANCE_INPUT
+from shopping.base import DynamicFixtureContext
+from shopping.base import fixture_paths
 from shopping.base import mcp_entry
 
 MCP_PROTOCOL_VERSION = "2025-06-18"
@@ -91,6 +93,18 @@ class McpIntegrationTestBase(BaseIntegrationTest):
       json={"jsonrpc": "2.0", "method": "notifications/initialized"},
       headers=self._mcp_headers(),
     )
+
+  def product_sku(self) -> str:
+    """Return the id of a product the server sells.
+
+    As in the REST suites, the fixture config (--fixture_config) comes
+    first and the conformance input is the fallback.
+    """
+    ctx = getattr(self, "fixture_ctx", None) or DynamicFixtureContext(
+      fixture_paths()["fixture_config"],
+      fallback_config=self.conformance_config,
+    )
+    return ctx.get_test_sku()
 
   def _mcp_headers(self) -> dict[str, str]:
     headers = {

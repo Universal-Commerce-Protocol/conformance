@@ -17,8 +17,10 @@ from typing import Any
 import uuid
 
 from absl.testing import absltest
+from framework.decorators import spec_assert
+from framework.decorators import no_rule
+from framework.decorators import partly
 from framework.decorators import requires_capability
-from shopping.base import DynamicFixtureContext
 from shopping.mcp import INVALID_PARAMS
 from shopping.mcp import McpIntegrationTestBase
 
@@ -63,7 +65,7 @@ class McpCatalogTest(McpIntegrationTestBase):
 
   def known_product_id(self) -> str:
     """Return the id of a product the server sells."""
-    return DynamicFixtureContext(self.conformance_config).get_test_sku()
+    return self.product_sku()
 
   def products_of(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
     """Return `products`, failing unless it is a list of objects."""
@@ -80,6 +82,13 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertIsInstance(ucp.get("version"), str, msg="`ucp.version`")
 
   @requires_capability(SEARCH)
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CATALOG-0039",  # a conforming MCP implementation MUST
+      "item 2 only (tools for each advertised catalog capability), for "
+      "search: search_catalog is listed by tools/list",
+    ),
+  )
   def test_lists_search_tool(self) -> None:
     """Test that the search tool is provided when search is advertised.
 
@@ -90,6 +99,10 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assert_tools_listed(("search_catalog",))
 
   @requires_capability(LOOKUP)
+  @spec_assert(
+    # with Lookup advertised, lookup_catalog and get_product MUST be available
+    "REQ-SHOPPING-CATALOG-0040",
+  )
   def test_lists_lookup_tools(self) -> None:
     """Test that both lookup tools are provided when lookup is advertised.
 
@@ -100,6 +113,13 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assert_tools_listed(("lookup_catalog", "get_product"))
 
   @requires_capability(SEARCH)
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CATALOG-0039",  # a conforming MCP implementation MUST
+      "item 6 only (products with valid Price objects), for the results of "
+      "one search: an integer amount and a three-letter currency",
+    ),
+  )
   def test_search_returns_products(self) -> None:
     """Test that search_catalog returns products in the UCP envelope.
 
@@ -124,6 +144,13 @@ class McpCatalogTest(McpIntegrationTestBase):
         self.assertRegex(str(price.get("currency")), r"^[A-Z]{3}$")
 
   @requires_capability(SEARCH)
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CATALOG-0039",  # a conforming MCP implementation MUST
+      "item 7 only (cursor-based pagination for search): one page of one "
+      "product and the page its cursor leads to",
+    ),
+  )
   def test_search_cursor_returns_next_page(self) -> None:
     """Test that a page with more results names a cursor that works.
 
@@ -150,6 +177,11 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertFalse(first_ids & second_ids, msg="The second page repeats")
 
   @requires_capability(LOOKUP)
+  @spec_assert(
+    "REQ-SHOPPING-CATALOG-LOOKUP-0004",  # duplicate ids MUST be deduplicated
+    # variants without an `inputs` entry MUST NOT appear
+    "REQ-SHOPPING-CATALOG-LOOKUP-0007",
+  )
   def test_lookup_returns_each_product_once(self) -> None:
     """Test that lookup_catalog deduplicates and correlates identifiers.
 
@@ -180,6 +212,13 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertEqual(resolved_from, {product_id})
 
   @requires_capability(LOOKUP)
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CATALOG-0039",  # a conforming MCP implementation MUST
+      "item 4 only (a successful result for lookups; unknown identifiers "
+      "result in fewer products), for one unknown id",
+    ),
+  )
   def test_lookup_unknown_id_is_a_result(self) -> None:
     """Test that an identifier that resolves to nothing is not an error.
 
@@ -195,6 +234,14 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertEqual(self.products_of(payload), [])
 
   @requires_capability(LOOKUP)
+  @spec_assert(
+    partly(
+      # MUST reject requests over the limit (-32602 for MCP)
+      "REQ-SHOPPING-CATALOG-LOOKUP-0010",
+      "the MCP error only; REST's HTTP 400 request_too_large is not "
+      "checked here",
+    ),
+  )
   def test_lookup_over_batch_limit_is_invalid_params(self) -> None:
     """Test that a batch over the server's limit is rejected.
 
@@ -217,6 +264,10 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertEqual(body.get("error", {}).get("code"), INVALID_PARAMS)
 
   @requires_capability(LOOKUP)
+  @no_rule(
+    "catalog/mcp.md, get_product: the tool returns a singular product "
+    "object; stated without a keyword"
+  )
   def test_get_product_returns_product(self) -> None:
     """Test that get_product returns a single product.
 
@@ -234,6 +285,13 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertTrue(product.get("variants"), msg="`product.variants` is empty")
 
   @requires_capability(LOOKUP)
+  @spec_assert(
+    partly(
+      "REQ-SHOPPING-CATALOG-0039",  # a conforming MCP implementation MUST
+      "item 3 only (JSON-RPC errors for transport issues, messages for "
+      "business outcomes), for one outcome: get_product on an unknown id",
+    ),
+  )
   def test_get_product_not_found_is_a_result(self) -> None:
     """Test that a product that does not exist is not a JSON-RPC error.
 
@@ -254,6 +312,12 @@ class McpCatalogTest(McpIntegrationTestBase):
     self.assertNotIn("product", payload)
 
   @requires_capability(LOOKUP)
+  @no_rule(
+    'catalog/mcp.md, Request Metadata: meta["ucp-agent"] is required '
+    "on all requests, in bold but without an RFC 2119 keyword; the "
+    "invalid_profile_url discovery error (HTTP 400, -32001) is in the "
+    "overview page's error registry"
+  )
   def test_ucp_agent_is_required(self) -> None:
     """Test that a call without meta["ucp-agent"] fails discovery.
 

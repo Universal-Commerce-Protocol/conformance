@@ -16,6 +16,7 @@
 
 import json
 from pathlib import Path
+import tempfile
 from typing import Any
 import unittest
 from unittest import mock
@@ -339,6 +340,56 @@ class CheckoutArgumentTest(unittest.TestCase):
     self.assertEqual(self.test.create_argument(buyer=buyer)["buyer"], buyer)
 
 
+class ProductSkuTest(unittest.TestCase):
+  """Tests for the product id the cart and catalog suites send."""
+
+  def setUp(self):
+    """Give a cart test a conformance input that names no product."""
+    super().setUp()
+    self.test = cart_suite.McpCartTest("test_create_returns_cart")
+    self.test.conformance_config = {}
+
+  def fixture_config(self, content: dict[str, Any]) -> str:
+    """Write a fixture config and return its path."""
+    directory = tempfile.TemporaryDirectory()
+    self.addCleanup(directory.cleanup)
+    path = Path(directory.name) / "test_fixtures.json"
+    path.write_text(json.dumps(content), encoding="utf-8")
+    return str(path)
+
+  def test_fixture_config_comes_first(self):
+    """Test that valid_item.sku of --fixture_config is the item sent."""
+    path = self.fixture_config(
+      {"test_fixtures": {"valid_item": {"sku": "from_fixtures"}}}
+    )
+    self.test.conformance_config = {
+      "test_fixtures": {"valid_item": {"sku": "from_input"}}
+    }
+    with flagsaver.flagsaver(fixture_config=path):
+      self.assertEqual(self.test.product_sku(), "from_fixtures")
+      self.assertEqual(
+        self.test.cart_payload()["line_items"][0]["item"]["id"],
+        "from_fixtures",
+      )
+
+  def test_conformance_input_is_the_fallback(self):
+    """Test that the conformance input is used when the fixtures name none."""
+    path = self.fixture_config({})
+    self.test.conformance_config = {"test_sku": "from_input"}
+    with flagsaver.flagsaver(fixture_config=path):
+      self.assertEqual(self.test.product_sku(), "from_input")
+
+  def test_catalog_suite_uses_it(self):
+    """Test that the catalog suite looks up the same product."""
+    path = self.fixture_config(
+      {"test_fixtures": {"valid_item": {"sku": "from_fixtures"}}}
+    )
+    test = catalog_suite.McpCatalogTest("test_get_product_returns_product")
+    test.conformance_config = {}
+    with flagsaver.flagsaver(fixture_config=path):
+      self.assertEqual(test.known_product_id(), "from_fixtures")
+
+
 class MissingAgentTest(unittest.TestCase):
   """Tests for the answers accepted when meta has no `ucp-agent`."""
 
@@ -388,6 +439,20 @@ class AgentProfileTest(unittest.TestCase):
     for name in (CHECKOUT, CART, SEARCH, LOOKUP):
       self.assertIn(name, capabilities)
       self.assertEqual(capabilities[name][0]["name"], name)
+
+  def test_names_each_capability_once(self):
+    """Test that the profile template repeats no key in any object."""
+
+    def no_repeats(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+      keys = [key for key, _ in pairs]
+      repeated = sorted({key for key in keys if keys.count(key) > 1})
+      self.assertEqual(repeated, [], msg=f"Keys given twice: {repeated}")
+      return dict(pairs)
+
+    template = Path(mcp.__file__).parent.parent / "shopping-agent-test.json"
+    json.loads(
+      template.read_text(encoding="utf-8"), object_pairs_hook=no_repeats
+    )
 
 
 if __name__ == "__main__":
