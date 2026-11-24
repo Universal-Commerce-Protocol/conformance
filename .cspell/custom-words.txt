@@ -84,6 +84,7 @@ shopify
 Shopify
 Smallville
 Stripe
+subtest
 superfences
 Target
 terminalreporter

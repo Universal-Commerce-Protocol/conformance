@@ -15,6 +15,7 @@
 """Dynamic CLI test runner and capability orchestrator for UCP."""
 
 import argparse
+import collections
 from collections.abc import Iterator
 import importlib
 import json
@@ -30,6 +31,13 @@ from framework.discovery import (
   UcpProfile,
   fetch_server_profile,
   resolve_discovery_url,
+)
+from framework.outcomes import (
+  ERROR,
+  FAILED,
+  PASSED,
+  SKIPPED,
+  RecordingResult,
 )
 from framework.platform import PlatformProfile
 
@@ -405,7 +413,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
   parser.add_argument(
     "--verbose_http",
     action="store_true",
-    help="Log every HTTP request the tests send.",
+    help="Log every HTTP request and response, with headers and bodies.",
   )
   parser.add_argument(
     "--dry-run",
@@ -559,24 +567,25 @@ def main(argv: list[str] | None = None) -> int:
 
   sys.stdout.write("-" * 70 + "\n")
   runner = unittest.TextTestRunner(
-    verbosity=2 if args.verbose else 1, stream=sys.stdout
+    verbosity=2 if args.verbose else 1,
+    stream=sys.stdout,
+    resultclass=RecordingResult,
   )
   result = runner.run(test_suite)
 
-  # testsRun counts skipped tests too, so take them out of the passes.
-  passed = (
-    result.testsRun
-    - len(result.failures)
-    - len(result.errors)
-    - len(result.skipped)
+  # One outcome per test (a test with two failing subtests is one failure),
+  # plus any class- or module-level fixture errors (`setUpClass` /
+  # `tearDownClass`), which unittest reports outside `TestCase` instances.
+  counts = collections.Counter(
+    outcome.status for outcome in result.outcomes.values()
   )
   sys.stdout.write("\n" + "=" * 70 + "\n")
   sys.stdout.write("CONFORMANCE TEST SUMMARY\n")
   sys.stdout.write(f"Total Executed: {result.testsRun}\n")
-  sys.stdout.write(f"Passed: {passed}\n")
-  sys.stdout.write(f"Skipped: {len(result.skipped)}\n")
-  sys.stdout.write(f"Failures: {len(result.failures)}\n")
-  sys.stdout.write(f"Errors: {len(result.errors)}\n")
+  sys.stdout.write(f"Passed: {counts[PASSED]}\n")
+  sys.stdout.write(f"Skipped: {counts[SKIPPED]}\n")
+  sys.stdout.write(f"Failures: {counts[FAILED]}\n")
+  sys.stdout.write(f"Errors: {counts[ERROR] + result.fixture_errors}\n")
   sys.stdout.write("=" * 70 + "\n")
 
   return 0 if result.wasSuccessful() else 1
