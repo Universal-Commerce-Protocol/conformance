@@ -56,6 +56,7 @@ SUITE_REGISTRY: dict[str, list[str]] = {
     "shopping.discount.semantics_test",
     "shopping.fulfillment.fulfillment_test",
     "shopping.fulfillment.structure_test",
+    "shopping.fulfillment.selection_test",
     "shopping.order.order_test",
     "shopping.order.webhook_test",
     "shopping.order.webhook_structure_test",
