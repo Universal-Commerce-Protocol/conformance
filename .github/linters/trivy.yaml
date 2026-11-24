@@ -1,0 +1,14 @@
+---
+exit-code: 1
+exit-on-eol: 2
+scan:
+  disable-telemetry: true
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+secret:
+  # Allow-rules for the TEST-ONLY AP2 receipt vectors. Absolute path because
+  # super-linter runs Trivy from varying working directories; the workspace
+  # is always mounted at /github/workspace in the super-linter action.
+  config: /github/workspace/.github/linters/trivy-secret.yaml

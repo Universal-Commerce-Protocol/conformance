@@ -1,0 +1,121 @@
+{
+  "id": "totals_mismatch_mandated_9000_auth",
+  "title": "totals.mandated differs from the mandate's payment_amount",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, counting each movement once and never counting a second receipt kept under rule 4, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`. Recomputation stops at the first `receipt_sequence_gap` or excluded receipt in a chain: the platform does not report `receipt_totals_mismatch` for later receipts in that chain, because the events it holds are incomplete.",
+    "Platform Verification 6: MUST check that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`), that `captured` does not exceed `authorized` (`receipt_capture_exceeds_authorization`), and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`). The check uses the recomputed totals, or the stated totals for the receipt at which recomputation stopped and every receipt after it. An outcome is reported on every receipt for which the totals are over, not only the first. These outcomes are independent of `receipt_totals_mismatch`: a receipt can report both.",
+    "Business Requirements 3: MUST NOT authorize or capture so that `authorized` or `captured` exceeds `mandated`. Any increase in what the buyer pays beyond `mandated` (a tip, an overage, an order change, or a re-authorization above the original amount) MUST be covered by a new closed Payment Mandate from the platform. Movements that spend against the new mandate form their own chain, keyed by its `mandate_ref`."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "The business authorizes 9000 and states mandated 9000 against a Payment Mandate whose payment_amount is 5400. Its totals are consistent with its events, so only the comparison with payment_amount shows the problem: totals.mandated differs (receipt_totals_mismatch) and the recomputed authorized 9000 exceeds the mandate's 5400 (receipt_exceeds_mandate). The two outcomes are independent, so both are reported when both conditions hold. Compare reauthorization_exceeds_mandate, whose stated totals are honest and which reports only the exceed.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_totals_mismatch_mandated_9000_auth",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_totals_mismatch_mandated_9000_auth",
+      "checkout_id": "chk_totals_mismatch_mandated_9000_auth",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa190b3RhbHNfbWlzbWF0Y2hfbWFuZGF0ZWRfOTAwMF9hdXRoIiwiZXZlbnQiOnsiYW1vdW50Ijo5MDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wOVQxNDo1MzoyMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiYXV0aG9yaXphdGlvbiJ9LCJpYXQiOjE3OTQyMzYwNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6Mkl5Y1hiRWg5WFFSQ3hvMDhnMmlna01Ibjd3Q0habDV2OGZBZVZkM2p2ZyIsIm9yZGVyX2lkIjoib3JkZXJfdG90YWxzX21pc21hdGNoX21hbmRhdGVkXzkwMDBfYXV0aCIsInByZXYiOm51bGwsInNlcSI6MSwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjkwMDAsImNhcHR1cmVkIjowLCJtYW5kYXRlZCI6OTAwMCwicmVmdW5kZWQiOjB9fQ.hrq_PhGzAPQGF15SIVZK9cLYcI-xCyWI2j2OUf_SKhPg0k0JYj5RA1lJZt6WvPryjK9SdjfpklQ3nSTBaGwXBw"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_totals_mismatch_mandated_9000_auth",
+        "event": {
+          "amount": 9000,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:2IycXbEh9XQRCxo08g2igkMHn7wCHZl5v8fAeVd3jvg",
+        "order_id": "order_totals_mismatch_mandated_9000_auth",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 9000,
+          "captured": 0,
+          "mandated": 9000,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [
+      {
+        "receipt_index": 0,
+        "code": "receipt_totals_mismatch"
+      },
+      {
+        "receipt_index": 0,
+        "code": "receipt_exceeds_mandate"
+      }
+    ],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

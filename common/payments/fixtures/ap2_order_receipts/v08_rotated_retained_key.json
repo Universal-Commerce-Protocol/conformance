@@ -1,0 +1,150 @@
+{
+  "id": "v08_rotated_retained_key",
+  "title": "A receipt signed with a rotated, retained key verifies",
+  "test_plan_vector": "8",
+  "spec": [
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Business Requirements 9: MUST keep retired public keys resolvable by `kid` for at least the dispute window of the payment method used."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "seq 1 is signed with test_only_2025, which was retired before seq 2 but is still published in keys.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2025",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "8qaVbVg3ELtnqCucPvnQsHCKq38EoteCtAlYUM4Uxv0",
+            "y": "Dwr26klqGwVz0RLSy6TnR5_d6PxlBobngP3EB0yV-aw"
+          },
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_v08",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_v08",
+      "checkout_id": "chk_v08",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI1IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDgiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpwMlZsbUFQVmtjT1Q4eDI1X1RMczE2SkZfSWs0QmJfdU1MOE9wQ1c4WG9NIiwib3JkZXJfaWQiOiJvcmRlcl92MDgiLCJwcmV2IjpudWxsLCJzZXEiOjEsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.X8uYVaU1KLewcIrXtYaqsk1t_e9A-eO3CtiEhaS5cO8Ao5KLbie6Eq2WiNHj-fc56IwKKo_sz9tkfO4WEIOlJw",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDgiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5NDI3NjA2MCwiaXNzIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpwMlZsbUFQVmtjT1Q4eDI1X1RMczE2SkZfSWs0QmJfdU1MOE9wQ1c4WG9NIiwib3JkZXJfaWQiOiJvcmRlcl92MDgiLCJwcmV2Ijoic2hhLTI1NjotX0tNMmMtWTJlbVF4RmU4bVExMEk3TEJWRGxQUU1ENF9NSGhnYzhFM1RNIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.X7iGoYaia9oQCQ9MlhQe0mobVe_XDlslC8qwqpbqlqAYWaOI-7Wbjgo0FW8gqqhLVAHE6PzCV9yfIdTq2IwQbw"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2025",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v08",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:p2VlmAPVkcOT8x25_TLs16JF_Ik4Bb_uML8OpCW8XoM",
+        "order_id": "order_v08",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v08",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:p2VlmAPVkcOT8x25_TLs16JF_Ik4Bb_uML8OpCW8XoM",
+        "order_id": "order_v08",
+        "prev": "sha-256:-_KM2c-Y2emQxFe8mQ10I7LBVDlPQMD4_MHhgc8E3TM",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "id": "v05_tampered_amount",
+  "title": "A tampered amount gives receipt_invalid_signature",
+  "test_plan_vector": "5",
+  "spec": [
+    "Platform Verification 1: MUST verify each receipt's signature against the `keys` of the business named in `iss`. A receipt whose `typ` is not `ucp-ap2-receipt+jwt`, or whose `kid` does not resolve in the `keys` of `iss`, is `receipt_invalid_signature`.",
+    "Platform Verification 3: MUST exclude a receipt that fails rule 1 or 2 from its chain, so the next receipt in that chain is reported as `receipt_sequence_gap`."
+  ],
+  "signing": "Receipts copied byte-for-byte from the signed Order example in ucp#1109; key from the PR description (example only). Source: Universal-Commerce-Protocol/ucp#1109 at 0110eac, ap2-mandates.md, Order example under 'Placement and Delivery'.",
+  "notes": "The ucp#1109 chain with event.amount of the third receipt changed from 2400 to 4400 after signing; header and signature are unchanged.",
+  "inputs": {
+    "issuers": {
+      "https://business.example.com/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "merchant_2025",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "GzEF_HXZbmVOvExfSerMRYki1vTfR1fETwLcYi8MS50",
+            "y": "iDtJQqA9IVKbVvAQ7tL_G73kkG1GoaHJKSty0pWD0b8"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "examplePaymentMethodToken",
+        "business": "https://business.example.com/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_abc123",
+      "checkout_id": "chk_abc123",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_shoes",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 2800
+            },
+            {
+              "type": "total",
+              "amount": 2800
+            }
+          ]
+        },
+        {
+          "id": "li_jacket",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 2200
+            },
+            {
+              "type": "total",
+              "amount": 2200
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjAwMCwiaXNzIjoiaHR0cHM6Ly9idXNpbmVzcy5leGFtcGxlLmNvbS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6emkweERrMTZfR0p3X1FFS0lIYVVia1VGU3RrREo2V2phS2xmMzFzWWZPayIsIm9yZGVyX2lkIjoib3JkZXJfYWJjMTIzIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.B1qq-ooaU-iv_gU4sxGg6OodmLq3kHhMyMnmI-rQTr9aziOACY7l1Vbkws7lSTm09IpVugB_QksMQiXUi6gvVQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjMwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzIifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0Mjc2MDAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjptYkhyY29KVWZCUmxFQS1iQWdFTHZZRUh3bTlCOFctRHNoSzR5dURIWGdnIiwic2VxIjoyLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjMwMDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.kffxBLFlPYyfhAD_qXCpG2KIPDtmOfyRwBS9AlHUsHcmZlrFJ5YHBqPdT2fwLAzwdhFv2InssCj344UuHag1Wg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50XzIwMjUiLCJ0eXAiOiJ1Y3AtYXAyLXJlY2VpcHQrand0In0.eyJjaGVja291dF9pZCI6ImNoa19hYmMxMjMiLCJldmVudCI6eyJhbW91bnQiOjQ0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEyVDAyOjAwOjAwWiIsInJlZiI6eyJwcm9jZXNzaW5nX2VudHJ5X2lkIjoiZW50XzMifSwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0NDQ4ODAwLCJpc3MiOiJodHRwczovL2J1c2luZXNzLmV4YW1wbGUuY29tLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1Njp6aTB4RGsxNl9HSndfUUVLSUhhVWJrVUZTdGtESjZXamFLbGYzMXNZZk9rIiwib3JkZXJfaWQiOiJvcmRlcl9hYmMxMjMiLCJwcmV2Ijoic2hhLTI1NjotNG9URC1FS1lfQ3lwTlM1TzhXRWhYRE5ZNkVGQkRwbDR3aUxXem9EMnFnIiwic2VxIjozLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjU0MDAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.J-C66O6O4XjAD_TvtvS8endj_FfRIe_u3SysJ4U2NwX0zqQ0MlAy6FeGJZuSPUuCnY8twK9-9TjQdMT7ylL7Yw"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "merchant_2025",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_abc123",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236000,
+        "iss": "https://business.example.com/.well-known/ucp",
+        "mandate_ref": "sha-256:zi0xDk16_GJw_QEKIHaUbkUFStkDJ6WjaKlf31sYfOk",
+        "order_id": "order_abc123",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "merchant_2025",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_abc123",
+        "event": {
+          "amount": 3000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "ref": {
+            "processing_entry_id": "ent_2"
+          },
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276000,
+        "iss": "https://business.example.com/.well-known/ucp",
+        "mandate_ref": "sha-256:zi0xDk16_GJw_QEKIHaUbkUFStkDJ6WjaKlf31sYfOk",
+        "order_id": "order_abc123",
+        "prev": "sha-256:mbHrcoJUfBRlEA-bAgELvYEHwm9B8W-DshK4yuDHXgg",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 3000,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "merchant_2025",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_abc123",
+        "event": {
+          "amount": 4400,
+          "currency": "USD",
+          "occurred_at": "2026-11-12T02:00:00Z",
+          "ref": {
+            "processing_entry_id": "ent_3"
+          },
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794448800,
+        "iss": "https://business.example.com/.well-known/ucp",
+        "mandate_ref": "sha-256:zi0xDk16_GJw_QEKIHaUbkUFStkDJ6WjaKlf31sYfOk",
+        "order_id": "order_abc123",
+        "prev": "sha-256:-4oTD-EKY_CypNS5O8WEhXDNY6EFBDpl4wiLWzoD2qg",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [
+      {
+        "receipt_index": 2,
+        "code": "receipt_invalid_signature"
+      }
+    ],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

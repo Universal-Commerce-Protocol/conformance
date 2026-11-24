@@ -1,0 +1,193 @@
+{
+  "id": "v09_two_sellers",
+  "title": "Marketplace as merchant of record, two sellers: captures verify",
+  "test_plan_vector": "9",
+  "spec": [
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A byte-identical redelivery of a receipt the platform already holds is ignored. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both. A receipt whose `prev` is the hash of a receipt reported as `receipt_sequence_gap` continues the chain from that receipt and is not itself a gap.",
+    "Platform Verification 6: MUST check that `authorized` and `captured` do not exceed `mandated` (`receipt_exceeds_mandate`), that `captured` does not exceed `authorized` (`receipt_capture_exceeds_authorization`), and that `refunded` does not exceed `captured` (`receipt_refund_exceeds_capture`). The check uses the recomputed totals, or the stated totals for the receipt at which recomputation stopped and every receipt after it. An outcome is reported on every receipt for which the totals are over, not only the first. These outcomes are independent of `receipt_totals_mismatch`: a receipt can report both.",
+    "Platform Verification 7: SHOULD, when `event.seller_id` is present, also check per seller that succeeded captures do not exceed that seller's attributed total and that refunds do not exceed that seller's captures.",
+    "Edge Cases, Marketplace as merchant of record: the marketplace issues every receipt and sets `event.seller_id`, so a duplicate capture for one seller is detectable even when the chain's totals pass."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "inputs": {
+    "issuers": {
+      "https://marketplace.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "TaUGm9_vHgJoFIFsaKoHwP66ej_e1zhs63od2xv2V84",
+            "y": "1hBQgzroCLRPAITCUXAHhjnD2SpZS0sMgPrVwtvYyr4"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_v09_two_sellers",
+        "business": "https://marketplace.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_v09_two_sellers",
+      "checkout_id": "chk_v09_two_sellers",
+      "currency": "USD",
+      "sellers": {
+        "seller_a": {
+          "name": "Seller A"
+        },
+        "seller_b": {
+          "name": "Seller B"
+        }
+      },
+      "line_items": [
+        {
+          "id": "li_a",
+          "seller_id": "seller_a",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 2000
+            },
+            {
+              "type": "total",
+              "amount": 2000
+            }
+          ]
+        },
+        {
+          "id": "li_b",
+          "seller_id": "seller_b",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 3400
+            },
+            {
+              "type": "total",
+              "amount": 3400
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfdHdvX3NlbGxlcnMiLCJldmVudCI6eyJhbW91bnQiOjU0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTA5VDE0OjUzOjIwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5NDIzNjA2MCwiaXNzIjoiaHR0cHM6Ly9tYXJrZXRwbGFjZS5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpCY3k3N3JxUnZTSlFkQkVrNnhaVXlITnRJSTR2bW1VcWozQmU0cFJ3djVBIiwib3JkZXJfaWQiOiJvcmRlcl92MDlfdHdvX3NlbGxlcnMiLCJwcmV2IjpudWxsLCJzZXEiOjEsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.qGCU-h94oH8Gl3N6tSaOw4lQO3jrEtuUKzP9Jk5qwQZnvlKLDWhZgTvp9qJpQim6TW28B4JaK2U7yH21lEgKNA",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfdHdvX3NlbGxlcnMiLCJldmVudCI6eyJhbW91bnQiOjIwMDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTEwVDE4OjA0OjAwWiIsInNlbGxlcl9pZCI6InNlbGxlcl9hIiwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0MzMzOTAwLCJpc3MiOiJodHRwczovL21hcmtldHBsYWNlLmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OkJjeTc3cnFSdlNKUWRCRWs2eFpVeUhOdElJNHZtbVVxajNCZTRwUnd2NUEiLCJvcmRlcl9pZCI6Im9yZGVyX3YwOV90d29fc2VsbGVycyIsInByZXYiOiJzaGEtMjU2OjZmV3drMEc4b1ZGdGItUGg5T1dsaDhnRjBsTlNjejBoTlI5WTRzOENCaWsiLCJzZXEiOjIsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MjAwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.pYHNkug_oyaxnqeHJxhPqKEKcG9eVFg8UQqW4tgTEFNnpL9ikpiQJcxd09prkf0OfUcqtoRBQrjEbr3N19DAMg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa192MDlfdHdvX3NlbGxlcnMiLCJldmVudCI6eyJhbW91bnQiOjM0MDAsImN1cnJlbmN5IjoiVVNEIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTExVDE4OjA0OjAwWiIsInNlbGxlcl9pZCI6InNlbGxlcl9iIiwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0NDIwMzAwLCJpc3MiOiJodHRwczovL21hcmtldHBsYWNlLmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OkJjeTc3cnFSdlNKUWRCRWs2eFpVeUhOdElJNHZtbVVxajNCZTRwUnd2NUEiLCJvcmRlcl9pZCI6Im9yZGVyX3YwOV90d29fc2VsbGVycyIsInByZXYiOiJzaGEtMjU2OmJqN1hkdlNqVnhHOTRfRjBxdDZRaDRDQVVLUW1KalU1Rjhmb0pWTzdiTDgiLCJzZXEiOjMsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.lZaG5n-fC-nKU9Mf_Md_7t2y0UfmG1BuPrMjTMwLG1iNRyYzH-iVgYlC48bCWOvbdy5mii__lvkDe0y4whS7AA"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_two_sellers",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:Bcy77rqRvSJQdBEk6xZUyHNtII4vmmUqj3Be4pRwv5A",
+        "order_id": "order_v09_two_sellers",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_two_sellers",
+        "event": {
+          "amount": 2000,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T18:04:00Z",
+          "seller_id": "seller_a",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794333900,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:Bcy77rqRvSJQdBEk6xZUyHNtII4vmmUqj3Be4pRwv5A",
+        "order_id": "order_v09_two_sellers",
+        "prev": "sha-256:6fWwk0G8oVFtb-Ph9OWlh8gF0lNScz0hNR9Y4s8CBik",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 2000,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_v09_two_sellers",
+        "event": {
+          "amount": 3400,
+          "currency": "USD",
+          "occurred_at": "2026-11-11T18:04:00Z",
+          "seller_id": "seller_b",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794420300,
+        "iss": "https://marketplace.example/.well-known/ucp",
+        "mandate_ref": "sha-256:Bcy77rqRvSJQdBEk6xZUyHNtII4vmmUqj3Be4pRwv5A",
+        "order_id": "order_v09_two_sellers",
+        "prev": "sha-256:bj7XdvSjVxG94_F0qt6Qh4CAUKQmJjU5F8foJVO7bL8",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

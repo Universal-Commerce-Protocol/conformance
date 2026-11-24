@@ -1,0 +1,216 @@
+{
+  "id": "reconcile_split_refunds",
+  "title": "Two succeeded refunds citing one adjustment sum to its total",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 8: SHOULD reconcile refunds against Order adjustments. For each `event.ref.adjustment_id` cited, the platform sums `event.amount` over the `succeeded` `refund` receipts that cite it, minus `succeeded` `refund_reversal` receipts that cite it, counting each movement once per Running Totals, and compares the result with the magnitude of that adjustment's `total` entry. `pending` and `failed` receipts are not counted. A cited `adjustment_id` that matches no adjustment is also `reconciliation_adjustment_mismatch`. The outcome is reported on the last `succeeded` receipt that cites the adjustment. A mismatch is a commercial problem, not a cryptographic one: the receipts remain valid."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "30000 + 15000 matches the 45000 adjustment.",
+  "inputs": {
+    "issuers": {
+      "https://hotel.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "rlpdUvhzJJYYp5_j8rmnVNxmtuY3JjGqmPmzfvJSSFU",
+            "y": "D4aPYVBPScGh-hyuwkUFBNk1IOqKALJXZfGo7jqfHOI"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_reconcile_split_refunds",
+        "business": "https://hotel.example/.well-known/ucp",
+        "payment_amount": 60000
+      }
+    ],
+    "order": {
+      "id": "order_reconcile_split_refunds",
+      "checkout_id": "chk_reconcile_split_refunds",
+      "currency": "EUR",
+      "line_items": [
+        {
+          "id": "li_room",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 60000
+            },
+            {
+              "type": "total",
+              "amount": 60000
+            }
+          ]
+        }
+      ],
+      "adjustments": [
+        {
+          "id": "adj_cancel_1",
+          "type": "cancellation",
+          "occurred_at": "2026-11-14T15:30:00Z",
+          "status": "completed",
+          "totals": [
+            {
+              "type": "total",
+              "amount": -45000
+            }
+          ],
+          "description": "Cancelled under the booking's cancellation policy: EUR 150.00 penalty retained, EUR 450.00 refundable."
+        }
+      ],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 60000
+        },
+        {
+          "type": "total",
+          "amount": 60000
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsImV2ZW50Ijp7ImFtb3VudCI6NjAwMDAsImN1cnJlbmN5IjoiRVVSIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTAxVDA5OjAwOjAwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJhdXRob3JpemF0aW9uIn0sImlhdCI6MTc5MzUyMzY2MCwiaXNzIjoiaHR0cHM6Ly9ob3RlbC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpLREpKaXBhM1BGbEpGZXBybDdna2FESTdyVWRnTm5RSE1oSnl2YXBUNElzIiwib3JkZXJfaWQiOiJvcmRlcl9yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsInByZXYiOm51bGwsInNlcSI6MSwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjYwMDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjYwMDAwLCJyZWZ1bmRlZCI6MH19.dkGaXT8NKvGnpsgt8XCUfZz47nmvm7YMKyG5prWnATL075v7fdTEttuFdjOTmIGQVswDGGK1h3ToqfHSVCAjmA",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsImV2ZW50Ijp7ImFtb3VudCI6NjAwMDAsImN1cnJlbmN5IjoiRVVSIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTAxVDA5OjAwOjMwWiIsInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJjYXB0dXJlIn0sImlhdCI6MTc5MzUyMzY5MCwiaXNzIjoiaHR0cHM6Ly9ob3RlbC5leGFtcGxlLy53ZWxsLWtub3duL3VjcCIsIm1hbmRhdGVfcmVmIjoic2hhLTI1NjpLREpKaXBhM1BGbEpGZXBybDdna2FESTdyVWRnTm5RSE1oSnl2YXBUNElzIiwib3JkZXJfaWQiOiJvcmRlcl9yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsInByZXYiOiJzaGEtMjU2Om5pVmJpVnA5dmlCekVZU2V2MThBSlBkOWtmSmVHVVNiN1N4N2oxUDFXTEEiLCJzZXEiOjIsInRvdGFscyI6eyJhdXRob3JpemVkIjo2MDAwMCwiY2FwdHVyZWQiOjYwMDAwLCJtYW5kYXRlZCI6NjAwMDAsInJlZnVuZGVkIjowfX0.sewmOxl5EORT-5MQDPPO5hYXwqrmhBvSwSlWKOlWfl8SXJ01jGRmu7-wHp_QQLluJvjo-v6ms8Lbw_lVWOereQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsImV2ZW50Ijp7ImFtb3VudCI6MzAwMDAsImN1cnJlbmN5IjoiRVVSIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTE0VDE2OjAwOjAwWiIsInJlZiI6eyJhZGp1c3RtZW50X2lkIjoiYWRqX2NhbmNlbF8xIn0sInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0NjcyMDYwLCJpc3MiOiJodHRwczovL2hvdGVsLmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OktESkppcGEzUEZsSkZlcHJsN2drYURJN3JVZGdOblFITWhKeXZhcFQ0SXMiLCJvcmRlcl9pZCI6Im9yZGVyX3JlY29uY2lsZV9zcGxpdF9yZWZ1bmRzIiwicHJldiI6InNoYS0yNTY6TmxCd1VrbDEtN29lWHRTQ2FhQjlPZzdoelNOZ3dJMWZNbFlfUzdTRDRXZyIsInNlcSI6MywidG90YWxzIjp7ImF1dGhvcml6ZWQiOjYwMDAwLCJjYXB0dXJlZCI6NjAwMDAsIm1hbmRhdGVkIjo2MDAwMCwicmVmdW5kZWQiOjMwMDAwfX0.gWHTVqauQznLrqdU__Hx4ndioZEhNVu_42t1Bs3cgiLwjVH62QwSzNuBthVaPReX2jObBxiaQSoiaF3mxCpqLg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWNvbmNpbGVfc3BsaXRfcmVmdW5kcyIsImV2ZW50Ijp7ImFtb3VudCI6MTUwMDAsImN1cnJlbmN5IjoiRVVSIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTE0VDE2OjAxOjAwWiIsInJlZiI6eyJhZGp1c3RtZW50X2lkIjoiYWRqX2NhbmNlbF8xIn0sInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0NjcyMTIwLCJpc3MiOiJodHRwczovL2hvdGVsLmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OktESkppcGEzUEZsSkZlcHJsN2drYURJN3JVZGdOblFITWhKeXZhcFQ0SXMiLCJvcmRlcl9pZCI6Im9yZGVyX3JlY29uY2lsZV9zcGxpdF9yZWZ1bmRzIiwicHJldiI6InNoYS0yNTY6S09QM3VvS3Z5MUJiek5zMnVlTWdMeUxCaTZuLW1CVWNLc3k1QmFyRlh4ZyIsInNlcSI6NCwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjYwMDAwLCJjYXB0dXJlZCI6NjAwMDAsIm1hbmRhdGVkIjo2MDAwMCwicmVmdW5kZWQiOjQ1MDAwfX0.VovgPieD-OZl--iWOfSbPbB0LLq1Si835sHlp7M-fUtmIa7oBSzQcMwZDzomSxxuskhqVknAGGbZLjlwrmf5vQ"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_split_refunds",
+        "event": {
+          "amount": 60000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-01T09:00:00Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1793523660,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:KDJJipa3PFlJFeprl7gkaDI7rUdgNnQHMhJyvapT4Is",
+        "order_id": "order_reconcile_split_refunds",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 60000,
+          "captured": 0,
+          "mandated": 60000,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_split_refunds",
+        "event": {
+          "amount": 60000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-01T09:00:30Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1793523690,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:KDJJipa3PFlJFeprl7gkaDI7rUdgNnQHMhJyvapT4Is",
+        "order_id": "order_reconcile_split_refunds",
+        "prev": "sha-256:niVbiVp9viBzEYSev18AJPd9kfJeGUSb7Sx7j1P1WLA",
+        "seq": 2,
+        "totals": {
+          "authorized": 60000,
+          "captured": 60000,
+          "mandated": 60000,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_split_refunds",
+        "event": {
+          "amount": 30000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-14T16:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_cancel_1"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794672060,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:KDJJipa3PFlJFeprl7gkaDI7rUdgNnQHMhJyvapT4Is",
+        "order_id": "order_reconcile_split_refunds",
+        "prev": "sha-256:NlBwUkl1-7oeXtSCaaB9Og7hzSNgwI1fMlY_S7SD4Wg",
+        "seq": 3,
+        "totals": {
+          "authorized": 60000,
+          "captured": 60000,
+          "mandated": 60000,
+          "refunded": 30000
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_reconcile_split_refunds",
+        "event": {
+          "amount": 15000,
+          "currency": "EUR",
+          "occurred_at": "2026-11-14T16:01:00Z",
+          "ref": {
+            "adjustment_id": "adj_cancel_1"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794672120,
+        "iss": "https://hotel.example/.well-known/ucp",
+        "mandate_ref": "sha-256:KDJJipa3PFlJFeprl7gkaDI7rUdgNnQHMhJyvapT4Is",
+        "order_id": "order_reconcile_split_refunds",
+        "prev": "sha-256:KOP3uoKvy1BbzNs2ueMgLyLBi6n-mBUcKsy5BarFXxg",
+        "seq": 4,
+        "totals": {
+          "authorized": 60000,
+          "captured": 60000,
+          "mandated": 60000,
+          "refunded": 45000
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

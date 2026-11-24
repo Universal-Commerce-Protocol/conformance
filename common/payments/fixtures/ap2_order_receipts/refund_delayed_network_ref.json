@@ -1,0 +1,223 @@
+{
+  "id": "refund_delayed_network_ref",
+  "title": "Refund receipted pending, then succeeded with a late network_ref",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 4: MUST evaluate `seq` and `prev` continuity per `(iss, mandate_ref)` chain. A byte-identical redelivery of a receipt the platform already holds is ignored. A second, different receipt for a `seq` the platform already holds is `receipt_sequence_gap`; the platform keeps both. A receipt whose `prev` is the hash of a receipt reported as `receipt_sequence_gap` continues the chain from that receipt and is not itself a gap.",
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, counting each movement once and never counting a second receipt kept under rule 4, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`. Recomputation stops at the first `receipt_sequence_gap` or excluded receipt in a chain: the platform does not report `receipt_totals_mismatch` for later receipts in that chain, because the events it holds are incomplete.",
+    "Edge Cases, Pending movements: a movement may first be receipted as `pending`. A later receipt in the same chain for the same movement carries `status: succeeded`. Totals change only on the `succeeded` receipt.",
+    "Business Requirements 7: MUST, on a follow-up receipt that only adds `network_ref` to a movement already receipted as `succeeded`, carry that movement's `event.ref.processing_entry_id`. A business that cannot supply a `processing_entry_id` issues the movement as `pending` first and adds `network_ref` on the `succeeded` receipt."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "seq 3 is pending and leaves totals unchanged; seq 4, for the same event.ref, is succeeded, carries network_ref (an ARN assigned days later) and is the only receipt that changes refunded.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_refund_delayed_network_ref",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_refund_delayed_network_ref",
+      "checkout_id": "chk_refund_delayed_network_ref",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [
+        {
+          "id": "adj_refund_1",
+          "type": "refund",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "status": "completed",
+          "totals": [
+            {
+              "type": "total",
+              "amount": -5400
+            }
+          ]
+        }
+      ],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfZGVsYXllZF9uZXR3b3JrX3JlZiIsImV2ZW50Ijp7ImFtb3VudCI6NTQwMCwiY3VycmVuY3kiOiJVU0QiLCJvY2N1cnJlZF9hdCI6IjIwMjYtMTEtMDlUMTQ6NTM6MjBaIiwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImF1dGhvcml6YXRpb24ifSwiaWF0IjoxNzk0MjM2MDYwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OmNIN3M0cXUwSThEMklYMTFZamxOT3ktWlBhX19CNUlZd2J1T3JjWnNJVWciLCJvcmRlcl9pZCI6Im9yZGVyX3JlZnVuZF9kZWxheWVkX25ldHdvcmtfcmVmIiwicHJldiI6bnVsbCwic2VxIjoxLCJ0b3RhbHMiOnsiYXV0aG9yaXplZCI6NTQwMCwiY2FwdHVyZWQiOjAsIm1hbmRhdGVkIjo1NDAwLCJyZWZ1bmRlZCI6MH19.Y5zAwO0s6qvCHvFcBuTaqBu8iMrkULjd17Zw1DmD-9oPqQJemMaq5dmOk0ZK7pFIM2ee3XfFP4VaB8gN5gC6sg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfZGVsYXllZF9uZXR3b3JrX3JlZiIsImV2ZW50Ijp7ImFtb3VudCI6NTQwMCwiY3VycmVuY3kiOiJVU0QiLCJvY2N1cnJlZF9hdCI6IjIwMjYtMTEtMTBUMDI6MDA6MDBaIiwic3RhdHVzIjoic3VjY2VlZGVkIiwidHlwZSI6ImNhcHR1cmUifSwiaWF0IjoxNzk0Mjc2MDYwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OmNIN3M0cXUwSThEMklYMTFZamxOT3ktWlBhX19CNUlZd2J1T3JjWnNJVWciLCJvcmRlcl9pZCI6Im9yZGVyX3JlZnVuZF9kZWxheWVkX25ldHdvcmtfcmVmIiwicHJldiI6InNoYS0yNTY6cXdid3RLYUNxcTJFeUFQNEhzV3lha05GZGN5UjJCRllxRjlFWWJ2VExBayIsInNlcSI6MiwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjo1NDAwLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.owOedngetmwz6cyxFcw1ai38Zru3WVuo0D6vE_g19-RxsHqDvI2Vpyem_7pnVo0-jSSFQKFTQ8IU8I_p92BTIQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfZGVsYXllZF9uZXR3b3JrX3JlZiIsImV2ZW50Ijp7ImFtb3VudCI6NTQwMCwiY3VycmVuY3kiOiJVU0QiLCJvY2N1cnJlZF9hdCI6IjIwMjYtMTEtMTBUMDQ6MDA6MDBaIiwicmVmIjp7ImFkanVzdG1lbnRfaWQiOiJhZGpfcmVmdW5kXzEifSwic3RhdHVzIjoicGVuZGluZyIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0MjgzMjYwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OmNIN3M0cXUwSThEMklYMTFZamxOT3ktWlBhX19CNUlZd2J1T3JjWnNJVWciLCJvcmRlcl9pZCI6Im9yZGVyX3JlZnVuZF9kZWxheWVkX25ldHdvcmtfcmVmIiwicHJldiI6InNoYS0yNTY6TnlpaGhwX1dmOG5mV25EYndCWFBZRE8wcEdLb19ISTRpVU1TdXRpVjZkdyIsInNlcSI6MywidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjo1NDAwLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.51RQWgIp5qDgfbQrC2P6ZZEDTRiTS1lkzPB083SqEsXnU1U1-3LHmgaiEnZ6GWwozyK8Lh8ojZxUYBiyDIlDTg",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19yZWZ1bmRfZGVsYXllZF9uZXR3b3JrX3JlZiIsImV2ZW50Ijp7ImFtb3VudCI6NTQwMCwiY3VycmVuY3kiOiJVU0QiLCJuZXR3b3JrX3JlZiI6Ijc0MDAwMDAwMDAwMDAwMDAwMDAxMDYzIiwib2NjdXJyZWRfYXQiOiIyMDI2LTExLTE3VDEwOjAwOjAwWiIsInJlZiI6eyJhZGp1c3RtZW50X2lkIjoiYWRqX3JlZnVuZF8xIn0sInN0YXR1cyI6InN1Y2NlZWRlZCIsInR5cGUiOiJyZWZ1bmQifSwiaWF0IjoxNzk0OTA5NjYwLCJpc3MiOiJodHRwczovL21lcmNoYW50LmV4YW1wbGUvLndlbGwta25vd24vdWNwIiwibWFuZGF0ZV9yZWYiOiJzaGEtMjU2OmNIN3M0cXUwSThEMklYMTFZamxOT3ktWlBhX19CNUlZd2J1T3JjWnNJVWciLCJvcmRlcl9pZCI6Im9yZGVyX3JlZnVuZF9kZWxheWVkX25ldHdvcmtfcmVmIiwicHJldiI6InNoYS0yNTY6VC1OdVZ5cG9GeUQ2ZS1ycHV6M1pEU1F4bnlvcm1fT3FRbmk0eHByTHpLYyIsInNlcSI6NCwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjo1NDAwLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjU0MDB9fQ.2dn3atBLCbmtqtJEjU5cukS2opBmnDDjzlWge4wvYAK9jPpqvduEHN_Jr_LJt-jynm9wOQ-HBWzenhx3awXbOQ"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_delayed_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:cH7s4qu0I8D2IX11YjlNOy-ZPa__B5IYwbuOrcZsIUg",
+        "order_id": "order_refund_delayed_network_ref",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_delayed_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:cH7s4qu0I8D2IX11YjlNOy-ZPa__B5IYwbuOrcZsIUg",
+        "order_id": "order_refund_delayed_network_ref",
+        "prev": "sha-256:qwbwtKaCqq2EyAP4HsWyakNFdcyR2BFYqF9EYbvTLAk",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_delayed_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T04:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1"
+          },
+          "status": "pending",
+          "type": "refund"
+        },
+        "iat": 1794283260,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:cH7s4qu0I8D2IX11YjlNOy-ZPa__B5IYwbuOrcZsIUg",
+        "order_id": "order_refund_delayed_network_ref",
+        "prev": "sha-256:Nyihhp_Wf8nfWnDbwBXPYDO0pGKo_HI4iUMSutiV6dw",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_refund_delayed_network_ref",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "network_ref": "74000000000000000001063",
+          "occurred_at": "2026-11-17T10:00:00Z",
+          "ref": {
+            "adjustment_id": "adj_refund_1"
+          },
+          "status": "succeeded",
+          "type": "refund"
+        },
+        "iat": 1794909660,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:cH7s4qu0I8D2IX11YjlNOy-ZPa__B5IYwbuOrcZsIUg",
+        "order_id": "order_refund_delayed_network_ref",
+        "prev": "sha-256:T-NuVypoFyD6e-rpuz3ZDSQxnyorm_OqQni4xprLzKc",
+        "seq": 4,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 5400
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}

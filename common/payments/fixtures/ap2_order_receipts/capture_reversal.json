@@ -1,0 +1,201 @@
+{
+  "id": "capture_reversal",
+  "title": "A capture_reversal subtracts from captured",
+  "test_plan_vector": null,
+  "spec": [
+    "Platform Verification 5: MUST recompute `authorized`, `captured` and `refunded` for each chain from the `succeeded` events it holds, per Running Totals, counting each movement once and never counting a second receipt kept under rule 4, and MUST check that `totals.mandated` equals the `payment_amount` of the Payment Mandate that `mandate_ref` covers. A receipt whose stated `totals` differ from these values is `receipt_totals_mismatch`. Recomputation stops at the first `receipt_sequence_gap` or excluded receipt in a chain: the platform does not report `receipt_totals_mismatch` for later receipts in that chain, because the events it holds are incomplete.",
+    "Running Totals: `totals.mandated` is the `payment_amount` of the Payment Mandate that `mandate_ref` covers. The other totals start at 0 and change only on `succeeded` events: `authorization` and `authorization_adjustment` add to `authorized`, `release` subtracts from it, `capture` adds to `captured`, `capture_reversal` subtracts from it, `refund` adds to `refunded`, `refund_reversal` subtracts from it. A capture does not reduce `authorized`."
+  ],
+  "signing": "TEST-ONLY P-256 keys derived from fixed labels in common/payments/ap2_receipt_fixtures.py; deterministic ECDSA (RFC 6979). Never use them outside these vectors.",
+  "notes": "captured goes 5400, 0, 5400: never above mandated.",
+  "inputs": {
+    "issuers": {
+      "https://merchant.example/.well-known/ucp": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "kid": "test_only_2026",
+            "use": "sig",
+            "alg": "ES256",
+            "x": "gyT0sIDrvE1CD7JvEmEoOasWx_dmXhJVi-dOqj4V-Po",
+            "y": "BprggvW48ulKwczERsKtS3NdLc7YdYIfx1nuics9hFA"
+          }
+        ]
+      }
+    },
+    "mandates": [
+      {
+        "credential_token": "test_only_payment_mandate_capture_reversal",
+        "business": "https://merchant.example/.well-known/ucp",
+        "payment_amount": 5400
+      }
+    ],
+    "order": {
+      "id": "order_capture_reversal",
+      "checkout_id": "chk_capture_reversal",
+      "currency": "USD",
+      "line_items": [
+        {
+          "id": "li_1",
+          "totals": [
+            {
+              "type": "subtotal",
+              "amount": 5000
+            },
+            {
+              "type": "total",
+              "amount": 5000
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "totals": [
+        {
+          "type": "subtotal",
+          "amount": 5000
+        },
+        {
+          "type": "tax",
+          "amount": 400
+        },
+        {
+          "type": "total",
+          "amount": 5400
+        }
+      ],
+      "ap2": {
+        "receipts": [
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19jYXB0dXJlX3JldmVyc2FsIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0wOVQxNDo1MzoyMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiYXV0aG9yaXphdGlvbiJ9LCJpYXQiOjE3OTQyMzYwNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6TjN5ZVllcWlqZnozTUNnYW1IQmxIQjZzbUM4MmRtT3pjUzgtVWpFekdhZyIsIm9yZGVyX2lkIjoib3JkZXJfY2FwdHVyZV9yZXZlcnNhbCIsInByZXYiOm51bGwsInNlcSI6MSwidG90YWxzIjp7ImF1dGhvcml6ZWQiOjU0MDAsImNhcHR1cmVkIjowLCJtYW5kYXRlZCI6NTQwMCwicmVmdW5kZWQiOjB9fQ.cy79H2WDKY_dcu3nxpQt_S7Of-dtIVkRw8G_ieW2_u6C1m9yAAqnCyvnHNdFhDne1UNXRCux8q7DDA1JpAF2kw",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19jYXB0dXJlX3JldmVyc2FsIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMFQwMjowMDowMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiY2FwdHVyZSJ9LCJpYXQiOjE3OTQyNzYwNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6TjN5ZVllcWlqZnozTUNnYW1IQmxIQjZzbUM4MmRtT3pjUzgtVWpFekdhZyIsIm9yZGVyX2lkIjoib3JkZXJfY2FwdHVyZV9yZXZlcnNhbCIsInByZXYiOiJzaGEtMjU2OkxfdzJKQldRa0cwa3NzOEIwMERjcnNUcnZZbUw2NUtTRXdJNWlja0phSjQiLCJzZXEiOjIsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.a2CM1FfvYJ0AQQ200atLY5x5zK-hjC4vT7l1DFDIHvAzcxJxWJkxADsHt19yYvhLphXaY-q1zYcaaawBk8723A",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19jYXB0dXJlX3JldmVyc2FsIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMFQwMjowNTowMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiY2FwdHVyZV9yZXZlcnNhbCJ9LCJpYXQiOjE3OTQyNzYzNjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6TjN5ZVllcWlqZnozTUNnYW1IQmxIQjZzbUM4MmRtT3pjUzgtVWpFekdhZyIsIm9yZGVyX2lkIjoib3JkZXJfY2FwdHVyZV9yZXZlcnNhbCIsInByZXYiOiJzaGEtMjU2OnVYRzlSd1BsQV9nQ0pCenFHb1ZzZERZNGZMdW1QUzFZS091QzNQc25NSDgiLCJzZXEiOjMsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6MCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.g9bKwelEDylE8Zg5hti0RmqcQOMTOyhVs7Ozc9i-ILh-WsyAN-jStdRD-wnDzVU4d1ion_zDUzPNKnkdZUG9fQ",
+          "eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc3Rfb25seV8yMDI2IiwidHlwIjoidWNwLWFwMi1yZWNlaXB0K2p3dCJ9.eyJjaGVja291dF9pZCI6ImNoa19jYXB0dXJlX3JldmVyc2FsIiwiZXZlbnQiOnsiYW1vdW50Ijo1NDAwLCJjdXJyZW5jeSI6IlVTRCIsIm9jY3VycmVkX2F0IjoiMjAyNi0xMS0xMlQxMDowMDowMFoiLCJzdGF0dXMiOiJzdWNjZWVkZWQiLCJ0eXBlIjoiY2FwdHVyZSJ9LCJpYXQiOjE3OTQ0Nzc2NjAsImlzcyI6Imh0dHBzOi8vbWVyY2hhbnQuZXhhbXBsZS8ud2VsbC1rbm93bi91Y3AiLCJtYW5kYXRlX3JlZiI6InNoYS0yNTY6TjN5ZVllcWlqZnozTUNnYW1IQmxIQjZzbUM4MmRtT3pjUzgtVWpFekdhZyIsIm9yZGVyX2lkIjoib3JkZXJfY2FwdHVyZV9yZXZlcnNhbCIsInByZXYiOiJzaGEtMjU2OnRKTDRKSmVnTWluZE9MMEh1ZS0xUkkwRUlzVEZadDV6bDRVMTNfYnlTQWciLCJzZXEiOjQsInRvdGFscyI6eyJhdXRob3JpemVkIjo1NDAwLCJjYXB0dXJlZCI6NTQwMCwibWFuZGF0ZWQiOjU0MDAsInJlZnVuZGVkIjowfX0.kWGYeYMZrq0RYBaA292mhX9j2sJ04AVezEez0BP_XMBoWS_mGgOug9EjNCcL2wqmzZcEW5Q_j_tlOJ4jouCcSA"
+        ]
+      }
+    }
+  },
+  "decoded_receipts": [
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_capture_reversal",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-09T14:53:20Z",
+          "status": "succeeded",
+          "type": "authorization"
+        },
+        "iat": 1794236060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:N3yeYeqijfz3MCgamHBlHB6smC82dmOzcS8-UjEzGag",
+        "order_id": "order_capture_reversal",
+        "prev": null,
+        "seq": 1,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_capture_reversal",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794276060,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:N3yeYeqijfz3MCgamHBlHB6smC82dmOzcS8-UjEzGag",
+        "order_id": "order_capture_reversal",
+        "prev": "sha-256:L_w2JBWQkG0kss8B00DcrsTrvYmL65KSEwI5ickJaJ4",
+        "seq": 2,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_capture_reversal",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-10T02:05:00Z",
+          "status": "succeeded",
+          "type": "capture_reversal"
+        },
+        "iat": 1794276360,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:N3yeYeqijfz3MCgamHBlHB6smC82dmOzcS8-UjEzGag",
+        "order_id": "order_capture_reversal",
+        "prev": "sha-256:uXG9RwPlA_gCJBzqGoVsdDY4fLumPS1YKOuC3PsnMH8",
+        "seq": 3,
+        "totals": {
+          "authorized": 5400,
+          "captured": 0,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    },
+    {
+      "header": {
+        "alg": "ES256",
+        "kid": "test_only_2026",
+        "typ": "ucp-ap2-receipt+jwt"
+      },
+      "payload": {
+        "checkout_id": "chk_capture_reversal",
+        "event": {
+          "amount": 5400,
+          "currency": "USD",
+          "occurred_at": "2026-11-12T10:00:00Z",
+          "status": "succeeded",
+          "type": "capture"
+        },
+        "iat": 1794477660,
+        "iss": "https://merchant.example/.well-known/ucp",
+        "mandate_ref": "sha-256:N3yeYeqijfz3MCgamHBlHB6smC82dmOzcS8-UjEzGag",
+        "order_id": "order_capture_reversal",
+        "prev": "sha-256:tJL4JJegMindOL0Hue-1RI0EIsTFZt5zl4U13_bySAg",
+        "seq": 4,
+        "totals": {
+          "authorized": 5400,
+          "captured": 5400,
+          "mandated": 5400,
+          "refunded": 0
+        }
+      }
+    }
+  ],
+  "expected": {
+    "outcomes": [],
+    "warnings": [],
+    "reconciliation": []
+  }
+}
