@@ -49,9 +49,7 @@ the post-cancel status is not asserted.
 import uuid
 
 from absl.testing import absltest
-from framework.decorators import partly
 from framework.decorators import requires_capability
-from framework.decorators import spec_assert
 from shopping.base import ShoppingIntegrationTestBase
 
 _CART_CAPABILITY = "dev.ucp.shopping.cart"
@@ -164,13 +162,6 @@ class CartTest(ShoppingIntegrationTestBase):
     return sorted(totals.items())
 
   # ── cart.md "Cart-to-Checkout Conversion" ──────────────────────────────
-  @spec_assert(
-    "REQ-SHOPPING-CART-0003",  # the business MUST use the cart contents
-    partly(
-      "REQ-SHOPPING-CART-0004",  # MUST ignore overlapping payload fields
-      "line_items is the only overlapping field the request sends",
-    ),
-  )
   def test_conversion_uses_cart_contents_over_payload(self) -> None:
     """Cart contents win over overlapping fields in the checkout payload."""
     cart = self._create_cart(quantity=2)
@@ -185,10 +176,6 @@ class CartTest(ShoppingIntegrationTestBase):
     )
 
   # ── cart.md "Idempotent conversion" ────────────────────────────────────
-  @spec_assert(
-    # an incomplete checkout for the cart_id MUST be returned, not a new one
-    "REQ-SHOPPING-CART-0005",
-  )
   def test_second_conversion_returns_the_existing_checkout(self) -> None:
     """A cart with an incomplete checkout converts to that same checkout."""
     cart = self._create_cart()
@@ -203,12 +190,6 @@ class CartTest(ShoppingIntegrationTestBase):
     )
 
   # ── cart.md "Cancel Cart" ──────────────────────────────────────────────
-  @spec_assert(
-    partly(
-      "REQ-SHOPPING-CART-0025",  # MUST return the cart state before deletion
-      "the id and the line items' item ids and quantities only",
-    ),
-  )
   def test_cancel_returns_the_cart_state_before_deletion(self) -> None:
     """Cancelling a cart returns the cart as it was before deletion."""
     cart = self._create_cart(quantity=3)
@@ -236,13 +217,6 @@ class CartTest(ShoppingIntegrationTestBase):
     )
 
   # ── discount.md "Cart-to-checkout continuity" ──────────────────────────
-  @spec_assert(
-    partly(
-      "REQ-SHOPPING-DISCOUNT-0003",  # MUST carry forward the cart's codes
-      "one code, taken as carried when the checkout names it or shows a "
-      "discount at least as large as the cart's",
-    ),
-  )
   def test_cart_discount_codes_carry_forward_to_checkout(self) -> None:
     """Discount codes applied to a cart survive conversion to a checkout."""
     if not self._discount_extends_cart():
