@@ -594,6 +594,48 @@ def describe_messages(messages: list[dict[str, Any]]) -> str:
   return "\n".join(lines) or "  (no messages)"
 
 
+def message_text(message: dict[str, Any]) -> str:
+  """Return a message's code and content as one lower-case string."""
+  content = message.get("content")
+  if isinstance(content, dict):
+    content = content.get("plain") or " ".join(str(v) for v in content.values())
+  return f"{message.get('code') or ''} {content or ''}".casefold()
+
+
+def explains(
+  message: dict[str, Any],
+  *,
+  paths: tuple[str, ...] = (),
+  codes: frozenset[str] | set[str] = frozenset(),
+  words: tuple[str, ...] = (),
+) -> bool:
+  """Return whether a `messages[]` entry speaks to a given problem.
+
+  The spec's error `code` is free-form beyond a short table of standard
+  codes, and most conditions a test provokes have no fixed code, so a
+  message counts as explaining the problem when any of these holds:
+
+  * its `path` points into one of `paths` (`$.payment` matches
+    `$.payment.instruments[0]`);
+  * its `code` is one of `codes`;
+  * its code or content mentions one of `words` (case-insensitive).
+
+  Args:
+    message: One `messages[]` entry as the server returned it.
+    paths: JSON paths of the member the problem is about.
+    codes: Error codes that name the problem.
+    words: Words that describe it.
+
+  """
+  path = str(message.get("path") or "")
+  if path and any(path == p or path.startswith(p) for p in paths):
+    return True
+  if message.get("code") in codes:
+    return True
+  text = message_text(message)
+  return any(word.casefold() in text for word in words)
+
+
 def placed_order(body: Any) -> dict[str, Any] | None:
   """Return the order a completed checkout carries, else None.
 
@@ -933,6 +975,172 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
         len(errors),
         describe_messages(errors),
       )
+
+  # The statuses a checkout may report while it carries an error message
+  # and has not been completed (checkout.json status enum).
+  NON_COMPLETED_STATUSES = frozenset(
+    {
+      "incomplete",
+      "requires_escalation",
+      "ready_for_complete",
+      "complete_in_progress",
+      "canceled",
+    }
+  )
+
+  def assert_business_error(
+    self,
+    response: httpx.Response,
+    *,
+    about: str,
+    paths: tuple[str, ...] = (),
+    codes: frozenset[str] | set[str] = frozenset(),
+    words: tuple[str, ...] = (),
+    terminal: str | None = None,
+  ) -> None:
+    """Assert a business-level refusal in any posture the spec permits.
+
+    The spec models business failures in-band: checkout/rest.md's Error
+    Response example answers an all-items-out-of-stock create with HTTP
+    200 and `ucp.status: "error"` plus a typed `messages[]` entry, and a
+    failure on an existing session rides as error messages on the
+    checkout itself ("Business outcomes: Return HTTP 200 with UCP envelope
+    and messages array"). A transport-level 4xx, the posture the sample
+    server implements, is accepted too. Each posture is checked strictly:
+
+    * 4xx: the body describes the problem (a UCP Error Response whose
+      error message explains it, or a `detail` / text that mentions one
+      of `words`).
+    * 200/201: `messages[]` carries at least one `type: "error"` entry
+      with the full envelope (type, code, content, severity, which
+      message_error.json requires), and at least one error explains the
+      problem — by `path`, `code` or wording, see `explains`; the spec
+      fixes no code for most conditions. Two in-band shapes are accepted:
+
+      * resourceless (no `id`): the Error Response shape, `ucp.status`
+        must be `"error"` (checkout/index.md: "no resource is included in
+        the response body");
+      * resource-bearing (`id` present): the checkout itself with the
+        failure in `messages[]`; `ucp.status` must not claim `"error"`,
+        and the checkout must not have been completed by the failed
+        call — unless `terminal` names the status the session already
+        had (`"completed"` or `"canceled"`), in which case the business
+        returned it unchanged, order and all.
+
+    Args:
+      response: The response to the refused request.
+      about: What was refused, for the failure message.
+      paths: JSON paths an explaining message may point into.
+      codes: Error codes that name the problem.
+      words: Words that describe it, in a message or a 4xx body.
+      terminal: The status the session was already in, when the request
+        was refused for being made on a terminal session.
+
+    """
+    if 400 <= response.status_code < 500:
+      self._assert_structured_4xx_error(
+        response, about=about, paths=paths, codes=codes, words=words
+      )
+      return
+
+    self.assert_response_status(response, [200, 201])
+    data = response.json()
+    errors = error_messages(data)
+    self.assertTrue(
+      errors,
+      f"A refusal ({about}) answered with {response.status_code} must carry"
+      " an in-band messages[] entry of type 'error' (checkout/index.md,"
+      f" Error Handling); got: {response.text[:500]}",
+    )
+    for message in errors:
+      for field in ("type", "code", "content", "severity"):
+        self.assertTrue(
+          message.get(field),
+          f"Error message missing required field '{field}' "
+          f"(message_error.json): {message}",
+        )
+    self.assertTrue(
+      any(explains(m, paths=paths, codes=codes, words=words) for m in errors),
+      f"Expected an error message about {about} (a path under"
+      f" {list(paths) or '-'}, a code in {sorted(codes) or '-'}, or a"
+      f" mention of {list(words) or '-'}); got:\n{describe_messages(errors)}",
+    )
+    ucp_envelope = data.get("ucp") or {}
+    if data.get("id") is None:
+      # Resourceless Error Response shape: no resource was established.
+      self.assertEqual(
+        ucp_envelope.get("status"),
+        "error",
+        "Expected ucp.status 'error' on a resourceless refusal "
+        "(checkout/index.md: 'no resource is included in the response "
+        f"body'); got: {response.text[:500]}",
+      )
+      return
+    # Resource-bearing shape: the session exists and the failure rides as
+    # messages[] on it. ucp.status 'error' means error information is
+    # returned INSTEAD of a resource, so a resource-bearing answer must
+    # not claim it (absent defaults to 'success' per ucp.json).
+    self.assertEqual(
+      ucp_envelope.get("status", "success"),
+      "success",
+      "A response carrying a checkout resource must not set ucp.status "
+      "'error' (checkout/index.md: an error-status response includes no "
+      "resource)",
+    )
+    if terminal is not None:
+      self.assertEqual(
+        data.get("status"),
+        terminal,
+        f"A refusal on a {terminal} session must return it unchanged;"
+        f" got status {data.get('status')!r}",
+      )
+      return
+    self.assertIn(
+      data.get("status"),
+      self.NON_COMPLETED_STATUSES,
+      "A checkout carrying an in-band refusal must report a valid, "
+      f"non-'completed' status; got {data.get('status')!r}",
+    )
+    self.assertIsNone(
+      data.get("order"),
+      "A checkout carrying an in-band refusal must not carry an order",
+    )
+
+  def _assert_structured_4xx_error(
+    self,
+    response: httpx.Response,
+    *,
+    about: str,
+    paths: tuple[str, ...],
+    codes: frozenset[str] | set[str],
+    words: tuple[str, ...],
+  ) -> None:
+    """Assert that a 4xx body describes the refused request's problem."""
+    try:
+      data = response.json()
+    except ValueError:
+      data = None
+    if isinstance(data, dict) and isinstance(data.get("messages"), list):
+      errors = error_messages(data)
+      self.assertTrue(
+        errors,
+        f"A 4xx Error Response ({about}) must carry at least one error"
+        f" message; got: {response.text[:500]}",
+      )
+      self.assertTrue(
+        any(explains(m, paths=paths, codes=codes, words=words) for m in errors),
+        f"Expected the 4xx error message to be about {about}; got:\n"
+        f"{describe_messages(errors)}",
+      )
+      return
+    text = (
+      str(data.get("detail")) if isinstance(data, dict) else response.text
+    ).casefold()
+    self.assertTrue(
+      any(word.casefold() in text for word in words),
+      f"Expected the 4xx body to describe {about} (one of {list(words)});"
+      f" got: {response.text[:500]}",
+    )
 
   def ensure_fulfillment_ready(self, checkout_id: str) -> Any:
     """Ensure a fulfillment option is selected for the checkout."""

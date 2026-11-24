@@ -458,5 +458,251 @@ class CompletionAgainstStrictStoreTest(unittest.TestCase):
     self.assertNotIn("handlers", last_put["payment"])
 
 
+class ExplainsTest(unittest.TestCase):
+  """`explains` matches a message by path, code or wording."""
+
+  def test_path_prefix(self):
+    """A path under one of `paths` matches; an unrelated path does not."""
+    message = {"code": "x", "path": "$.payment.instruments[0]", "content": ""}
+    self.assertTrue(base.explains(message, paths=("$.payment",)))
+    self.assertFalse(base.explains(message, paths=("$.fulfillment",)))
+
+  def test_code_and_words(self):
+    """A listed code or a mentioned word matches, case-insensitively."""
+    message = {"code": "payment_declined", "content": "The CARD was declined."}
+    self.assertTrue(base.explains(message, codes={"payment_declined"}))
+    self.assertTrue(base.explains(message, words=("card",)))
+    self.assertFalse(base.explains(message, codes={"other"}, words=("x",)))
+
+  def test_rich_content(self):
+    """`{plain: ...}` content is searched as text."""
+    message = {"code": "x", "content": {"plain": "Choose a shipping option"}}
+    self.assertTrue(base.explains(message, words=("shipping",)))
+
+
+def _response(status: int, body) -> "base.httpx.Response":
+  """Return an httpx response with a JSON (or text) body and a request."""
+  request = base.httpx.Request("POST", "https://store.example/ucp/x")
+  if isinstance(body, str):
+    return base.httpx.Response(status, text=body, request=request)
+  return base.httpx.Response(status, json=body, request=request)
+
+
+class AssertBusinessErrorTest(unittest.TestCase):
+  """`assert_business_error` accepts every posture the spec permits."""
+
+  def setUp(self):
+    """Make a probe to call the assertion on; it needs no server here."""
+    self.probe = make_probe(strict_store.StrictStore())
+    self.kwargs = {
+      "about": "the failed payment",
+      "paths": ("$.payment",),
+      "codes": {"payment_failed"},
+      "words": ("payment", "card"),
+    }
+
+  def test_4xx_with_ucp_error_response(self):
+    """A 4xx Error Response whose message explains the problem passes."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "whatever",
+          "path": "$.payment",
+          "content": "No.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(422, body), **self.kwargs)
+
+  def test_4xx_with_detail_or_text(self):
+    """A legacy 4xx body passes when its text mentions the problem."""
+    self.probe.assert_business_error(
+      _response(400, {"detail": "Payment was declined"}), **self.kwargs
+    )
+    self.probe.assert_business_error(
+      _response(402, "card declined"), **self.kwargs
+    )
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(400, {"detail": "nope"}), **self.kwargs
+      )
+
+  def test_in_band_error_response(self):
+    """HTTP 200 with ucp.status error and an explaining message passes."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "payment_declined",
+          "path": "$.payment",
+          "content": "Declined.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    body["ucp"]["status"] = "success"  # resourceless but not an error
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+
+  def test_resource_with_message(self):
+    """The checkout with the error on it passes while not completed."""
+    body = {
+      "id": "chk_1",
+      "status": "incomplete",
+      "messages": [
+        {
+          "type": "error",
+          "code": "any_code",
+          "path": "$.payment.instruments[0]",
+          "content": "Declined.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    body["status"] = "completed"
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+
+  def test_terminal_session_returned_unchanged(self):
+    """With `terminal`, the completed checkout, order and all, passes."""
+    body = {
+      "id": "chk_1",
+      "status": "completed",
+      "order": {"id": "ord_1"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "invalid_parameter",
+          "path": "$.status",
+          "content": "Cannot cancel completed checkout",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(
+      _response(200, body),
+      about="cancelling a completed session",
+      codes={"invalid_parameter"},
+      terminal="completed",
+    )
+    body["status"] = "canceled"  # changed by the refused call: wrong
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(200, body),
+        about="cancelling a completed session",
+        codes={"invalid_parameter"},
+        terminal="completed",
+      )
+
+  def test_silent_acceptance_and_unrelated_errors_fail(self):
+    """A 200 without an error message, or with an unrelated one, fails."""
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(200, {"id": "chk_1", "status": "incomplete"}),
+        **self.kwargs,
+      )
+    unrelated = {
+      "id": "chk_1",
+      "status": "incomplete",
+      "messages": [
+        {
+          "type": "error",
+          "code": "missing",
+          "path": "$.buyer.email",
+          "content": "Buyer email is required",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    with self.assertRaises(AssertionError) as caught:
+      self.probe.assert_business_error(_response(200, unrelated), **self.kwargs)
+    self.assertIn("about the failed payment", str(caught.exception))
+    self.assertIn("missing at $.buyer.email", str(caught.exception))
+
+  def test_message_envelope_is_required(self):
+    """An error message without severity fails (message_error.json)."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {"type": "error", "code": "payment_failed", "content": "No."}
+      ],
+    }
+    with self.assertRaises(AssertionError) as caught:
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    self.assertIn("severity", str(caught.exception))
+
+
+class TerminalSessionsAgainstStrictStoreTest(unittest.TestCase):
+  """The store's in-band refusals on completed and canceled sessions pass."""
+
+  def test_refusals_on_a_completed_session(self):
+    """Cancel, update and complete-again are refused in-band and accepted."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+    completed = probe.complete_checkout_session(created["id"])
+    vocabulary = {
+      "paths": ("$.status",),
+      "codes": {"invalid_parameter", "not_found"},
+      "words": ("cancel", "complete", "update"),
+    }
+
+    cancel = probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    probe.assert_business_error(
+      cancel, about="cancelling", terminal="completed", **vocabulary
+    )
+    update = probe.client.put(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}",
+      json={"buyer": {"email": "other@example.com"}},
+    )
+    probe.assert_business_error(
+      update, about="updating", terminal="completed", **vocabulary
+    )
+    again = probe.attempt_complete_checkout(created["id"])
+    probe.assert_business_error(
+      again, about="completing again", terminal="completed", **vocabulary
+    )
+    self.assertEqual(
+      store.checkouts[created["id"]]["order"]["id"], completed["order"]["id"]
+    )
+
+  def test_refusals_on_a_canceled_session(self):
+    """Update and complete after cancel are refused in-band and accepted."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session()
+    probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    vocabulary = {
+      "paths": ("$.status",),
+      "codes": {"invalid_parameter", "not_found"},
+      "words": ("cancel", "not found"),
+    }
+
+    update = probe.client.put(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}",
+      json={"buyer": {"email": "other@example.com"}},
+    )
+    probe.assert_business_error(
+      update, about="updating", terminal="canceled", **vocabulary
+    )
+    repeated = probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    probe.assert_business_error(
+      repeated, about="cancelling again", terminal="canceled", **vocabulary
+    )
+    self.assertEqual(store.checkouts[created["id"]]["status"], "canceled")
+
+
 if __name__ == "__main__":
   unittest.main()

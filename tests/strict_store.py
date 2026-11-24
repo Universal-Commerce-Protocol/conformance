@@ -389,6 +389,7 @@ class StrictStore:
             "type": "error",
             "code": "not_found",
             "content": f"Checkout '{checkout_id}' not found.",
+            "severity": "unrecoverable",
           }
         ],
       },
