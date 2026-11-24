@@ -36,10 +36,11 @@ webhooks beyond "an event arrives" (which webhook_test.py already covers):
     webhook deliveries, ``ucp-agent`` is a required signed component
     (signatures.md, REST Request Signing component table, footnote **).
 
-The signature tests skip loudly when the server sends completely unsigned
-deliveries (the current reference-server behavior), mirroring how other
-structural tests skip on shapes the server does not emit; the update-event
-test skips when the server exposes no /testing/simulate-shipping path.
+The signature tests fail when a delivery carries none of the signature
+headers, because order.md states signing as a MUST and a delivery has already
+arrived by then; the update-event test still skips when the server exposes no
+/testing/simulate-shipping path, which is a shape the server does not emit
+rather than an obligation it has missed.
 """
 
 import base64
@@ -317,24 +318,33 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
 
   # ── order.md "Webhook Signature Verification" ───────────────────────────
   def _signed_event(self) -> dict[str, Any]:
-    """Place an order and return its delivery, skipping if unsigned.
+    """Place an order and return its delivery, failing if it is unsigned.
 
-    A delivery with NONE of the signature headers means the server does not
-    implement webhook signing at all; the structural assertions would all
-    fail on the same root cause, so skip with one loud message instead
-    (order.md: payloads MUST be signed — this skip is a finding, not a pass).
+    A delivery with NONE of the signature headers means the business does not
+    sign webhook payloads, which order.md states as a MUST. The delivery has
+    already arrived by this point, because _place_order fails when none does,
+    so there is no question of the capability being absent: the business sent
+    an unsigned one. That is the violation, not a reason to stand down.
     """
     _, _, event = self._place_order()
-    if not any(event["headers"].get(h) for h in _SIGNATURE_HEADERS):
-      self.skipTest(
-        "server sends unsigned webhook deliveries (no UCP-Agent, Signature, "
-        "Signature-Input or Content-Digest header); order.md 'Webhook "
-        "Signature Verification' MUSTs are not exercised"
-      )
+    present = [h for h in _SIGNATURE_HEADERS if event["headers"].get(h)]
+    self.assertTrue(
+      present,
+      "webhook delivery carried none of the RFC 9421 signature headers "
+      f"{list(_SIGNATURE_HEADERS)}, so it is not signed the way order.md "
+      "Webhook Signature Verification requires. Any further failure in this "
+      "module has the same root cause.",
+    )
     return event
 
   @spec_assert(
     "REQ-SHOPPING-ORDER-0021",  # UCP-Agent header with the profile URL
+    partly(
+      "REQ-SHOPPING-ORDER-0016",  # payloads MUST be signed, stated since 01-11
+      "that a signature is present and the Content-Digest matches the body; "
+      "the signature is not verified against the signing_keys[] of the "
+      "business, so authenticity is checked only as far as the headers",
+    ),
     partly(
       "REQ-SHOPPING-ORDER-0022",  # sign payloads with RFC 9421 headers
       "the RFC 9421 headers, their shape and the Content-Digest; "
