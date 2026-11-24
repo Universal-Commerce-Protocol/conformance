@@ -1,0 +1,708 @@
+#   Copyright 2026 UCP Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+"""Unit tests for the checkout set-up and completion helpers.
+
+They drive the suite's own helpers (`create_checkout_session`,
+`complete_checkout_session`, `create_completed_order`) against the scripted
+store in `strict_store.py`, which behaves the way a business the sample
+server does not resemble may: it needs a buyer to place an order, answers
+in-band, and returns no `payment` member. No server or fixture file is
+needed.
+"""
+
+import json
+import unittest
+from unittest import mock
+
+from shopping import base
+from tests import strict_store
+
+
+def make_probe(
+  store: strict_store.StrictStore,
+) -> base.ShoppingIntegrationTestBase:
+  """Return a test instance whose requests land in `store`.
+
+  The class is defined here, not at module level, so that pytest does not
+  collect it as a test of its own.
+  """
+
+  class Probe(base.ShoppingIntegrationTestBase):
+    """A test instance wired to a scripted store instead of a live server."""
+
+    def runTest(self):  # noqa: N802 - unittest's default method name
+      """Do nothing; the helpers are called directly."""
+
+  probe = Probe()
+  probe.client = store.client()
+  probe._shopping_service_endpoint = strict_store.ENDPOINT
+  probe.conformance_config = {}
+  probe.fixture_ctx = base.DynamicFixtureContext({})
+  # The completion poll waits for real time otherwise.
+  probe.COMPLETION_POLL_SECONDS = 0
+  return probe
+
+
+def sent_json(request) -> dict:
+  """Return the JSON body a recorded request carried."""
+  return json.loads(request.content)
+
+
+class CreateCheckoutPayloadTest(unittest.TestCase):
+  """The Create Checkout body is what the spec takes as input."""
+
+  def setUp(self):
+    """Build the default body once."""
+    self.probe = make_probe(strict_store.StrictStore())
+    self.body = self.probe.create_checkout_payload().model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
+
+  def test_destination_uses_the_spec_field_names(self):
+    """`address_locality` and `address_region`, not `locality`/`region`."""
+    destination = self.body["fulfillment"]["methods"][0]["destinations"][0]
+    self.assertIn("address_locality", destination)
+    self.assertIn("address_region", destination)
+    self.assertNotIn("locality", destination)
+    self.assertNotIn("region", destination)
+    self.assertEqual(destination["type"], "shipping_address")
+
+  def test_no_option_is_preselected_and_no_ids_are_invented(self):
+    """The business offers the options; nothing names `std-ship`."""
+    method = self.body["fulfillment"]["methods"][0]
+    self.assertNotIn("groups", method)
+    self.assertNotIn("line_item_ids", method)
+    self.assertNotIn("id", method)
+    self.assertEqual(method["selected_destination_id"], "dest_1")
+    self.assertNotIn("std-ship", json.dumps(self.body))
+    self.assertNotIn("line_item_123", json.dumps(self.body))
+
+  def test_only_request_members_are_sent(self):
+    """No id, status, currency, totals, links or ucp at the root."""
+    for member in ("id", "status", "currency", "totals", "links", "ucp"):
+      self.assertNotIn(member, self.body)
+    line_item = self.body["line_items"][0]
+    self.assertEqual(set(line_item), {"item", "quantity"})
+    self.assertEqual(set(line_item["item"]), {"id"})
+
+  def test_buyer_and_context_pass_through(self):
+    """A buyer and a context are inputs and go through unchanged."""
+    body = self.probe.create_checkout_payload(
+      buyer={"email": "b@example.com"}, context={"source": "test"}
+    ).model_dump(mode="json", by_alias=True, exclude_none=True)
+    self.assertEqual(body["buyer"], {"email": "b@example.com"})
+    self.assertEqual(body["context"], {"source": "test"})
+
+  def test_fulfillment_can_be_left_out(self):
+    """`include_fulfillment=False` sends no fulfillment at all."""
+    body = self.probe.create_checkout_payload(
+      include_fulfillment=False
+    ).model_dump(mode="json", by_alias=True, exclude_none=True)
+    self.assertNotIn("fulfillment", body)
+
+
+class CompletionProblemTest(unittest.TestCase):
+  """`completion_problem` reads a Complete Checkout response."""
+
+  def test_completed_with_order_is_no_problem(self):
+    """A completed checkout carrying an order placed it."""
+    body = {"status": "completed", "order": {"id": "ord_1"}}
+    self.assertIsNone(base.completion_problem(body))
+    self.assertEqual(base.placed_order(body), {"id": "ord_1"})
+
+  def test_incomplete_quotes_status_and_errors(self):
+    """The business's status and its error messages are in the sentence."""
+    body = {
+      "status": "incomplete",
+      "messages": [
+        {
+          "type": "error",
+          "code": "missing_buyer_info",
+          "path": "$.buyer.email",
+          "content": "Buyer email is required to complete checkout.",
+        },
+        {"type": "info", "code": "note", "content": "ignored"},
+      ],
+    }
+    problem = base.completion_problem(body)
+    self.assertIn("status 'incomplete' without an order", problem)
+    self.assertIn("missing_buyer_info at $.buyer.email", problem)
+    self.assertIn("Buyer email is required", problem)
+    self.assertNotIn("ignored", problem)
+
+  def test_error_response_is_named_as_such(self):
+    """An Error Response (ucp.status error, no resource) is described."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [{"type": "error", "code": "not_found", "content": "Gone."}],
+    }
+    problem = base.completion_problem(body)
+    self.assertIn("Error Response", problem)
+    self.assertIn("not_found: Gone.", problem)
+
+  def test_completed_without_order_and_in_progress(self):
+    """The two other shapes that have placed nothing yet."""
+    self.assertIn(
+      "'completed' without an order",
+      base.completion_problem({"status": "completed"}),
+    )
+    self.assertIn(
+      "complete_in_progress",
+      base.completion_problem({"status": "complete_in_progress"}),
+    )
+
+  def test_non_object_body(self):
+    """A body that is not a JSON object is reported, not crashed on."""
+    self.assertIn("no JSON object", base.completion_problem("<html>"))
+    self.assertEqual(base.error_messages("<html>"), [])
+
+  def test_describe_messages_renders_rich_content(self):
+    """A `{plain: ...}` content renders as its plain text."""
+    text = base.describe_messages(
+      [{"code": "x", "path": "$.y", "content": {"plain": "Plain."}}]
+    )
+    self.assertEqual(text, "  - x at $.y: Plain.")
+    self.assertEqual(base.describe_messages([]), "  (no messages)")
+
+
+class CompletionAgainstStrictStoreTest(unittest.TestCase):
+  """The completion helpers against a business that needs a buyer."""
+
+  def test_create_completed_order_sends_the_buyer_on_create(self):
+    """The order is placed; the buyer went in the Create Checkout body."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+
+    order_id = probe.create_completed_order()
+
+    self.assertTrue(order_id.startswith("ord_"))
+    create = sent_json(store.requests[0])
+    self.assertEqual(
+      create["buyer"]["email"],
+      base.ShoppingIntegrationTestBase.DEFAULT_BUYER["email"],
+    )
+    completed = store.checkouts[next(iter(store.checkouts))]
+    self.assertEqual(completed["status"], "completed")
+    # No buyer update was needed: the buyer was on the checkout from the
+    # start, and the only PUT selected the shipping option.
+    puts = [r for r in store.requests if r.method == "PUT"]
+    self.assertEqual(len(puts), 1)
+    self.assertNotIn(
+      "buyer",
+      {
+        k: v
+        for k, v in sent_json(puts[0]).items()
+        if k == "buyer" and v is None
+      },
+    )
+
+  def test_complete_checkout_session_adds_a_missing_buyer(self):
+    """A checkout created without a buyer gets one before completion."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session()
+    self.assertEqual(created["status"], "incomplete")
+    self.assertEqual(
+      [m["code"] for m in created["messages"]], ["missing_buyer_info"]
+    )
+
+    completed = probe.complete_checkout_session(created["id"])
+
+    self.assertEqual(completed["status"], "completed")
+    self.assertIn("id", completed["order"])
+    buyer_puts = [
+      r
+      for r in store.requests
+      if r.method == "PUT" and sent_json(r).get("buyer", {}).get("email")
+    ]
+    self.assertEqual(len(buyer_puts), 1)
+    self.assertEqual(
+      sent_json(buyer_puts[0])["buyer"]["email"],
+      probe.DEFAULT_BUYER["email"],
+    )
+
+  def test_a_buyer_already_on_the_checkout_is_kept(self):
+    """An explicit buyer is not replaced by the default one."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer={"email": "me@example.com"})
+
+    probe.complete_checkout_session(created["id"])
+
+    checkout = store.checkouts[created["id"]]
+    self.assertEqual(checkout["buyer"]["email"], "me@example.com")
+    self.assertEqual(checkout["status"], "completed")
+
+  def test_default_payload_raises_no_fulfillment_errors(self):
+    """With the spec field names the store has nothing to complain about.
+
+    Before, `locality`/`region` and the sample store's `std-ship` option
+    gave every default checkout two errors the helper then dropped.
+    """
+    store = strict_store.StrictStore(needs_buyer=False)
+    probe = make_probe(store)
+
+    created = probe.create_checkout_session()
+
+    self.assertEqual(created["messages"], [])
+    self.assertEqual(created["status"], "ready_for_complete")
+    method = created["fulfillment"]["methods"][0]
+    self.assertEqual(method["groups"][0]["selected_option_id"], "ground")
+
+  def test_refusal_fails_with_the_business_words(self):
+    """No order: the failure quotes the status and the error message."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+    failing = base.get_valid_payment_payload()
+    failing["payment"]["instruments"][0]["credential"]["token"] = "fail_token"
+
+    with self.assertRaises(AssertionError) as caught:
+      probe.complete_checkout_session(created["id"], payment_payload=failing)
+
+    message = str(caught.exception)
+    self.assertIn("status 'incomplete' without an order", message)
+    self.assertIn("payment_declined at $.payment", message)
+    self.assertIn("read back as status 'ready_for_complete'", message)
+    self.assertNotIn("KeyError", message)
+
+  def test_accepted_completion_is_followed_with_get(self):
+    """`complete_in_progress` is polled with Get Checkout until it settles."""
+    store = strict_store.StrictStore(async_completion=True)
+    probe = make_probe(store)
+
+    order_id = probe.create_completed_order()
+
+    self.assertTrue(order_id.startswith("ord_"))
+    methods = [r.method for r in store.requests]
+    # POST complete, then at least one GET, and no second POST complete.
+    completes = [r for r in store.requests if r.url.path.endswith("/complete")]
+    self.assertEqual(len(completes), 1)
+    self.assertEqual(methods[-1], "GET")
+
+  def test_accepted_completion_that_never_settles_fails_in_words(self):
+    """A completion that stays in progress fails with that status named."""
+    store = strict_store.StrictStore(async_completion=True)
+    probe = make_probe(store)
+    probe.COMPLETION_POLLS = 0  # Do not poll at all.
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+
+    with self.assertRaises(AssertionError) as caught:
+      probe.complete_checkout_session(created["id"])
+
+    self.assertIn("complete_in_progress", str(caught.exception))
+
+  def test_no_payment_member_does_not_crash_the_update_helper(self):
+    """The store returns no `payment`; updates are still built."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(select_fulfillment=False)
+    self.assertNotIn("payment", created)
+    checkout_obj = base.f_models.Checkout(**created)
+
+    payload = probe.checkout_update_payload(
+      checkout_obj, buyer={"email": "x@example.com", "first_name": "X"}
+    )
+
+    self.assertEqual(payload["buyer"]["email"], "x@example.com")
+    self.assertNotIn("payment", payload)
+
+  def test_an_instrument_on_the_checkout_is_carried_over(self):
+    """A checkout that already carries an instrument is still updatable.
+
+    The response model's instrument objects are not the request model's;
+    the helper dumps them to JSON, as it does the other carried fields.
+    """
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(select_fulfillment=False)
+    created["payment"] = {
+      "instruments": [
+        {
+          "id": "instr_1",
+          "handler_id": "mock_payment_handler",
+          "type": "card",
+          "display": {"brand": "Visa", "last_digits": "1234"},
+        }
+      ]
+    }
+    checkout_obj = base.f_models.Checkout(**created)
+
+    payload = probe.checkout_update_payload(
+      checkout_obj, buyer={"email": "x@example.com"}
+    )
+
+    self.assertEqual(payload["payment"]["instruments"][0]["id"], "instr_1")
+    self.assertEqual(payload["buyer"]["email"], "x@example.com")
+
+  def test_errors_the_test_did_not_ask_for_are_logged(self):
+    """Error messages on a fresh checkout reach the log."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+
+    with mock.patch.object(base.logging, "warning") as warning:
+      probe.create_checkout_session()
+
+    logged = " ".join(str(call) for call in warning.call_args_list)
+    self.assertIn("missing_buyer_info", logged)
+
+  def test_create_checkout_destination_skips_null_or_empty_aliases(self):
+    """Null or empty destination aliases fall through to populated fallbacks."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    probe.fixture_ctx = base.DynamicFixtureContext(
+      {
+        "test_destination": {
+          "address_locality": None,
+          "locality": "",
+          "city": "Oakland",
+          "address_region": None,
+          "region": "",
+          "state": "OR",
+        }
+      }
+    )
+
+    body = probe.create_checkout_payload().model_dump(
+      mode="json", by_alias=True, exclude_none=True
+    )
+    destination = body["fulfillment"]["methods"][0]["destinations"][0]
+    self.assertEqual(destination["address_locality"], "Oakland")
+    self.assertEqual(destination["address_region"], "OR")
+
+  def test_attempt_complete_checkout_omits_buyer_field(self):
+    """Complete Checkout sends payment + risk_signals only, never buyer."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+
+    response = probe.attempt_complete_checkout(created["id"])
+    self.assertEqual(response.status_code, 200)
+    complete_body = sent_json(store.requests[-1])
+    self.assertNotIn("buyer", complete_body)
+    self.assertIn("payment", complete_body)
+
+  def test_lifecycle_complete_helper_settles_and_checks_outcome(self):
+    """`_complete_checkout` settles async completion and fails on errors."""
+    from shopping.checkout import lifecycle_test
+
+    # 1. Async completion settles via GET before returning.
+    async_store = strict_store.StrictStore(async_completion=True)
+    case = lifecycle_test.CheckoutLifecycleTest("test_complete_is_idempotent")
+    case.client = async_store.client()
+    case._shopping_service_endpoint = strict_store.ENDPOINT
+    case.conformance_config = {}
+    case.fixture_ctx = base.DynamicFixtureContext({})
+    case.COMPLETION_POLL_SECONDS = 0
+    created = case.create_checkout_session(buyer=case.DEFAULT_BUYER)
+    settled = case._complete_checkout(created["id"])
+    self.assertEqual(settled["status"], "completed")
+
+    # 2. In-band completion failure raises AssertionError instead of passing.
+    strict = strict_store.StrictStore(needs_buyer=True)
+    case2 = lifecycle_test.CheckoutLifecycleTest("test_complete_is_idempotent")
+    case2.client = strict.client()
+    case2._shopping_service_endpoint = strict_store.ENDPOINT
+    case2.conformance_config = {}
+    case2.fixture_ctx = base.DynamicFixtureContext({})
+    case2.COMPLETION_POLL_SECONDS = 0
+    unready = case2.create_checkout_session()
+    with self.assertRaises(AssertionError) as caught:
+      case2._complete_checkout(unready["id"])
+    self.assertIn("missing_buyer_info", str(caught.exception))
+
+  def test_lifecycle_update_checkout_handles_saved_instruments(self):
+    """`test_update_checkout` carries saved instruments without failing."""
+    from shopping.checkout import lifecycle_test
+
+    store = strict_store.StrictStore()
+    orig_view = store._view
+
+    def view_with_saved_instrument(chk):
+      data = orig_view(chk)
+      data["payment"] = {
+        "instruments": [
+          {
+            "id": "instr_saved",
+            "handler_id": "mock_payment_handler",
+            "type": "card",
+            "display": {"brand": "Visa", "last_digits": "4242"},
+          }
+        ]
+      }
+      return data
+
+    store._view = view_with_saved_instrument  # type: ignore[method-assign]
+    case = lifecycle_test.CheckoutLifecycleTest("test_update_checkout")
+    case.client = store.client()
+    case._shopping_service_endpoint = strict_store.ENDPOINT
+    case.conformance_config = {}
+    case.fixture_ctx = base.DynamicFixtureContext({})
+
+    case.test_update_checkout()
+
+    last_put = sent_json([r for r in store.requests if r.method == "PUT"][-1])
+    self.assertEqual(last_put["payment"]["instruments"][0]["id"], "instr_saved")
+    self.assertNotIn("handlers", last_put["payment"])
+
+
+class ExplainsTest(unittest.TestCase):
+  """`explains` matches a message by path, code or wording."""
+
+  def test_path_prefix(self):
+    """A path under one of `paths` matches; an unrelated path does not."""
+    message = {"code": "x", "path": "$.payment.instruments[0]", "content": ""}
+    self.assertTrue(base.explains(message, paths=("$.payment",)))
+    self.assertFalse(base.explains(message, paths=("$.fulfillment",)))
+
+  def test_code_and_words(self):
+    """A listed code or a mentioned word matches, case-insensitively."""
+    message = {"code": "payment_declined", "content": "The CARD was declined."}
+    self.assertTrue(base.explains(message, codes={"payment_declined"}))
+    self.assertTrue(base.explains(message, words=("card",)))
+    self.assertFalse(base.explains(message, codes={"other"}, words=("x",)))
+
+  def test_rich_content(self):
+    """`{plain: ...}` content is searched as text."""
+    message = {"code": "x", "content": {"plain": "Choose a shipping option"}}
+    self.assertTrue(base.explains(message, words=("shipping",)))
+
+
+def _response(status: int, body) -> "base.httpx.Response":
+  """Return an httpx response with a JSON (or text) body and a request."""
+  request = base.httpx.Request("POST", "https://store.example/ucp/x")
+  if isinstance(body, str):
+    return base.httpx.Response(status, text=body, request=request)
+  return base.httpx.Response(status, json=body, request=request)
+
+
+class AssertBusinessErrorTest(unittest.TestCase):
+  """`assert_business_error` accepts every posture the spec permits."""
+
+  def setUp(self):
+    """Make a probe to call the assertion on; it needs no server here."""
+    self.probe = make_probe(strict_store.StrictStore())
+    self.kwargs = {
+      "about": "the failed payment",
+      "paths": ("$.payment",),
+      "codes": {"payment_failed"},
+      "words": ("payment", "card"),
+    }
+
+  def test_4xx_with_ucp_error_response(self):
+    """A 4xx Error Response whose message explains the problem passes."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "whatever",
+          "path": "$.payment",
+          "content": "No.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(422, body), **self.kwargs)
+
+  def test_4xx_with_detail_or_text(self):
+    """A legacy 4xx body passes when its text mentions the problem."""
+    self.probe.assert_business_error(
+      _response(400, {"detail": "Payment was declined"}), **self.kwargs
+    )
+    self.probe.assert_business_error(
+      _response(402, "card declined"), **self.kwargs
+    )
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(400, {"detail": "nope"}), **self.kwargs
+      )
+
+  def test_in_band_error_response(self):
+    """HTTP 200 with ucp.status error and an explaining message passes."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "payment_declined",
+          "path": "$.payment",
+          "content": "Declined.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    body["ucp"]["status"] = "success"  # resourceless but not an error
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+
+  def test_resource_with_message(self):
+    """The checkout with the error on it passes while not completed."""
+    body = {
+      "id": "chk_1",
+      "status": "incomplete",
+      "messages": [
+        {
+          "type": "error",
+          "code": "any_code",
+          "path": "$.payment.instruments[0]",
+          "content": "Declined.",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    body["status"] = "completed"
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+
+  def test_terminal_session_returned_unchanged(self):
+    """With `terminal`, the completed checkout, order and all, passes."""
+    body = {
+      "id": "chk_1",
+      "status": "completed",
+      "order": {"id": "ord_1"},
+      "messages": [
+        {
+          "type": "error",
+          "code": "invalid_parameter",
+          "path": "$.status",
+          "content": "Cannot cancel completed checkout",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    self.probe.assert_business_error(
+      _response(200, body),
+      about="cancelling a completed session",
+      codes={"invalid_parameter"},
+      terminal="completed",
+    )
+    body["status"] = "canceled"  # changed by the refused call: wrong
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(200, body),
+        about="cancelling a completed session",
+        codes={"invalid_parameter"},
+        terminal="completed",
+      )
+
+  def test_silent_acceptance_and_unrelated_errors_fail(self):
+    """A 200 without an error message, or with an unrelated one, fails."""
+    with self.assertRaises(AssertionError):
+      self.probe.assert_business_error(
+        _response(200, {"id": "chk_1", "status": "incomplete"}),
+        **self.kwargs,
+      )
+    unrelated = {
+      "id": "chk_1",
+      "status": "incomplete",
+      "messages": [
+        {
+          "type": "error",
+          "code": "missing",
+          "path": "$.buyer.email",
+          "content": "Buyer email is required",
+          "severity": "recoverable",
+        }
+      ],
+    }
+    with self.assertRaises(AssertionError) as caught:
+      self.probe.assert_business_error(_response(200, unrelated), **self.kwargs)
+    self.assertIn("about the failed payment", str(caught.exception))
+    self.assertIn("missing at $.buyer.email", str(caught.exception))
+
+  def test_message_envelope_is_required(self):
+    """An error message without severity fails (message_error.json)."""
+    body = {
+      "ucp": {"status": "error"},
+      "messages": [
+        {"type": "error", "code": "payment_failed", "content": "No."}
+      ],
+    }
+    with self.assertRaises(AssertionError) as caught:
+      self.probe.assert_business_error(_response(200, body), **self.kwargs)
+    self.assertIn("severity", str(caught.exception))
+
+
+class TerminalSessionsAgainstStrictStoreTest(unittest.TestCase):
+  """The store's in-band refusals on completed and canceled sessions pass."""
+
+  def test_refusals_on_a_completed_session(self):
+    """Cancel, update and complete-again are refused in-band and accepted."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session(buyer=probe.DEFAULT_BUYER)
+    completed = probe.complete_checkout_session(created["id"])
+    vocabulary = {
+      "paths": ("$.status",),
+      "codes": {"invalid_parameter", "not_found"},
+      "words": ("cancel", "complete", "update"),
+    }
+
+    cancel = probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    probe.assert_business_error(
+      cancel, about="cancelling", terminal="completed", **vocabulary
+    )
+    update = probe.client.put(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}",
+      json={"buyer": {"email": "other@example.com"}},
+    )
+    probe.assert_business_error(
+      update, about="updating", terminal="completed", **vocabulary
+    )
+    again = probe.attempt_complete_checkout(created["id"])
+    probe.assert_business_error(
+      again, about="completing again", terminal="completed", **vocabulary
+    )
+    self.assertEqual(
+      store.checkouts[created["id"]]["order"]["id"], completed["order"]["id"]
+    )
+
+  def test_refusals_on_a_canceled_session(self):
+    """Update and complete after cancel are refused in-band and accepted."""
+    store = strict_store.StrictStore()
+    probe = make_probe(store)
+    created = probe.create_checkout_session()
+    probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    vocabulary = {
+      "paths": ("$.status",),
+      "codes": {"invalid_parameter", "not_found"},
+      "words": ("cancel", "not found"),
+    }
+
+    update = probe.client.put(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}",
+      json={"buyer": {"email": "other@example.com"}},
+    )
+    probe.assert_business_error(
+      update, about="updating", terminal="canceled", **vocabulary
+    )
+    repeated = probe.client.post(
+      f"{strict_store.ENDPOINT}/checkout-sessions/{created['id']}/cancel"
+    )
+    probe.assert_business_error(
+      repeated, about="cancelling again", terminal="canceled", **vocabulary
+    )
+    self.assertEqual(store.checkouts[created["id"]]["status"], "canceled")
+
+
+if __name__ == "__main__":
+  unittest.main()

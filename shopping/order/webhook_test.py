@@ -129,13 +129,27 @@ class WebhookTest(ShoppingIntegrationTestBase):
       "no order-event webhook delivered for the completed order",
     )
 
-    # 4. Trigger Shipping
+    # 4. Trigger Shipping. The hook is the sample server's; a business
+    # without it has not failed anything the "Order created" check above
+    # did not already cover, so the test skips the shipment part as
+    # test_update_event_is_full_order_entity does.
     headers = self.get_headers()
     headers["Simulation-Secret"] = FLAGS.simulation_secret
     ship_response = self.client.post(
       f"/testing/simulate-shipping/{order_id}",
       headers=headers,
     )
+    if ship_response.status_code == 403:
+      self.skipTest(
+        "simulation secret rejected (/testing/simulate-shipping -> 403); "
+        "configure --simulation_secret to match the server under test"
+      )
+    if ship_response.status_code in (404, 405):
+      self.skipTest(
+        "server exposes no webhook simulation path "
+        f"(/testing/simulate-shipping -> {ship_response.status_code}); "
+        "cannot trigger an order update"
+      )
     self.assert_response_status(ship_response, 200)
 
     # 5. Verify Webhook Events
