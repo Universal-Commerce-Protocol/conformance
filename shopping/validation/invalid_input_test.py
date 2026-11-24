@@ -84,10 +84,9 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
     order_dict["adjustments"].append(adj)
 
     # Update Order
-    resp = self.client.put(
-      self.get_order_url(order_id),
-      json=order_dict,
-      headers=self.get_headers(),
+    resp = self.put_order_or_skip(
+      order_id,
+      order_dict,
     )
     # Pydantic validation error should result in 422
     self.assert_response_status(resp, 422)
@@ -119,10 +118,9 @@ class InvalidInputTest(ShoppingIntegrationTestBase):
     order_dict["adjustments"] = {"id": "adj_1", "amount": 100}
 
     # Update Order
-    resp = self.client.put(
-      self.get_order_url(order_id),
-      json=order_dict,
-      headers=self.get_headers(),
+    resp = self.put_order_or_skip(
+      order_id,
+      order_dict,
     )
 
     self.assert_response_status(resp, 422)

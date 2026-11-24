@@ -71,6 +71,12 @@ except ImportError:
 f_models.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
+# Statuses a server that follows the spec returns for `PUT /orders/{id}`,
+# which no spec version defines (404 for an unknown route, 405 for a known
+# path without that method).
+ORDER_UPDATE_UNSUPPORTED_STATUSES = frozenset({404, 405})
+
+
 class UnifiedUpdate(CheckoutUpdateRequest):
   """Client-side unified update model to support extensions."""
 
@@ -629,6 +635,36 @@ class ShoppingIntegrationTestBase(BaseIntegrationTest):
   def get_order_url(self, order_id: str) -> str:
     """Construct a full URL for an order resource."""
     return self.get_shopping_url(f"/orders/{order_id}")
+
+  def put_order_or_skip(self, order_id: str, payload: dict[str, Any]):
+    """Send `PUT /orders/{id}`, skipping the test if the server lacks it.
+
+    No spec version defines `PUT /orders/{id}`: the Order REST binding has
+    only Get Order, and order changes reach the platform through the Order
+    Event Webhook. Some sample servers expose PUT as their own endpoint, so
+    tests that use it still run there, but a server that follows the spec
+    answers 404 or 405 and the test is skipped instead of failing.
+
+    Args:
+      order_id: The order to update.
+      payload: The JSON body to send.
+
+    Returns:
+      The HTTP response, when the server accepted the method.
+
+    """
+    response = self.client.put(
+      self.get_order_url(order_id),
+      json=payload,
+      headers=self.get_headers(),
+    )
+    if response.status_code in ORDER_UPDATE_UNSUPPORTED_STATUSES:
+      self.skipTest(
+        f"PUT /orders/{{id}} returned {response.status_code}; the spec "
+        "defines only GET /orders/{id}, so the server is not required to "
+        "support order updates"
+      )
+    return response
 
   def assert_totals_consistent(
     self, checkout_obj, expected_subtotal, expected_discount=0

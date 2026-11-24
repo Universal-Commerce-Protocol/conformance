@@ -334,10 +334,9 @@ class OrderTest(ShoppingIntegrationTestBase):
       order_obj.fulfillment.events = []
     order_obj.fulfillment.events.append(new_event)
 
-    resp = self.client.put(
-      self.get_order_url(order_id),
-      json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
-      headers=self.get_headers(),
+    resp = self.put_order_or_skip(
+      order_id,
+      order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
     )
     self.assert_response_status(resp, 200)
 
@@ -384,10 +383,9 @@ class OrderTest(ShoppingIntegrationTestBase):
     order_obj.adjustments.append(adj)
 
     # Update Order
-    resp = self.client.put(
-      self.get_order_url(order_id),
-      json=order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
-      headers=self.get_headers(),
+    resp = self.put_order_or_skip(
+      order_id,
+      order_obj.model_dump(mode="json", by_alias=True, exclude_none=True),
     )
     self.assert_response_status(resp, 200)
 
