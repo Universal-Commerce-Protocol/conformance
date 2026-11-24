@@ -15,10 +15,12 @@
 """Base integration test class decoupled from specific business verticals."""
 
 import contextlib
+import functools
 import json
 import logging
 import os
 from pathlib import Path
+from typing import NoReturn
 from urllib.parse import urlsplit
 import uuid
 from absl import flags
@@ -26,11 +28,21 @@ from absl.testing import absltest
 from framework.agent_profile_server import AgentProfileServer
 from framework.constants import DEFAULT_UCP_VERSION
 from framework.content_digest import add_content_digest
+from framework.decorators import spec_marker
 from framework.discovery import (
   UcpProfile,
   fetch_server_profile,
   resolve_discovery_url,
 )
+from framework.outcomes import (
+  CAPABILITY,
+  ENVIRONMENT,
+  NO_TRIGGER,
+  NOT_EXERCISED,
+  skip_reason,
+)
+from framework.requirements import Catalog, CatalogError, load_catalog
+from framework.versions import applicability
 import httpx
 
 # Re-exported so suites can keep importing the default release from the base
@@ -258,6 +270,16 @@ def describe_exchange(
   return ""
 
 
+@functools.cache
+def _catalog() -> Catalog | None:
+  """Return the catalog, or None (with one warning) if it can't be loaded."""
+  try:
+    return load_catalog()
+  except CatalogError as error:
+    logging.warning("Could not load the requirements catalog: %s", error)
+    return None
+
+
 class BaseIntegrationTest(absltest.TestCase):
   """Agnostic foundation for all UCP protocol and capability tests."""
 
@@ -282,7 +304,9 @@ class BaseIntegrationTest(absltest.TestCase):
       FLAGS.server_url if FLAGS.is_parsed() else os.getenv("SERVER_URL")
     )
     if not server_url:
-      self.skipTest("Missing --server_url flag (or SERVER_URL variable)")
+      self.skip_environment(
+        "no --server_url flag or SERVER_URL variable names the server"
+      )
     self.base_url = server_url.rstrip("/")
     self.discovery_url = resolve_discovery_url(
       self.base_url, flag_value("discovery_url")
@@ -311,6 +335,10 @@ class BaseIntegrationTest(absltest.TestCase):
 
     # Capability filtering check from @requires_capability decorator
     self._verify_required_capabilities()
+
+    # Version check from a @spec_assert marker: the rules the test cites
+    # must be stated by the version the server implements.
+    self._verify_rules_apply()
 
     # Every request with a body carries an RFC 9530 Content-Digest.
     self.client = httpx.Client(
@@ -388,9 +416,29 @@ class BaseIntegrationTest(absltest.TestCase):
       for cap_name, min_ver in required_caps:
         if not self.server_profile.supports_capability(cap_name, min_ver):
           self.skipTest(
-            f"Server does not support required capability: '{cap_name}' "
-            f"(min_version: {min_ver or 'any'})"
+            skip_reason(
+              CAPABILITY, f"'{cap_name}' (min_version: {min_ver or 'any'})"
+            )
           )
+
+  def _verify_rules_apply(self) -> None:
+    """Skip the test if the server's version states none of its rules.
+
+    Only a test that cites rules with `spec_assert` can be skipped here, and
+    only when the server's profile is known. The skip reason starts with
+    the not-applicable prefix, so the runner records it apart from other
+    skips. A catalog that can't be loaded is logged once, not fatal: the
+    marker check reports it when asked.
+    """
+    marker = spec_marker(self)
+    if marker is None or self.server_profile is None:
+      return
+    catalog = _catalog()
+    if catalog is None:
+      return
+    result = applicability(marker, catalog, self.server_profile)
+    if not result.applies:
+      self.skipTest(result.skip_reason)
 
   def _start_agent_server(self) -> None:
     agent_port = FLAGS.mock_agent_port if FLAGS.is_parsed() else 8285
@@ -404,6 +452,42 @@ class BaseIntegrationTest(absltest.TestCase):
     self.agent_server.start()
     self.addCleanup(self.agent_server.stop)
 
+  # Skips that say why. Each category is counted by the runner's summary and
+  # the coverage report; see `framework.outcomes`.
+
+  def skip_no_trigger(self, needed: str) -> NoReturn:
+    """Skip because the fixtures declare no trigger for what the test needs.
+
+    Args:
+      needed: What the test needs the fixtures to declare, such as "a known
+        customer with two stored addresses".
+
+    """
+    self.skipTest(skip_reason(NO_TRIGGER, needed))
+
+  def skip_environment(self, why: str) -> NoReturn:
+    """Skip because of the run's own settings or surroundings.
+
+    Args:
+      why: What stops the test, and how to lift it, such as a server that
+        can't reach this machine's localhost.
+
+    """
+    self.skipTest(skip_reason(ENVIRONMENT, why))
+
+  def skip_not_exercised(self, what: str) -> NoReturn:
+    """Skip because the server's responses gave the test nothing to check.
+
+    For a rule that applies only when the server uses an optional feature,
+    or only to data the responses didn't carry.
+
+    Args:
+      what: What the responses lacked, such as "the server emits no
+        discount allocations[]".
+
+    """
+    self.skipTest(skip_reason(NOT_EXERCISED, what))
+
   def skip_unless_webhooks_reachable(self) -> None:
     """Skip if the server can't reach the mock webhook server.
 
@@ -412,7 +496,7 @@ class BaseIntegrationTest(absltest.TestCase):
     a tunnel, that reaches the mock webhook server.
     """
     if not is_local_url(self.base_url) and not flag_value("webhook_base_url"):
-      self.skipTest(
+      self.skip_environment(
         "the server is not on this machine, so it cannot deliver webhooks to "
         "localhost: pass --webhook_base_url with a public address, such as a "
         "tunnel, that reaches the mock webhook server's port"

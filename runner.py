@@ -26,6 +26,7 @@ import sys
 import unittest
 from absl import flags
 from framework import marker_check
+from framework import report as requirements_report
 from framework.base_test import BaseIntegrationTest, is_local_url
 from framework.discovery import (
   UcpProfile,
@@ -35,11 +36,15 @@ from framework.discovery import (
 from framework.outcomes import (
   ERROR,
   FAILED,
+  NOT_APPLICABLE,
   PASSED,
+  SKIP_CATEGORIES,
+  SKIP_LABELS,
   SKIPPED,
   RecordingResult,
 )
 from framework.platform import PlatformProfile
+from framework.requirements import CatalogError
 
 SUITE_REGISTRY: dict[str, list[str]] = {
   "core": [
@@ -430,6 +435,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     "catalog before running: strict stops on problems, warn only reports "
     "them, off skips the check (default: strict).",
   )
+  parser.add_argument(
+    "--requirements_report",
+    "--requirements-report",
+    dest="requirements_report",
+    metavar="DIR",
+    default=None,
+    help="Write the requirements coverage report for the selected shopping "
+    "tests to DIR. With --dry-run it needs no server and says which rules "
+    "have a test; after a run it also gives each test's outcome and each "
+    "rule's result.",
+  )
   args = parser.parse_args(argv)
   target = {}
   if args.target_dir:
@@ -517,6 +533,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     return 1
 
+  if args.requirements_report:
+    try:
+      if args.dry_run:
+        text = requirements_report.generate(loaded, args.requirements_report)
+        sys.stdout.write("\n" + text)
+      else:
+        requirements_report.prepare(args.requirements_report)
+    except (CatalogError, OSError) as error:
+      return _report_failed(error)
+
   if args.dry_run:
     sys.stdout.write("\nDry Run - Selected Tests:\n")
     for test in _iter_tests(test_suite):
@@ -574,21 +600,55 @@ def main(argv: list[str] | None = None) -> int:
   result = runner.run(test_suite)
 
   # One outcome per test (a test with two failing subtests is one failure),
-  # plus any class- or module-level fixture errors (`setUpClass` /
-  # `tearDownClass`), which unittest reports outside `TestCase` instances.
-  counts = collections.Counter(
-    outcome.status for outcome in result.outcomes.values()
+  # matching the requirements report, plus any class- or module-level fixture
+  # errors (`setUpClass` / `tearDownClass`). A skip that says the test doesn't
+  # apply to the server's version is reported apart from other skips, which are
+  # broken down by category.
+  outcomes = list(result.outcomes.values())
+  counts = collections.Counter(outcome.status for outcome in outcomes)
+  categories = collections.Counter(
+    outcome.category for outcome in outcomes if outcome.status == SKIPPED
   )
   sys.stdout.write("\n" + "=" * 70 + "\n")
   sys.stdout.write("CONFORMANCE TEST SUMMARY\n")
   sys.stdout.write(f"Total Executed: {result.testsRun}\n")
   sys.stdout.write(f"Passed: {counts[PASSED]}\n")
   sys.stdout.write(f"Skipped: {counts[SKIPPED]}\n")
+  if categories:
+    by_reason = ", ".join(
+      f"{SKIP_LABELS[category]} {categories[category]}"
+      for category in SKIP_CATEGORIES
+      if categories[category]
+    )
+    sys.stdout.write(f"  by reason: {by_reason}\n")
+  if counts[NOT_APPLICABLE]:
+    sys.stdout.write(f"Not applicable: {counts[NOT_APPLICABLE]}\n")
   sys.stdout.write(f"Failures: {counts[FAILED]}\n")
   sys.stdout.write(f"Errors: {counts[ERROR] + result.fixture_errors}\n")
   sys.stdout.write("=" * 70 + "\n")
 
+  if args.requirements_report:
+    report_outcomes = result.outcomes_for(test.test_id for test in loaded)
+    try:
+      text = requirements_report.generate(
+        loaded,
+        args.requirements_report,
+        outcomes=report_outcomes,
+        target=args.server_url,
+        profile=server_profile,
+      )
+    except (CatalogError, OSError) as error:
+      return _report_failed(error)
+    sys.stdout.write("\n" + text)
+
   return 0 if result.wasSuccessful() else 1
+
+
+def _report_failed(error: Exception) -> int:
+  """Say that the requirements report failed; return the exit code."""
+  sys.stdout.flush()
+  sys.stderr.write(f"\nRequirements report failed: {error}\n")
+  return 1
 
 
 if __name__ == "__main__":
