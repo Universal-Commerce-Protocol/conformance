@@ -14,6 +14,9 @@
 
 """Discount application tests for the UCP Shopping vertical."""
 
+import math
+from fractions import Fraction
+
 from absl.testing import absltest
 from framework.decorators import (
   no_rule,
@@ -46,6 +49,53 @@ from ucp_sdk.models.schemas.shopping.types import line_item_update_request
 checkout.Checkout.model_rebuild(_types_namespace={"Payment": Payment})
 
 
+# Neither discount.md nor total.json defines how a percentage discount becomes
+# an integer amount in minor units. The helpers below compute every amount a
+# business can produce under any rounding mode (round, truncate, floor, ceil),
+# so the assertions accept exactly those amounts and nothing else.
+
+
+def _percent_of(amount, percentage) -> Fraction:
+  """Return the exact `percentage` % of `amount`, before any rounding.
+
+  Fixture percentages arrive as floats (e.g. 12.5), so they go through
+  `str` to keep the decimal value the fixture author wrote.
+  """
+  return Fraction(amount) * Fraction(str(percentage)) / 100
+
+
+def _rounding_bounds(value: Fraction) -> set[int]:
+  """Return the integers any rounding mode can turn `value` into.
+
+  That is `{floor, ceil}`, which is a single amount when `value` is exact.
+  """
+  return {math.floor(value), math.ceil(value)}
+
+
+def _achievable_two_discounts(price, percentage1, percentage2) -> set[int]:
+  """Return every total discount two percentage codes can produce.
+
+  Covers cumulative stacking (both on the original price) and sequential
+  stacking (the second on the remaining balance) in either order, with the
+  amounts rounded per code or once on the combined value.
+  """
+  d1 = _percent_of(price, percentage1)
+  d2 = _percent_of(price, percentage2)
+  achievable = {
+    a + b for a in _rounding_bounds(d1) for b in _rounding_bounds(d2)
+  } | _rounding_bounds(d1 + d2)
+  for first, second in ((percentage1, percentage2), (percentage2, percentage1)):
+    exact_first = _percent_of(price, first)
+    for a in _rounding_bounds(exact_first):
+      achievable |= {
+        a + b for b in _rounding_bounds(_percent_of(price - a, second))
+      }
+    achievable |= _rounding_bounds(
+      exact_first + _percent_of(price - exact_first, second)
+    )
+  return achievable
+
+
 @requires_capability("dev.ucp.shopping.discount")
 class DiscountTest(ShoppingIntegrationTestBase):
   """Tests for applying discount codes to a checkout session.
@@ -69,7 +119,9 @@ class DiscountTest(ShoppingIntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = round(expected_price * (percentage / 100))
+    expected_discount = _rounding_bounds(
+      _percent_of(expected_price, percentage)
+    )
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -151,21 +203,11 @@ class DiscountTest(ShoppingIntegrationTestBase):
     percentage1 = self.fixture_ctx.get_expected_discount_percentage()
     percentage2 = self.fixture_ctx.get_expected_discount_percentage_2()
 
-    # Cumulative discount: each calculated on the original price
-    d1_cum = round(expected_price * (percentage1 / 100))
-    d2_cum = round(expected_price * (percentage2 / 100))
-    expected_discount_cumulative = d1_cum + d2_cum
-
-    # Sequential discount: second calculated on the remaining balance
-    d1_seq = round(expected_price * (percentage1 / 100))
-    d2_seq = round((expected_price - d1_seq) * (percentage2 / 100))
-    expected_discount_sequential = d1_seq + d2_seq
-
-    # Accept either approach
-    expected_discount = [
-      expected_discount_sequential,
-      expected_discount_cumulative,
-    ]
+    # Accept cumulative or sequential stacking, in either order and with any
+    # rounding mode, and nothing else.
+    expected_discount = _achievable_two_discounts(
+      expected_price, percentage1, percentage2
+    )
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
@@ -208,7 +250,9 @@ class DiscountTest(ShoppingIntegrationTestBase):
     valid_code = self.fixture_ctx.get_test_discount_code()
     expected_price = self.fixture_ctx.get_test_price()
     percentage = self.fixture_ctx.get_expected_discount_percentage()
-    expected_discount = round(expected_price * (percentage / 100))
+    expected_discount = _rounding_bounds(
+      _percent_of(expected_price, percentage)
+    )
 
     response_json = self.create_checkout_session(select_fulfillment=False)
     checkout_obj = checkout.Checkout(**response_json)
