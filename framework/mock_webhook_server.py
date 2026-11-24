@@ -37,6 +37,26 @@ def _partner_id_from_path(full_path: str) -> str | None:
   return None
 
 
+def _delivery_key(payload: Any, headers: dict[str, str], full_path: str) -> str:
+  """Name what a delivery is about, so its attempts can be counted apart.
+
+  The order in the body identifies a delivery. A body without one (a delta,
+  or no JSON at all) falls back to the Webhook-Id, which a retry keeps, and
+  then to the path. The order comes first on purpose: a sender that gives
+  each retry a new Webhook-Id is still retrying the same order, and should
+  be refused only as often as asked, so that the retry test reports the
+  changed id instead of never seeing a delivery accepted.
+  """
+  if isinstance(payload, dict):
+    order_id = payload.get("id")
+    if isinstance(order_id, str) and order_id:
+      return f"order:{order_id}"
+  webhook_id = headers.get("webhook-id")
+  if webhook_id:
+    return f"webhook-id:{webhook_id}"
+  return f"path:{full_path}"
+
+
 class MockWebhookServer:
   """Captures incoming webhook events for assertion during tests."""
 
@@ -45,14 +65,20 @@ class MockWebhookServer:
 
     Args:
       port: The port to listen on.
-      failures_before_success: Number of initial delivery attempts to record
-        and then reject with HTTP 500, so retry semantics can be exercised.
+      failures_before_success: How many delivery attempts for each order to
+        record and then reject with HTTP 500, so retry semantics can be
+        exercised. The count is kept per order, not over all deliveries: a
+        business that retries may still be delivering an earlier test's
+        order when a test starts, and that stray attempt must not use up
+        the refusal meant for the test's own order.
 
     """
     self.port = port
     self.failures_before_success = failures_before_success
     self.app = FastAPI()
     self.events: list[dict[str, Any]] = []
+    # Refusals given so far, by what the delivery is about (_delivery_key).
+    self._refusals: dict[str, int] = {}
     self._setup_routes()
     self._server: uvicorn.Server | None = None
     self._thread: threading.Thread | None = None
@@ -69,9 +95,12 @@ class MockWebhookServer:
       payload = None
       with contextlib.suppress(ValueError):
         payload = json.loads(raw_body)
-      response_status = (
-        500 if len(self.events) < self.failures_before_success else 200
-      )
+      key = _delivery_key(payload, headers, full_path)
+      refused = self._refusals.get(key, 0)
+      response_status = 200
+      if refused < self.failures_before_success:
+        self._refusals[key] = refused + 1
+        response_status = 500
       self.events.append(
         {
           "path": full_path,
@@ -119,5 +148,6 @@ class MockWebhookServer:
         self._thread.join(timeout=3)
 
   def clear_events(self) -> None:
-    """Clear all recorded webhook events."""
+    """Clear all recorded webhook events, and the refusal counts with them."""
     self.events.clear()
+    self._refusals.clear()
