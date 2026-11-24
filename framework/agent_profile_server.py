@@ -121,13 +121,18 @@ class AgentProfileServer:
     self._thread.start()
 
     for _ in range(50):
-      try:
-        with httpx.Client() as client:
-          resp = client.get(f"http://localhost:{self.port}/healthz")
-          if resp.status_code == 200:
-            return
-      except httpx.ConnectError:
-        time.sleep(0.05)
+      if not self._thread.is_alive():
+        break
+      if self._server.started:
+        try:
+          with httpx.Client(timeout=1.0) as client:
+            resp = client.get(f"http://localhost:{self.port}/healthz")
+            if resp.status_code == 200:
+              return
+        except httpx.HTTPError:
+          pass
+      time.sleep(0.05)
+    self.stop()
     raise RuntimeError(
       f"AgentProfileServer failed to start on port {self.port}"
     )
