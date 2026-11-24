@@ -274,8 +274,9 @@ uv run ucp-conformance \
   --suite=shopping
 ```
 
-Request signing is not covered: the tests send a placeholder
-`request-signature` header.
+The placeholder `request-signature` header has been removed. Requests with a
+body include a `Content-Digest` header (RFC 9530, SHA-256). RFC 9421 request
+signing is not yet covered.
 
 ---
 
