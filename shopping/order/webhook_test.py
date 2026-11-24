@@ -84,6 +84,24 @@ class WebhookTest(ShoppingIntegrationTestBase):
       and e["payload"].get("id") == order_id
     ]
 
+  def _first_delivery_for(
+    self, order_id: str, polls: int = 20
+  ) -> dict[str, Any] | None:
+    """Wait (up to 2s) for a delivery about the order; return the first.
+
+    Only deliveries about this order count. A business that retries may
+    still be delivering an earlier test's order when this test starts;
+    waiting for any delivery let such a stray end the wait before the
+    test's own delivery arrived, and reading the order id off every
+    delivery stopped on one whose body had none.
+    """
+    for _ in range(polls):
+      deliveries = self._deliveries_for(order_id)
+      if deliveries:
+        return deliveries[0]
+      time.sleep(0.1)
+    return None
+
   @spec_assert(
     partly(
       "REQ-SHOPPING-ORDER-0023",  # MUST send "Order created" with full entity
@@ -278,16 +296,10 @@ class WebhookTest(ShoppingIntegrationTestBase):
     complete_response = self.complete_checkout_session(checkout_obj.id)
     order_id = complete_response["order"]["id"]
 
-    for _ in range(20):
-      if len(self.webhook_server.events) >= 1:
-        break
-      time.sleep(0.1)
-
-    event = next(
-      (e for e in self.webhook_server.events if e["payload"]["id"] == order_id),
-      None,
+    event = self._first_delivery_for(order_id)
+    self.assertIsNotNone(
+      event, "no order-event webhook delivered for the completed order"
     )
-    self.assertIsNotNone(event)
     expectations = event["payload"]["fulfillment"]["expectations"]
     self.assertTrue(expectations)
     destination = expectations[0]["destination"]
@@ -371,16 +383,10 @@ class WebhookTest(ShoppingIntegrationTestBase):
     complete_response = self.complete_checkout_session(checkout_obj.id)
     order_id = complete_response["order"]["id"]
 
-    for _ in range(20):
-      if len(self.webhook_server.events) >= 1:
-        break
-      time.sleep(0.1)
-
-    event = next(
-      (e for e in self.webhook_server.events if e["payload"]["id"] == order_id),
-      None,
+    event = self._first_delivery_for(order_id)
+    self.assertIsNotNone(
+      event, "no order-event webhook delivered for the completed order"
     )
-    self.assertIsNotNone(event)
     expectations = event["payload"]["fulfillment"]["expectations"]
     self.assertTrue(expectations)
     self.assertEqual(expectations[0]["destination"]["address_country"], "CA")

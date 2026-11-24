@@ -213,6 +213,9 @@ class WebhookStructureTest(ShoppingIntegrationTestBase):
   )
   def test_transient_failure_retries_preserve_event_identity(self) -> None:
     """A failed delivery is retried as the same webhook event."""
+    # The receiver refuses each order's first attempt. It counts per order,
+    # so a business that is still retrying an earlier test's order cannot
+    # use up the refusal meant for this one.
     self.webhook_server.failures_before_success = 1
 
     checkout_data = self.create_checkout_session(headers=self.get_headers())
