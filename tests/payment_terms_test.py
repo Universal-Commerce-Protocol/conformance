@@ -50,16 +50,17 @@ def _split_term(
   """Build a schema-valid synthetic multi-installment payment term."""
   schedules = []
   for idx, amount in enumerate(amounts):
+    schedule_description = (
+      schedule_descriptions[idx]
+      if idx < len(schedule_descriptions)
+      else f"Installment {idx + 1}"
+    )
     entry = {
       "id": (
         schedule_ids[idx] if idx < len(schedule_ids) else f"sched_{idx + 1}"
       ),
       "amount": amount,
-      "description": (
-        schedule_descriptions[idx]
-        if idx < len(schedule_descriptions)
-        else f"Installment {idx + 1}"
-      ),
+      "description": {"plain": schedule_description},
     }
     if idx < len(due_dates) and due_dates[idx] is not None:
       entry["due_at"] = due_dates[idx]
@@ -69,7 +70,7 @@ def _split_term(
   return {
     "id": term_id,
     "title": title,
-    "description": description,
+    "description": {"plain": description},
     "schedules": schedules,
   }
 
