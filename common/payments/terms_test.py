@@ -28,8 +28,8 @@ JSON schema cannot express:
   PT-005  a selection that does not resolve is never silently
           substituted: the business either rejects the update or reports
           a ``payment_term_changed`` warning in ``messages[]``
-  PT-006  the accepted term travels to the order and its schedule
-          amounts sum to the order total at creation
+  PT-006  the accepted term travels unchanged to the order, and on an
+          unadjusted order its schedule amounts sum to the order total
   PT-007  ``due_at``, where a schedule carries one, is a parseable
           RFC 3339 date-time
 
@@ -56,6 +56,7 @@ from framework.base_test import FLAGS
 from framework.decorators import requires_capability
 from shopping.base import ShoppingIntegrationTestBase
 from shopping.base import UnifiedUpdate
+from shopping.base import get_valid_payment_payload
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 from ucp_sdk.models.schemas.shopping.types import item_update_request
 from ucp_sdk.models.schemas.shopping.types import line_item_update_request
@@ -183,10 +184,17 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     return t.get("amount") if t else None
 
   @staticmethod
-  def _warning_codes(raw):
-    """Return the message codes carried by a raw response."""
+  def _warning_codes(raw, *, warning_only=False):
+    """Return the message codes carried by a raw response.
+
+    When warning_only is True, restrict to messages with type == 'warning'
+    (message_warning.json); the default keeps existing callers unchanged.
+    """
     return [
-      m.get("code") for m in (raw.get("messages") or []) if isinstance(m, dict)
+      m.get("code")
+      for m in (raw.get("messages") or [])
+      if isinstance(m, dict)
+      and (not warning_only or m.get("type") == "warning")
     ]
 
   @staticmethod
@@ -202,6 +210,43 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
       for s in (term.get("schedules") or [])
     ]
 
+  @staticmethod
+  def _canonical_due_at(value):
+    """Normalize a valid RFC 3339 date-time to a UTC instant for comparison.
+
+    Malformed values and leap seconds are left verbatim so PT-007 still owns
+    syntax validation and a leap second never collapses into :59.
+    """
+    if not isinstance(value, str) or not _RFC3339_RE.match(value):
+      return value
+    if value[17:19] == "60":
+      return value
+    probe = value[:10] + "T" + value[11:]
+    if probe[-1] in "zZ":
+      probe = probe[:-1] + "+00:00"
+    try:
+      dt = datetime.datetime.fromisoformat(probe)
+    except ValueError:
+      return value
+    return (
+      dt.astimezone(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    )
+
+  @classmethod
+  def _order_term_shape(cls, term):
+    """Return the normative schedule shape for checkout-to-order projection.
+
+    Compares ordered (amount, normalized due_at, type) tuples. Schedule id is
+    excluded across checkout-to-order projection because payment_schedule.json
+    marks id stability as SHOULD rather than MUST. Prose descriptions are
+    excluded to avoid false failures on re-wording; timing stated only in
+    description when due_at is omitted is not enforced here.
+    """
+    return [
+      (s.get("amount"), cls._canonical_due_at(s.get("due_at")), s.get("type"))
+      for s in (term.get("schedules") or [])
+    ]
+
   def _schedule_sum(self, term):
     """Sum a term's schedule amounts, asserting they are wire integers."""
     schedules = term.get("schedules") or []
@@ -211,6 +256,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
       "(payment_term.json: schedules minItems 1)",
     )
     for s in schedules:
+      self.assertIsInstance(s, dict, f"schedule entry must be an object: {s!r}")
       self.assertIsInstance(
         s.get("amount"),
         int,
@@ -281,6 +327,116 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
       headers=self.get_headers(),
     )
 
+  @staticmethod
+  def _has_embedded_order(order_ref):
+    """Return whether a completion order reference embeds the order data."""
+    payment = order_ref.get("payment")
+    return bool(
+      isinstance(payment, dict)
+      and payment.get("accepted_term")
+      and order_ref.get("totals")
+    )
+
+  def _complete_ready_checkout(self, checkout_id):
+    """Complete a ready checkout without a hidden second readiness pass.
+
+    Posting directly to /complete avoids complete_checkout_session running
+    ensure_fulfillment_ready again and discarding its result, which could
+    trigger a recomputing update after `ready` was captured.
+    """
+    resp = self.client.post(
+      self.get_shopping_url(f"/checkout-sessions/{checkout_id}/complete"),
+      json=get_valid_payment_payload(),
+      headers=self.get_headers(),
+    )
+    self.assert_response_status(resp, 200)
+    return resp.json()
+
+  def _resolve_accepted_term_baseline(self, ready, complete_data):
+    """Return (expected_term, expected_id, expected_sum) for PT-006.
+
+    Uses the completed checkout's payment.terms when present, requiring a
+    payment_term_changed warning (type == "warning") if the selection or
+    normative schedule shape changed from `ready`. When completion omits
+    payment.terms, selected_term_id must also be absent
+    (payment_terms.json) and any change from `ready`'s schedule sum to the
+    completed checkout total requires a payment_term_changed warning.
+    `ready`'s selected term anchors the baseline unless completion reports a
+    payment_term_changed warning, in which case exact term continuity is not
+    observable and the fallback narrows to the completed checkout total.
+    """
+    ready_term = self._selected_term(ready)
+    ready_id = ready_term.get("id")
+    ready_sum = self._schedule_sum(ready_term)
+    ready_total = self._total_amount(ready)
+    self.assertIsNotNone(
+      ready_total,
+      "ready checkout must carry a 'total' totals entry",
+    )
+    self.assertEqual(
+      ready_sum,
+      ready_total,
+      f"precondition: ready checkout selected term '{ready_id}' "
+      f"schedule amounts must sum to the checkout total {ready_total}",
+    )
+
+    complete_terms = self._terms(complete_data)
+    complete_selected_id = self._selected_id(complete_data)
+    complete_total = self._total_amount(complete_data)
+    complete_warnings = self._warning_codes(complete_data, warning_only=True)
+    self.assertIsNotNone(
+      complete_total,
+      "completed checkout must carry a 'total' totals entry",
+    )
+    if complete_terms is not None:
+      self.assertTrue(
+        complete_terms,
+        "completed checkout payment.terms is present but empty "
+        "(terms.md: where terms is present it MUST contain at least one term)",
+      )
+      complete_term = self._selected_term(complete_data)
+      complete_sum = self._schedule_sum(complete_term)
+      self.assertEqual(
+        complete_sum,
+        complete_total,
+        f"completed checkout selected term '{complete_term.get('id')}' "
+        f"schedule amounts must sum to the checkout total {complete_total}",
+      )
+      id_changed = complete_term.get("id") != ready_id
+      complete_shape = self._order_term_shape(complete_term)
+      ready_shape = self._order_term_shape(ready_term)
+      if id_changed or complete_shape != ready_shape:
+        self.assertIn(
+          _PT_WARNING_CODE,
+          complete_warnings,
+          "completion changed the selected term from "
+          f"'{ready_id}' ({ready_shape}) to "
+          f"'{complete_term.get('id')}' ({complete_shape}) without "
+          f"reporting a '{_PT_WARNING_CODE}' warning (warning codes: "
+          f"{complete_warnings})",
+        )
+      return complete_term, complete_term.get("id"), complete_sum
+
+    self.assertIsNone(
+      complete_selected_id,
+      "completed checkout must not carry payment.selected_term_id "
+      f"('{complete_selected_id}') when payment.terms is absent "
+      "(payment_terms.json: present whenever terms is, absent otherwise)",
+    )
+    if complete_total != ready_sum:
+      self.assertIn(
+        _PT_WARNING_CODE,
+        complete_warnings,
+        "completion changed the checkout total from "
+        f"{ready_sum} to {complete_total} without reporting a "
+        f"'{_PT_WARNING_CODE}' warning (warning codes: "
+        f"{complete_warnings})",
+      )
+    if _PT_WARNING_CODE in complete_warnings:
+      return None, None, complete_total
+
+    return ready_term, ready_id, ready_sum
+
   def _fetch_order(self, order_ref):
     """Return the full order dict, following the id if the embed is thin.
 
@@ -291,9 +447,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     on the GET, so a thin or partial embed is never mistaken for the
     authoritative order record.
     """
-    if (order_ref.get("payment") or {}).get("accepted_term") and order_ref.get(
-      "totals"
-    ):
+    if self._has_embedded_order(order_ref):
       return order_ref
     order_id = order_ref.get("id")
     self.assertIsNotNone(
@@ -549,28 +703,49 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
 
   # ── PT-006: the accepted term travels to the order ──────────────────────
   def test_accepted_term_travels_to_the_order(self):
-    """The order carries the accepted term, summing to the order total.
+    """The order preserves the accepted term, and matches unadjusted totals.
 
     Given a checkout that offers payment terms and is driven to
-    fulfillment readiness and completed,
-    When the resulting order is examined,
-    Then payment.accepted_term carries the term that was selected once
-    the checkout was ready (the term is already agreed before a checkout
-    can reach ready_for_complete) and its schedule amounts sum to the order
-    total (terms.md: "Carry the accepted term onto the Order",
-    and "When the Order is created, a Business MUST ensure its schedule
-    amounts sum to the Order total").
+    fulfillment readiness and completed without extra recomputing updates,
+    When the resulting order is examined (embedded or fetched immediately
+    via GET /orders/{id}),
+    Then:
+      - payment.accepted_term is present, and preserves the agreed term's
+        id and normative schedule shape (ordered amounts, normalized due_at
+        instants, types) whenever the agreed term is observable (narrowing
+        to schedule-sum equality against the completed checkout total only
+        when completion reports a payment_term_changed warning without
+        echoing payment.terms), even when post-purchase adjustments change
+        or preserve the displayed order total (terms.md: "A Business MUST
+        NOT modify the accepted term after the Order is created;
+        post-purchase changes are recorded in adjustments[]"); and
+      - when adjustments[] is absent or empty, its schedule amounts sum to
+        the order total (terms.md: "When the Order is created, a Business
+        MUST ensure its schedule amounts sum to the Order total").
 
-    The selection is captured AFTER fulfillment is driven ready, since
-    those updates recompute the checkout and may change the selected
-    or default term (with a warning) before it settles, as the spec
-    allows.
+    Standard thin order_confirmation responses only define id,
+    permalink_url, and optional label, so PT-006 fetches the order
+    immediately after completion unless an embedded order is returned.
+    Although an immediate GET /orders/{id} is not a direct observation of
+    order creation (and the order spec permits policy-based omission of
+    optional fields), PT-006 applies the schedule-sum check whenever
+    adjustments[] is absent or empty, inferring from terms.md's requirement
+    that post-purchase changes are recorded in adjustments[] that an
+    unadjusted order still reflects its creation-time total. Accepted-term
+    presence is always enforced; exact id and schedule-shape preservation
+    are enforced against the completed checkout's selected term when
+    completion echoes payment.terms, or against the ready checkout's
+    selected term when completion omits payment.terms without a
+    payment_term_changed warning (type == "warning"), whereas warned
+    omissions without echoed terms allow only a schedule-sum check against
+    the completed checkout total. Orders carrying adjustments are never
+    blanket-skipped, and credits are never required to be netted into
+    order.totals.
     """
     # create_checkout_session(select_fulfillment=True) already calls
     # ensure_fulfillment_ready and returns the readied checkout
-    # (shopping/base.py), so a second call would re-fetch for nothing.
-    # _new_terms_checkout already skips on an absent terms and asserts on an
-    # empty one, so there is nothing left to re-test here.
+    # (shopping/base.py). Completing directly avoids a hidden second
+    # ensure_fulfillment_ready pass that could recompute after `ready`.
     ready = self._new_terms_checkout(select_fulfillment=True)
     if ready.get("status") != "ready_for_complete":
       # The term is already agreed before a checkout can reach
@@ -581,33 +756,75 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
         "the driven checkout did not reach ready_for_complete; the "
         "accepted-term capture point cannot be anchored"
       )
-    selected_id = self._selected_term(ready).get("id")
-    complete_data = self.complete_checkout_session(ready["id"])
+    complete_data = self._complete_ready_checkout(ready["id"])
+    complete_status = complete_data.get("status")
+    if complete_status in ("complete_in_progress", "requires_escalation"):
+      self.skipTest(
+        f"checkout completion returned status '{complete_status}' rather "
+        "than 'completed'; no created order is synchronously available"
+      )
+    self.assertEqual(
+      complete_status,
+      "completed",
+      "expected completed checkout after completing ready session, "
+      f"got status {complete_status!r}",
+    )
+    expected_term, expected_id, expected_sum = (
+      self._resolve_accepted_term_baseline(ready, complete_data)
+    )
     order_ref = complete_data.get("order")
     self.assertIsInstance(
       order_ref, dict, "the completion response must reference the order"
     )
     order = self._fetch_order(order_ref)
-    accepted = (order.get("payment") or {}).get("accepted_term")
+    order_payment = order.get("payment")
+    accepted = (
+      order_payment.get("accepted_term")
+      if isinstance(order_payment, dict)
+      else None
+    )
     self.assertIsNotNone(
       accepted,
       "a checkout that carried payment terms must project the accepted "
       "term onto the order as payment.accepted_term",
     )
-    self.assertEqual(
-      accepted.get("id"),
-      selected_id,
-      "the accepted term must be the term selected once the checkout "
-      "was ready for completion",
+    self.assertIsInstance(
+      accepted,
+      dict,
+      f"order payment.accepted_term must be an object, got {accepted!r}",
     )
-    order_total = self._total_amount(order)
-    self.assertIsNotNone(order_total, "order must carry a 'total' entry")
-    self.assertEqual(
-      self._schedule_sum(accepted),
-      order_total,
-      "the accepted term's schedule amounts must sum to the order "
-      f"total {order_total} at order creation",
-    )
+    accepted_sum = self._schedule_sum(accepted)
+    if expected_id is not None:
+      self.assertEqual(
+        accepted.get("id"),
+        expected_id,
+        "the accepted term must carry the id agreed at checkout completion",
+      )
+    if expected_term is not None:
+      self.assertEqual(
+        self._order_term_shape(accepted),
+        self._order_term_shape(expected_term),
+        "the accepted term carried onto the order must preserve the "
+        "agreed schedules (amounts, due dates, types) unchanged "
+        "(terms.md: a business MUST NOT modify the accepted term after "
+        "the order is created)",
+      )
+    else:
+      self.assertEqual(
+        accepted_sum,
+        expected_sum,
+        "the accepted term's schedule amounts must match the completed "
+        f"checkout total {expected_sum} even if later order totals change",
+      )
+    if not order.get("adjustments"):
+      order_total = self._total_amount(order)
+      self.assertIsNotNone(order_total, "order must carry a 'total' entry")
+      self.assertEqual(
+        accepted_sum,
+        order_total,
+        "the accepted term's schedule amounts must sum to the order "
+        f"total {order_total} when no adjustments are recorded",
+      )
 
   # ── PT-007: due_at, where present, is RFC 3339 ──────────────────────────
   def test_due_at_when_present_is_rfc3339(self):
