@@ -29,6 +29,17 @@ _TERM_CHANGED_WARNING = {
   "code": "payment_term_changed",
   "content": "Payment terms recomputed before completion.",
 }
+# Negative probes: info is valid as an info message (not a warning), untyped
+# is schema-invalid, and PT-006 accepts neither as the required warning.
+_TERM_CHANGED_INFO = {
+  "type": "info",
+  "code": "payment_term_changed",
+  "content": "Payment terms recomputed before completion.",
+}
+_TERM_CHANGED_UNTYPED = {
+  "code": "payment_term_changed",
+  "content": "Payment terms recomputed before completion.",
+}
 
 
 def _split_term(
@@ -447,16 +458,63 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
   def test_recomputation_on_complete_without_terms_narrows_honestly(self):
     """Warned recomputation omitting terms narrows to completed total."""
     completed = _completed(total=10800, messages=[_TERM_CHANGED_WARNING])
-    _run_pt006(
-      complete_checkout=completed,
-      order_response=_order(
-        total=8800,
-        accepted_term=_full_term(term_id="term_recomputed", amount=10800),
-        adjustments=[_credit(-2000)],
+    with self.subTest(case="changed_total_adjusted_order"):
+      _run_pt006(
+        complete_checkout=completed,
+        order_response=_order(
+          total=8800,
+          accepted_term=_full_term(term_id="term_recomputed", amount=10800),
+          adjustments=[_credit(-2000)],
+        ),
+      )
+    with self.subTest(case="identical_total_warned"):
+      _run_pt006(
+        complete_checkout=_completed(
+          total=10000, messages=[_TERM_CHANGED_WARNING]
+        ),
+        order_response=_order(
+          total=10000,
+          accepted_term=_full_term(term_id="term_recomputed", amount=10000),
+        ),
+      )
+    non_warning_unchanged_cases = [
+      (
+        "identical_total_info_rejects_id_change",
+        _completed(total=10000, messages=[_TERM_CHANGED_INFO]),
+        _order(
+          total=10000,
+          accepted_term=_full_term(term_id="term_recomputed", amount=10000),
+        ),
+        "the accepted term must carry the id",
       ),
-    )
-    with self.assertRaisesRegex(
-      AssertionError, "completed checkout total 10800"
+      (
+        "identical_total_info_rejects_shape_change",
+        _completed(total=10000, messages=[_TERM_CHANGED_INFO]),
+        _order(
+          total=10000,
+          accepted_term=_split_term(amounts=(5000, 5000)),
+        ),
+        "preserve the agreed",
+      ),
+      (
+        "identical_total_untyped_rejects_shape_change",
+        _completed(total=10000, messages=[_TERM_CHANGED_UNTYPED]),
+        _order(
+          total=10000,
+          accepted_term=_split_term(amounts=(5000, 5000)),
+        ),
+        "preserve the agreed",
+      ),
+    ]
+    for label, non_warn_complete, order, pattern in non_warning_unchanged_cases:
+      with (
+        self.subTest(case=label),
+        self.assertRaisesRegex(AssertionError, pattern),
+      ):
+        _run_pt006(complete_checkout=non_warn_complete, order_response=order)
+    with (
+      self.subTest(case="mismatched_recomputed_sum"),
+      self.assertRaisesRegex(AssertionError, "completed checkout total 10800"),
     ):
       _run_pt006(
         complete_checkout=completed,
@@ -469,6 +527,10 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
 
   def test_completion_validation_and_async_skips(self):
     """Silent term changes, stray selected_term_id, and bad status fail."""
+    recomputed_order = _order(
+      total=10800,
+      accepted_term=_full_term(term_id="term_recomputed", amount=10800),
+    )
     fail_cases = [
       (
         "silent_change",
@@ -478,7 +540,49 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
           messages=[],
         ),
         _order(accepted_term=_full_term()),
-        "payment_term_changed",
+        "changed the selected term.*payment_term_changed",
+      ),
+      (
+        "info_change_with_terms",
+        _completed(
+          include_terms=True,
+          selected_term_id="term_full",
+          messages=[_TERM_CHANGED_INFO],
+        ),
+        _order(accepted_term=_full_term()),
+        "changed the selected term.*payment_term_changed",
+      ),
+      (
+        "untyped_change_with_terms",
+        _completed(
+          include_terms=True,
+          selected_term_id="term_full",
+          messages=[_TERM_CHANGED_UNTYPED],
+        ),
+        _order(accepted_term=_full_term()),
+        "changed the selected term.*payment_term_changed",
+      ),
+      (
+        "silent_total_change_without_terms",
+        _completed(total=10800, include_terms=False, messages=[]),
+        recomputed_order,
+        "changed the checkout total.*payment_term_changed",
+      ),
+      (
+        "info_total_change_without_terms",
+        _completed(
+          total=10800, include_terms=False, messages=[_TERM_CHANGED_INFO]
+        ),
+        recomputed_order,
+        "changed the checkout total.*payment_term_changed",
+      ),
+      (
+        "untyped_total_change_without_terms",
+        _completed(
+          total=10800, include_terms=False, messages=[_TERM_CHANGED_UNTYPED]
+        ),
+        recomputed_order,
+        "changed the checkout total.*payment_term_changed",
       ),
       (
         "selected_id_without_terms",
@@ -505,6 +609,26 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
         self.assertRaisesRegex(AssertionError, pattern),
       ):
         _run_pt006(complete_checkout=completed, order_response=order)
+
+    with self.subTest(case="warned_change_with_terms"):
+      _run_pt006(
+        complete_checkout=_completed(
+          include_terms=True,
+          selected_term_id="term_full",
+          messages=[_TERM_CHANGED_WARNING],
+        ),
+        order_response=_order(accepted_term=_full_term()),
+      )
+
+    with self.subTest(case="warned_total_change_without_terms"):
+      _run_pt006(
+        complete_checkout=_completed(
+          total=10800,
+          include_terms=False,
+          messages=[_TERM_CHANGED_WARNING],
+        ),
+        order_response=recomputed_order,
+      )
 
     for status in ("complete_in_progress", "requires_escalation"):
       with (

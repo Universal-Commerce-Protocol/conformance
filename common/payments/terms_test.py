@@ -185,10 +185,17 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     return t.get("amount") if t else None
 
   @staticmethod
-  def _warning_codes(raw):
-    """Return the message codes carried by a raw response."""
+  def _warning_codes(raw, *, warning_only=False):
+    """Return the message codes carried by a raw response.
+
+    When warning_only is True, restrict to messages with type == 'warning'
+    (message_warning.json); the default keeps existing callers unchanged.
+    """
     return [
-      m.get("code") for m in (raw.get("messages") or []) if isinstance(m, dict)
+      m.get("code")
+      for m in (raw.get("messages") or [])
+      if isinstance(m, dict)
+      and (not warning_only or m.get("type") == "warning")
     ]
 
   @staticmethod
@@ -208,7 +215,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
   def _canonical_due_at(value):
     """Normalize a valid RFC 3339 date-time to a UTC instant for comparison.
 
-    Unparseable values and leap seconds are left verbatim so PT-007 still owns
+    Malformed values and leap seconds are left verbatim so PT-007 still owns
     syntax validation and a leap second never collapses into :59.
     """
     if not isinstance(value, str) or not _RFC3339_RE.match(value):
@@ -350,13 +357,14 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     """Return (expected_term, expected_id, expected_sum) for PT-006.
 
     Uses the completed checkout's payment.terms when present, requiring a
-    payment_term_changed warning if the selection or normative schedule shape
-    changed from `ready`. When completion omits payment.terms,
-    selected_term_id must also be absent (payment_terms.json), and `ready`'s
-    selected term anchors the baseline unless completion signals recomputation
-    (payment_term_changed or a changed checkout total), in which case exact
-    term continuity is not observable and the fallback narrows to the
-    completed checkout total.
+    payment_term_changed warning (type == "warning") if the selection or
+    normative schedule shape changed from `ready`. When completion omits
+    payment.terms, selected_term_id must also be absent
+    (payment_terms.json) and any change from `ready`'s schedule sum to the
+    completed checkout total requires a payment_term_changed warning.
+    `ready`'s selected term anchors the baseline unless completion reports a
+    payment_term_changed warning, in which case exact term continuity is not
+    observable and the fallback narrows to the completed checkout total.
     """
     ready_term = self._selected_term(ready)
     ready_id = ready_term.get("id")
@@ -373,7 +381,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     complete_terms = self._terms(complete_data)
     complete_selected_id = self._selected_id(complete_data)
     complete_total = self._total_amount(complete_data)
-    complete_warnings = self._warning_codes(complete_data)
+    complete_warnings = self._warning_codes(complete_data, warning_only=True)
     self.assertIsNotNone(
       complete_total,
       "completed checkout must carry a 'total' totals entry",
@@ -402,7 +410,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
           "completion changed the selected term from "
           f"'{ready_id}' ({ready_shape}) to "
           f"'{complete_term.get('id')}' ({complete_shape}) without "
-          f"reporting a '{_PT_WARNING_CODE}' warning (messages[] codes: "
+          f"reporting a '{_PT_WARNING_CODE}' warning (warning codes: "
           f"{complete_warnings})",
         )
       return complete_term, complete_term.get("id"), complete_sum
@@ -413,10 +421,16 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
       f"('{complete_selected_id}') when payment.terms is absent "
       "(payment_terms.json: present whenever terms is, absent otherwise)",
     )
-    recomputed = (
-      _PT_WARNING_CODE in complete_warnings or complete_total != ready_sum
-    )
-    if recomputed:
+    if complete_total != ready_sum:
+      self.assertIn(
+        _PT_WARNING_CODE,
+        complete_warnings,
+        "completion changed the checkout total from "
+        f"{ready_sum} to {complete_total} without reporting a "
+        f"'{_PT_WARNING_CODE}' warning (warning codes: "
+        f"{complete_warnings})",
+      )
+    if _PT_WARNING_CODE in complete_warnings:
       return None, None, complete_total
 
     return ready_term, ready_id, ready_sum
@@ -709,9 +723,9 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     adjustments[] is absent or empty — is not treated as proof of observing
     order creation. On runs returning a thin order_confirmation reference,
     creation-time equality against order.total is therefore not asserted,
-    while accepted-term presence, id, and schedule preservation against the
-    completed checkout remain enforced (narrowing to schedule sum against
-    completed checkout total only when completion recomputed without
+    while accepted-term presence, id, and schedule preservation remain
+    enforced (narrowing to schedule sum against the completed checkout total
+    only when completion reports a payment_term_changed warning without
     echoing payment.terms). Orders carrying adjustments are never
     blanket-skipped, and credits are never required to be netted into
     order.totals.
