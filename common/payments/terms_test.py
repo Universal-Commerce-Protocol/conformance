@@ -28,9 +28,8 @@ JSON schema cannot express:
   PT-005  a selection that does not resolve is never silently
           substituted: the business either rejects the update or reports
           a ``payment_term_changed`` warning in ``messages[]``
-  PT-006  the accepted term travels unchanged to the order, and when
-          order creation is observed directly (an unadjusted embedded
-          order) its schedule amounts sum to the order total
+  PT-006  the accepted term travels unchanged to the order, and on an
+          unadjusted order its schedule amounts sum to the order total
   PT-007  ``due_at``, where a schedule carries one, is a parseable
           RFC 3339 date-time
 
@@ -370,13 +369,16 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     ready_id = ready_term.get("id")
     ready_sum = self._schedule_sum(ready_term)
     ready_total = self._total_amount(ready)
-    if ready_total is not None:
-      self.assertEqual(
-        ready_sum,
-        ready_total,
-        f"precondition: ready checkout selected term '{ready_id}' "
-        f"schedule amounts must sum to the checkout total {ready_total}",
-      )
+    self.assertIsNotNone(
+      ready_total,
+      "ready checkout must carry a 'total' totals entry",
+    )
+    self.assertEqual(
+      ready_sum,
+      ready_total,
+      f"precondition: ready checkout selected term '{ready_id}' "
+      f"schedule amounts must sum to the checkout total {ready_total}",
+    )
 
     complete_terms = self._terms(complete_data)
     complete_selected_id = self._selected_id(complete_data)
@@ -701,32 +703,42 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
 
   # ── PT-006: the accepted term travels to the order ──────────────────────
   def test_accepted_term_travels_to_the_order(self):
-    """The order preserves the accepted term, and matches total at creation.
+    """The order preserves the accepted term, and matches unadjusted totals.
 
     Given a checkout that offers payment terms and is driven to
     fulfillment readiness and completed without extra recomputing updates,
-    When the resulting order is examined,
+    When the resulting order is examined (embedded or fetched immediately
+    via GET /orders/{id}),
     Then:
-      - payment.accepted_term is present and preserves the accepted term's
+      - payment.accepted_term is present, and preserves the agreed term's
         id and normative schedule shape (ordered amounts, normalized due_at
-        instants, types), even when post-purchase adjustments change or
-        preserve the displayed order total (terms.md: "A Business MUST NOT
-        modify the accepted term after the Order is created; post-purchase
-        changes are recorded in adjustments[]"); and
-      - when order creation is directly observed via an unadjusted order
-        embedded synchronously in the completion response, its schedule
-        amounts sum to the order total (terms.md: "When the Order is
-        created, a Business MUST ensure its schedule amounts sum to the
-        Order total").
+        instants, types) whenever the agreed term is observable (narrowing
+        to schedule-sum equality against the completed checkout total only
+        when completion reports a payment_term_changed warning without
+        echoing payment.terms), even when post-purchase adjustments change
+        or preserve the displayed order total (terms.md: "A Business MUST
+        NOT modify the accepted term after the Order is created;
+        post-purchase changes are recorded in adjustments[]"); and
+      - when adjustments[] is absent or empty, its schedule amounts sum to
+        the order total (terms.md: "When the Order is created, a Business
+        MUST ensure its schedule amounts sum to the Order total").
 
-    A subsequent GET /orders/{id} — even the first GET, and even when
-    adjustments[] is absent or empty — is not treated as proof of observing
-    order creation. On runs returning a thin order_confirmation reference,
-    creation-time equality against order.total is therefore not asserted,
-    while accepted-term presence, id, and schedule preservation remain
-    enforced (narrowing to schedule sum against the completed checkout total
-    only when completion reports a payment_term_changed warning without
-    echoing payment.terms). Orders carrying adjustments are never
+    Standard thin order_confirmation responses only define id,
+    permalink_url, and optional label, so PT-006 fetches the order
+    immediately after completion unless an embedded order is returned.
+    Although an immediate GET /orders/{id} is not a direct observation of
+    order creation (and the order spec permits policy-based omission of
+    optional fields), PT-006 applies the schedule-sum check whenever
+    adjustments[] is absent or empty, inferring from terms.md's requirement
+    that post-purchase changes are recorded in adjustments[] that an
+    unadjusted order still reflects its creation-time total. Accepted-term
+    presence is always enforced; exact id and schedule-shape preservation
+    are enforced against the completed checkout's selected term when
+    completion echoes payment.terms, or against the ready checkout's
+    selected term when completion omits payment.terms without a
+    payment_term_changed warning (type == "warning"), whereas warned
+    omissions without echoed terms allow only a schedule-sum check against
+    the completed checkout total. Orders carrying adjustments are never
     blanket-skipped, and credits are never required to be netted into
     order.totals.
     """
@@ -764,8 +776,7 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
     self.assertIsInstance(
       order_ref, dict, "the completion response must reference the order"
     )
-    embedded = self._has_embedded_order(order_ref)
-    order = order_ref if embedded else self._fetch_order(order_ref)
+    order = self._fetch_order(order_ref)
     order_payment = order.get("payment")
     accepted = (
       order_payment.get("accepted_term")
@@ -805,14 +816,14 @@ class PaymentTermsTest(ShoppingIntegrationTestBase):
         "the accepted term's schedule amounts must match the completed "
         f"checkout total {expected_sum} even if later order totals change",
       )
-    if embedded and not order.get("adjustments"):
+    if not order.get("adjustments"):
       order_total = self._total_amount(order)
       self.assertIsNotNone(order_total, "order must carry a 'total' entry")
       self.assertEqual(
         accepted_sum,
         order_total,
         "the accepted term's schedule amounts must sum to the order "
-        f"total {order_total} at order creation",
+        f"total {order_total} when no adjustments are recorded",
       )
 
   # ── PT-007: due_at, where present, is RFC 3339 ──────────────────────────

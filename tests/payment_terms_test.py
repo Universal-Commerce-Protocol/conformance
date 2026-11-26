@@ -304,11 +304,12 @@ def _run_pt006(
   probe.discovery_url = "https://store.example/.well-known/ucp"
   probe.conformance_config = {"ucp_version": "2026-08-25", "currency": "USD"}
   probe._shopping_service_endpoint = "https://store.example"
-  probe.client = httpx.Client(
+  with httpx.Client(
     base_url="https://store.example",
     transport=httpx.MockTransport(handler),
-  )
-  probe.test_accepted_term_travels_to_the_order()
+  ) as client:
+    probe.client = client
+    probe.test_accepted_term_travels_to_the_order()
 
 
 class PT006AcceptedTermOrderTest(unittest.TestCase):
@@ -318,12 +319,11 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
     """An ordinary checkout and unchanged order pass PT-006."""
     _run_pt006()
 
-  def test_unchanged_schedule_passes_with_adjusted_or_later_order_total(self):
-    """Unchanged accepted_term passes regardless of later Order.totals."""
+  def test_unchanged_schedule_passes_with_adjusted_order_total(self):
+    """Unchanged accepted_term passes on adjusted orders with either total."""
     cases = [
       ("netted_credit", _order(total=8000, adjustments=[_credit(-2000)])),
       ("historical_total", _order(total=10000, adjustments=[_credit(-2000)])),
-      ("first_get_no_adjustments", _order(total=8000, adjustments=None)),
     ]
     for label, order in cases:
       with self.subTest(case=label):
@@ -416,20 +416,68 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
       with self.subTest(case=label):
         _run_pt006(order_response=_order(accepted_term=projected))
 
-  def test_embedded_creation_order_preserves_creation_total_guard(self):
-    """Unadjusted embedded orders enforce creation total; adjusted ones pass."""
-    with self.subTest(case="unadjusted_matching"):
-      _run_pt006(complete_checkout=_completed(order=_order(total=10000)))
+  def test_unadjusted_order_enforces_total_guard(self):
+    """Unadjusted fetched and embedded orders must match schedule sum."""
+    matching_cases = [
+      ("thin_no_adjustments", None, _order(total=10000, adjustments=None)),
+      ("thin_empty_adjustments", None, _order(total=10000, adjustments=[])),
+      (
+        "embedded_no_adjustments",
+        _completed(order=_order(total=10000, adjustments=None)),
+        None,
+      ),
+      (
+        "embedded_empty_adjustments",
+        _completed(order=_order(total=10000, adjustments=[])),
+        None,
+      ),
+      (
+        "adjusted_embedded_netted",
+        _completed(order=_order(total=8000, adjustments=[_credit(-2000)])),
+        None,
+      ),
+      (
+        "adjusted_embedded_historical",
+        _completed(order=_order(total=10000, adjustments=[_credit(-2000)])),
+        None,
+      ),
+    ]
+    for label, complete, order in matching_cases:
+      with self.subTest(case=label):
+        _run_pt006(complete_checkout=complete, order_response=order)
 
-    with (
-      self.subTest(case="unadjusted_mismatched_total"),
-      self.assertRaisesRegex(AssertionError, "sum to the order total 11000"),
-    ):
-      _run_pt006(complete_checkout=_completed(order=_order(total=11000)))
-
-    with self.subTest(case="adjusted_embedded"):
-      adjusted = _order(total=8000, adjustments=[_credit(-2000)])
-      _run_pt006(complete_checkout=_completed(order=adjusted))
+    mismatch_cases = [
+      (
+        "first_get_no_adjustments",
+        None,
+        _order(total=8000, adjustments=None),
+        "sum to the order total 8000",
+      ),
+      (
+        "first_get_empty_adjustments",
+        None,
+        _order(total=8000, adjustments=[]),
+        "sum to the order total 8000",
+      ),
+      (
+        "embedded_no_adjustments_mismatch",
+        _completed(order=_order(total=11000, adjustments=None)),
+        None,
+        "sum to the order total 11000",
+      ),
+      (
+        "embedded_empty_adjustments_mismatch",
+        _completed(order=_order(total=11000, adjustments=[])),
+        None,
+        "sum to the order total 11000",
+      ),
+    ]
+    for label, complete, order, pattern in mismatch_cases:
+      with (
+        self.subTest(case=label),
+        self.assertRaisesRegex(AssertionError, pattern),
+      ):
+        _run_pt006(complete_checkout=complete, order_response=order)
 
   def test_recomputation_on_complete_with_terms_uses_completed_agreement(self):
     """Warned recomputation carrying terms anchors PT-006 on the new term."""
@@ -526,7 +574,7 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
       )
 
   def test_completion_validation_and_async_skips(self):
-    """Silent term changes, stray selected_term_id, and bad status fail."""
+    """Silent changes, missing totals, stray selected_term_id, and skips."""
     recomputed_order = _order(
       total=10800,
       accepted_term=_full_term(term_id="term_recomputed", amount=10800),
@@ -629,6 +677,14 @@ class PT006AcceptedTermOrderTest(unittest.TestCase):
         ),
         order_response=recomputed_order,
       )
+
+    with (
+      self.subTest(case="missing_ready_total"),
+      self.assertRaisesRegex(
+        AssertionError, "ready checkout must carry a 'total'"
+      ),
+    ):
+      _run_pt006(ready_checkout=_checkout(total=None))
 
     for status in ("complete_in_progress", "requires_escalation"):
       with (
