@@ -130,6 +130,7 @@ class ShoppingTestData:
 
   def load(self, data_dir: str | Path) -> None:
     """Load data from CSV files in the given directory."""
+    self.payment_instruments = []
     pi_path = Path(data_dir) / "payment_instruments.csv"
     if pi_path.exists():
       with pi_path.open(encoding="utf-8") as f:
@@ -157,14 +158,10 @@ def get_valid_payment_payload(
     None,
   )
   if not instr_data:
-    instr_data = {
-      "id": "instr_1",
-      "type": "card",
-      "brand": "Visa",
-      "last_digits": "1234",
-      "token": "success_token",
-      "handler_id": "mock_payment_handler",
-    }
+    raise ValueError(
+      f"Payment instrument {instrument_id!r} was not found in "
+      "payment_instruments.csv; configure --test_data_dir for the merchant"
+    )
 
   addr_data = next(
     (a for a in shopping_test_data.addresses if a["id"] == address_id),

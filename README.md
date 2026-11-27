@@ -53,6 +53,13 @@ Your server must be populated with test data (products, inventory, shipping rate
 
 You can use the default [flower_shop test data](shopping/fixtures/flower_shop) as a reference for what data is needed.
 
+Payment tests use `payment_instruments.csv` from `--test_data_dir`, including
+its `handler_id`, display fields and token. Configure the `instr_1` row for a
+payment instrument your merchant accepts. The card-credential test replaces
+only the credential with its test card; the token-binding test adds binding
+data to the configured token. A missing instrument is a configuration error,
+not a reason to send the flower shop's payment credentials.
+
 ### 2. Configure Conformance Input (`conformance_input.json`)
 
 Create a `conformance_input.json` file to define your merchant-specific values and expectations. The tests use this file to know what to assert against.
