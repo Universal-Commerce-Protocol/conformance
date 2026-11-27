@@ -16,6 +16,7 @@
 
 from absl.testing import absltest
 from framework.decorators import requires_capability
+from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -54,27 +55,16 @@ class CardCredentialTest(ShoppingIntegrationTestBase):
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    payment_instrument = {
-      "id": "instr_card",
-      "handler_id": "mock_payment_handler",
+    payment_payload = get_valid_payment_payload()
+    payment_instrument = payment_payload["payment"]["instruments"][0]
+    payment_instrument["credential"] = {
       "type": "card",
-      "display": {
-        "brand": "Visa",
-        "last_digits": "1111",
-      },
-      "credential": {
-        "type": "card",
-        "card_number_type": "fpan",
-        "number": "4242424242424242",
-        "expiry_month": 12,
-        "expiry_year": 2030,
-        "cvc": "123",
-        "name": "John Doe",
-      },
-    }
-    payment_payload = {
-      "payment": {"instruments": [payment_instrument]},
-      "risk_signals": {},
+      "card_number_type": "fpan",
+      "number": "4242424242424242",
+      "expiry_month": 12,
+      "expiry_year": 2030,
+      "cvc": "123",
+      "name": "John Doe",
     }
 
     response = self.client.post(

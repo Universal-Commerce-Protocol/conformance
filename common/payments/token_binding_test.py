@@ -16,6 +16,7 @@
 
 from absl.testing import absltest
 from framework.decorators import requires_capability
+from shopping.base import get_valid_payment_payload
 from shopping.base import ShoppingIntegrationTestBase
 from ucp_sdk.models.schemas.shopping import checkout as checkout
 
@@ -53,29 +54,11 @@ class TokenBindingTest(ShoppingIntegrationTestBase):
     response_json = self.create_checkout_session()
     checkout_id = checkout.Checkout(**response_json).id
 
-    payment_payload = {
-      "payment": {
-        "instruments": [
-          {
-            "id": "instr_1",
-            "handler_id": "mock_payment_handler",
-            "type": "card",
-            "display": {
-              "brand": "visa",
-              "last_digits": "4242",
-            },
-            "credential": {
-              "type": "token",
-              "token": "success_token",
-              "binding": {
-                "checkout_id": checkout_id,
-                "identity": {"access_token": "user_access_token"},
-              },
-            },
-          }
-        ]
-      },
-      "risk_signals": {},
+    payment_payload = get_valid_payment_payload()
+    credential = payment_payload["payment"]["instruments"][0]["credential"]
+    credential["binding"] = {
+      "checkout_id": checkout_id,
+      "identity": {"access_token": "user_access_token"},
     }
 
     response = self.client.post(
